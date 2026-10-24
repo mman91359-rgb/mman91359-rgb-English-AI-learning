@@ -1,0 +1,265 @@
+<!DOCTYPE html><html lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Recall-睿考 - Quiz Interface</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "secondary-fixed-dim": "#89d0ed",
+                "on-surface": "#191c1e",
+                "surface-variant": "#e1e2e5",
+                "background": "#f8f9fc",
+                "tertiary-container": "#57bb5d",
+                "inverse-surface": "#2e3133",
+                "on-primary": "#ffffff",
+                "tertiary-fixed": "#93f993",
+                "secondary-fixed": "#baeaff",
+                "surface-container-high": "#e7e8eb",
+                "surface-container": "#edeef1",
+                "outline-variant": "#cbc4d0",
+                "inverse-on-surface": "#f0f1f4",
+                "primary-container": "#b19cd9",
+                "on-tertiary-fixed-variant": "#005316",
+                "surface-dim": "#d9dadd",
+                "primary-fixed": "#ebddff",
+                "on-secondary-fixed-variant": "#004d62",
+                "surface-tint": "#67558c",
+                "on-surface-variant": "#49454f",
+                "secondary-container": "#9ae1ff",
+                "error-container": "#ffdad6",
+                "inverse-primary": "#d2bcfb",
+                "on-primary-fixed": "#220f44",
+                "on-secondary-fixed": "#001f29",
+                "on-secondary-container": "#09657f",
+                "tertiary-fixed-dim": "#77dc7a",
+                "surface-bright": "#f8f9fc",
+                "on-primary-container": "#443267",
+                "surface": "#f8f9fc",
+                "surface-container-low": "#f2f3f6",
+                "surface-container-highest": "#e1e2e5",
+                "on-tertiary-container": "#004711",
+                "outline": "#7a757f",
+                "surface-container-lowest": "#ffffff",
+                "on-tertiary-fixed": "#002105",
+                "on-primary-fixed-variant": "#4f3d73",
+                "on-error": "#ffffff",
+                "tertiary": "#006e20",
+                "on-secondary": "#ffffff",
+                "primary-fixed-dim": "#d2bcfb",
+                "error": "#ba1a1a",
+                "on-background": "#191c1e",
+                "primary": "#67558c",
+                "secondary": "#0c6780",
+                "on-tertiary": "#ffffff",
+                "on-error-container": "#93000a"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+        },
+        "spacing": {
+                "sidebar-width": "280px",
+                "margin-page": "40px",
+                "gutter": "24px",
+                "container-max": "1200px",
+                "unit": "8px"
+        },
+        "fontFamily": {
+                "label-md": ["Inter"],
+                "headline-lg": ["Inter"],
+                "body-lg": ["Inter"],
+                "headline-md": ["Inter"],
+                "display-lg": ["Inter"],
+                "label-lg": ["Inter"],
+                "body-md": ["Inter"]
+        },
+        "fontSize": {
+                "label-md": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                "label-lg": ["14px", {"lineHeight": "20px", "fontWeight": "600"}],
+                "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body { background-color: theme('colors.background'); color: theme('colors.on-background'); }
+</style>
+</head>
+<body class="font-body-md text-body-md antialiased min-h-screen flex">
+<!-- SideNavBar Component -->
+<nav class="hidden md:flex flex-col h-full py-8 px-4 w-sidebar-width h-screen fixed left-0 top-0 bg-surface border-r border-outline-variant z-50">
+<div class="mb-10 px-4">
+<div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-3xl">school</span><h1 class="text-headline-md font-headline-md font-bold text-primary">Recall-睿考</h1></div>
+<div class="mt-2 flex flex-col">
+<span class="text-label-md font-label-md text-on-surface-variant">连续学习天数</span>
+<span class="text-headline-md font-headline-md text-primary font-bold">7 天 🔥</span>
+</div>
+</div>
+<div class="flex-1 flex flex-col gap-2">
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-primary-container/10 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-lg text-label-lg">首页</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-primary-container/10 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-label-lg text-label-lg">学习统计</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-primary border-l-2 border-primary bg-primary-container/10 transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: &quot;FILL&quot; 1;">school</span>
+<span class="font-label-lg text-label-lg font-bold">学习中心</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-primary-container/10 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-lg text-label-lg">个人资料</span>
+</a>
+</div>
+<div class="mt-auto flex flex-col gap-2 pt-8 border-t border-outline-variant/30">
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-primary-container/10 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-lg text-label-lg">设置</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-error/10 hover:text-error transition-colors" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-lg text-label-lg">退出登录</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="ml-sidebar-width flex-1 flex flex-col min-h-screen relative">
+<!-- TopAppBar Component -->
+<header class="h-20 sticky top-0 z-40 bg-background/80 backdrop-blur-md dark:bg-background/80 flex items-center justify-between px-gutter w-full max-w-container-max mx-auto">
+<div class="flex items-center gap-4 flex-1">
+<!-- Back Button -->
+<button class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high/50 transition-all">
+<span class="material-symbols-outlined">arrow_back_ios_new</span>
+</button>
+<!-- Progress Bar -->
+<div class="flex-1 max-w-md mx-auto relative flex items-center">
+<div class="absolute left-0 top-1/2 -translate-y-1/2 -ml-6 bg-secondary-fixed shadow-md rounded-full w-12 h-12 flex items-center justify-center z-10 border-4 border-background">
+<span class="material-symbols-outlined text-secondary font-bold" style="font-variation-settings: &quot;FILL&quot; 1;">emoji_events</span>
+</div>
+<div class="w-full h-8 bg-surface-container rounded-full overflow-hidden ml-4 relative flex items-center">
+<div class="h-full bg-primary-container/60 w-0 transition-all duration-500 ease-out" style="width: 0%;"></div>
+<span class="absolute inset-0 flex items-center justify-center font-label-md text-label-md text-primary font-bold">0/20</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high/50 transition-all focus-within:ring-2 focus-within:ring-secondary/50">
+<span class="material-symbols-outlined">light_mode</span>
+</button>
+<button class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high/50 transition-all focus-within:ring-2 focus-within:ring-secondary/50 relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high/50 transition-all focus-within:ring-2 focus-within:ring-secondary/50">
+<span class="material-symbols-outlined">language</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-surface-variant ml-2 overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all">
+<img alt="Small profile avatar" class="w-full h-full object-cover" data-alt="A detailed digital avatar of a young professional adult learner with a friendly smile, clean vector art style, soft pastel background, well-lit, expressive eyes. The style is modern, approachable, and highly polished, suitable for an educational app profile picture. The color palette incorporates soft lavender and sky blue tones to match the Luminous Learning aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDODRmY-PCGkJRVO8gVKQP45ej1aJwS2Xr8CJoEtaVOPniAq_UfNK_VPpGcz-fLDQJ_25j_TfGQmYqnursXxhICjQ9WC4BJxDow8GF2FMINjV_PCCG-0Ah3muTUVM3cPhSI3Xfj1rR1a2f4V7CwfyZcmXZTZqOsRj6p83oCPds23xzBXGdyv0QOvtdGBIdsmg2zW_hIlrzc7fNMIhmE6BUI6MdWyCAsOg6dXAmhY6X_OnzakWzxmMWe0C8RSHufbAWJZxNsBNXb8mz0">
+</div>
+</div>
+</header>
+<!-- Quiz Canvas -->
+<div class="flex-1 w-full max-w-container-max mx-auto px-gutter py-8 flex flex-col relative">
+<!-- Main Quiz Card -->
+<div class="bg-surface rounded-3xl p-8 md:p-12 shadow-[0_4px_20px_rgba(51,58,72,0.05)] w-full max-w-3xl mx-auto relative border border-outline-variant/20 mt-8">
+<!-- Badges -->
+<div class="absolute top-6 left-6 flex items-center gap-2">
+<span class="bg-secondary-fixed/50 text-secondary font-label-md text-label-md px-3 py-1 rounded-full flex items-center gap-1">
+            12级 <span class="material-symbols-outlined text-[14px]">help</span>
+</span>
+</div>
+<div class="absolute top-6 right-6">
+<span class="bg-error text-on-error font-label-md text-label-md px-3 py-1 rounded-full relative shadow-sm">
+            全新
+            <span class="absolute -bottom-1 right-3 w-2 h-2 bg-error transform rotate-45"></span>
+</span>
+</div>
+<div class="mt-8 space-y-12">
+<!-- Chinese Sentence -->
+<div class="font-headline-md text-headline-md text-on-surface leading-relaxed text-center">
+            我在一家<span class="text-tertiary-container font-bold px-1">(大量) 生产</span>汽车零部件的工厂工作。
+          </div>
+<!-- English Input Area -->
+<div class="font-headline-lg text-headline-lg text-on-background leading-relaxed text-center flex flex-wrap justify-center items-center gap-x-2 gap-y-4">
+<span class="">I work in a factory that</span>
+<div class="relative inline-block w-48 mx-2">
+<input autofocus="" class="w-full h-12 border-b-2 focus:border-primary focus:ring-0 focus:outline-none text-center font-headline-md text-headline-md rounded-t-lg transition-colors px-2 placeholder-outline-variant/30 text-error border-error bg-error-container/50 border" placeholder="" type="text" value="product">
+<!-- Caret simulation -->
+<span class="absolute left-2 top-1/2 -translate-y-1/2 w-0.5 h-6 bg-primary animate-pulse"></span>
+</div>
+<span class="">car parts.</span>
+</div>
+<div class="text-center font-label-md text-label-md text-outline-variant pt-4">
+            [词汇来源] 雅思词汇, Writing &amp; Speaking
+          </div>
+</div>
+</div><div class="border border-error/10 rounded-lg flex gap-3 transition-all animate-pulse w-full max-w-3xl mx-auto items-center p-8" style="background-color: rgb(255, 218, 214);">
+<div class="flex-1">
+<p class="font-label-lg leading-relaxed text-on-background font-bold">
+      你可能知道这个单词，但搞混拼写了。注意 "produce" (生产) 和 "product" (产品) 的区别。
+    </p>
+</div>
+<div class="flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary text-[20px]">favorite_border</span>
+</div>
+</div>
+<!-- Bottom Actions Toolbar -->
+<div class="mt-auto flex justify-between items-end w-full max-w-3xl mx-auto pb-8">
+<div class="flex gap-8 pl-4">
+<button class="flex flex-col items-center gap-2 text-primary hover:text-primary-fixed-variant transition-colors group">
+<div class="w-12 h-12 rounded-full bg-primary-container/20 flex items-center justify-center group-hover:bg-primary-container/30 transition-colors">
+<span class="material-symbols-outlined text-[28px]">help</span>
+</div>
+<span class="font-label-md text-label-md font-bold">查看提示</span>
+</button>
+<button class="flex flex-col items-center gap-2 text-primary hover:text-primary-fixed-variant transition-colors group">
+<div class="w-12 h-12 rounded-full bg-primary-container/20 flex items-center justify-center group-hover:bg-primary-container/30 transition-colors relative">
+<span class="material-symbols-outlined text-[28px]">mic</span>
+<!-- Tooltip simulation -->
+<div class="absolute -top-12 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface font-label-md text-label-md whitespace-nowrap px-3 py-1.5 rounded-md shadow-lg flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[14px]">touch_app</span> 免手持模式已上线!
+                 <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-inverse-surface transform rotate-45"></div>
+</div>
+</div>
+<span class="font-label-md text-label-md font-bold">语音模式</span>
+</button>
+</div>
+<!-- Confirm Button -->
+<button class="bg-surface-container-high text-on-surface-variant font-headline-md text-headline-md font-bold py-4 px-12 rounded-2xl flex items-center gap-2 hover:bg-surface-variant transition-colors shadow-sm">
+<span class="material-symbols-outlined font-bold">check</span>
+          确认
+        </button>
+</div>
+</div>
+</main>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body></html>

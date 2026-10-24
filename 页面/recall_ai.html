@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en" style="">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Recall-睿考 - Quiz Interface</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- 引入 marked 库用于解析 AI 回答的 Markdown 格式 -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "secondary-fixed-dim": "#89d0ed",
+                "on-surface": "#191c1e",
+                "surface-variant": "#e1e2e5",
+                "background": "#f8f9fc",
+                "tertiary-container": "#57bb5d",
+                "inverse-surface": "#2e3133",
+                "on-primary": "#ffffff",
+                "tertiary-fixed": "#93f993",
+                "secondary-fixed": "#baeaff",
+                "surface-container-high": "#e7e8eb",
+                "surface-container": "#edeef1",
+                "outline-variant": "#cbc4d0",
+                "inverse-on-surface": "#f0f1f4",
+                "primary-container": "#b19cd9",
+                "on-tertiary-fixed-variant": "#005316",
+                "surface-dim": "#d9dadd",
+                "primary-fixed": "#ebddff",
+                "on-secondary-fixed-variant": "#004d62",
+                "surface-tint": "#67558c",
+                "on-surface-variant": "#49454f",
+                "secondary-container": "#9ae1ff",
+                "error-container": "#ffdad6",
+                "inverse-primary": "#d2bcfb",
+                "on-primary-fixed": "#220f44",
+                "on-secondary-fixed": "#001f29",
+                "on-secondary-container": "#09657f",
+                "tertiary-fixed-dim": "#77dc7a",
+                "surface-bright": "#f8f9fc",
+                "on-primary-container": "#443267",
+                "surface": "#f8f9fc",
+                "surface-container-low": "#f2f3f6",
+                "surface-container-highest": "#e1e2e5",
+                "on-tertiary-container": "#004711",
+                "outline": "#7a757f",
+                "surface-container-lowest": "#ffffff",
+                "on-tertiary-fixed": "#002105",
+                "on-primary-fixed-variant": "#4f3d73",
+                "on-error": "#ffffff",
+                "tertiary": "#006e20",
+                "on-secondary": "#ffffff",
+                "primary-fixed-dim": "#d2bcfb",
+                "error": "#ba1a1a",
+                "on-background": "#191c1e",
+                "primary": "#67558c",
+                "secondary": "#0c6780",
+                "on-tertiary": "#ffffff",
+                "on-error-container": "#93000a"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "2xl": "1rem",
+                "3xl": "1.5rem",
+                "full": "9999px"
+        },
+        "spacing": {
+                "sidebar-width": "280px",
+                "margin-page": "40px",
+                "gutter": "24px",
+                "container-max": "1200px",
+                "unit": "8px"
+        },
+        "fontFamily": {
+                "label-md": ["Inter"],
+                "headline-lg": ["Inter"],
+                "body-lg": ["Inter"],
+                "headline-md": ["Inter"],
+                "display-lg": ["Inter"],
+                "label-lg": ["Inter"],
+                "body-md": ["Inter"]
+        },
+        "fontSize": {
+                "label-md": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                "label-lg": ["14px", {"lineHeight": "20px", "fontWeight": "600"}],
+                "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                "label-sm": ["11px", {"lineHeight": "16px", "fontWeight": "500"}]
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body { background-color: theme('colors.background'); color: theme('colors.on-background'); }
+  /* Custom scrollbar for chat */
+  .chat-scroll::-webkit-scrollbar { width: 4px; }
+  .chat-scroll::-webkit-scrollbar-track { background: transparent; }
+  .chat-scroll::-webkit-scrollbar-thumb { background: theme('colors.surface-variant'); border-radius: 4px; }
+  .chat-scroll:hover::-webkit-scrollbar-thumb { background: theme('colors.outline-variant'); }
+  
+  /* Markdown Styles for AI Responses */
+  .prose p { margin-bottom: 0.5em; }
+  .prose strong { color: theme('colors.primary'); font-weight: 600; }
+  .prose code { background-color: theme('colors.primary-container'); padding: 0.1em 0.3em; border-radius: 0.25rem; font-size: 0.9em; opacity: 0.8; }
+  .prose pre { background-color: theme('colors.surface-container-lowest'); padding: 0.5em; border-radius: 0.5rem; margin-top: 0.5em; overflow-x: auto; border: 1px solid theme('colors.outline-variant'); opacity: 0.3; }
+  .prose ul { list-style-type: disc; padding-left: 1.5em; margin-bottom: 0.5em; }
+  .prose *:last-child { margin-bottom: 0; }
+
+  /* Typing animation */
+  .typing-dot {
+    animation: typing 1.4s infinite ease-in-out;
+    fill: theme('colors.primary');
+  }
+  .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+  .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+  @keyframes typing {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1); }
+  }
+</style>
+</head>
+<body class="font-body-md text-body-md antialiased min-h-screen flex">
+<!-- SideNavBar Component -->
+<nav class="hidden md:flex flex-col h-full py-8 px-4 w-sidebar-width h-screen fixed left-0 top-0 bg-surface border-r border-outline-variant/30 z-50">
+<div class="mb-10 px-4">
+<div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-3xl">school</span><h1 class="text-headline-md font-headline-md font-bold text-primary">Recall-睿考</h1></div>
+<div class="mt-2 flex flex-col">
+<span class="text-label-md font-label-md text-on-surface-variant">连续学习天数</span>
+<span class="text-headline-md font-headline-md text-primary font-bold">7 天 🔥</span>
+</div>
+</div>
+<div class="flex-1 flex flex-col gap-2">
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-primary-container/10 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-lg text-label-lg">首页</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-primary-container/10 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-label-lg text-label-lg">学习统计</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-primary border-l-2 border-primary bg-primary-container/10 transition-colors" href="#">
+<span class="material-symbols-outlined" style='font-variation-settings: "FILL" 1;'>school</span>
+<span class="font-label-lg text-label-lg font-bold">学习中心</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-primary-container/10 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-lg text-label-lg">个人资料</span>
+</a>
+</div>
+<div class="mt-auto flex flex-col gap-2 pt-8 border-t border-outline-variant/30">
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-primary-container/10 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-lg text-label-lg">设置</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-error/10 hover:text-error transition-colors" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-lg text-label-lg">退出登录</span>
+</a>
+</div>
+</nav>
+
+<!-- Main Content Area -->
+<main class="ml-sidebar-width flex-1 flex min-h-screen relative flex-row">
+  <div class="flex-1 flex flex-col min-h-screen overflow-y-auto bg-background/50">
+    <header class="h-20 sticky top-0 z-40 bg-background/80 backdrop-blur-md flex items-center justify-between px-gutter w-full max-w-container-max mx-auto">
+      <div class="flex items-center gap-4 flex-1"><button class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high/50 transition-all"><span class="material-symbols-outlined">arrow_back_ios_new</span></button><div class="flex-1 max-w-md mx-auto relative flex items-center"><div class="absolute left-0 top-1/2 -translate-y-1/2 -ml-6 bg-secondary-fixed shadow-md rounded-full w-12 h-12 flex items-center justify-center z-10 border-4 border-background"><span class="material-symbols-outlined text-secondary font-bold" style="font-variation-settings: 'FILL' 1;">emoji_events</span></div><div class="w-full h-8 bg-surface-container rounded-full overflow-hidden ml-4 relative flex items-center"><div class="h-full bg-primary-container/60 w-0 transition-all duration-500 ease-out" style="width: 0%;"></div><span class="absolute inset-0 flex items-center justify-center font-label-md text-label-md text-primary font-bold">0/20</span></div></div></div><div class="flex items-center gap-2"><button class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high/50 transition-all focus-within:ring-2 focus-within:ring-secondary/50"><span class="material-symbols-outlined">light_mode</span></button><button class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high/50 transition-all focus-within:ring-2 focus-within:ring-secondary/50 relative"><span class="material-symbols-outlined">notifications</span><span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span></button><button class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high/50 transition-all focus-within:ring-2 focus-within:ring-secondary/50"><span class="material-symbols-outlined">language</span></button><div class="w-8 h-8 rounded-full bg-surface-variant ml-2 overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all"><img alt="Small profile avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDODRmY-PCGkJRVO8gVKQP45ej1aJwS2Xr8CJoEtaVOPniAq_UfNK_VPpGcz-fLDQJ_25j_TfGQmYqnursXxhICjQ9WC4BJxDow8GF2FMINjV_PCCG-0Ah3muTUVM3cPhSI3Xfj1rR1a2f4V7CwfyZcmXZTZqOsRj6p83oCPds23xzBXGdyv0QOvtdGBIdsmg2zW_hIlrzc7fNMIhmE6BUI6MdWyCAsOg6dXAmhY6X_OnzakWzxmMWe0C8RSHufbAWJZxNsBNXb8mz0"/></div></div>
+    </header>
+    
+    <div class="flex-1 w-full max-w-container-max mx-auto px-gutter py-8 flex flex-col relative">
+      <div class="bg-surface rounded-3xl p-8 md:p-12 shadow-[0_8px_30px_rgba(0,0,0,0.04)] w-full max-w-3xl mx-auto relative border border-outline-variant/10 mt-8 mb-24">
+        <div class="absolute top-6 left-6 flex items-center gap-2"><span class="bg-secondary-fixed/50 text-secondary font-label-md text-label-md px-3 py-1 rounded-full flex items-center gap-1">12级 <span class="material-symbols-outlined text-[14px]">help</span></span></div>
+        <div class="absolute top-6 right-6"><span class="bg-error text-on-error font-label-md text-label-md px-3 py-1 rounded-full relative shadow-sm">全新<span class="absolute -bottom-1 right-3 w-2 h-2 bg-error transform rotate-45"></span></span></div>
+        <div class="mt-8 space-y-12">
+          <div class="font-headline-md text-headline-md text-on-surface leading-relaxed text-center" id="chinese-sentence">我在一家<span class="text-tertiary-container font-bold px-1">(大量) 生产</span>汽车零部件的工厂工作。</div>
+          <div class="font-headline-lg text-headline-lg text-on-background leading-relaxed text-center flex flex-wrap justify-center items-center gap-x-2 gap-y-4" id="english-sentence-container">
+            <span>I work in a factory that</span>
+            <div class="relative inline-block w-48 mx-2">
+                <input id="answer-input" autofocus class="w-full h-12 bg-surface-container-low border-b-2 border-primary-container focus:border-primary focus:ring-0 focus:outline-none text-center font-headline-md text-headline-md text-primary rounded-t-lg transition-colors px-2 placeholder-outline-variant/30" placeholder="" type="text"/>
+            </div>
+            <span>car parts.</span>
+          </div>
+          <div class="text-center font-label-md text-label-md text-outline-variant pt-4">[词汇来源] 雅思词汇, Writing &amp; Speaking</div>
+        </div>
+      </div>
+      
+      <div class="mt-auto flex justify-between items-end w-full max-w-3xl mx-auto pb-8">
+        <div class="flex gap-8 pl-4">
+          <!-- Feature: Smart Hint with Gemini -->
+          <button id="btn-smart-hint" class="flex flex-col items-center gap-2 text-primary hover:text-primary-fixed-variant transition-colors group">
+            <div class="w-12 h-12 rounded-full bg-primary-container/20 flex items-center justify-center group-hover:bg-primary-container/30 transition-colors">
+                <span class="material-symbols-outlined text-[28px]">flare</span>
+            </div>
+            <span class="font-label-md text-label-md font-bold">✨ 智能提示</span>
+          </button>
+          
+          <!-- Feature: AI Text-To-Speech with Gemini TTS -->
+          <button id="btn-tts-read" class="flex flex-col items-center gap-2 text-primary hover:text-primary-fixed-variant transition-colors group relative">
+            <div class="w-12 h-12 rounded-full bg-primary-container/20 flex items-center justify-center group-hover:bg-primary-container/30 transition-colors relative">
+                <span class="material-symbols-outlined text-[28px]" id="tts-icon">record_voice_over</span>
+                <div class="absolute -top-12 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface font-label-md text-label-md whitespace-nowrap px-3 py-1.5 rounded-md shadow-lg flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                    <span class="material-symbols-outlined text-[14px]">auto_awesome</span> Gemini 原生朗读
+                    <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-inverse-surface transform rotate-45"></div>
+                </div>
+            </div>
+            <span class="font-label-md text-label-md font-bold">✨ AI朗读</span>
+          </button>
+
+          <button class="flex flex-col items-center gap-2 text-primary hover:text-primary-fixed-variant transition-colors group">
+            <div class="w-12 h-12 rounded-full flex items-center justify-center group-hover:bg-primary-container/30 transition-colors border-2 border-primary bg-primary-container/20 shadow-[0_0_15px_rgba(103,85,140,0.2)]">
+                <span class="font-bold text-primary text-[18px]">AI</span>
+            </div>
+            <span class="font-label-md text-label-md font-bold">问 AI</span>
+          </button>
+        </div>
+        <button id="btn-check-answer" class="bg-primary text-on-primary font-headline-md text-headline-md font-bold py-4 px-12 rounded-2xl flex items-center gap-2 hover:bg-primary/90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"><span class="material-symbols-outlined font-bold">check</span>确认</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPTIMIZED AI SIDEBAR -->
+  <aside class="relative h-screen w-[360px] bg-surface/95 backdrop-blur-xl flex flex-col shadow-[-10px_0_30px_rgba(0,0,0,0.03)] border-l border-outline-variant/10 z-50">
+    
+    <!-- Premium Header -->
+    <div class="h-[72px] px-5 flex items-center justify-between border-b border-outline-variant/10 bg-surface/50 backdrop-blur-md">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-primary to-secondary flex items-center justify-center shadow-md relative">
+          <div class="absolute inset-0 bg-white/20 rounded-full animate-pulse"></div>
+          <span class="material-symbols-outlined text-white text-[20px] relative z-10">neurology</span>
+        </div>
+        <div>
+          <div class="font-label-lg text-label-lg text-on-surface font-bold tracking-tight">AI 学习助手</div>
+          <div class="flex items-center gap-1.5" id="ai-status">
+            <span class="w-1.5 h-1.5 rounded-full bg-tertiary-container animate-pulse"></span>
+            <span class="text-label-sm text-on-surface-variant/80">随时为你解答</span>
+          </div>
+        </div>
+      </div>
+      <div class="flex gap-1">
+        <button id="btn-clear-chat" class="p-2 rounded-full hover:bg-surface-container text-on-surface-variant transition-colors" title="清除对话"><span class="material-symbols-outlined text-[20px]">delete_sweep</span></button>
+        <button class="p-2 rounded-full hover:bg-surface-container text-on-surface-variant transition-colors"><span class="material-symbols-outlined text-[20px]">close</span></button>
+      </div>
+    </div>
+
+    <!-- Chat Area -->
+    <div id="chat-messages-container" class="flex-1 overflow-y-auto p-5 space-y-6 chat-scroll">
+      
+      <!-- Premium Empty State / Welcome -->
+      <div id="chat-welcome" class="flex flex-col items-center text-center space-y-5 py-6">
+        <div class="relative w-20 h-20 flex items-center justify-center">
+          <div class="absolute inset-0 bg-gradient-to-tr from-primary-container via-secondary-container to-surface-container rounded-[2rem] rotate-45 opacity-50 blur-lg"></div>
+          <div class="relative w-16 h-16 rounded-[1.5rem] bg-gradient-to-br from-surface to-surface-container border border-white/50 shadow-sm flex items-center justify-center">
+            <span class="material-symbols-outlined text-[32px] text-primary bg-clip-text">magic_button</span>
+          </div>
+        </div>
+        <div class="space-y-1">
+          <h3 class="text-label-lg font-bold text-on-surface">我是你的专属 AI 导师</h3>
+          <p class="text-label-md text-on-surface-variant/70 leading-relaxed">遇到不懂的词汇、语法或长难句？<br/>随时问我，帮你深入理解。</p>
+        </div>
+      </div>
+
+      <!-- Quick Suggestion Cards (Staggered Grid Layout) -->
+      <div id="quick-actions" class="grid grid-cols-1 gap-2.5">
+        <button id="btn-quick-vocab" class="group relative overflow-hidden w-full text-left p-3.5 rounded-2xl bg-surface border border-outline-variant/15 hover:border-primary/30 hover:shadow-[0_4px_12px_rgba(103,85,140,0.08)] transition-all duration-300 hover:-translate-y-0.5 flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-primary-container/20 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+             <span class="material-symbols-outlined text-[16px]">menu_book</span>
+          </div>
+          <span class="text-label-md text-on-surface group-hover:text-primary transition-colors flex-1">✨ 核心词汇精解</span>
+          <span class="material-symbols-outlined text-[16px] text-outline-variant/50 group-hover:text-primary/50 group-hover:translate-x-1 transition-all">arrow_forward</span>
+        </button>
+        
+        <button id="btn-quick-grammar" class="group relative overflow-hidden w-full text-left p-3.5 rounded-2xl bg-surface border border-outline-variant/15 hover:border-primary/30 hover:shadow-[0_4px_12px_rgba(103,85,140,0.08)] transition-all duration-300 hover:-translate-y-0.5 flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-secondary-container/30 flex items-center justify-center text-secondary group-hover:scale-110 transition-transform">
+             <span class="material-symbols-outlined text-[16px]">account_tree</span>
+          </div>
+          <span class="text-label-md text-on-surface group-hover:text-primary transition-colors flex-1">✨ 分析句子语法树</span>
+          <span class="material-symbols-outlined text-[16px] text-outline-variant/50 group-hover:text-primary/50 group-hover:translate-x-1 transition-all">arrow_forward</span>
+        </button>
+      </div>
+
+      <!-- Dynamic Messages will be appended here -->
+
+    </div>
+
+    <!-- Floating Input Dock -->
+    <div class="p-4 pb-6 bg-gradient-to-t from-surface via-surface to-transparent relative z-10">
+      <div class="relative flex items-end bg-surface shadow-[0_4px_24px_-4px_rgba(0,0,0,0.1)] border border-outline-variant/20 rounded-[24px] p-1.5 focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10 transition-all">
+        <button class="p-2.5 text-on-surface-variant hover:text-primary transition-colors flex-shrink-0">
+          <span class="material-symbols-outlined text-[20px]">add_circle</span>
+        </button>
+        <textarea id="ai-chat-input"
+          class="w-full bg-transparent border-none focus:ring-0 text-label-md resize-none py-2.5 px-1 max-h-32 min-h-[44px]" 
+          placeholder="问点什么..." 
+          rows="1"
+        ></textarea>
+        <button id="btn-send-chat" class="w-9 h-9 mb-1 mr-1 rounded-full bg-primary text-on-primary flex items-center justify-center flex-shrink-0 hover:bg-primary/90 transition-all shadow-md hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed">
+          <span class="material-symbols-outlined text-[18px]">arrow_upward</span>
+        </button>
+      </div>
+      <div class="text-center mt-3">
+        <span class="text-[10px] text-on-surface-variant/50">✨ Gemini 生成内容可能存在误差，请以实际为准</span>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<!-- Gemini API Integration Logic -->
+<script>
+  // ==========================================
+  // 1. Configuration & State
+  // ==========================================
+  const apiKey = ""; // Provided by execution environment
+  
+  // Context of the current quiz to feed to the LLM
+  const quizContext = {
+    chinese: "我在一家(大量) 生产汽车零部件的工厂工作。",
+    englishTemplate: "I work in a factory that [input] car parts.",
+    targetWord: "produces"
+  };
+
+  const systemPrompt = `你是一个名为'AI 学习助手'的英语外教。用户正在练习填空题：中文意思 "${quizContext.chinese}"，英文填空为 "${quizContext.englishTemplate}"。目标词汇是 "${quizContext.targetWord}"。
+  请用中文耐心解答用户的疑问，解析语法、词汇，并给出恰当的例句。
+  回答尽量简明扼要，像聊天一样自然。使用 Markdown 格式（如 **加粗** 重点，\`代码块\` 显示单词）。`;
+
+  let chatHistory = [];
+  let isGenerating = false;
+  
+  // Audio context for TTS
+  let audioContext = null;
+
+  // DOM Elements
+  const chatContainer = document.getElementById('chat-messages-container');
+  const chatInput = document.getElementById('ai-chat-input');
+  const sendBtn = document.getElementById('btn-send-chat');
+  const aiStatus = document.getElementById('ai-status');
+  
+  // ==========================================
+  // 2. Gemini API Helpers (With Exponential Backoff)
+  // ==========================================
+  async function fetchWithRetry(url, options, maxRetries = 5) {
+    let delays = [1000, 2000, 4000, 8000, 16000];
+    for (let i = 0; i < maxRetries; i++) {
+      try {
+        const response = await fetch(url, options);
+        if (!response.ok) {
+           const errorData = await response.json().catch(() => ({}));
+           throw new Error(`HTTP error! status: ${response.status}, message: ${JSON.stringify(errorData)}`);
+        }
+        return await response.json();
+      } catch (error) {
+        if (i === maxRetries - 1) throw error;
+        await new Promise(resolve => setTimeout(resolve, delays[i]));
+      }
+    }
+  }
+
+  async function generateText(prompt, hiddenPrompt = false) {
+    if (isGenerating) return;
+    
+    // Add user message to UI (unless hidden, e.g. for automatic quick actions if we wanted them silent, but we want to show them)
+    if (!hiddenPrompt) {
+        appendUserMessage(prompt);
+    }
+    
+    // Prepare payload
+    chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+    
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+    const payload = {
+      contents: chatHistory,
+      systemInstruction: { parts: [{ text: systemPrompt }] }
+    };
+
+    setTypingStatus(true);
+    const loadingId = appendLoadingBubble();
+
+    try {
+      const result = await fetchWithRetry(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      
+      const textResponse = result.candidates?.[0]?.content?.parts?.[0]?.text || "抱歉，我没有理解你的意思。";
+      
+      // Save AI response to history
+      chatHistory.push({ role: "model", parts: [{ text: textResponse }] });
+      
+      // Update UI
+      removeElement(loadingId);
+      appendAIMessage(textResponse);
+      
+    } catch (error) {
+      removeElement(loadingId);
+      appendAIMessage("⚠️ 网络似乎出了点问题，请稍后再试。");
+      chatHistory.pop(); // Remove failed user message from history
+    } finally {
+      setTypingStatus(false);
+    }
+  }
+
+  // ==========================================
+  // 3. Gemini TTS Integration (Text-to-Speech)
+  // ==========================================
+  
+  // Convert Base64 PCM to WAV Blob
+  function createWavBlob(pcmBase64, sampleRate = 24000) {
+    const binaryString = atob(pcmBase64);
+    const len = binaryString.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) bytes[i] = binaryString.charCodeAt(i);
+    
+    const buffer = new ArrayBuffer(44 + bytes.length);
+    const view = new DataView(buffer);
+    
+    const writeString = (view, offset, string) => {
+        for (let i = 0; i < string.length; i++) view.setUint8(offset + i, string.charCodeAt(i));
+    };
+
+    writeString(view, 0, 'RIFF');
+    view.setUint32(4, 36 + bytes.length, true);
+    writeString(view, 8, 'WAVE');
+    writeString(view, 12, 'fmt ');
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true); // PCM format
+    view.setUint16(22, 1, true); // 1 channel
+    view.setUint32(24, sampleRate, true);
+    view.setUint32(28, sampleRate * 2, true);
+    view.setUint16(32, 2, true); // block align
+    view.setUint16(34, 16, true); // bits per sample
+    writeString(view, 36, 'data');
+    view.setUint32(40, bytes.length, true);
+    
+    const pcmData = new Uint8Array(buffer, 44);
+    pcmData.set(bytes);
+    
+    return new Blob([buffer], { type: 'audio/wav' });
+  }
+
+  async function generateAndPlayTTS(text, iconElement) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
+    const payload = {
+      contents: [{ parts: [{ text: text }] }],
+      generationConfig: {
+        responseModalities: ["AUDIO"],
+        speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Aoede" } } } // Aoede sounds good for English
+      }
+    };
+
+    try {
+      if(iconElement) iconElement.classList.add('animate-pulse');
+      
+      const result = await fetchWithRetry(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const audioBase64 = result.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+      if (audioBase64) {
+        const wavBlob = createWavBlob(audioBase64, 24000);
+        const audioUrl = URL.createObjectURL(wavBlob);
+        const audio = new Audio(audioUrl);
+        audio.onended = () => { if(iconElement) iconElement.classList.remove('animate-pulse'); };
+        audio.play();
+      }
+    } catch (error) {
+      console.error("TTS Error:", error);
+      if(iconElement) iconElement.classList.remove('animate-pulse');
+    }
+  }
+
+
+  // ==========================================
+  // 4. UI Rendering Functions
+  // ==========================================
+  
+  function scrollToBottom() {
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+  }
+
+  function appendUserMessage(text) {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = "flex flex-col items-end gap-1 mt-4 animate-[fadeIn_0.3s_ease-out]";
+    msgDiv.innerHTML = `
+      <div class="bg-surface-container-high text-on-surface px-4 py-2.5 rounded-2xl rounded-tr-sm text-label-md shadow-sm max-w-[85%]">
+        ${text.replace(/</g, "&lt;").replace(/>/g, "&gt;")}
+      </div>
+    `;
+    chatContainer.appendChild(msgDiv);
+    scrollToBottom();
+  }
+
+  function appendAIMessage(markdownText) {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = "flex gap-3 mt-4 animate-[fadeIn_0.3s_ease-out]";
+    
+    // Parse markdown using imported marked.js
+    const htmlContent = marked.parse(markdownText);
+    
+    msgDiv.innerHTML = `
+      <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-primary to-secondary flex-shrink-0 flex items-center justify-center shadow-sm relative overflow-hidden">
+        <span class="material-symbols-outlined text-white text-[16px] relative z-10">neurology</span>
+      </div>
+      <div class="flex-1 bg-surface border border-outline-variant/10 shadow-sm rounded-2xl rounded-tl-sm p-4 space-y-3">
+        <div class="text-label-md text-on-surface leading-relaxed prose prose-sm max-w-none">
+          ${htmlContent}
+        </div>
+      </div>
+    `;
+    chatContainer.appendChild(msgDiv);
+    scrollToBottom();
+  }
+
+  function appendLoadingBubble() {
+    const id = 'loading-' + Date.now();
+    const msgDiv = document.createElement('div');
+    msgDiv.id = id;
+    msgDiv.className = "flex gap-3 mt-4";
+    msgDiv.innerHTML = `
+      <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-primary to-secondary flex-shrink-0 flex items-center justify-center shadow-sm relative">
+        <div class="absolute inset-0 bg-white/20 rounded-full animate-pulse"></div>
+        <span class="material-symbols-outlined text-white text-[16px] relative z-10">neurology</span>
+      </div>
+      <div class="bg-surface border border-outline-variant/10 shadow-sm rounded-2xl rounded-tl-sm p-4 flex items-center gap-1.5 h-[52px]">
+        <svg height="8" width="32" class="opacity-70">
+           <circle class="typing-dot" cx="4" cy="4" r="3" />
+           <circle class="typing-dot" cx="16" cy="4" r="3" />
+           <circle class="typing-dot" cx="28" cy="4" r="3" />
+        </svg>
+      </div>
+    `;
+    chatContainer.appendChild(msgDiv);
+    scrollToBottom();
+    return id;
+  }
+
+  function removeElement(id) {
+    const el = document.getElementById(id);
+    if (el) el.remove();
+  }
+
+  function setTypingStatus(isTyping) {
+    isGenerating = isTyping;
+    sendBtn.disabled = isTyping;
+    aiStatus.innerHTML = isTyping 
+      ? `<span class="w-1.5 h-1.5 rounded-full bg-primary animate-ping"></span><span class="text-label-sm text-primary font-bold">正在思考...</span>`
+      : `<span class="w-1.5 h-1.5 rounded-full bg-tertiary-container animate-pulse"></span><span class="text-label-sm text-on-surface-variant/80">随时为你解答</span>`;
+  }
+
+  // ==========================================
+  // 5. Event Listeners & Interactions
+  // ==========================================
+  
+  // Chat Input
+  const handleSend = () => {
+    const text = chatInput.value.trim();
+    if (!text || isGenerating) return;
+    chatInput.value = '';
+    
+    // Hide welcome state
+    document.getElementById('chat-welcome').style.display = 'none';
+    document.getElementById('quick-actions').style.display = 'none';
+    
+    generateText(text);
+  };
+
+  sendBtn.addEventListener('click', handleSend);
+  chatInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  });
+
+  // Adjust textarea height automatically
+  chatInput.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = (this.scrollHeight < 128 ? this.scrollHeight : 128) + 'px';
+  });
+
+  // Quick Action: Vocabulary
+  document.getElementById('btn-quick-vocab').addEventListener('click', () => {
+    document.getElementById('chat-welcome').style.display = 'none';
+    document.getElementById('quick-actions').style.display = 'none';
+    generateText(`请精讲一下目标词汇 "${quizContext.targetWord}" 在这句话里的用法。`);
+  });
+
+  // Quick Action: Grammar
+  document.getElementById('btn-quick-grammar').addEventListener('click', () => {
+    document.getElementById('chat-welcome').style.display = 'none';
+    document.getElementById('quick-actions').style.display = 'none';
+    generateText(`请帮我分析一下这句话的语法树结构：I work in a factory that ${quizContext.targetWord} car parts.`);
+  });
+
+  // Feature: Smart Hint (Main Area)
+  document.getElementById('btn-smart-hint').addEventListener('click', () => {
+    document.getElementById('chat-welcome').style.display = 'none';
+    document.getElementById('quick-actions').style.display = 'none';
+    generateText("我不知道这道题填什么。请给我一个引导性的提示（例如首字母、词性或同义词），但✨不要✨直接告诉我答案。");
+  });
+
+  // Feature: TTS Voice (Main Area)
+  document.getElementById('btn-tts-read').addEventListener('click', function() {
+    const icon = document.getElementById('tts-icon');
+    const fullSentence = `I work in a factory that produces car parts.`;
+    generateAndPlayTTS(fullSentence, icon);
+  });
+
+  // Clear Chat
+  document.getElementById('btn-clear-chat').addEventListener('click', () => {
+    chatHistory = [];
+    // Keep welcome and quick actions, remove all other divs
+    Array.from(chatContainer.children).forEach(child => {
+        if(child.id !== 'chat-welcome' && child.id !== 'quick-actions') {
+            child.remove();
+        }
+    });
+    document.getElementById('chat-welcome').style.display = 'flex';
+    document.getElementById('quick-actions').style.display = 'grid';
+  });
+
+  // Inject CSS Keyframes for fade in
+  const style = document.createElement('style');
+  style.innerHTML = `
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  `;
+  document.head.appendChild(style);
+
+</script>
+</body>
+</html>

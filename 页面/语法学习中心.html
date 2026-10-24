@@ -1,0 +1,285 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Learning Hub - Grammar Learning</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-fixed-dim": "#77dc7a",
+                      "surface-dim": "#d9dadd",
+                      "primary": "#67558c",
+                      "on-tertiary-fixed": "#002105",
+                      "surface-container-high": "#e7e8eb",
+                      "on-error": "#ffffff",
+                      "secondary-fixed-dim": "#89d0ed",
+                      "secondary-fixed": "#baeaff",
+                      "outline": "#7a757f",
+                      "error-container": "#ffdad6",
+                      "tertiary-container": "#57bb5d",
+                      "on-primary-container": "#443267",
+                      "surface-tint": "#67558c",
+                      "outline-variant": "#cbc4d0",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-container-low": "#f2f3f6",
+                      "surface-bright": "#f8f9fc",
+                      "on-secondary-fixed-variant": "#004d62",
+                      "primary-fixed-dim": "#d2bcfb",
+                      "inverse-primary": "#d2bcfb",
+                      "inverse-on-surface": "#f0f1f4",
+                      "surface-variant": "#e1e2e5",
+                      "secondary-container": "#9ae1ff",
+                      "on-tertiary-fixed-variant": "#005316",
+                      "surface-container": "#edeef1",
+                      "on-primary": "#ffffff",
+                      "on-tertiary-container": "#004711",
+                      "on-surface": "#191c1e",
+                      "on-primary-fixed": "#220f44",
+                      "background": "#f8f9fc",
+                      "secondary": "#0c6780",
+                      "on-tertiary": "#ffffff",
+                      "on-secondary-container": "#09657f",
+                      "primary-container": "#b19cd9",
+                      "tertiary": "#006e20",
+                      "on-error-container": "#93000a",
+                      "surface-container-highest": "#e1e2e5",
+                      "primary-fixed": "#ebddff",
+                      "on-surface-variant": "#49454f",
+                      "on-secondary": "#ffffff",
+                      "on-secondary-fixed": "#001f29",
+                      "surface": "#f8f9fc",
+                      "on-background": "#191c1e",
+                      "error": "#ba1a1a",
+                      "on-primary-fixed-variant": "#4f3d73",
+                      "tertiary-fixed": "#93f993",
+                      "inverse-surface": "#2e3133"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "container-max": "1200px",
+                      "gutter": "24px",
+                      "sidebar-width": "280px",
+                      "margin-page": "40px",
+                      "unit": "8px"
+              },
+              "fontFamily": {
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "display-lg": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "label-lg": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-lg": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+        }
+        .soft-shadow {
+            box-shadow: 0 4px 20px rgba(51, 58, 72, 0.05);
+        }
+    </style>
+</head>
+<body class="flex min-h-screen bg-background">
+<!-- SideNavBar -->
+<nav class="hidden md:flex w-sidebar-width h-screen fixed left-0 top-0 bg-surface dark:bg-inverse-surface border-r border-outline-variant dark:border-outline flex-col py-8 px-4 z-50">
+<!-- Brand -->
+<div class="mb-10 px-4"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-3xl">school</span><h1 class="text-headline-md font-headline-md font-bold text-primary">Recall-睿考</h1></div><div class="mt-2 flex flex-col"><span class="text-label-md font-label-md text-on-surface-variant">连续学习天数</span><span class="text-headline-md font-headline-md text-primary font-bold">7 天 🔥</span></div></div>
+<!-- Navigation Links -->
+<div class="flex-1 flex flex-col gap-2"><a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-primary-container/10 hover:text-primary transition-colors" href="#"><span class="material-symbols-outlined">home</span><span class="font-label-lg text-label-lg">首页</span></a><a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-primary-container/10 hover:text-primary transition-colors" href="#"><span class="material-symbols-outlined">analytics</span><span class="font-label-lg text-label-lg">学习统计</span></a><a class="flex items-center gap-4 px-4 py-3 rounded-xl text-primary border-l-2 border-primary bg-primary-container/10 transition-colors" href="#"><span class="material-symbols-outlined" style="font-variation-settings: &quot;FILL&quot; 1;">school</span><span class="font-label-lg text-label-lg font-bold">学习中心</span></a><a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-primary-container/10 hover:text-primary transition-colors" href="#"><span class="material-symbols-outlined">person</span><span class="font-label-lg text-label-lg">个人资料</span></a></div>
+<!-- Footer Links -->
+<div class="mt-auto flex flex-col gap-2 pt-8 border-t border-outline-variant/30"><a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-primary-container/10 hover:text-primary transition-colors" href="#"><span class="material-symbols-outlined">settings</span><span class="font-label-lg text-label-lg">设置</span></a><a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-error/10 hover:text-error transition-colors" href="#"><span class="material-symbols-outlined">logout</span><span class="font-label-lg text-label-lg">退出登录</span></a></div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col min-h-screen md:ml-sidebar-width">
+<!-- TopAppBar -->
+<header class="h-20 sticky top-0 z-40 bg-background/80 backdrop-blur-md dark:bg-background/80 flex items-center justify-between px-gutter w-full max-w-container-max mx-auto">
+<!-- Search (Left) -->
+<div class="flex-1 max-w-md">
+
+</div>
+<!-- Actions (Right) -->
+<div class="flex items-center gap-4"><span class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high/50 rounded-full p-2 transition-all cursor-pointer">notifications</span><span class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high/50 rounded-full p-2 transition-all cursor-pointer">light_mode</span><span class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high/50 rounded-full p-2 transition-all cursor-pointer">language</span><div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-90 transition-opacity ml-2"><span class="material-symbols-outlined text-on-primary-container text-body-lg">person</span></div></div>
+</header>
+<!-- Main Canvas -->
+<main class="flex-1 px-gutter py-8 w-full max-w-container-max mx-auto flex flex-col gap-8">
+<!-- Section Header -->
+<div>
+<h2 class="text-headline-lg font-headline-lg text-on-surface mb-6">学习中心</h2>
+<!-- In-page Navigation Tabs -->
+<div class="flex gap-2 mb-8 overflow-x-auto pb-2 scrollbar-hide"><button class="px-6 py-2 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-lg text-label-lg whitespace-nowrap transition-colors">
+                    词汇
+                </button>
+<button class="px-6 py-2 rounded-full bg-on-surface text-surface font-label-lg text-label-lg whitespace-nowrap transition-colors">
+                    语法
+                </button>
+<button class="px-6 py-2 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-lg text-label-lg whitespace-nowrap transition-colors">翻译</button>
+<button class="px-6 py-2 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-lg text-label-lg whitespace-nowrap transition-colors">
+                    听力
+                </button>
+<button class="px-6 py-2 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-lg text-label-lg whitespace-nowrap transition-colors">
+                    造句
+                </button></div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- Main Featured Card (Left Column, Span 8) -->
+<div class="lg:col-span-8 flex flex-col gap-6">
+<!-- Hero Grammar Card -->
+<div class="col-span-1 md:col-span-8 bg-secondary-fixed rounded-[24px] p-8 flex flex-col justify-between relative overflow-hidden group cursor-pointer hover:shadow-[0_4px_20px_rgba(51,58,72,0.15)] transition-shadow min-h-[200px]">
+<div class="relative z-10 text-on-secondary-fixed-variant">
+<h3 class="font-headline-md text-headline-md mb-2">语法学习</h3>
+<div class="flex items-center gap-2 text-on-secondary-fixed-variant/80 font-body-md text-body-md">
+<span class="">每日目标: 10 个</span>
+<span class="material-symbols-outlined text-sm">edit</span>
+</div>
+</div>
+<div class="absolute right-8 top-1/2 -translate-y-1/2 z-10 w-16 h-16 bg-surface-container-lowest/20 rounded-full flex items-center justify-center backdrop-blur-sm group-hover:scale-110 transition-transform -mt-1">
+<span class="material-symbols-outlined text-4xl text-on-secondary-fixed-variant" style="font-variation-settings: &quot;FILL&quot; 1;">play_arrow</span>
+</div>
+<!-- Decorative elements -->
+<div class="absolute right-32 top-1/2 -translate-y-1/2 flex flex-col gap-2 opacity-30 -mt-1">
+<div class="w-1.5 h-1.5 rounded-full bg-on-secondary-fixed-variant"></div>
+<div class="w-1.5 h-1.5 rounded-full bg-on-secondary-fixed-variant"></div>
+<div class="w-1.5 h-1.5 rounded-full bg-on-secondary-fixed-variant"></div>
+<div class="w-1.5 h-1.5 rounded-full bg-on-secondary-fixed-variant"></div>
+</div>
+</div>
+<!-- Quick Access List -->
+<div class="bg-surface rounded-[24px] p-6 soft-shadow flex flex-col gap-2">
+<button class="w-full flex items-center justify-between p-4 rounded-xl hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-tertiary-container/20 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined">hourglass_empty</span>
+</div>
+<span class="text-body-lg font-body-lg text-on-surface font-medium">学习过的语法</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
+</button>
+<div class="h-px bg-outline-variant/30 mx-4"></div>
+
+<div class="h-px bg-outline-variant/30 mx-4"></div>
+<button class="w-full flex items-center justify-between p-4 rounded-xl hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined">psychology</span>
+</div>
+<span class="text-body-lg font-body-lg text-on-surface font-medium">查看所有的AI问答</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Right Column (Span 4) for additional context/future expansion -->
+<div class="lg:col-span-4 flex flex-col gap-6">
+<!-- Daily Progress Card (Conceptual Addition for Bento Layout) -->
+
+</div>
+</div>
+<!-- Dictionary Section -->
+<div class="mt-8">
+<h3 class="text-headline-md font-headline-md text-on-surface mb-4">词典</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<button class="bg-surface rounded-[24px] p-6 soft-shadow flex items-center justify-between hover:scale-[1.02] transition-transform group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-2xl bg-secondary-container/20 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[24px]">search</span>
+</div>
+<span class="text-headline-md font-headline-md text-on-surface font-bold">英语词典</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
+</button>
+</div>
+</div>
+</main>
+<!-- Footer -->
+
+</div>
+
+
+
+
+</body></html>

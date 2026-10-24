@@ -1,0 +1,314 @@
+<!DOCTYPE html><html lang="en" style="width: 1280px; height: 1367px; overflow: hidden; position: relative;"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Epop - Profile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error-container": "#93000a",
+                        "secondary": "#0c6780",
+                        "outline-variant": "#cbc4d0",
+                        "error": "#ba1a1a",
+                        "surface-container": "#edeef1",
+                        "surface": "#f8f9fc",
+                        "surface-container-low": "#f2f3f6",
+                        "on-primary-fixed": "#220f44",
+                        "tertiary-fixed": "#93f993",
+                        "on-secondary-container": "#09657f",
+                        "inverse-primary": "#d2bcfb",
+                        "on-primary-container": "#443267",
+                        "on-tertiary-fixed": "#002105",
+                        "secondary-fixed-dim": "#89d0ed",
+                        "surface-container-high": "#e7e8eb",
+                        "outline": "#7a757f",
+                        "surface-dim": "#d9dadd",
+                        "inverse-on-surface": "#f0f1f4",
+                        "surface-variant": "#e1e2e5",
+                        "tertiary": "#006e20",
+                        "error-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "primary": "#67558c",
+                        "surface-container-highest": "#e1e2e5",
+                        "surface-tint": "#67558c",
+                        "background": "#f8f9fc",
+                        "primary-fixed": "#ebddff",
+                        "on-primary": "#ffffff",
+                        "on-background": "#191c1e",
+                        "primary-container": "#b19cd9",
+                        "on-secondary-fixed": "#001f29",
+                        "primary-fixed-dim": "#d2bcfb",
+                        "on-primary-fixed-variant": "#4f3d73",
+                        "on-surface": "#191c1e",
+                        "on-tertiary-container": "#004711",
+                        "tertiary-fixed-dim": "#77dc7a",
+                        "on-secondary": "#ffffff",
+                        "inverse-surface": "#2e3133",
+                        "tertiary-container": "#57bb5d",
+                        "on-surface-variant": "#49454f",
+                        "on-tertiary-fixed-variant": "#005316",
+                        "surface-bright": "#f8f9fc",
+                        "on-error": "#ffffff",
+                        "on-secondary-fixed-variant": "#004d62",
+                        "secondary-container": "#9ae1ff",
+                        "secondary-fixed": "#baeaff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-page": "40px",
+                        "gutter": "24px",
+                        "container-max": "1200px",
+                        "unit": "8px",
+                        "sidebar-width": "280px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Inter"],
+                        "label-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "label-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-lg": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .soft-shadow { box-shadow: 0 4px 20px rgba(51, 58, 72, 0.05); }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex">
+<!-- SideNavBar -->
+<nav class="w-sidebar-width h-screen fixed left-0 top-0 bg-surface border-r border-outline-variant flex flex-col py-8 px-4 z-50">
+<div class="mb-10 px-4">
+<div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-3xl">school</span><h1 class="text-headline-md font-headline-md font-bold text-primary">Recall-睿考</h1></div>
+<div class="mt-2 flex flex-col">
+  <span class="text-label-md font-label-md text-on-surface-variant">连续学习天数</span>
+  <span class="text-headline-md font-headline-md text-primary font-bold">7 天 🔥</span>
+</div>
+</div>
+<div class="flex-1 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-primary-container/10 transition-colors group" href="#">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">home</span>
+<span class="font-label-lg text-label-lg">首页</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-primary-container/10 transition-colors group" href="#">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">analytics</span>
+<span class="font-label-lg text-label-lg">学习统计</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-primary-container/10 transition-colors group" href="#">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">school</span>
+<span class="font-label-lg text-label-lg">学习中心</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary border-l-2 border-primary font-bold bg-primary-container/5 group" href="#">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: &quot;FILL&quot; 1;">person</span>
+<span class="font-label-lg text-label-lg">个人资料</span>
+</a>
+</div>
+
+<div class="mt-auto flex flex-col gap-2 pt-8 border-t border-outline-variant/30">
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-primary-container/10 hover:text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">settings</span>
+<span class="font-label-lg text-label-lg">设置</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-error/10 hover:text-error transition-colors group" href="#">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-error transition-colors">logout</span>
+<span class="font-label-lg text-label-lg">退出登录</span>
+</a>
+</div></nav>
+<!-- Main Content Area -->
+<main class="flex-1 ml-sidebar-width flex flex-col min-h-screen">
+<!-- TopAppBar -->
+<header class="h-20 sticky top-0 z-40 bg-background/80 backdrop-blur-md flex items-center justify-between px-gutter w-full max-w-container-max mx-auto">
+<h2 class="font-headline-md text-headline-md text-primary">个人资料</h2>
+<div class="flex items-center gap-4"><button class="p-2 text-on-surface-variant hover:bg-surface-container-high/50 rounded-full transition-all focus-within:ring-2 focus-within:ring-secondary/50">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-high/50 rounded-full transition-all focus-within:ring-2 focus-within:ring-secondary/50">
+<span class="material-symbols-outlined">light_mode</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-high/50 rounded-full transition-all focus-within:ring-2 focus-within:ring-secondary/50">
+<span class="material-symbols-outlined">language</span>
+</button>
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-bold cursor-pointer hover:opacity-90 transition-opacity">M</div>
+</div>
+</header>
+<!-- Canvas -->
+<div class="flex-1 w-full max-w-container-max mx-auto px-gutter py-8 space-y-12">
+<!-- Hero Profile Section -->
+<section class="bg-surface-container-low rounded-[32px] overflow-hidden relative soft-shadow">
+<div class="h-48 bg-primary-fixed-dim/30 w-full absolute top-0 left-0"></div>
+<div class="relative z-10 pt-24 pb-12 px-8 flex flex-col items-center text-center">
+<!-- Avatar Gift Box Graphic (Replacing real image with a stylized div based on reference) -->
+<div class="w-40 h-40 bg-surface-container-lowest rounded-3xl soft-shadow p-6 mb-6 flex items-center justify-center border-4 border-surface relative">
+<span class="material-symbols-outlined text-[80px] text-primary" style="font-variation-settings: &quot;FILL&quot; 1;">featured_seasonal_and_gifts</span>
+</div>
+<div class="flex items-center gap-2 group cursor-pointer">
+<h1 class="font-headline-lg text-headline-lg text-on-background">me</h1>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors text-xl">edit</span>
+</div>
+<!-- Core Metrics Grid -->
+<div class="grid grid-cols-3 gap-8 mt-12 w-full max-w-2xl mx-auto border-t border-outline-variant/20 pt-8">
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined text-secondary-fixed-dim mb-2 text-3xl" style="font-variation-settings: &quot;FILL&quot; 1;">schedule</span>
+<span class="font-label-lg text-label-lg text-on-surface-variant mb-1">累计学习时间</span>
+<span class="font-headline-md text-headline-md text-on-background">16分钟</span>
+</div>
+<div class="flex flex-col items-center border-l border-r border-outline-variant/20 px-4">
+<span class="material-symbols-outlined text-primary-container mb-2 text-3xl" style="font-variation-settings: &quot;FILL&quot; 1;">local_fire_department</span>
+<span class="font-label-lg text-label-lg text-on-surface-variant mb-1">连续学习天数</span>
+<span class="font-headline-md text-headline-md text-on-background">1天</span>
+</div>
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined text-tertiary-fixed-dim mb-2 text-3xl" style="font-variation-settings: &quot;FILL&quot; 1;">calendar_month</span>
+<span class="font-label-lg text-label-lg text-on-surface-variant mb-1">累计学习天数</span>
+<span class="font-headline-md text-headline-md text-on-background">1天</span>
+</div>
+</div>
+</div>
+</section>
+<!-- League Section (Bento Style) -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Main League Card -->
+<div class="md:col-span-2 bg-surface-container-lowest rounded-[24px] p-8 soft-shadow border border-surface-container-low">
+<div class="flex justify-between items-center mb-8">
+<h3 class="font-headline-md text-headline-md text-on-background">个人积分</h3>
+
+</div>
+<div class="bg-surface-container-low rounded-2xl p-6 text-center mb-8">
+<p class="font-label-md text-label-md text-on-surface-variant mb-2 uppercase tracking-wider">总积分</p>
+<p class="font-display-lg text-display-lg text-primary-fixed-dim">-</p>
+</div>
+<div class="space-y-4">
+<!-- Stat Row -->
+<div class="flex items-center justify-between p-4 rounded-xl hover:bg-surface-container-low transition-colors group cursor-default">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-primary-fixed-dim/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">menu_book</span>
+</div>
+<span class="font-body-lg text-body-lg text-on-surface">词汇</span>
+</div>
+<span class="font-headline-md text-headline-md text-outline-variant">-</span>
+</div>
+<div class="flex items-center justify-between p-4 rounded-xl hover:bg-surface-container-low transition-colors group cursor-default">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed-dim/20 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined">spellcheck</span>
+</div>
+<span class="font-body-lg text-body-lg text-on-surface">语法</span>
+</div>
+<span class="font-headline-md text-headline-md text-outline-variant">-</span>
+</div>
+<div class="flex items-center justify-between p-4 rounded-xl hover:bg-surface-container-low transition-colors group cursor-default">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-tertiary-fixed-dim/20 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined">forum</span>
+</div>
+<span class="font-body-lg text-body-lg text-on-surface">实战对话</span>
+</div>
+<span class="font-headline-md text-headline-md text-outline-variant">-</span>
+</div>
+<div class="flex items-center justify-between p-4 rounded-xl hover:bg-surface-container-low transition-colors group cursor-default">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined">headphones</span>
+</div>
+<span class="font-body-lg text-body-lg text-on-surface">听力</span>
+</div>
+<span class="font-headline-md text-headline-md text-outline-variant">-</span>
+</div>
+</div>
+</div>
+<!-- Settings Links Panel -->
+<div class="flex flex-col gap-4">
+<a class="bg-surface-container-lowest rounded-[24px] p-6 soft-shadow flex items-center justify-between hover:-translate-y-1 transition-transform group" href="#">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center group-hover:bg-primary-fixed-dim/20 transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">shield_person</span>
+</div>
+<span class="font-body-lg text-body-lg text-on-surface font-medium">隐私设置</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant">chevron_right</span>
+</a>
+<a class="bg-surface-container-lowest rounded-[24px] p-6 soft-shadow flex items-center justify-between hover:-translate-y-1 transition-transform group" href="#">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center group-hover:bg-primary-fixed-dim/20 transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">manage_accounts</span>
+</div>
+<span class="font-body-lg text-body-lg text-on-surface font-medium">账户设置</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant">chevron_right</span>
+</a>
+<a class="bg-surface-container-lowest rounded-[24px] p-6 soft-shadow flex items-center justify-between hover:-translate-y-1 transition-transform group" href="#">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center group-hover:bg-primary-fixed-dim/20 transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">notifications_active</span>
+</div>
+<span class="font-body-lg text-body-lg text-on-surface font-medium">通知设置</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant">chevron_right</span>
+</a><a class="bg-surface-container-lowest rounded-[24px] p-6 soft-shadow flex items-center justify-between hover:-translate-y-1 transition-transform group" href="#">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center group-hover:bg-primary-fixed-dim/20 transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">language</span>
+</div>
+<span class="font-body-lg text-body-lg text-on-surface font-medium">语言设置</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant">chevron_right</span>
+</a>
+<div class="mt-auto bg-primary-fixed-dim/10 rounded-[24px] p-6 border border-primary-fixed-dim/20 flex flex-col items-center justify-center text-center">
+<span class="material-symbols-outlined text-primary text-4xl mb-2">workspace_premium</span>
+<h4 class="font-label-lg text-label-lg text-primary mb-1">升级至专业版</h4>
+<p class="font-label-md text-label-md text-on-surface-variant mb-4">开启高级数据分析和无限体力。</p>
+<button class="w-full bg-primary text-on-primary py-2 rounded-xl font-label-lg text-label-lg hover:bg-primary/90 transition-colors">
+                            查看方案
+                        </button>
+</div>
+</div>
+</section>
+</div>
+<!-- Footer -->
+
+</main>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body></html>

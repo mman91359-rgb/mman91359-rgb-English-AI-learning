@@ -1,0 +1,404 @@
+<!DOCTYPE html><html lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Home Dashboard - Epop English</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error-container": "#93000a",
+                        "secondary": "#0c6780",
+                        "outline-variant": "#cbc4d0",
+                        "error": "#ba1a1a",
+                        "surface-container": "#edeef1",
+                        "surface": "#f8f9fc",
+                        "surface-container-low": "#f2f3f6",
+                        "on-primary-fixed": "#220f44",
+                        "tertiary-fixed": "#93f993",
+                        "on-secondary-container": "#09657f",
+                        "inverse-primary": "#d2bcfb",
+                        "on-primary-container": "#443267",
+                        "on-tertiary-fixed": "#002105",
+                        "secondary-fixed-dim": "#89d0ed",
+                        "surface-container-high": "#e7e8eb",
+                        "outline": "#7a757f",
+                        "surface-dim": "#d9dadd",
+                        "inverse-on-surface": "#f0f1f4",
+                        "surface-variant": "#e1e2e5",
+                        "tertiary": "#006e20",
+                        "error-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "primary": "#67558c",
+                        "surface-container-highest": "#e1e2e5",
+                        "surface-tint": "#67558c",
+                        "background": "#f8f9fc",
+                        "primary-fixed": "#ebddff",
+                        "on-primary": "#ffffff",
+                        "on-background": "#191c1e",
+                        "primary-container": "#b19cd9",
+                        "on-secondary-fixed": "#001f29",
+                        "primary-fixed-dim": "#d2bcfb",
+                        "on-primary-fixed-variant": "#4f3d73",
+                        "on-surface": "#191c1e",
+                        "on-tertiary-container": "#004711",
+                        "tertiary-fixed-dim": "#77dc7a",
+                        "on-secondary": "#ffffff",
+                        "inverse-surface": "#2e3133",
+                        "tertiary-container": "#57bb5d",
+                        "on-surface-variant": "#49454f",
+                        "on-tertiary-fixed-variant": "#005316",
+                        "surface-bright": "#f8f9fc",
+                        "on-error": "#ffffff",
+                        "on-secondary-fixed-variant": "#004d62",
+                        "secondary-container": "#9ae1ff",
+                        "secondary-fixed": "#baeaff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-page": "40px",
+                        "gutter": "24px",
+                        "container-max": "1200px",
+                        "unit": "8px",
+                        "sidebar-width": "280px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Inter"],
+                        "label-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "label-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-lg": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "fontWeight": "500" }]
+                    },
+                    "boxShadow": {
+                        'soft-glow': '0 4px 20px rgba(51, 58, 72, 0.05)',
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        /* Custom progress ring animation */
+        @keyframes dash {
+            to { stroke-dashoffset: 0; }
+        }
+        .progress-ring-circle {
+            transition: stroke-dashoffset 1s ease-out;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex">
+<!-- SideNavBar (Shared Component) -->
+<aside class="hidden md:flex flex-col h-screen fixed left-0 top-0 w-sidebar-width bg-surface border-r border-outline-variant py-8 px-4 z-50">
+<div class="mb-10 px-4"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-3xl">school</span><h1 class="text-headline-md font-headline-md font-bold text-primary">Recall-睿考</h1></div><div class="mt-2 flex flex-col"><span class="text-label-md font-label-md text-on-surface-variant">连续学习天数</span><span class="text-headline-md font-headline-md text-primary font-bold">7 天 🔥</span></div></div>
+
+<nav class="flex-1 flex flex-col gap-2">
+<!-- Active Tab: Home -->
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl bg-primary-container/10 text-primary border-l-2 border-primary font-bold transition-colors" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-lg text-label-lg">首页</span>
+</a>
+<!-- Inactive Tabs -->
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-primary-container/10 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-label-lg text-label-lg">学习统计</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-primary-container/10 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">school</span>
+<span class="font-label-lg text-label-lg">学习中心</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-primary-container/10 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-lg text-label-lg">个人资料</span>
+</a>
+</nav>
+<div class="mt-auto flex flex-col gap-2">
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-primary-container/10 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-lg text-label-lg">设置</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-primary-container/10 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-lg text-label-lg">退出登录</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 w-full md:ml-sidebar-width flex flex-col min-h-screen relative">
+<!-- TopAppBar (Shared Component) -->
+<header class="h-20 sticky top-0 z-40 bg-background/80 backdrop-blur-md flex items-center justify-between px-gutter w-full max-w-container-max mx-auto">
+<div class="flex items-center gap-4">
+<div class="md:hidden">
+<span class="material-symbols-outlined text-on-surface text-2xl cursor-pointer">menu</span>
+</div>
+
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-high/50 rounded-full transition-all">
+<span class="material-symbols-outlined">notifications</span>
+</button><button class="p-2 text-on-surface-variant hover:bg-surface-container-high/50 rounded-full transition-all">
+<span class="material-symbols-outlined">light_mode</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-high/50 rounded-full transition-all">
+<span class="material-symbols-outlined">language</span>
+</button>
+<div class="w-10 h-10 rounded-full bg-primary-container/30 overflow-hidden flex items-center justify-center cursor-pointer border border-outline-variant/30">
+<img alt="Small profile avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-Xsf9OrZLT_4OlrxFkJQJmi_5dFMtQrKPV1GyikHyP2Xi7kzHM4-YZ3OZbqZt9WItkKgrwK3gfqy2on6pOzSJDdRXtMRhLbxD9PllBjCyoKEk-0PVZFwDijGZYOkt1kN3S2rfLTkxeDJ5R7q7tcmCs3K8y9Le-EDSVhq4L379Sfq7yNLFc-_WOVVD_CrNK429p_KU-c2lpLnfAyW-a1FZ8085HaO3bd0So-mgZLLii1b_79ZnYBn_ROETgbt-Z-yENbtMH4LS-URT">
+</div>
+</div>
+</header>
+<!-- Main Dashboard Content -->
+<div class="flex-1 px-gutter py-8 w-full max-w-container-max mx-auto space-y-8">
+<!-- Greeting & Quick Status -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+<div>
+<h2 class="font-display-lg text-display-lg text-on-surface mb-2">欢迎回来，Alex！</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">准备好达成每日目标了吗？</p>
+</div>
+<button class="bg-primary text-on-primary px-8 py-4 rounded-[16px] font-label-lg text-label-lg flex items-center gap-2 hover:bg-primary/90 transition-colors shadow-sm">
+<span class="material-symbols-outlined">play_arrow</span>
+                    开始每日课程
+                </button>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Main Daily Goal Card (Spans 8 columns) -->
+<div class="col-span-1 md:col-span-8 bg-surface rounded-[24px] p-8 shadow-soft-glow relative overflow-hidden">
+<!-- Decorative background element -->
+<div class="absolute -right-20 -top-20 w-64 h-64 bg-primary-container/10 rounded-full blur-3xl"></div>
+<div class="flex flex-col md:flex-row gap-8 items-center relative z-10">
+<!-- Progress Ring -->
+<div class="relative w-40 h-40 flex-shrink-0">
+<svg class="w-full h-full" viewBox="0 0 100 100">
+<!-- Background circle -->
+<circle class="text-surface-variant stroke-current" cx="50" cy="50" fill="transparent" r="40" stroke-width="8"></circle>
+<!-- Progress circle (75%) -->
+<circle class="text-primary stroke-current progress-ring-circle" cx="50" cy="50" fill="transparent" r="40" stroke-dasharray="251.2" stroke-dashoffset="62.8" stroke-linecap="round" stroke-width="8"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="font-headline-lg text-headline-lg text-primary font-bold">75%</span>
+</div>
+</div>
+<!-- Goal Details -->
+<div class="flex-1 text-center md:text-left">
+<div class="flex items-center gap-2 justify-center md:justify-start mb-2">
+<span class="material-symbols-outlined text-primary text-xl">auto_awesome</span>
+<span class="font-label-lg text-label-lg text-primary uppercase tracking-wider">每日目标</span>
+</div>
+<h3 class="font-headline-lg text-headline-lg text-on-surface mb-2">词汇学习</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6">你今天已学习了 20 个单词中的 15 个。加油！</p>
+<div class="flex flex-wrap gap-2 justify-center md:justify-start">
+<span class="bg-primary-container/15 text-primary px-3 py-1 rounded-[12px] font-label-md text-label-md">已学 15 词</span>
+<span class="bg-surface-variant/50 text-on-surface-variant px-3 py-1 rounded-[12px] font-label-md text-label-md">还剩 5 词</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 7-Day Streak Card (Spans 4 columns) -->
+<div class="col-span-1 md:col-span-4 bg-surface rounded-[24px] p-8 shadow-soft-glow flex flex-col">
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-headline-md text-headline-md text-on-surface">学习连续天数</h3>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</div>
+<div class="flex items-end gap-2 mb-8">
+<span class="font-display-lg text-display-lg text-on-surface leading-none">1</span>
+<span class="font-body-lg text-body-lg text-on-surface-variant pb-1">天</span>
+</div>
+<div class="flex justify-between mt-auto"><!-- Day 1: Monday (Completed) -->
+<div class="flex flex-col items-center gap-2">
+  <div class="w-8 h-8 rounded-full bg-[#FFA500]/20 flex items-center justify-center text-[#FFA500]">
+    <span class="material-symbols-outlined text-sm fill">local_fire_department</span>
+  </div>
+  <span class="font-label-md text-label-md text-on-surface">M</span>
+</div>
+<!-- Day 2: Tuesday (Current/Active) -->
+<div class="flex flex-col items-center gap-2">
+  <div class="w-8 h-8 rounded-full border-2 border-primary flex items-center justify-center text-primary relative">
+    <span class="w-2 h-2 rounded-full bg-primary"></span>
+    <span class="absolute -bottom-4 w-1 h-1 rounded-full bg-primary"></span>
+  </div>
+  <span class="font-label-md text-label-md text-primary font-bold">T</span>
+</div>
+<!-- Day 3: Wednesday -->
+<div class="flex flex-col items-center gap-2">
+  <div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant/50">
+    <span class="font-label-md">W</span>
+  </div>
+  <span class="font-label-md text-label-md text-outline">W</span>
+</div>
+<!-- Day 4: Thursday -->
+<div class="flex flex-col items-center gap-2">
+  <div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant/50">
+    <span class="font-label-md">T</span>
+  </div>
+  <span class="font-label-md text-label-md text-outline">T</span>
+</div>
+<!-- Day 5: Friday -->
+<div class="flex flex-col items-center gap-2">
+  <div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant/50">
+    <span class="font-label-md">F</span>
+  </div>
+  <span class="font-label-md text-label-md text-outline">F</span>
+</div>
+<!-- Day 6: Saturday -->
+<div class="flex flex-col items-center gap-2">
+  <div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant/50">
+    <span class="font-label-md">S</span>
+  </div>
+  <span class="font-label-md text-label-md text-outline">S</span>
+</div>
+<!-- Day 7: Sunday -->
+<div class="flex flex-col items-center gap-2">
+  <div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant/50">
+    <span class="font-label-md">S</span>
+  </div>
+  <span class="font-label-md text-label-md text-outline">S</span>
+</div></div>
+</div>
+<!-- Weekly Progress Chart (Spans 8 columns) -->
+<div class="col-span-1 md:col-span-8 bg-surface rounded-[24px] p-8 shadow-soft-glow">
+<div class="flex items-center justify-between mb-8">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-1">学习量</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">本周平均每天回答 23 道题</p>
+</div>
+<div class="bg-surface-container-low rounded-full p-1 flex">
+<button class="px-4 py-1.5 rounded-full bg-white shadow-sm font-label-md text-label-md text-on-surface">周</button>
+<button class="px-4 py-1.5 rounded-full font-label-md text-label-md text-on-surface-variant hover:text-on-surface">月</button>
+</div>
+</div>
+<!-- Legend -->
+<div class="flex gap-4 mb-6">
+<div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-primary-container"></span><span class="font-label-md text-label-md text-on-surface-variant">词汇</span></div>
+<div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-secondary-container"></span><span class="font-label-md text-label-md text-on-surface-variant">语法</span></div>
+<div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-tertiary-container"></span><span class="font-label-md text-label-md text-on-surface-variant">翻译</span></div>
+<div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-[#FFA500]/20"></span><span class="font-label-md text-label-md text-on-surface-variant">听力</span></div></div>
+<!-- Simplified Bar Chart Representation -->
+<div class="h-48 flex items-end justify-between gap-2 border-b border-surface-variant pb-2">
+<!-- Empty days -->
+<div class="w-full bg-surface-variant/30 rounded-t-sm h-2"></div>
+<div class="w-full bg-surface-variant/30 rounded-t-sm h-2"></div>
+<div class="w-full bg-surface-variant/30 rounded-t-sm h-2"></div>
+<div class="w-full bg-surface-variant/30 rounded-t-sm h-2"></div>
+<div class="w-full bg-surface-variant/30 rounded-t-sm h-2"></div>
+<!-- Active day (Yesterday) -->
+<div class="w-full flex flex-col justify-end gap-0.5 h-full">
+<div class="w-full bg-primary-container rounded-t-sm h-[60%]"></div>
+<div class="w-full bg-secondary-container h-[20%]"></div>
+</div>
+<!-- Today -->
+<div class="w-full bg-surface-variant/30 rounded-t-sm h-2 relative">
+<span class="absolute -bottom-8 left-1/2 -translate-x-1/2 font-label-md text-label-md text-primary font-bold">Today</span>
+</div>
+</div>
+<div class="flex justify-between mt-2 px-2">
+<span class="font-label-md text-label-md text-outline">M</span>
+<span class="font-label-md text-label-md text-outline">T</span>
+<span class="font-label-md text-label-md text-outline">W</span>
+<span class="font-label-md text-label-md text-outline">T</span>
+<span class="font-label-md text-label-md text-outline">F</span>
+<span class="font-label-md text-label-md text-outline">S</span>
+<span class="font-label-md text-label-md text-outline opacity-0">S</span>
+</div>
+</div>
+<!-- Quick Actions / Mini Cards (Spans 4 columns) -->
+<div class="col-span-1 md:col-span-4 flex flex-col gap-gutter">
+<!-- Resume Lesson -->
+<div class="bg-surface rounded-[24px] p-6 shadow-soft-glow border border-transparent hover:border-primary/20 transition-colors cursor-pointer group">
+<div class="w-12 h-12 rounded-full bg-secondary-container/20 text-secondary flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">menu_book</span>
+</div>
+<h4 class="font-headline-md text-headline-md text-on-surface mb-1">继续学习</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">第 4 单元：商务会议</p>
+</div>
+<!-- Word of the Day -->
+<div class="bg-surface rounded-[24px] p-6 shadow-soft-glow relative overflow-hidden group cursor-pointer">
+<div class="absolute right-0 top-0 w-24 h-24 bg-tertiary-container/10 rounded-bl-full z-0 transition-transform group-hover:scale-125"></div>
+<div class="relative z-10">
+<div class="flex items-center gap-2 mb-3">
+<span class="material-symbols-outlined text-tertiary text-sm">wb_sunny</span>
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">每日单词</span>
+</div>
+<h4 class="font-display-lg text-display-lg text-on-surface leading-tight mb-1">Serendipity</h4>
+<p class="font-body-md text-body-md text-tertiary italic">名词</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Promotional Banner -->
+
+</div>
+<!-- Footer (Shared Component) -->
+
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full bg-surface border-t border-outline-variant/30 flex justify-around items-center h-16 z-50 pb-safe">
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined fill">home</span>
+<span class="font-label-md text-[10px] font-bold">首页</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-label-md text-[10px]">统计</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">school</span>
+<span class="font-label-md text-[10px]">学习中心</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-md text-[10px]">个人资料</span>
+</a>
+</nav>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body></html>

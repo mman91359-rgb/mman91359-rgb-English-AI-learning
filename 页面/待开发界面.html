@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+
+<html class="light" lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>功能开发中 - Recall-睿考</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-primary": "#d2bcfb",
+                    "secondary": "#0c6780",
+                    "on-secondary-fixed": "#001f29",
+                    "error": "#ba1a1a",
+                    "tertiary-container": "#57bb5d",
+                    "on-primary": "#ffffff",
+                    "primary-fixed": "#ebddff",
+                    "on-error-container": "#93000a",
+                    "on-secondary-fixed-variant": "#004d62",
+                    "tertiary": "#006e20",
+                    "primary-container": "#b19cd9",
+                    "on-tertiary": "#ffffff",
+                    "surface-tint": "#67558c",
+                    "secondary-container": "#9ae1ff",
+                    "on-primary-container": "#443267",
+                    "surface-container-highest": "#e1e2e5",
+                    "inverse-surface": "#2e3133",
+                    "error-container": "#ffdad6",
+                    "on-tertiary-container": "#004711",
+                    "tertiary-fixed-dim": "#77dc7a",
+                    "on-secondary-container": "#09657f",
+                    "on-tertiary-fixed": "#002105",
+                    "surface-container-low": "#f2f3f6",
+                    "on-surface": "#191c1e",
+                    "inverse-on-surface": "#f0f1f4",
+                    "surface-container": "#edeef1",
+                    "secondary-fixed": "#baeaff",
+                    "primary": "#67558c",
+                    "outline": "#7a757f",
+                    "surface-dim": "#d9dadd",
+                    "secondary-fixed-dim": "#89d0ed",
+                    "primary-fixed-dim": "#d2bcfb",
+                    "on-error": "#ffffff",
+                    "surface": "#f8f9fc",
+                    "on-secondary": "#ffffff",
+                    "surface-bright": "#f8f9fc",
+                    "surface-container-high": "#e7e8eb",
+                    "on-tertiary-fixed-variant": "#005316",
+                    "on-background": "#191c1e",
+                    "background": "#f8f9fc",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary-fixed": "#220f44",
+                    "on-primary-fixed-variant": "#4f3d73",
+                    "tertiary-fixed": "#93f993",
+                    "on-surface-variant": "#49454f",
+                    "outline-variant": "#cbc4d0"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "sidebar-width": "280px",
+                    "margin-page": "40px",
+                    "container-max": "1200px",
+                    "unit": "8px",
+                    "gutter": "24px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "label-lg": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "body-md": ["Inter"],
+                    "label-md": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-lg": ["14px", {"lineHeight": "20px", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "label-md": ["12px", {"lineHeight": "16px", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #f8f9fc;
+            font-family: 'Inter', sans-serif;
+            color: #191c1e;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .sidebar-active-indicator {
+            position: absolute;
+            left: 0;
+            width: 2px;
+            height: 24px;
+            background-color: #67558c;
+        }
+        .soft-glow {
+            box-shadow: 0 4px 20px rgba(51, 58, 72, 0.05);
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 32px 0 rgba(103, 85, 140, 0.08);
+        }
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 280px;
+            width: calc(100% - 280px);
+            height: 100%;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body class="overflow-hidden">
+<!-- Background Canvas for Shader -->
+<canvas id="bg-canvas"></canvas>
+<!-- Persistent SideNavBar -->
+<aside class="fixed left-0 top-0 h-full w-[280px] bg-surface-container-lowest dark:bg-inverse-surface shadow-[0_4px_20px_rgba(51,58,72,0.05)] flex flex-col py-8 px-6 z-50">
+<div class="mb-10 px-4"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-3xl">school</span><h1 class="text-headline-md font-headline-md font-bold text-primary">Recall-睿考</h1></div><div class="mt-2 flex flex-col"><span class="text-label-md font-label-md text-on-surface-variant">连续学习天数</span><span class="text-headline-md font-headline-md text-primary font-bold">7 天 🔥</span></div></div>
+<nav class="flex-1 space-y-2"><!-- Active Tab: Home -->
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl bg-primary-container/10 text-primary border-l-2 border-primary font-bold transition-colors" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-lg text-label-lg">首页</span>
+</a>
+<!-- Inactive Tabs -->
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-primary-container/10 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-label-lg text-label-lg">学习统计</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-primary-container/10 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">school</span>
+<span class="font-label-lg text-label-lg">学习中心</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-primary-container/10 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-lg text-label-lg">个人资料</span>
+</a></nav>
+<div class="mt-auto flex flex-col gap-2">
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-primary-container/10 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-lg text-label-lg">设置</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-primary-container/10 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-lg text-label-lg">退出登录</span>
+</a>
+</div>
+</aside>
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 left-[280px] h-20 bg-transparent flex justify-between items-center px-margin-page z-40"><div class="flex items-center gap-4">
+<div class="md:hidden">
+<span class="material-symbols-outlined text-on-surface text-2xl cursor-pointer">menu</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-high/50 rounded-full transition-all">
+<span class="material-symbols-outlined">notifications</span>
+</button><button class="p-2 text-on-surface-variant hover:bg-surface-container-high/50 rounded-full transition-all" id="themeToggle">
+<span class="material-symbols-outlined">light_mode</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-high/50 rounded-full transition-all">
+<span class="material-symbols-outlined">language</span>
+</button>
+<div class="w-10 h-10 rounded-full bg-primary-container/30 overflow-hidden flex items-center justify-center cursor-pointer border border-outline-variant/30">
+<img alt="Small profile avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-Xsf9OrZLT_4OlrxFkJQJmi_5dFMtQrKPV1GyikHyP2Xi7kzHM4-YZ3OZbqZt9WItkKgrwK3gfqy2on6pOzSJDdRXtMRhLbxD9PllBjCyoKEk-0PVZFwDijGZYOkt1kN3S2rfLTkxeDJ5R7q7tcmCs3K8y9Le-EDSVhq4L379Sfq7yNLFc-_WOVVD_CrNK429p_KU-c2lpLnfAyW-a1FZ8085HaO3bd0So-mgZLLii1b_79ZnYBn_ROETgbt-Z-yENbtMH4LS-URT"/>
+</div>
+</div></header>
+<!-- Main Content Canvas -->
+<main class="ml-[280px] pt-20 h-screen overflow-y-auto relative">
+<div class="max-w-[1200px] mx-auto px-margin-page py-12 h-full flex flex-col items-center justify-center">
+<!-- Development Content Area -->
+<div class="text-center max-w-2xl animate-fade-in-up glass-panel p-12 rounded-[32px]">
+<!-- Immersive 3D Scene Container -->
+<div class="relative mb-12 flex justify-center">
+<div class="absolute inset-0 bg-primary/10 rounded-full scale-150 blur-3xl -z-10"></div>
+<div class="w-72 h-72 flex items-center justify-center relative z-10" id="three-container">
+<!-- Three.js will render here -->
+</div>
+</div>
+<!-- Textual Content -->
+<div class="space-y-6">
+<h2 class="font-display-lg text-display-lg text-on-surface tracking-widest uppercase">功能开发中</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant/80 font-light max-w-xl mx-auto leading-relaxed">
+                        我们正在全力打造这个新功能，力求为您带来更完美的学习体验。感谢您的耐心等待！
+                    </p>
+</div>
+<!-- CTA -->
+<div class="mt-12">
+<button class="px-10 py-4 bg-primary text-on-primary font-label-lg text-label-lg rounded-full shadow-lg hover:shadow-primary/20 hover:-translate-y-0.5 active:scale-95 transition-all duration-300 flex items-center gap-3 mx-auto" onclick="window.history.back()">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+                        返回首页
+                    </button>
+</div>
+<!-- Decorative Progress Hint -->
+<div class="mt-16 flex items-center justify-center gap-6">
+<div class="w-16 h-0.5 bg-primary/10 rounded-full"></div>
+<div class="w-32 h-1.5 bg-surface-container-high rounded-full relative overflow-hidden">
+<div class="absolute inset-0 bg-primary w-2/3 animate-progress-slide rounded-full"></div>
+</div>
+<div class="w-16 h-0.5 bg-primary/10 rounded-full"></div>
+</div>
+</div>
+</div>
+</main>
+<style>
+        @keyframes fade-in-up {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+            animation: fade-in-up 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes progress-slide {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .animate-progress-slide {
+            animation: progress-slide 2.5s infinite cubic-bezier(0.65, 0, 0.35, 1);
+        }
+    </style>
+<script>
+    // --- BACKGROUND SHADER SETUP ---
+    const bgCanvas = document.getElementById('bg-canvas');
+    const gl = bgCanvas.getContext('webgl');
+    if (gl) {
+        const vertexShaderSource = `
+            attribute vec2 position;
+            varying vec2 v_texCoord;
+            void main() {
+                v_texCoord = position * 0.5 + 0.5;
+                v_texCoord.y = 1.0 - v_texCoord.y;
+                gl_Position = vec4(position, 0.0, 1.0);
+            }
+        `;
+        const fragmentShaderSource = `
+            precision highp float;
+            uniform float u_time;
+            uniform vec2 u_resolution;
+            varying vec2 v_texCoord;
+
+            void main() {
+                vec2 uv = v_texCoord;
+                float noise1 = sin(uv.x * 3.0 + u_time * 0.5) * 0.5 + 0.5;
+                float noise2 = sin(uv.y * 2.0 - u_time * 0.3) * 0.5 + 0.5;
+                float blend = smoothstep(0.3, 0.7, (noise1 + noise2) * 0.5);
+                vec3 color1 = vec3(0.694, 0.612, 0.851); 
+                vec3 color2 = vec3(0.97, 0.97, 1.0);
+                vec3 finalColor = mix(color2, color1, blend * 0.4);
+                gl_FragColor = vec4(finalColor, 1.0);
+            }
+        `;
+
+        function createShader(gl, type, source) {
+            const shader = gl.createShader(type);
+            gl.shaderSource(shader, source);
+            gl.compileShader(shader);
+            return shader;
+        }
+
+        const program = gl.createProgram();
+        gl.attachShader(program, createShader(gl, gl.VERTEX_SHADER, vertexShaderSource));
+        gl.attachShader(program, createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource));
+        gl.linkProgram(program);
+        gl.useProgram(program);
+
+        const positionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW);
+
+        const positionLocation = gl.getAttribLocation(program, "position");
+        gl.enableVertexAttribArray(positionLocation);
+        gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+        const timeLocation = gl.getUniformLocation(program, "u_time");
+        const resLocation = gl.getUniformLocation(program, "u_resolution");
+
+        function renderBg(time) {
+            bgCanvas.width = bgCanvas.clientWidth;
+            bgCanvas.height = bgCanvas.clientHeight;
+            gl.viewport(0, 0, bgCanvas.width, bgCanvas.height);
+            gl.uniform1f(timeLocation, time * 0.001);
+            gl.uniform2f(resLocation, bgCanvas.width, bgCanvas.height);
+            gl.drawArrays(gl.TRIANGLES, 0, 6);
+            requestAnimationFrame(renderBg);
+        }
+        requestAnimationFrame(renderBg);
+    }
+
+    // --- THREE.JS 3D SCENE ---
+    const container = document.getElementById('three-container');
+    if (container) {
+        const width = container.clientWidth || 300;
+        const height = container.clientHeight || 300;
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+
+        renderer.setSize(width, height);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(renderer.domElement);
+
+        const group = new THREE.Group();
+        const geometry = new THREE.IcosahedronGeometry(1.5, 0);
+        const material = new THREE.MeshPhongMaterial({
+            color: 0xb19cd9,
+            flatShading: true,
+            shininess: 100,
+            transparent: true,
+            opacity: 0.9
+        });
+
+        const mainMesh = new THREE.Mesh(geometry, material);
+        group.add(mainMesh);
+
+        for (let i = 0; i < 20; i++) {
+            const sGeom = new THREE.SphereGeometry(0.05, 8, 8);
+            const sMat = new THREE.MeshPhongMaterial({ color: 0xb19cd9 });
+            const particle = new THREE.Mesh(sGeom, sMat);
+            particle.position.set(
+                (Math.random() - 0.5) * 5,
+                (Math.random() - 0.5) * 5,
+                (Math.random() - 0.5) * 5
+            );
+            group.add(particle);
+        }
+
+        scene.add(group);
+        const light = new THREE.DirectionalLight(0xffffff, 1);
+        light.position.set(5, 5, 5);
+        scene.add(light);
+        scene.add(new THREE.AmbientLight(0x404040));
+        camera.position.z = 5;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            group.rotation.x += 0.005;
+            group.rotation.y += 0.01;
+            group.position.y = Math.sin(Date.now() * 0.001) * 0.2;
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            const w = container.clientWidth || 300;
+            const h = container.clientHeight || 300;
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+            renderer.setSize(w, h);
+        });
+    }
+
+    // Micro-interaction for theme toggle
+    const themeToggle = document.getElementById('themeToggle');
+    const html = document.documentElement;
+    let isDark = false;
+
+    themeToggle.addEventListener('click', () => {
+        isDark = !isDark;
+        if (isDark) {
+            html.classList.add('dark');
+            themeToggle.querySelector('span').innerText = 'dark_mode';
+        } else {
+            html.classList.remove('dark');
+            themeToggle.querySelector('span').innerText = 'light_mode';
+        }
+    });
+
+    // Simple ripple effect for buttons
+    document.querySelectorAll('button').forEach(button => {
+        button.addEventListener('mousedown', function(e) {
+            const rect = this.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const ripple = document.createElement('span');
+            ripple.style.position = 'absolute';
+            ripple.style.width = '5px';
+            ripple.style.height = '5px';
+            ripple.style.background = 'rgba(255, 255, 255, 0.4)';
+            ripple.style.borderRadius = '50%';
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            ripple.style.transform = 'scale(0)';
+            ripple.style.transition = 'transform 0.5s ease-out, opacity 0.5s ease-out';
+            ripple.style.pointerEvents = 'none';
+            
+            this.style.position = 'relative';
+            this.style.overflow = 'hidden';
+            this.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.style.transform = 'scale(40)';
+                ripple.style.opacity = '0';
+            }, 10);
+            
+            setTimeout(() => ripple.remove(), 500);
+        });
+    });
+</script>
+</body></html>

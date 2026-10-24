@@ -1,0 +1,261 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Epop Dictionary - Grammar Learning</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed": "#ebddff",
+                        "secondary-fixed-dim": "#89d0ed",
+                        "on-tertiary-fixed-variant": "#005316",
+                        "tertiary": "#006e20",
+                        "surface-bright": "#f8f9fc",
+                        "surface-tint": "#67558c",
+                        "on-tertiary": "#ffffff",
+                        "on-surface": "#191c1e",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed": "#baeaff",
+                        "inverse-surface": "#2e3133",
+                        "on-primary-container": "#443267",
+                        "on-primary-fixed": "#220f44",
+                        "background": "#f8f9fc",
+                        "tertiary-container": "#57bb5d",
+                        "secondary": "#0c6780",
+                        "primary": "#67558c",
+                        "on-background": "#191c1e",
+                        "error": "#ba1a1a",
+                        "surface-variant": "#e1e2e5",
+                        "outline-variant": "#cbc4d0",
+                        "tertiary-fixed-dim": "#77dc7a",
+                        "tertiary-fixed": "#93f993",
+                        "on-tertiary-fixed": "#002105",
+                        "inverse-on-surface": "#f0f1f4",
+                        "surface": "#f8f9fc",
+                        "surface-dim": "#d9dadd",
+                        "on-secondary-container": "#09657f",
+                        "secondary-container": "#9ae1ff",
+                        "outline": "#7a757f",
+                        "on-tertiary-container": "#004711",
+                        "surface-container-highest": "#e1e2e5",
+                        "on-surface-variant": "#49454f",
+                        "on-secondary-fixed-variant": "#004d62",
+                        "on-primary-fixed-variant": "#4f3d73",
+                        "on-secondary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "surface-container-high": "#e7e8eb",
+                        "primary-container": "#b19cd9",
+                        "on-error": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-primary": "#ffffff",
+                        "inverse-primary": "#d2bcfb",
+                        "on-secondary-fixed": "#001f29",
+                        "surface-container-low": "#f2f3f6",
+                        "surface-container": "#edeef1",
+                        "primary-fixed-dim": "#d2bcfb"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-page": "40px",
+                        "sidebar-width": "280px",
+                        "unit": "8px",
+                        "gutter": "24px",
+                        "container-max": "1200px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "label-lg": ["Inter"],
+                        "label-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-lg": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fc;
+        }
+        /* Hide scrollbar for clean UI */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+        .soft-shadow {
+            box-shadow: 0 4px 20px rgba(51, 58, 72, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased flex">
+<!-- SideNavBar (Suppressed due to Task-Focused Intent) -->
+<nav class="hidden md:flex flex-col h-screen py-8 px-4 w-sidebar-width fixed left-0 top-0 bg-surface dark:bg-inverse-surface border-r border-outline-variant dark:border-outline z-50">
+<div class="mb-10 px-4">
+<div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-3xl">school</span><h1 class="text-headline-md font-headline-md font-bold text-primary">Recall-睿考</h1></div>
+<div class="mt-2 flex flex-col">
+  <span class="text-label-md font-label-md text-on-surface-variant">连续学习天数</span>
+  <span class="text-headline-md font-headline-md text-primary font-bold">7 天 🔥</span>
+</div>
+</div>
+<div class="flex-1 flex flex-col gap-2">
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-primary-container/10 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-lg text-label-lg">首页</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-primary-container/10 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-label-lg text-label-lg">学习统计</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-primary border-l-2 border-primary bg-primary-container/10 transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: &quot;FILL&quot; 1;">school</span>
+<span class="font-label-lg text-label-lg font-bold">学习中心</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-primary-container/10 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-lg text-label-lg">个人资料</span>
+</a>
+</div>
+<div class="mt-auto flex flex-col gap-2 pt-8 border-t border-outline-variant/30">
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-primary-container/10 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-lg text-label-lg">设置</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-error/10 hover:text-error transition-colors" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-lg text-label-lg">退出登录</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 ml-0 md:ml-[280px] min-h-screen flex flex-col relative">
+<!-- TopAppBar (Transactional/Task view variant) -->
+<header class="h-20 sticky top-0 z-40 bg-background/80 backdrop-blur-md dark:bg-background/80 px-gutter w-full max-w-container-max mx-auto flex items-center justify-between border-b border-outline-variant/20"><div class="flex items-center gap-4 flex-1">
+<!-- Back Button -->
+<button class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high/50 transition-all">
+<span class="material-symbols-outlined">arrow_back_ios_new</span>
+</button>
+<!-- Progress Bar -->
+<div class="flex-1 max-w-md mx-auto relative flex items-center">
+<div class="absolute left-0 top-1/2 -translate-y-1/2 -ml-6 bg-secondary-fixed shadow-md rounded-full w-12 h-12 flex items-center justify-center z-10 border-4 border-background">
+<span class="material-symbols-outlined text-secondary font-bold" style="font-variation-settings: 'FILL' 1;">emoji_events</span>
+</div>
+<div class="w-full h-8 bg-surface-container rounded-full overflow-hidden ml-4 relative flex items-center">
+<div class="h-full bg-primary-container/60 w-0 transition-all duration-500 ease-out" style="width: 0%;"></div>
+<span class="absolute inset-0 flex items-center justify-center font-label-md text-label-md text-primary font-bold">0/20</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high/50 transition-all focus-within:ring-2 focus-within:ring-secondary/50">
+<span class="material-symbols-outlined">light_mode</span>
+</button>
+<button class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high/50 transition-all focus-within:ring-2 focus-within:ring-secondary/50 relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high/50 transition-all focus-within:ring-2 focus-within:ring-secondary/50">
+<span class="material-symbols-outlined">language</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-surface-variant ml-2 overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all">
+<span class="material-symbols-outlined flex items-center justify-center h-full w-full">person</span>
+</div>
+</div></header>
+<!-- Canvas Area -->
+<div class="flex-1 p-gutter flex flex-col items-center justify-center max-w-container-max mx-auto w-full">
+<!-- Main Task Card -->
+<div class="bg-surface-container-lowest rounded-[24px] w-full max-w-3xl soft-shadow overflow-hidden flex flex-col relative mb-8">
+<!-- Decorative Top Gradient (Lavender sky vibe) -->
+<div class="h-32 bg-gradient-to-b from-[#baeaff]/40 to-transparent absolute top-0 left-0 w-full z-0"></div>
+<div class="p-8 z-10 flex flex-col flex-grow">
+<!-- Card Header: Tags -->
+<div class="flex justify-between items-center mb-8">
+<div class="flex items-center gap-2 bg-secondary-container/20 text-secondary px-3 py-1.5 rounded-full">
+<span class="font-label-md text-label-md">15-1级</span>
+<span class="material-symbols-outlined text-sm">help</span>
+</div>
+<div class="bg-[#ff6b6b] text-white px-3 py-1 rounded-full text-xs font-bold shadow-sm flex items-center relative">
+                            New
+                            <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[4px] border-l-transparent border-t-[4px] border-t-[#ff6b6b] border-r-[4px] border-r-transparent"></div>
+</div>
+</div>
+<!-- Task Prompts -->
+<div class="flex flex-col gap-4 mb-8">
+<div class="flex items-start gap-3">
+<div class="bg-surface-variant text-on-surface-variant px-2 py-1 rounded-md font-label-md text-label-md whitespace-nowrap mt-1">
+                                意译
+                            </div>
+<p class="font-body-lg text-body-lg text-on-surface">他们被数千粉丝爱着。</p>
+</div>
+<div class="flex items-start gap-3">
+<div class="bg-surface-variant text-on-surface-variant px-2 py-1 rounded-md font-label-md text-label-md whitespace-nowrap mt-1">
+                                直译
+                            </div>
+<p class="font-body-lg text-body-lg text-on-surface">他们受数千粉丝喜爱。</p>
+</div>
+</div>
+<!-- Translation Input Area -->
+<div class="bg-surface-bright rounded-xl p-6 min-h-[120px] flex-grow border border-surface-variant/50 relative group">
+<!-- Placeholder for assembled words -->
+<div class="flex flex-wrap gap-2 content-start min-h-[80px]">
+<!-- Example assembled word: -->
+<!-- <div class="bg-surface text-on-surface px-4 py-2 rounded-lg font-body-md shadow-sm border border-outline-variant/20 cursor-pointer hover:bg-error-container hover:text-on-error-container transition-colors">They</div> -->
+</div>
+<!-- Floating Mic Action (from reference) -->
+
+</div>
+</div>
+</div>
+<!-- Word Tiles Area -->
+<div class="w-full max-w-3xl flex flex-wrap justify-center gap-3 mb-12">
+<!-- Word Bank -->
+<button class="bg-surface-container-lowest text-on-surface px-5 py-3 rounded-xl font-body-lg text-body-lg soft-shadow border border-outline-variant/20 hover:border-secondary hover:text-secondary transition-all active:scale-95">are</button>
+<button class="bg-surface-container-lowest text-on-surface px-5 py-3 rounded-xl font-body-lg text-body-lg soft-shadow border border-outline-variant/20 hover:border-secondary hover:text-secondary transition-all active:scale-95">by</button>
+<button class="bg-surface-container-lowest text-on-surface px-5 py-3 rounded-xl font-body-lg text-body-lg soft-shadow border border-outline-variant/20 hover:border-secondary hover:text-secondary transition-all active:scale-95">fans</button>
+<button class="bg-surface-container-lowest text-on-surface px-5 py-3 rounded-xl font-body-lg text-body-lg soft-shadow border border-outline-variant/20 hover:border-secondary hover:text-secondary transition-all active:scale-95">love</button>
+<button class="bg-surface-container-lowest text-on-surface px-5 py-3 rounded-xl font-body-lg text-body-lg soft-shadow border border-outline-variant/20 hover:border-secondary hover:text-secondary transition-all active:scale-95">loved</button>
+<button class="bg-surface-container-lowest text-on-surface px-5 py-3 rounded-xl font-body-lg text-body-lg soft-shadow border border-outline-variant/20 hover:border-secondary hover:text-secondary transition-all active:scale-95">of</button>
+<button class="bg-surface-container-lowest text-on-surface px-5 py-3 rounded-xl font-body-lg text-body-lg soft-shadow border border-outline-variant/20 hover:border-secondary hover:text-secondary transition-all active:scale-95">them</button>
+<button class="bg-surface-container-lowest text-on-surface px-5 py-3 rounded-xl font-body-lg text-body-lg soft-shadow border border-outline-variant/20 hover:border-secondary hover:text-secondary transition-all active:scale-95">they</button>
+<button class="bg-surface-container-lowest text-on-surface px-5 py-3 rounded-xl font-body-lg text-body-lg soft-shadow border border-outline-variant/20 hover:border-secondary hover:text-secondary transition-all active:scale-95">thousand</button>
+<button class="bg-surface-container-lowest text-on-surface px-5 py-3 rounded-xl font-body-lg text-body-lg soft-shadow border border-outline-variant/20 hover:border-secondary hover:text-secondary transition-all active:scale-95">thousands</button>
+</div>
+<!-- Bottom Action Bar -->
+<div class="w-full max-w-3xl flex items-center gap-4 mt-auto"><div class="flex items-center gap-4">
+<button class="bg-primary-container/20 text-on-primary-container px-6 py-4 rounded-[16px] font-label-lg text-label-lg flex flex-col items-center justify-center hover:bg-primary-container/30 transition-colors w-24">
+<span class="material-symbols-outlined mb-1">done_all</span>
+<span class="text-xs">查看答案</span>
+</button>
+<button class="w-14 h-14 bg-surface-container-lowest rounded-full soft-shadow flex items-center justify-center text-primary hover:scale-105 transition-transform border border-outline-variant/10">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">mic</span>
+</button>
+</div>
+<button class="flex-1 bg-surface-variant text-on-surface-variant py-4 rounded-[16px] font-headline-md text-headline-md hover:bg-surface-dim transition-colors">
+确认
+</button></div>
+</div>
+</main>
+
+
+</body></html>

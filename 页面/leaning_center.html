@@ -1,0 +1,330 @@
+<!DOCTYPE html><html lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Epop 英语 - 学习中心</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error-container": "#93000a",
+                        "secondary": "#0c6780",
+                        "outline-variant": "#cbc4d0",
+                        "error": "#ba1a1a",
+                        "surface-container": "#edeef1",
+                        "surface": "#f8f9fc",
+                        "surface-container-low": "#f2f3f6",
+                        "on-primary-fixed": "#220f44",
+                        "tertiary-fixed": "#93f993",
+                        "on-secondary-container": "#09657f",
+                        "inverse-primary": "#d2bcfb",
+                        "on-primary-container": "#443267",
+                        "on-tertiary-fixed": "#002105",
+                        "secondary-fixed-dim": "#89d0ed",
+                        "surface-container-high": "#e7e8eb",
+                        "outline": "#7a757f",
+                        "surface-dim": "#d9dadd",
+                        "inverse-on-surface": "#f0f1f4",
+                        "surface-variant": "#e1e2e5",
+                        "tertiary": "#006e20",
+                        "error-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "primary": "#67558c",
+                        "surface-container-highest": "#e1e2e5",
+                        "surface-tint": "#67558c",
+                        "background": "#f8f9fc",
+                        "primary-fixed": "#ebddff",
+                        "on-primary": "#ffffff",
+                        "on-background": "#191c1e",
+                        "primary-container": "#b19cd9",
+                        "on-secondary-fixed": "#001f29",
+                        "primary-fixed-dim": "#d2bcfb",
+                        "on-primary-fixed-variant": "#4f3d73",
+                        "on-surface": "#191c1e",
+                        "on-tertiary-container": "#004711",
+                        "tertiary-fixed-dim": "#77dc7a",
+                        "on-secondary": "#ffffff",
+                        "inverse-surface": "#2e3133",
+                        "tertiary-container": "#57bb5d",
+                        "on-surface-variant": "#49454f",
+                        "on-tertiary-fixed-variant": "#005316",
+                        "surface-bright": "#f8f9fc",
+                        "on-error": "#ffffff",
+                        "on-secondary-fixed-variant": "#004d62",
+                        "secondary-container": "#9ae1ff",
+                        "secondary-fixed": "#baeaff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-page": "40px",
+                        "gutter": "24px",
+                        "container-max": "1200px",
+                        "unit": "8px",
+                        "sidebar-width": "280px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Inter"],
+                        "label-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "label-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-lg": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex">
+<!-- SideNavBar -->
+<nav class="hidden md:flex flex-col h-full py-8 px-4 w-sidebar-width h-screen fixed left-0 top-0 bg-surface border-r border-outline-variant z-50">
+<div class="mb-10 px-4">
+<div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-3xl">school</span><h1 class="text-headline-md font-headline-md font-bold text-primary">Recall-睿考</h1></div>
+<div class="mt-2 flex flex-col">
+  <span class="text-label-md font-label-md text-on-surface-variant">连续学习天数</span>
+  <span class="text-headline-md font-headline-md text-primary font-bold">7 天 🔥</span>
+</div>
+</div>
+
+<div class="flex-1 flex flex-col gap-2">
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-primary-container/10 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-lg text-label-lg">首页</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-primary-container/10 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-label-lg text-label-lg">学习统计</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-primary border-l-2 border-primary bg-primary-container/10 transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: &quot;FILL&quot; 1;">school</span>
+<span class="font-label-lg text-label-lg font-bold">学习中心</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-primary-container/10 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-lg text-label-lg">个人资料</span>
+</a>
+</div>
+<div class="mt-auto flex flex-col gap-2 pt-8 border-t border-outline-variant/30">
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-primary-container/10 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-lg text-label-lg">设置</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-error/10 hover:text-error transition-colors" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-lg text-label-lg">退出登录</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 md:ml-sidebar-width flex flex-col min-h-screen">
+<!-- TopAppBar (Mobile & Top Content Area) -->
+<header class="h-20 sticky top-0 z-40 bg-background/80 backdrop-blur-md flex items-center justify-between px-gutter w-full max-w-container-max mx-auto md:hidden border-b border-outline-variant/30">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center overflow-hidden mr-1"><span class="material-symbols-outlined text-on-primary-container text-body-md">person</span></div>
+<span class="font-headline-md text-headline-md text-primary font-bold">Recall-睿考</span>
+</div>
+<div class="flex items-center gap-4">
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center overflow-hidden mr-1"><span class="material-symbols-outlined text-on-primary-container text-body-md">person</span></div>
+</div>
+</header>
+<!-- TopAppBar Desktop Equivalent Actions (Search/Icons) -->
+<div class="hidden md:flex h-20 sticky top-0 z-40 bg-background/80 backdrop-blur-md items-center justify-end px-gutter w-full max-w-container-max mx-auto gap-4">
+<div class="relative focus-within:ring-2 focus-within:ring-secondary/50 rounded-full transition-all">
+
+
+</div>
+<span class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high/50 rounded-full p-2 transition-all cursor-pointer">notifications</span><span class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high/50 rounded-full p-2 transition-all cursor-pointer">light_mode</span>
+<span class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high/50 rounded-full p-2 transition-all cursor-pointer">language</span>
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-90 transition-opacity ml-2"><span class="material-symbols-outlined text-on-primary-container text-body-lg">person</span></div>
+</div>
+<div class="flex-1 w-full max-w-container-max mx-auto px-gutter py-8">
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-8">学习中心</h2>
+<!-- Tab Navigation -->
+<div class="flex gap-2 mb-8 overflow-x-auto pb-2 scrollbar-hide">
+<button class="px-6 py-2 rounded-full bg-on-surface text-surface font-label-lg text-label-lg whitespace-nowrap transition-colors">
+                    词汇
+                </button>
+<button class="px-6 py-2 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-lg text-label-lg whitespace-nowrap transition-colors">
+                    语法
+                </button>
+<button class="px-6 py-2 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-lg text-label-lg whitespace-nowrap transition-colors">翻译</button>
+<button class="px-6 py-2 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-lg text-label-lg whitespace-nowrap transition-colors">
+                    听力
+                </button>
+<button class="px-6 py-2 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-lg text-label-lg whitespace-nowrap transition-colors">
+                    造句
+                </button></div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Main CTA Card -->
+<div class="col-span-1 md:col-span-8 bg-primary-container rounded-[24px] p-8 flex flex-col justify-between relative overflow-hidden group cursor-pointer hover:shadow-[0_4px_20px_rgba(51,58,72,0.15)] transition-shadow min-h-[200px]">
+<div class="relative z-10 text-on-primary-container">
+<h3 class="font-headline-md text-headline-md mb-2">词汇练习</h3>
+<div class="flex items-center gap-2 text-on-primary-container/80 font-body-md text-body-md">
+<span class="">每日目标：20 个单词</span>
+<span class="material-symbols-outlined text-sm">edit</span>
+</div>
+</div>
+<div class="absolute right-8 top-1/2 -translate-y-1/2 z-10 w-16 h-16 bg-surface-container-lowest/20 rounded-full flex items-center justify-center backdrop-blur-sm group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-4xl text-on-primary-container" style="font-variation-settings: &quot;FILL&quot; 1;">play_arrow</span>
+</div>
+<!-- Decorative elements -->
+<div class="absolute right-32 top-1/2 -translate-y-1/2 flex flex-col gap-2 opacity-30">
+<div class="w-1.5 h-1.5 rounded-full bg-on-primary-container"></div>
+<div class="w-1.5 h-1.5 rounded-full bg-on-primary-container"></div>
+<div class="w-1.5 h-1.5 rounded-full bg-on-primary-container"></div>
+<div class="w-1.5 h-1.5 rounded-full bg-on-primary-container"></div>
+</div>
+</div>
+<!-- Right Side Stack -->
+<div class="col-span-1 md:col-span-4 flex flex-col gap-4">
+<div class="bg-surface-container-lowest rounded-[24px] p-6 shadow-[0_4px_20px_rgba(51,58,72,0.05)] flex items-center justify-between cursor-pointer hover:bg-surface-container-lowest/80 transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-error-container/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-error" style="font-variation-settings: &quot;FILL&quot; 1;">favorite</span>
+</div>
+<span class="font-body-lg text-body-lg text-on-surface">我的收藏句</span>
+</div>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</div>
+<div class="bg-surface-container-lowest rounded-[24px] p-6 shadow-[0_4px_20px_rgba(51,58,72,0.05)] flex items-center justify-between cursor-pointer hover:bg-surface-container-lowest/80 transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-secondary-container/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary">build</span>
+</div>
+<span class="font-body-lg text-body-lg text-on-surface">我的错题集</span>
+</div>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</div>
+</div>
+<!-- Bottom Grid -->
+<div class="col-span-1 md:col-span-4 bg-surface-container-lowest rounded-[24px] p-6 shadow-[0_4px_20px_rgba(51,58,72,0.05)] flex items-center justify-between cursor-pointer hover:bg-surface-container-lowest/80 transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-tertiary-container/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary">hourglass_bottom</span>
+</div>
+<span class="font-body-lg text-body-lg text-on-surface">学习历史</span>
+</div>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</div>
+<div class="col-span-1 md:col-span-4 bg-surface-container-lowest rounded-[24px] p-6 shadow-[0_4px_20px_rgba(51,58,72,0.05)] flex items-center justify-between cursor-pointer hover:bg-surface-container-lowest/80 transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-primary-container/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">bookmark</span>
+</div>
+<span class="font-body-lg text-body-lg text-on-surface">我的单词本</span>
+</div>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</div>
+<div class="col-span-1 md:col-span-4 bg-surface-container-lowest rounded-[24px] p-6 shadow-[0_4px_20px_rgba(51,58,72,0.05)] flex items-center justify-between cursor-pointer hover:bg-surface-container-lowest/80 transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-secondary-container/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary">psychology</span>
+</div>
+<span class="font-body-lg text-body-lg text-on-surface">AI 问答</span>
+</div>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</div>
+</div>
+<!-- Dictionary Section -->
+<div class="mt-12">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-6">词典</h3>
+<div class="bg-surface-container-lowest rounded-[24px] p-6 shadow-[0_4px_20px_rgba(51,58,72,0.05)] flex items-center justify-between cursor-pointer hover:bg-surface-container-lowest/80 transition-colors max-w-sm">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-secondary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary">search</span>
+</div>
+<span class="font-body-lg text-body-lg text-on-surface">英语词典</span>
+</div>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</div>
+</div>
+</div>
+<!-- Footer -->
+
+</main>
+<!-- Mobile Bottom Navigation (Visible only on md:hidden) -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-outline-variant pb-safe z-50">
+<div class="flex justify-around items-center h-16">
+<a class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-[10px] font-medium">首页</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="text-[10px] font-medium">统计</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: &quot;FILL&quot; 1;">school</span>
+<span class="text-[10px] font-bold">学习</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-medium">个人资料</span>
+</a>
+</div>
+</nav>
+<style>
+        /* Hide scrollbar for tab nav but keep functionality */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* iOS Safe Area Padding for bottom nav */
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+            .pb-safe {
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+        }
+    </style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body></html>

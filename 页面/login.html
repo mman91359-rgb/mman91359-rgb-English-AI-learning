@@ -1,0 +1,241 @@
+<!DOCTYPE html><html lang="zh-CN" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Recall-睿考 - 登录</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+    tailwind.config = {
+        darkMode: "class",
+        theme: {
+            extend: {
+                "colors": {
+                    "on-error-container": "#93000a",
+                    "secondary": "#0c6780",
+                    "outline-variant": "#cbc4d0",
+                    "error": "#ba1a1a",
+                    "surface-container": "#edeef1",
+                    "surface": "#f8f9fc",
+                    "surface-container-low": "#f2f3f6",
+                    "on-primary-fixed": "#220f44",
+                    "tertiary-fixed": "#93f993",
+                    "on-secondary-container": "#09657f",
+                    "inverse-primary": "#d2bcfb",
+                    "on-primary-container": "#443267",
+                    "on-tertiary-fixed": "#002105",
+                    "secondary-fixed-dim": "#89d0ed",
+                    "surface-container-high": "#e7e8eb",
+                    "outline": "#7a757f",
+                    "surface-dim": "#d9dadd",
+                    "inverse-on-surface": "#f0f1f4",
+                    "surface-variant": "#e1e2e5",
+                    "tertiary": "#006e20",
+                    "error-container": "#ffdad6",
+                    "surface-container-lowest": "#ffffff",
+                    "on-tertiary": "#ffffff",
+                    "primary": "#67558c",
+                    "surface-container-highest": "#e1e2e5",
+                    "surface-tint": "#67558c",
+                    "background": "#f8f9fc",
+                    "primary-fixed": "#ebddff",
+                    "on-primary": "#ffffff",
+                    "on-background": "#191c1e",
+                    "primary-container": "#b19cd9",
+                    "on-secondary-fixed": "#001f29",
+                    "primary-fixed-dim": "#d2bcfb",
+                    "on-primary-fixed-variant": "#4f3d73",
+                    "on-surface": "#191c1e",
+                    "on-tertiary-container": "#004711",
+                    "tertiary-fixed-dim": "#77dc7a",
+                    "on-secondary": "#ffffff",
+                    "inverse-surface": "#2e3133",
+                    "tertiary-container": "#57bb5d",
+                    "on-surface-variant": "#49454f",
+                    "on-tertiary-fixed-variant": "#005316",
+                    "surface-bright": "#f8f9fc",
+                    "on-error": "#ffffff",
+                    "on-secondary-fixed-variant": "#004d62",
+                    "secondary-container": "#9ae1ff",
+                    "secondary-fixed": "#baeaff"
+                },
+                "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+                },
+                "spacing": {
+                    "margin-page": "40px",
+                    "gutter": "24px",
+                    "container-max": "1200px",
+                    "unit": "8px",
+                    "sidebar-width": "280px"
+                },
+                "fontFamily": {
+                    "headline-lg": ["Inter"],
+                    "label-lg": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "body-md": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "label-md": ["Inter"],
+                    "headline-xl": ["Inter"]
+                },
+                "fontSize": {
+                    "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                    "label-lg": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+                    "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                    "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                    "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                    "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                    "label-md": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                    "headline-xl": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                },
+                "boxShadow": {
+                    'soft-glow': '0 4px 20px rgba(51, 58, 72, 0.05)',
+                }
+            }
+        }
+    }
+  </script>
+<style>
+    body { font-family: 'Inter', sans-serif; }
+    .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .material-symbols-outlined.fill {
+        font-variation-settings: 'FILL' 1;
+    }
+</style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex antialiased">
+<!-- SideNavBar -->
+<aside class="hidden md:flex flex-col h-screen fixed left-0 top-0 w-sidebar-width bg-surface border-r border-outline-variant py-8 px-4 z-50">
+<div class="flex items-center gap-3 mb-8 px-4">
+<span class="material-symbols-outlined text-primary text-3xl">school</span>
+<span class="text-headline-md font-headline-md font-bold text-primary">Recall-睿考</span>
+</div>
+<nav class="flex-1 flex flex-col gap-2">
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl bg-primary-container/10 text-primary border-l-2 border-primary font-bold transition-colors" href="#">
+<span class="material-symbols-outlined">login</span>
+<span class="font-label-lg text-label-lg">登录</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-primary-container/10 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">person_add</span>
+<span class="font-label-lg text-label-lg">注册</span>
+</a>
+</nav>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 w-full md:ml-sidebar-width flex flex-col min-h-screen relative"><header class="h-20 sticky top-0 z-40 bg-background/80 backdrop-blur-md flex items-center justify-between px-gutter w-full max-w-container-max mx-auto"><div class="flex items-center gap-4"><div class="md:hidden"><span class="material-symbols-outlined text-on-surface text-2xl cursor-pointer">menu</span></div></div><div class="flex items-center gap-4">
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-high/50 rounded-full transition-all">
+<span class="material-symbols-outlined">light_mode</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-high/50 rounded-full transition-all">
+<span class="material-symbols-outlined">language</span>
+</button>
+
+</div></header>
+<div class="flex-1 px-gutter py-8 w-full max-w-container-max mx-auto space-y-8 flex flex-col justify-center">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<div class="col-span-1 md:col-span-6 md:col-start-4 bg-surface rounded-[24px] p-8 sm:p-10 shadow-soft-glow relative overflow-hidden">
+<!-- Logo & Header -->
+<div class="text-center mb-10">
+<div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-container/10 mb-4">
+<span class="material-symbols-outlined text-primary text-3xl fill" data-icon="auto_stories" data-weight="fill">auto_stories</span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-on-surface mb-2">Recall-睿考</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">开启你的 AI 英语提分之旅</p>
+</div>
+<!-- Login Form -->
+<form class="space-y-5" id="loginForm" onsubmit="event.preventDefault(); handleLogin();">
+<!-- Username -->
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-secondary group-focus-within:text-primary transition-colors" data-icon="person">person</span>
+</div>
+<input class="w-full py-3.5 pl-12 pr-4 bg-background border border-outline-variant rounded-[16px] text-on-surface placeholder-outline font-body-md text-body-md focus:bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all" id="username" placeholder="用户名 / 手机号" required="" type="text">
+</div>
+<!-- Password -->
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-secondary group-focus-within:text-primary transition-colors" data-icon="lock">lock</span>
+</div>
+<input class="w-full py-3.5 pl-12 pr-12 bg-background border border-outline-variant rounded-[16px] text-on-surface placeholder-outline font-body-md text-body-md focus:bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all" id="password" placeholder="密码" required="" type="password">
+<button class="absolute inset-y-0 right-0 pr-4 flex items-center text-secondary hover:text-on-surface transition-colors" onclick="togglePassword()" type="button">
+<span class="material-symbols-outlined" data-icon="visibility_off" id="visibilityIcon">visibility_off</span>
+</button>
+</div>
+<!-- Submit Button -->
+<div class="pt-2">
+<button class="w-full py-3.5 px-4 bg-primary hover:bg-on-primary-fixed-variant text-on-primary font-label-lg text-label-lg rounded-full shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 active:scale-95" id="submitBtn" type="submit">
+<span class="" id="btnText">登 录</span>
+<span class="material-symbols-outlined hidden animate-spin" data-icon="progress_activity" id="spinnerIcon">progress_activity</span>
+</button>
+</div>
+</form>
+<!-- Footer Links -->
+<div class="mt-8 text-center">
+<p class="font-body-md text-body-md text-on-surface-variant">
+          还没有账号？
+          <a class="text-primary font-bold hover:underline underline-offset-4 transition-all" href="#">立即注册</a>
+</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<script>
+    function togglePassword() {
+      const pwdInput = document.getElementById('password');
+      const icon = document.getElementById('visibilityIcon');
+      
+      if (pwdInput.type === 'password') {
+        pwdInput.type = 'text';
+        icon.textContent = 'visibility';
+        icon.setAttribute('data-icon', 'visibility');
+      } else {
+        pwdInput.type = 'password';
+        icon.textContent = 'visibility_off';
+        icon.setAttribute('data-icon', 'visibility_off');
+      }
+    }
+
+    function handleLogin() {
+      const btn = document.getElementById('submitBtn');
+      const btnText = document.getElementById('btnText');
+      const spinner = document.getElementById('spinnerIcon');
+      
+      // Simulate loading state
+      btn.disabled = true;
+      btn.classList.add('opacity-80', 'cursor-not-allowed');
+      btnText.textContent = '登录中...';
+      spinner.classList.remove('hidden');
+
+      // Simulate API call
+      setTimeout(() => {
+        // Reset state
+        btn.disabled = false;
+        btn.classList.remove('opacity-80', 'cursor-not-allowed');
+        btnText.textContent = '登 录';
+        spinner.classList.add('hidden');
+        
+        // Mock routing logic based on 'isAssessed'
+        const isAssessed = Math.random() > 0.5;
+        console.log('Login successful. isAssessed:', isAssessed);
+        // window.location.href = isAssessed ? '/dashboard' : '/onboarding';
+      }, 1500);
+    }
+  </script>
+
+
+
+
+
+
+
+
+
+
+</body></html>

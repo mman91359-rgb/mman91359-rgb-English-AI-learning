@@ -1,5 +1,6 @@
 package com.english.ai.exercise.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.Data;
 
@@ -39,4 +40,8 @@ public class QuestionVO {
 
     /** 是否展示答案 */
     private Boolean showAnswer;
+
+    /** 仅后端新词去重使用，不返回前端 */
+    @JsonIgnore
+    private String answerWord;
 }

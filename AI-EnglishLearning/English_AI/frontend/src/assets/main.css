@@ -204,3 +204,118 @@ button, a {
 .soft-shadow {
   box-shadow: 0 4px 20px rgba(51, 58, 72, 0.05);
 }
+
+/* ==================== 金币 / 签到 / 过渡动效 ==================== */
+
+@keyframes coin-bump {
+  0%, 100% { transform: scale(1); }
+  45% { transform: scale(1.22) rotate(-8deg); }
+}
+
+.coin-bump {
+  animation: coin-bump 0.45s ease-out;
+}
+
+@keyframes coin-float {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+  20% { opacity: 1; }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(1.15);
+  }
+}
+
+.coin-particle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  color: var(--color-tertiary);
+  opacity: 0;
+  animation: coin-float 1s ease-out forwards;
+}
+
+.coin-particle-1 { --tx: -70px; --ty: -90px; animation-delay: 0ms; }
+.coin-particle-2 { --tx: 65px; --ty: -95px; animation-delay: 40ms; }
+.coin-particle-3 { --tx: -110px; --ty: -25px; animation-delay: 80ms; }
+.coin-particle-4 { --tx: 110px; --ty: -20px; animation-delay: 120ms; }
+.coin-particle-5 { --tx: -85px; --ty: 70px; animation-delay: 160ms; }
+.coin-particle-6 { --tx: 80px; --ty: 75px; animation-delay: 200ms; }
+.coin-particle-7 { --tx: -35px; --ty: -120px; animation-delay: 240ms; }
+.coin-particle-8 { --tx: 35px; --ty: 120px; animation-delay: 280ms; }
+
+@keyframes checkin-pop {
+  0% { opacity: 0; transform: scale(0.6) translateY(10px); }
+  55% { opacity: 1; transform: scale(1.08) translateY(-2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.coin-reward-text {
+  animation: checkin-pop 0.5s ease-out both;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+}
+
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.fade-slide-enter-from,
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 0.25s ease;
+}
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
+}
+.modal-fade-enter-active .modal-card,
+.modal-fade-leave-active .modal-card {
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+.modal-fade-enter-from .modal-card,
+.modal-fade-leave-to .modal-card {
+  opacity: 0;
+  transform: scale(0.96) translateY(8px);
+}
+
+.icon-fade-enter-active,
+.icon-fade-leave-active {
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.icon-fade-enter-from,
+.icon-fade-leave-to {
+  opacity: 0;
+  transform: rotate(-20deg) scale(0.8);
+}
+
+.coin-burst-enter-active,
+.coin-burst-leave-active {
+  transition: opacity 0.2s ease;
+}
+.coin-burst-enter-from,
+.coin-burst-leave-to {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .coin-bump,
+  .coin-particle,
+  .coin-reward-text {
+    animation: none !important;
+  }
+  .fade-slide-enter-active,
+  .fade-slide-leave-active,
+  .modal-fade-enter-active,
+  .modal-fade-leave-active,
+  .icon-fade-enter-active,
+  .icon-fade-leave-active {
+    transition: none !important;
+  }
+}

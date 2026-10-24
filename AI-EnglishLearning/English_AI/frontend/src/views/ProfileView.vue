@@ -86,9 +86,9 @@
             <span class="font-headline-md text-headline-md text-on-background">{{ totalStudyTime }}</span>
           </div>
           <div class="flex flex-col items-center border-l border-r border-outline-variant/20 px-4">
-            <span class="material-symbols-outlined text-primary-container mb-2 text-3xl fill" :class="{ 'opacity-30': streakDays < 3 }">local_fire_department</span>
+            <span class="material-symbols-outlined text-primary-container mb-2 text-3xl fill" :class="{ 'opacity-30': userStore.checkInStreak < 3 }">local_fire_department</span>
             <span class="font-label-lg text-label-lg text-on-surface-variant mb-1">{{ $t('dashboard.streakDays') }}</span>
-            <span class="font-headline-md text-headline-md text-on-background">{{ streakDays }}{{ $t('stats.days') }}</span>
+            <span class="font-headline-md text-headline-md text-on-background">{{ userStore.checkInStreak }}{{ $t('stats.days') }}</span>
           </div>
           <div class="flex flex-col items-center">
             <span class="material-symbols-outlined text-tertiary-fixed-dim mb-2 text-3xl fill">calendar_month</span>
@@ -96,6 +96,69 @@
             <span class="font-headline-md text-headline-md text-on-background">{{ activeDays }}{{ $t('stats.days') }}</span>
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- 金币与签到 -->
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="bg-surface-container-lowest rounded-[24px] p-8 soft-shadow border border-surface-container-low">
+        <div class="flex items-center gap-4 mb-6">
+          <div class="w-12 h-12 rounded-full bg-tertiary-container/20 flex items-center justify-center">
+            <span class="material-symbols-outlined text-tertiary text-3xl fill">paid</span>
+          </div>
+          <div>
+            <p class="font-label-md text-label-md text-on-surface-variant">{{ $t('coin.balance') }}</p>
+            <p class="font-headline-lg text-headline-lg text-on-surface tabular-nums">
+              {{ userStore.coinBalance.toLocaleString('zh-CN') }}
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center justify-between p-4 rounded-xl bg-surface-container-low">
+          <span class="font-body-md text-body-md text-on-surface-variant">{{ $t('coin.totalEarned') }}</span>
+          <span class="font-label-lg text-label-lg text-on-surface tabular-nums">
+            {{ userStore.totalEarned.toLocaleString('zh-CN') }}
+          </span>
+        </div>
+      </div>
+
+      <div class="bg-surface-container-lowest rounded-[24px] p-8 soft-shadow border border-surface-container-low">
+        <div class="flex items-start justify-between gap-3 mb-6">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-primary-container/20 flex items-center justify-center">
+              <span class="material-symbols-outlined text-primary text-3xl">event_available</span>
+            </div>
+            <div>
+              <p class="font-label-md text-label-md text-on-surface-variant">{{ $t('checkIn.title') }}</p>
+              <p class="font-body-md text-body-md text-on-surface">
+                {{ $t('checkIn.streak', { days: userStore.checkInStreak }) }}
+              </p>
+            </div>
+          </div>
+          <span
+            class="px-3 py-1 rounded-full font-label-sm text-label-sm whitespace-nowrap"
+            :class="userStore.todayCheckedIn
+              ? 'bg-primary-container/20 text-primary'
+              : 'bg-surface-container-high text-on-surface-variant'"
+          >
+            {{ userStore.todayCheckedIn ? $t('checkIn.checkedIn') : $t('checkIn.notCheckedIn') }}
+          </span>
+        </div>
+
+        <button
+          v-if="!userStore.todayCheckedIn"
+          :disabled="profileCheckingIn"
+          class="w-full py-3 rounded-full bg-tertiary text-on-tertiary font-label-lg text-label-lg transition-all duration-200 hover:bg-tertiary/90 hover:shadow-sm active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+          @click="handleProfileCheckIn"
+        >
+          {{ profileCheckingIn
+            ? $t('common.saving')
+            : (userStore.previewSignInReward > 0
+              ? $t('checkIn.button', { reward: userStore.previewSignInReward })
+              : $t('checkIn.action')) }}
+        </button>
+        <p v-else class="text-center font-body-md text-body-md text-on-surface-variant py-3">
+          {{ $t('checkIn.checkedInTip') }}
+        </p>
       </div>
     </section>
 
@@ -323,7 +386,6 @@ const submitNickname = async () => {
 
 // ========== 顶部统计（从后端真实数据获取） ==========
 const totalStudyTime = ref(`0${t('stats.minutes')}`)
-const streakDays = computed(() => userStore.streakDays)
 const activeDays = computed(() => userStore.activeDays)
 
 // ========== 积分数据 ==========
@@ -333,13 +395,34 @@ const grammarScore = ref(0)
 const speakingScore = ref(0)
 const listeningScore = ref(0)
 
+// ========== 金币与签到 ==========
+const profileCheckingIn = ref(false)
+
+const handleProfileCheckIn = async () => {
+  if (profileCheckingIn.value || userStore.todayCheckedIn) return
+  profileCheckingIn.value = true
+  try {
+    const result = await userStore.signIn()
+    if (result.alreadyCheckedIn) {
+      toast(t('checkIn.already'), 'info')
+    } else {
+      toast(t('checkIn.success', { reward: result.reward }), 'success')
+    }
+  } catch (e) {
+    const message = e instanceof Error ? e.message : t('checkIn.error')
+    toast(message, 'error')
+  } finally {
+    profileCheckingIn.value = false
+  }
+}
+
 // ========== 加载数据 ==========
 const loadProfileData = async () => {
   const userId = userStore.userId
   if (!userId) return
 
-  // 先刷新用户统计数据（连续学习天数、累计活跃天数）
-  await userStore.loadUserStats()
+  // 先刷新用户统计数据（累计活跃天数）与签到/金币信息
+  await Promise.all([userStore.loadUserStats(), userStore.loadCoinInfo()])
 
   try {
     // 1. 获取能力雷达数据（模块分、ELO等级）

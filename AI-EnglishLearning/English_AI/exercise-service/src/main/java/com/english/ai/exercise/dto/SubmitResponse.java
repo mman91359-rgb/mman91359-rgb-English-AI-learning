@@ -42,4 +42,10 @@ public class SubmitResponse {
 
     /** 是否为语义匹配（近义词/同义表达被判对），前端据此展示标准答案供参考 */
     private Boolean isSemanticMatch;
+
+    /** 本次提交触发的金币奖励（未触发为 null） */
+    private Integer coinAwarded;
+
+    /** 发放后的金币余额（未触发为 null） */
+    private Integer coinBalance;
 }

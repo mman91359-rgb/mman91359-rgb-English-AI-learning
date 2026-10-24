@@ -5,16 +5,39 @@
         <h2 class="font-display-lg text-display-lg text-on-surface mb-2">{{ greetingText }}，{{ nickname }}！</h2>
         <p class="font-body-lg text-body-lg text-on-surface-variant">{{ $t('dashboard.readyForToday') }}</p>
       </div>
-      <button
-        class="bg-primary text-on-primary px-8 py-4 rounded-[16px] font-label-lg text-label-lg flex items-center gap-2 hover:bg-primary/90 transition-colors shadow-sm"
-        @click="startDailyLesson"
-      >
-        <span class="material-symbols-outlined">play_arrow</span>
-        {{ $t('dashboard.startDailyLesson') }}
-      </button>
+      <div class="flex flex-wrap items-center gap-3">
+        <button
+          class="group px-5 py-3 rounded-[16px] font-label-lg text-label-lg flex items-center gap-2 border border-tertiary/20 bg-tertiary-container/20 text-tertiary transition-all duration-300 hover:-translate-y-0.5 hover:bg-tertiary-container/35 hover:shadow-sm active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+          :disabled="userStore.todayCheckedIn || checkingIn"
+          @click="handleCheckIn"
+        >
+          <span class="material-symbols-outlined transition-transform duration-300 group-hover:scale-110">event_available</span>
+          <Transition name="fade-slide" mode="out-in">
+            <span :key="userStore.todayCheckedIn ? 'checked' : 'unchecked'">
+              {{ userStore.todayCheckedIn
+                ? $t('checkIn.checkedIn')
+                : (userStore.previewSignInReward > 0
+                  ? $t('checkIn.button', { reward: userStore.previewSignInReward })
+                  : $t('checkIn.action')) }}
+            </span>
+          </Transition>
+          <span
+            v-if="!userStore.todayCheckedIn && userStore.checkInStreak > 0"
+            class="text-xs px-2 py-0.5 rounded-full bg-tertiary/10"
+          >{{ $t('checkIn.streak', { days: userStore.checkInStreak }) }}</span>
+        </button>
+        <button
+          class="bg-primary text-on-primary px-8 py-4 rounded-[16px] font-label-lg text-label-lg flex items-center gap-2 hover:bg-primary/90 transition-all duration-200 active:scale-95 shadow-sm"
+          @click="startDailyLesson"
+        >
+          <span class="material-symbols-outlined">play_arrow</span>
+          {{ $t('dashboard.startDailyLesson') }}
+        </button>
+      </div>
     </div>
+    <CoinBurst :visible="rewardBurstVisible" :amount="rewardAmount" />
     <div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
-      <!-- 每日目标进度 -->
+      <!-- 每日词汇目标：新背 + 复习 -->
       <div class="col-span-1 md:col-span-8 bg-surface rounded-[24px] p-8 shadow-soft-glow relative overflow-hidden">
         <div class="absolute -right-20 -top-20 w-64 h-64 bg-primary-container/10 rounded-full blur-3xl"></div>
         <div class="flex flex-col md:flex-row gap-8 items-center relative z-10">
@@ -25,92 +48,81 @@
                 class="text-primary stroke-current progress-ring-circle"
                 cx="50" cy="50" fill="transparent" r="40"
                 :stroke-dasharray="251.2"
-                :stroke-dashoffset="251.2 - (251.2 * dailyProgress.percent / 100)"
+                :stroke-dashoffset="251.2 - (251.2 * newWordProgress.percent / 100)"
                 stroke-linecap="round" stroke-width="8"
               ></circle>
             </svg>
             <div class="absolute inset-0 flex flex-col items-center justify-center">
-              <span class="font-headline-lg text-headline-lg text-primary font-bold">{{ dailyProgress.percent }}%</span>
+              <span class="font-headline-lg text-headline-lg text-primary font-bold">{{ newWordProgress.percent }}%</span>
             </div>
           </div>
           <div class="flex-1 text-center md:text-left">
             <div class="flex items-center gap-2 justify-center md:justify-start mb-2">
               <span class="material-symbols-outlined text-primary text-xl">auto_awesome</span>
-              <span class="font-label-lg text-label-lg text-primary uppercase tracking-wider">Daily Goal</span>
+              <span class="font-label-lg text-label-lg text-primary uppercase tracking-wider">{{ $t('dashboard.dailyVocabularyGoal') }}</span>
             </div>
             <div class="flex items-center gap-2 justify-center md:justify-start mb-2">
-              <h3 class="font-headline-lg text-headline-lg text-on-surface">{{ dailyProgress.moduleName }}</h3>
+              <h3 class="font-headline-lg text-headline-lg text-on-surface">{{ $t('dashboard.newWordsGoalTitle') }}</h3>
               <button
                 class="p-1 rounded-full hover:bg-surface-variant/50 transition-colors"
-                title="设置每日目标"
-                @click.stop="startEditTarget"
+                :title="$t('dashboard.setGoal')"
+                @click.stop="openVocabularyGoalDialog"
               >
                 <span class="material-symbols-outlined text-outline text-lg">edit</span>
               </button>
             </div>
-            <!-- 目标编辑输入框 -->
-            <div v-if="editingTarget" class="flex items-center gap-2 justify-center md:justify-start mb-4">
-              <span class="font-body-md text-body-md text-on-surface-variant">每日目标：</span>
-              <input
-                ref="targetInputRef"
-                v-model.number="editTargetValue"
-                type="number"
-                min="1"
-                max="999"
-                class="w-20 px-2 py-1 text-center border border-outline-variant rounded-lg text-on-surface focus:border-primary focus:outline-none"
-                @keydown.enter="confirmTarget"
-                @keydown.escape="cancelTarget"
-                @blur="confirmTarget"
-              />
-              <span class="font-body-md text-body-md text-on-surface-variant">个单词</span>
-            </div>
-            <p v-else class="font-body-md text-body-md text-on-surface-variant mb-6">
-              {{ $t('dashboard.progressText', { total: dailyProgress.total, completed: dailyProgress.completed }) }}
+            <p class="font-body-md text-body-md text-on-surface-variant mb-5">
+              {{ $t('dashboard.newWordsProgress', {
+                completed: todayLearnedWords,
+                total: dailyNewWordsTarget,
+              }) }}
             </p>
-            <div v-if="!editingTarget" class="flex flex-wrap gap-2 justify-center md:justify-start">
-              <span class="bg-primary-container/15 text-primary px-3 py-1 rounded-[12px] font-label-md text-label-md">{{ $t('dashboard.learnedWords', { count: dailyProgress.completed }) }}</span>
-              <span class="bg-surface-variant/50 text-on-surface-variant px-3 py-1 rounded-[12px] font-label-md text-label-md">{{ $t('dashboard.remainingWords', { count: dailyProgress.remaining }) }}</span>
+
+            <div class="rounded-2xl bg-surface-container-low p-4">
+              <div class="flex items-center justify-between font-label-md text-label-md text-on-surface-variant mb-2">
+                <span class="flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-tertiary text-base">history_edu</span>
+                  {{ $t('dashboard.reviewWordsGoalTitle') }}
+                </span>
+                <span>{{ todayReviewedWords }} / {{ dailyReviewWordsTarget }}</span>
+              </div>
+              <div class="h-2 w-full overflow-hidden rounded-full bg-surface-container-high">
+                <div
+                  class="h-full rounded-full bg-gradient-to-r from-tertiary to-primary transition-all duration-500 ease-out"
+                  :style="{ width: reviewWordProgress.percent + '%' }"
+                ></div>
+              </div>
+            </div>
+
+            <div class="mt-3 flex flex-wrap gap-2 justify-center md:justify-start">
+              <span class="bg-primary-container/15 text-primary px-3 py-1 rounded-[12px] font-label-md text-label-md">
+                {{ $t('dashboard.learnedWords', { count: todayLearnedWords }) }}
+              </span>
+              <span class="bg-surface-variant/50 text-on-surface-variant px-3 py-1 rounded-[12px] font-label-md text-label-md">
+                {{ $t('dashboard.reviewedWords', { count: todayReviewedWords }) }}
+              </span>
             </div>
           </div>
         </div>
       </div>
-      <!-- 学习连续天数 -->
+      <!-- 连续签到天数 -->
       <div class="col-span-1 md:col-span-4 bg-surface rounded-[24px] p-8 shadow-soft-glow flex flex-col">
         <div class="flex items-center justify-between mb-6">
           <h3 class="font-headline-md text-headline-md text-on-surface">{{ $t('dashboard.streakDays') }}</h3>
-          <span class="material-symbols-outlined text-outline">chevron_right</span>
+          <span class="material-symbols-outlined text-primary text-2xl fill">event_available</span>
         </div>
-        <div class="flex items-end gap-2 mb-8">
-          <span class="font-display-lg text-display-lg text-on-surface leading-none">{{ streakDays }}</span>
+        <div class="flex items-end gap-2 mb-4">
+          <span class="font-display-lg text-display-lg text-on-surface leading-none">{{ checkInStreak }}</span>
           <span class="font-body-lg text-body-lg text-on-surface-variant pb-1">{{ $t('stats.days') }}</span>
         </div>
-        <div class="flex justify-between mt-auto">
-          <div
-            v-for="(day, index) in weekDays"
-            :key="index"
-            class="flex flex-col items-center gap-2"
-          >
-            <div
-              class="w-8 h-8 rounded-full flex items-center justify-center"
-              :class="day.class"
-            >
-              <span
-                v-if="day.isFire && streakDays >= 3"
-                class="material-symbols-outlined text-sm fill"
-                :class="day.iconClass"
-              >local_fire_department</span>
-              <span
-                v-else-if="day.isToday"
-                class="font-label-md text-xs font-bold"
-                :class="day.textClass"
-              >{{ day.label }}</span>
-              <span
-                v-else
-                class="font-label-md text-xs"
-                :class="day.textClass"
-              >{{ day.label }}</span>
-            </div>
-          </div>
+        <div class="mt-auto flex items-center justify-between rounded-2xl bg-surface-container-low p-4">
+          <span class="font-body-md text-body-md text-on-surface-variant">
+            {{ userStore.todayCheckedIn ? $t('checkIn.checkedInTip') : $t('checkIn.notCheckedIn') }}
+          </span>
+          <span
+            class="material-symbols-outlined"
+            :class="userStore.todayCheckedIn ? 'text-tertiary' : 'text-outline'"
+          >{{ userStore.todayCheckedIn ? 'check_circle' : 'radio_button_unchecked' }}</span>
         </div>
       </div>
       <!-- 学习量统计 -->
@@ -218,19 +230,39 @@
         </div>
       </div>
     </div>
+
+    <VocabularyGoalDialog
+      :visible="showVocabularyGoalDialog"
+      :new-words="userStore.dailyNewWords"
+      :review-words="userStore.dailyReviewWords"
+      :saving="goalSaving"
+      :error="goalError"
+      :min-new="userStore.minDailyNewWords"
+      :max-new="userStore.maxDailyNewWords"
+      :min-review="userStore.minDailyReviewWords"
+      :max-review="userStore.maxDailyReviewWords"
+      :submit-label="$t('vocabGoal.saveOnly')"
+      @update:visible="showVocabularyGoalDialog = $event"
+      @save="handleVocabularyGoalSave"
+      @close="closeVocabularyGoalDialog"
+    />
   </AppLayout>
 </template>
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import AppLayout from '../components/AppLayout.vue'
+import CoinBurst from '@/components/CoinBurst.vue'
+import VocabularyGoalDialog from '@/components/VocabularyGoalDialog.vue'
+import { useToast } from '@/composables/useToast'
 import { useUserStore } from '@/stores/user'
 import { getDailyWord, getExerciseStats } from '@/api/exercise'
 import type { DailyWordVO } from '@/api/exercise'
 import { getReviewTasks } from '@/api/learning'
 import type { ReviewTaskVO } from '@/api/learning'
 const { t } = useI18n()
+const { show: toast } = useToast()
 const userStore = useUserStore()
 const route = useRoute()
 const nickname = computed(() => userStore.user?.nickname || userStore.user?.username || '同学')
@@ -241,77 +273,112 @@ const greetingText = computed(() => {
   if (hour < 18) return t('dashboard.greeting.afternoon')
   return t('dashboard.greeting.evening')
 })
-// ========== 每日目标进度 ==========
-const DAILY_TARGET_KEY = 'dailyTarget_vocab'
-const dailyTarget = ref(Number(localStorage.getItem(DAILY_TARGET_KEY)) || 20)
-const todayVocabCount = ref(0)
+// ========== 每日签到 ==========
+const checkingIn = ref(false)
+const rewardBurstVisible = ref(false)
+const rewardAmount = ref(0)
+let burstTimer: number | null = null
 
-const editingTarget = ref(false)
-const editTargetValue = ref(dailyTarget.value)
-const targetInputRef = ref<HTMLInputElement | null>(null)
+const handleCheckIn = async () => {
+  if (userStore.todayCheckedIn) {
+    toast(t('checkIn.already'), 'info')
+    return
+  }
+  if (checkingIn.value) return
+  checkingIn.value = true
+  try {
+    const result = await userStore.signIn()
+    if (result.alreadyCheckedIn) {
+      toast(t('checkIn.already'), 'info')
+      return
+    }
+    rewardAmount.value = result.reward
+    rewardBurstVisible.value = true
+    if (burstTimer !== null) window.clearTimeout(burstTimer)
+    burstTimer = window.setTimeout(() => {
+      rewardBurstVisible.value = false
+    }, 1200)
+    toast(t('checkIn.success', { reward: result.reward }), 'success')
+  } catch (e) {
+    const message = e instanceof Error ? e.message : t('checkIn.error')
+    toast(message, 'error')
+  } finally {
+    checkingIn.value = false
+  }
+}
 
-const dailyProgress = computed(() => {
-  const completed = todayVocabCount.value
-  const total = dailyTarget.value
-  const percent = total > 0 ? Math.min(100, Math.round((completed / total) * 100)) : 0
-  const remaining = Math.max(0, total - completed)
+onUnmounted(() => {
+  if (burstTimer !== null) window.clearTimeout(burstTimer)
+})
+
+// ========== 每日词汇目标（新背 + 复习） ==========
+const todayLearnedWords = ref(0)
+const todayReviewedWords = ref(0)
+const dailyNewWordsTarget = computed(() => userStore.dailyNewWords ?? 10)
+const dailyReviewWordsTarget = computed(() => userStore.dailyReviewWords ?? 5)
+
+const newWordProgress = computed(() => {
+  const completed = todayLearnedWords.value
+  const total = dailyNewWordsTarget.value
+  const percent = total > 0 ? Math.min(100, Math.round((completed / total) * 100)) : 100
   return {
     percent,
-    moduleName: '词汇学习',
     completed,
     total,
-    remaining,
+    remaining: Math.max(0, total - completed),
   }
 })
 
-const startEditTarget = () => {
-  editTargetValue.value = dailyTarget.value
-  editingTarget.value = true
-  nextTick(() => targetInputRef.value?.focus())
-}
-
-const confirmTarget = () => {
-  const v = Math.max(1, Math.min(999, editTargetValue.value || 20))
-  dailyTarget.value = v
-  localStorage.setItem(DAILY_TARGET_KEY, String(v))
-  editingTarget.value = false
-}
-
-const cancelTarget = () => {
-  editingTarget.value = false
-}
-// ========== 连续学习天数（从后端真实数据获取） ==========
-const streakDays = computed(() => userStore.streakDays)
-
-const weekDays = computed(() => {
-  const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-  const today = new Date()
-  const todayIndex = today.getDay() === 0 ? 6 : today.getDay() - 1
-
-  return dayNames.map((name, index) => {
-    const isToday = index === todayIndex
-    const isFire = index <= todayIndex && streakDays.value > 0
-
-    return {
-      name: '',
-      label: name,
-      isFire,
-      isToday,
-      class: isToday
-        ? 'border-2 border-primary'
-        : isFire
-          ? 'bg-[#FFA500]/20'
-          : 'bg-surface-variant',
-      iconClass: 'text-[#FFA500]',
-      textClass: isToday
-        ? 'text-primary font-bold'
-        : isFire
-          ? 'text-[#FFA500]'
-          : 'text-on-surface-variant/50',
-      labelClass: '',
-    }
-  })
+const reviewWordProgress = computed(() => {
+  const completed = todayReviewedWords.value
+  const total = dailyReviewWordsTarget.value
+  const percent = total > 0 ? Math.min(100, Math.round((completed / total) * 100)) : 100
+  return {
+    percent,
+    completed,
+    total,
+    remaining: Math.max(0, total - completed),
+  }
 })
+
+const showVocabularyGoalDialog = ref(false)
+const goalSaving = ref(false)
+const goalError = ref('')
+
+const openVocabularyGoalDialog = async () => {
+  if (!userStore.userId) {
+    toast(t('learning.pleaseLogin'), 'warning')
+    return
+  }
+  if (!userStore.preferenceLoaded) {
+    await userStore.loadPreference()
+  }
+  goalError.value = ''
+  showVocabularyGoalDialog.value = true
+}
+
+const closeVocabularyGoalDialog = () => {
+  showVocabularyGoalDialog.value = false
+  goalError.value = ''
+}
+
+const handleVocabularyGoalSave = async (payload: { newWords: number; reviewWords: number }) => {
+  goalSaving.value = true
+  goalError.value = ''
+  try {
+    await userStore.setVocabularyGoals(payload.newWords, payload.reviewWords)
+    showVocabularyGoalDialog.value = false
+    await loadHomeData()
+    toast(t('vocabGoal.saved'), 'success')
+  } catch (e) {
+    goalError.value = e instanceof Error ? e.message : t('vocabGoal.saveFailed')
+    toast(goalError.value, 'error')
+  } finally {
+    goalSaving.value = false
+  }
+}
+// ========== 连续签到天数 ==========
+const checkInStreak = computed(() => userStore.checkInStreak)
 // ========== 学习量统计 ==========
 const studyPeriod = ref<'week' | 'month'>('week')
 const weeklyAverage = ref(0)
@@ -418,17 +485,20 @@ const loadStatsData = async () => {
     if (stats?.weeklyAverageQuestions !== undefined) {
       weeklyAverage.value = stats.weeklyAverageQuestions
     }
-    // 更新今日词汇学习数量（每日自动归零由后端按日期过滤保证）
-    if (stats?.todayVocabAnswered !== undefined) {
-      todayVocabCount.value = stats.todayVocabAnswered
-    }
+    // 今日新学/复习数量（后端按日期统计）
+    todayLearnedWords.value = stats?.todayLearnedWords || 0
+    todayReviewedWords.value = stats?.todayReviewedWords || 0
   } catch (e) {
     console.warn('获取学习量统计失败', e)
   }
 }
 // ========== 加载数据 ==========
 const loadHomeData = async () => {
-  await loadStatsData()
+  await Promise.all([
+    loadStatsData(),
+    userStore.loadCoinInfo(),
+    userStore.loadPreference(),
+  ])
   const userId = userStore.userId
   if (!userId) return
   try {

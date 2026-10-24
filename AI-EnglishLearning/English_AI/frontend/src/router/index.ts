@@ -49,7 +49,7 @@ const router = createRouter({
       path: '/learning',
       name: 'learning',
       component: LearningView,
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, studyTracked: true },
     },
     {
       path: '/stats',
@@ -91,7 +91,7 @@ const router = createRouter({
       path: '/assess',
       name: 'assess',
       component: AssessView,
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, studyTracked: true },
     },
     {
       path: '/favorites',
@@ -103,13 +103,13 @@ const router = createRouter({
       path: '/error-book',
       name: 'error-book',
       component: ErrorBookView,
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, studyTracked: true },
     },
     {
       path: '/learning/practice',
       name: 'practice',
       component: PracticeView,
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, studyTracked: true },
     },
     {
       path: '/history',
@@ -121,19 +121,19 @@ const router = createRouter({
       path: '/vocabulary',
       name: 'vocabulary',
       component: VocabularyView,
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, studyTracked: true },
     },
     {
       path: '/vocab-quiz',
       name: 'vocab-quiz',
       component: VocabQuizView,
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, studyTracked: true },
     },
     {
       path: '/grammar-quiz',
       name: 'grammar-quiz',
       component: GrammarQuizView,
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, studyTracked: true },
     },
     {
       path: '/logout',

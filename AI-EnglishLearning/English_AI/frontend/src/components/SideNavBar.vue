@@ -7,7 +7,7 @@
       </div>
       <div class="mt-2 flex flex-col">
         <span class="text-label-md font-label-md text-on-surface-variant">{{ $t('dashboard.streakDays') }}</span>
-        <span class="text-headline-md font-headline-md text-primary font-bold">{{ streakDays }} {{ $t('stats.days') }}<span v-if="streakDays >= 3" class="ml-1">🔥</span></span>
+        <span class="text-headline-md font-headline-md text-primary font-bold">{{ checkInStreak }} {{ $t('stats.days') }}<span v-if="checkInStreak >= 3" class="ml-1">🔥</span></span>
       </div>
     </div>
     <nav class="flex-1 flex flex-col gap-2">
@@ -16,14 +16,21 @@
         :key="item.name"
         :to="item.path"
         :class="[
-          'flex items-center gap-4 px-4 py-3 rounded-xl transition-colors',
+          'group relative flex items-center gap-4 px-4 py-3 rounded-xl overflow-hidden transition-all duration-300 ease-out hover:translate-x-1 hover:bg-primary-container/15 hover:shadow-sm active:scale-[0.98]',
           isActive(item.path)
-            ? 'bg-primary-container/10 text-primary border-l-2 border-primary font-bold'
-            : 'text-on-surface-variant hover:bg-primary-container/10 hover:text-primary'
+            ? 'bg-primary-container/10 text-primary font-bold'
+            : 'text-on-surface-variant hover:text-primary'
         ]"
       >
-        <span class="material-symbols-outlined" :class="{ 'fill': isActive(item.path) }">{{ item.icon }}</span>
-        <span class="font-label-lg text-label-lg">{{ item.label }}</span>
+        <span
+          class="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 rounded-full bg-primary origin-center transition-all duration-300"
+          :class="isActive(item.path) ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-0'"
+        ></span>
+        <span
+          class="material-symbols-outlined transition-transform duration-300 group-hover:scale-110"
+          :class="{ 'fill': isActive(item.path) }"
+        >{{ item.icon }}</span>
+        <span class="font-label-lg text-label-lg transition-all duration-300 group-hover:tracking-wide">{{ item.label }}</span>
       </router-link>
     </nav>
     <div class="mt-auto flex flex-col gap-2">
@@ -32,14 +39,21 @@
         :key="item.name"
         :to="item.path"
         :class="[
-          'flex items-center gap-4 px-4 py-3 rounded-xl transition-colors',
+          'group relative flex items-center gap-4 px-4 py-3 rounded-xl overflow-hidden transition-all duration-300 ease-out hover:translate-x-1 hover:bg-primary-container/15 hover:shadow-sm active:scale-[0.98]',
           isActive(item.path)
-            ? 'bg-primary-container/10 text-primary border-l-2 border-primary font-bold'
-            : 'text-on-surface-variant hover:bg-primary-container/10 hover:text-primary'
+            ? 'bg-primary-container/10 text-primary font-bold'
+            : 'text-on-surface-variant hover:text-primary'
         ]"
       >
-        <span class="material-symbols-outlined">{{ item.icon }}</span>
-        <span class="font-label-lg text-label-lg">{{ item.label }}</span>
+        <span
+          class="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 rounded-full bg-primary origin-center transition-all duration-300"
+          :class="isActive(item.path) ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-0'"
+        ></span>
+        <span
+          class="material-symbols-outlined transition-transform duration-300 group-hover:scale-110"
+          :class="{ 'fill': isActive(item.path) }"
+        >{{ item.icon }}</span>
+        <span class="font-label-lg text-label-lg transition-all duration-300 group-hover:tracking-wide">{{ item.label }}</span>
       </router-link>
     </div>
   </aside>
@@ -55,13 +69,13 @@ const { t } = useI18n()
 const route = useRoute()
 const userStore = useUserStore()
 
-// 连续学习天数：从 userStore 读取后端真实数据，无回退硬编码
-const streakDays = computed(() => userStore.streakDays)
+// 连续签到天数：从 userStore 读取后端签到数据
+const checkInStreak = computed(() => userStore.checkInStreak)
 
-// 组件挂载时，如果 store 中还没有统计数据则加载一次
+// 组件挂载时，如果签到信息还未加载则加载一次
 onMounted(() => {
-  if (userStore.userId && userStore.streakDays === 0) {
-    userStore.loadUserStats()
+  if (userStore.userId && !userStore.coinLoaded) {
+    void userStore.loadCoinInfo()
   }
 })
 

@@ -171,7 +171,8 @@ public class ExerciseController {
         if (request.getUserId() == null || request.getWord() == null || request.getWord().isBlank()) {
             return Result.badRequest("userId和word不能为空");
         }
-        VocabularyVO vo = exerciseService.addVocabulary(request.getUserId(), request.getWord(), request.getTranslation());
+        VocabularyVO vo = exerciseService.addVocabulary(
+                request.getUserId(), request.getWord(), request.getTranslation(), request.getSource());
         return Result.success(vo);
     }
 
@@ -199,6 +200,20 @@ public class ExerciseController {
     @GetMapping("/vocabulary/{userId}")
     public Result<List<VocabularyVO>> getVocabulary(@PathVariable Long userId) {
         return Result.success(exerciseService.getVocabulary(userId));
+    }
+
+    /**
+     * 新词练习选题：排除用户单词本中已存在的单词
+     * GET /exercise/vocabulary/new-questions?userId=1&count=10
+     */
+    @GetMapping("/vocabulary/new-questions")
+    public Result<List<QuestionVO>> selectNewVocabularyQuestions(
+            @RequestParam Long userId,
+            @RequestParam(defaultValue = "10") Integer count) {
+        int safeCount = Math.max(1, Math.min(50, count));
+        List<QuestionVO> questions = exerciseService.selectNewVocabularyQuestions(userId, safeCount);
+        log.info("新词选题: userId={}, 需求{}题, 返回{}题", userId, safeCount, questions.size());
+        return Result.success(questions);
     }
 
     /** DELETE /exercise/vocabulary/{id}?userId=1 */

@@ -9,26 +9,34 @@
         <router-link
           to="/login"
           :class="[
-            'flex items-center gap-4 px-4 py-3 rounded-xl transition-colors',
+            'group relative flex items-center gap-4 px-4 py-3 rounded-xl overflow-hidden transition-all duration-300 ease-out hover:translate-x-1 hover:bg-primary-container/15 hover:shadow-sm active:scale-[0.98]',
             isLogin
-              ? 'bg-primary-container/10 text-primary border-l-2 border-primary font-bold'
-              : 'text-on-surface-variant hover:bg-primary-container/10 hover:text-primary'
+              ? 'bg-primary-container/10 text-primary font-bold'
+              : 'text-on-surface-variant hover:text-primary'
           ]"
         >
-          <span class="material-symbols-outlined">login</span>
-          <span class="font-label-lg text-label-lg">{{ $t('auth.login') }}</span>
+          <span
+            class="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 rounded-full bg-primary origin-center transition-all duration-300"
+            :class="isLogin ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-0'"
+          ></span>
+          <span class="material-symbols-outlined transition-transform duration-300 group-hover:scale-110">login</span>
+          <span class="font-label-lg text-label-lg transition-all duration-300 group-hover:tracking-wide">{{ $t('auth.login') }}</span>
         </router-link>
         <router-link
           to="/register"
           :class="[
-            'flex items-center gap-4 px-4 py-3 rounded-xl transition-colors',
+            'group relative flex items-center gap-4 px-4 py-3 rounded-xl overflow-hidden transition-all duration-300 ease-out hover:translate-x-1 hover:bg-primary-container/15 hover:shadow-sm active:scale-[0.98]',
             !isLogin
-              ? 'bg-primary-container/10 text-primary border-l-2 border-primary font-bold'
-              : 'text-on-surface-variant hover:bg-primary-container/10 hover:text-primary'
+              ? 'bg-primary-container/10 text-primary font-bold'
+              : 'text-on-surface-variant hover:text-primary'
           ]"
         >
-          <span class="material-symbols-outlined">person_add</span>
-          <span class="font-label-lg text-label-lg">{{ $t('auth.register') }}</span>
+          <span
+            class="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 rounded-full bg-primary origin-center transition-all duration-300"
+            :class="!isLogin ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-0'"
+          ></span>
+          <span class="material-symbols-outlined transition-transform duration-300 group-hover:scale-110">person_add</span>
+          <span class="font-label-lg text-label-lg transition-all duration-300 group-hover:tracking-wide">{{ $t('auth.register') }}</span>
         </router-link>
       </nav>
     </aside>
@@ -87,7 +95,11 @@
                   type="button"
                   @click="togglePassword"
                 >
-                  <span class="material-symbols-outlined">{{ showPassword ? 'visibility' : 'visibility_off' }}</span>
+                  <Transition name="icon-fade" mode="out-in">
+                    <span :key="showPassword ? 'visible' : 'hidden'" class="material-symbols-outlined">
+                      {{ showPassword ? 'visibility' : 'visibility_off' }}
+                    </span>
+                  </Transition>
                 </button>
               </div>
               <div class="pt-2">

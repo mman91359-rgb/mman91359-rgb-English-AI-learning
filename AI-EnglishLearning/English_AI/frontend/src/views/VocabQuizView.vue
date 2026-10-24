@@ -2,7 +2,7 @@
   词汇练习页面
   视觉参考设计稿：左侧 SideNavBar + 顶部奖杯进度条 + 居中题目卡片 + 底部操作栏
   适用题型：FILL_BLANK（词汇填空）
-  真实数据：selectQuestions(userId, 1, 10)
+  真实数据：selectNewVocabularyQuestions(userId, 每日新词目标)
 -->
 <template>
   <div class="bg-background text-on-background min-h-screen flex">
@@ -71,8 +71,13 @@
             <span class="material-symbols-outlined">language</span>
           </button>
           <div
-            class="w-8 h-8 rounded-full bg-primary text-on-primary ml-2 flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all text-sm font-bold select-none overflow-hidden"
+            class="w-8 h-8 rounded-full bg-primary text-on-primary ml-2 flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-primary/50 hover:scale-105 active:scale-95 transition-all text-sm font-bold select-none overflow-hidden"
             :title="userStore.username || ''"
+            :aria-label="$t('profile.userInfo')"
+            role="button"
+            tabindex="0"
+            @click="router.push('/profile')"
+            @keydown.enter="router.push('/profile')"
           >
             <img v-if="quizAvatarUrl" :src="quizAvatarUrl" :alt="$t('profile.userInfo')" class="w-full h-full object-cover" />
             <span v-else>{{ avatarText }}</span>
@@ -284,7 +289,7 @@
             <button
               class="bg-primary text-on-primary font-headline-md text-headline-md font-bold py-4 px-12 rounded-2xl flex items-center gap-2 hover:bg-primary/90 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
               :disabled="!showFeedback && !userAnswer.trim()"
-              @click="showFeedback ? goNextOrResults() : handleSubmit()"
+              @click="showFeedback ? goNext() : handleSubmit()"
             >
               <span class="material-symbols-outlined font-bold">{{ showFeedback ? 'arrow_forward' : 'check' }}</span>
               {{ showFeedback ? (isLastQuestion ? $t('learning.viewResults') : $t('learning.next')) : $t('learning.confirmBtn') }}
@@ -324,12 +329,12 @@
               <h3 class="font-headline-lg text-headline-lg text-on-surface mb-2">{{ $t('learning.practiceComplete') }}</h3>
               <div class="flex items-center justify-center gap-8 mt-6">
                 <div class="text-center">
-                  <p class="font-display-lg text-display-lg text-primary font-bold">{{ correctCount }}</p>
-                  <p class="font-label-md text-label-md text-on-surface-variant">{{ $t('learning.correctLabel') }}</p>
+                  <p class="font-display-lg text-display-lg text-primary font-bold">{{ masteredCount }}</p>
+                  <p class="font-label-md text-label-md text-on-surface-variant">{{ $t('learning.masteredLabel') }}</p>
                 </div>
                 <div class="text-center">
-                  <p class="font-display-lg text-display-lg text-on-surface font-bold">{{ totalCount - correctCount }}</p>
-                  <p class="font-label-md text-label-md text-on-surface-variant">{{ $t('learning.incorrectLabel') }}</p>
+                  <p class="font-display-lg text-display-lg text-on-surface font-bold">{{ attempts }}</p>
+                  <p class="font-label-md text-label-md text-on-surface-variant">{{ $t('learning.attemptsLabel') }}</p>
                 </div>
                 <div class="text-center">
                   <p class="font-display-lg text-display-lg text-on-surface font-bold">{{ accuracy }}%</p>
@@ -338,9 +343,9 @@
               </div>
             </div>
 
-            <!-- 逐题回顾 -->
+            <!-- 已掌握单词 -->
             <div class="space-y-4 mb-8">
-              <h4 class="font-headline-md text-headline-md text-on-surface mb-4">{{ $t('learning.questionReview') }}</h4>
+              <h4 class="font-headline-md text-headline-md text-on-surface mb-4">{{ $t('learning.masteredWordsReview') }}</h4>
               <div
                 v-for="(item, idx) in results.items"
                 :key="idx"
@@ -401,36 +406,67 @@
       <AiSidebar mode="inline" />
     </div>
   </div>
+
+  <VocabularyGoalDialog
+    :visible="showVocabularyGoalDialog"
+    :new-words="userStore.dailyNewWords"
+    :review-words="userStore.dailyReviewWords"
+    :saving="goalSaving"
+    :error="goalError"
+    :min-new="userStore.minDailyNewWords"
+    :max-new="userStore.maxDailyNewWords"
+    :min-review="userStore.minDailyReviewWords"
+    :max-review="userStore.maxDailyReviewWords"
+    :submit-label="$t('vocabGoal.save')"
+    @update:visible="showVocabularyGoalDialog = $event"
+    @save="handleVocabularyGoalSave"
+    @close="closeVocabularyGoalDialog"
+  />
+
+  <WordReviewDialog
+    :visible="showReviewDialog"
+    :words="reviewWords"
+    @update:visible="showReviewDialog = $event"
+    @complete="handleReviewComplete"
+  />
 </template>
 
 <script setup lang="ts">
 /**
  * 词汇练习页 — 填空题（CHOICE 模式已拆出去，仅留 FILL_BLANK）
- * 数据流：selectQuestions(userId, 1, 10) → 逐题作答 → submitAnswer → 记录结果
+ * 数据流：先复习到期词 → 新词循环（连续答对 3 次）→ 加入单词本
  */
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import SideNavBar from '@/components/SideNavBar.vue'
 import AiSidebar from '@/components/AiSidebar.vue'
+import VocabularyGoalDialog from '@/components/VocabularyGoalDialog.vue'
+import WordReviewDialog from '@/components/WordReviewDialog.vue'
 import { useUserStore } from '@/stores/user'
 import { useAppStore } from '@/stores/app'
-import { selectQuestions, submitAnswer as submitAnswerApi, getQuestionById, addFavorite } from '@/api/exercise'
+import { useToast } from '@/composables/useToast'
+import {
+  selectNewVocabularyQuestions,
+  submitAnswer as submitAnswerApi,
+  getQuestionById,
+  addFavorite,
+  getReviewList,
+  addVocabulary,
+} from '@/api/exercise'
 import { useSpeechRecognition } from '@/composables/useSpeechRecognition'
 import { useAiStore } from '@/stores/ai'
-import type { QuestionVO, SubmitResponse } from '@/api/exercise'
+import type { QuestionVO, SubmitResponse, VocabularyVO } from '@/api/exercise'
 
 const router = useRouter()
-const route = useRoute()
 const { t } = useI18n()
 const userStore = useUserStore()
 const appStore = useAppStore()
+const { show: toast } = useToast()
 const { isListening, transcript, error: speechError, isSupported: speechSupported, start: startSpeech, stop: stopSpeech } = useSpeechRecognition()
 
 // ========== 状态 ==========
 const loading = ref(true)
-const questions = ref<QuestionVO[]>([])
-const currentIndex = ref(0)
 const userAnswer = ref('')
 const showFeedback = ref(false)
 const isCorrect = ref(false)
@@ -442,19 +478,40 @@ const blankInput = ref<HTMLInputElement | null>(null)
 const questionAnswer = ref('')
 const hintLoading = ref(false)
 
+// 每日目标弹窗
+const showVocabularyGoalDialog = ref(false)
+const goalSaving = ref(false)
+const goalError = ref('')
+
+// 复习阶段
+const reviewWords = ref<VocabularyVO[]>([])
+const showReviewDialog = ref(false)
+const reviewCompleted = ref(false)
+
+// 新词循环：N 个词，连续答对 3 次才掌握
+const newWordPool = ref<QuestionVO[]>([])
+const activeQueue = ref<QuestionVO[]>([])
+const streaks = ref<Record<number, number>>({})
+const masteredIds = ref<number[]>([])
+const attempts = ref(0)
+const correctAttempts = ref(0)
+
 interface ResultItem { question: QuestionVO; answer: string; correct: boolean }
-const results = ref<{ correct: number; total: number; items: ResultItem[] }>({ correct: 0, total: 0, items: [] })
+const results = ref<{ items: ResultItem[] }>({ items: [] })
 
 // ========== 计算属性 ==========
-const totalCount = computed(() => questions.value.length)
-const currentQuestion = computed<QuestionVO | null>(() => questions.value[currentIndex.value] || null)
-const correctCount = computed(() => results.value.correct)
+const totalCount = computed(() => newWordPool.value.length)
+const currentQuestion = computed<QuestionVO | null>(() => activeQueue.value[0] || null)
+const masteredCount = computed(() => masteredIds.value.length)
 const accuracy = computed(() =>
-  results.value.total > 0 ? Math.round((results.value.correct / results.value.total) * 100) : 0
+  attempts.value > 0 ? Math.round((correctAttempts.value / attempts.value) * 100) : 0
 )
-const answeredCount = computed(() => currentIndex.value + (showResults.value ? 1 : 0))
-const isLastQuestion = computed(() => currentIndex.value >= totalCount.value - 1)
-const progressPercent = computed(() => totalCount.value > 0 ? (answeredCount.value / totalCount.value) * 100 : 0)
+const answeredCount = computed(() => masteredCount.value)
+const isLastQuestion = computed(() => {
+  const q = currentQuestion.value
+  return activeQueue.value.length === 1 && q != null && (streaks.value[q.id] || 0) >= 3
+})
+const progressPercent = computed(() => totalCount.value > 0 ? (masteredCount.value / totalCount.value) * 100 : 0)
 const currentDifficulty = computed(() => currentQuestion.value?.difficultyLevel || 1)
 
 /**
@@ -594,108 +651,223 @@ const fetchHint = async () => {
   }
 }
 
-// ========== 进度持久化 ==========
-const SAVE_KEY = 'vocab-quiz-progress'
+// ========== 新词循环会话持久化 ==========
+const SAVE_KEY = 'vocab-session-progress:v2'
 
-interface SavedProgress {
+interface SavedSession {
   userId: number
-  questions: QuestionVO[]
-  currentIndex: number
-  results: { correct: number; total: number; items: ResultItem[] }
+  dailyNewWords: number
+  dailyReviewWords: number
+  reviewCompleted: boolean
+  newWordPool: QuestionVO[]
+  activeQueue: QuestionVO[]
+  streaks: Record<number, number>
+  masteredIds: number[]
+  attempts: number
+  correctAttempts: number
+  resultsItems: ResultItem[]
 }
 
-const saveProgress = () => {
+const shuffle = <T,>(items: T[]): T[] => {
+  const result = [...items]
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[result[i], result[j]] = [result[j], result[i]]
+  }
+  return result
+}
+
+const saveSession = () => {
   const userId = userStore.userId
-  if (!userId || questions.value.length === 0) return
-  const data: SavedProgress = {
+  if (!userId || newWordPool.value.length === 0) return
+  const data: SavedSession = {
     userId,
-    questions: questions.value,
-    currentIndex: currentIndex.value,
-    results: results.value,
+    dailyNewWords: userStore.dailyNewWords ?? 10,
+    dailyReviewWords: userStore.dailyReviewWords ?? 5,
+    reviewCompleted: reviewCompleted.value,
+    newWordPool: newWordPool.value,
+    activeQueue: activeQueue.value,
+    streaks: streaks.value,
+    masteredIds: masteredIds.value,
+    attempts: attempts.value,
+    correctAttempts: correctAttempts.value,
+    resultsItems: results.value.items,
   }
   sessionStorage.setItem(SAVE_KEY, JSON.stringify(data))
 }
 
-const clearProgress = () => sessionStorage.removeItem(SAVE_KEY)
+const clearSession = () => sessionStorage.removeItem(SAVE_KEY)
 
-const restoreProgress = (): SavedProgress | null => {
+const restoreSession = (): SavedSession | null => {
   try {
     const raw = sessionStorage.getItem(SAVE_KEY)
     if (!raw) return null
-    const data = JSON.parse(raw) as SavedProgress
-    if (!data.questions?.length || data.userId !== userStore.userId) {
-      clearProgress()
+    const data = JSON.parse(raw) as SavedSession
+    const newGoal = userStore.dailyNewWords ?? 10
+    const reviewGoal = userStore.dailyReviewWords ?? 5
+    if (data.userId !== userStore.userId
+        || data.dailyNewWords !== newGoal
+        || data.dailyReviewWords !== reviewGoal
+        || !Array.isArray(data.newWordPool)
+        || !Array.isArray(data.activeQueue)) {
+      clearSession()
       return null
     }
     return data
   } catch {
-    clearProgress()
+    clearSession()
     return null
   }
 }
 
-// ========== 加载题目 ==========
-const loadQuestions = async () => {
-  const userId = userStore.userId
-  if (!userId) { router.push('/login'); return }
-
-  // 尝试恢复上次进度（数量匹配当前每日目标才恢复）
-  const dailyTarget = Number(localStorage.getItem('dailyTarget_vocab')) || 20
-  const saved = restoreProgress()
-  if (saved && saved.currentIndex < saved.questions.length && saved.questions.length === dailyTarget) {
-    loading.value = true
-    questions.value = saved.questions
-    results.value = saved.results
-    // 回溯到第一个未回答的题目：检查已保存的 currentIndex 是否已答过
-    const answeredIds = new Set(saved.results.items.map(it => it.question.id))
-    let resumeIndex = saved.currentIndex
-    if (answeredIds.has(saved.questions[resumeIndex]?.id)) {
-      resumeIndex = Math.min(resumeIndex + 1, saved.questions.length - 1)
-    }
-    currentIndex.value = resumeIndex
-    userAnswer.value = ''
-    showFeedback.value = false
-    submitResult.value = null
-    showResults.value = false
-    showHint.value = false
-    questionAnswer.value = ''
-    hintLoading.value = false
-    loading.value = false
-    startTime.value = Date.now()
+const restoreSessionState = (saved: SavedSession) => {
+  newWordPool.value = saved.newWordPool || []
+  activeQueue.value = saved.activeQueue || []
+  streaks.value = saved.streaks || {}
+  masteredIds.value = saved.masteredIds || []
+  attempts.value = saved.attempts || 0
+  correctAttempts.value = saved.correctAttempts || 0
+  results.value = { items: saved.resultsItems || [] }
+  reviewCompleted.value = true
+  loading.value = false
+  showResults.value = activeQueue.value.length === 0
+  showFeedback.value = false
+  showHint.value = false
+  submitResult.value = null
+  questionAnswer.value = ''
+  userAnswer.value = ''
+  startTime.value = Date.now()
+  const q = currentQuestion.value
+  if (q && !showResults.value) {
+    void preloadQuestionAnswer(q.id)
     nextTick(() => blankInput.value?.focus())
-    // 预加载当前题的正确答案（恢复进度时）
-    const currentQ = saved.questions[resumeIndex]
-    if (currentQ) {
-      preloadQuestionAnswer(currentQ.id)
-    }
+  }
+}
+
+// ========== 每日目标 ==========
+const promptVocabularyGoalsIfNeeded = async (): Promise<boolean> => {
+  if (!userStore.preferenceLoaded) {
+    await userStore.loadPreference()
+  }
+  if (!userStore.vocabularyGoalsConfigured) {
+    goalError.value = ''
+    showVocabularyGoalDialog.value = true
+    loading.value = false
+    return true
+  }
+  return false
+}
+
+const closeVocabularyGoalDialog = () => {
+  showVocabularyGoalDialog.value = false
+  goalError.value = ''
+}
+
+const handleVocabularyGoalSave = async (payload: { newWords: number; reviewWords: number }) => {
+  goalSaving.value = true
+  goalError.value = ''
+  try {
+    await userStore.setVocabularyGoals(payload.newWords, payload.reviewWords)
+    showVocabularyGoalDialog.value = false
+    await startSession()
+  } catch (e) {
+    goalError.value = e instanceof Error ? e.message : t('vocabGoal.saveFailed')
+    toast(goalError.value, 'error')
+  } finally {
+    goalSaving.value = false
+  }
+}
+
+// ========== 复习 + 新词会话 ==========
+const handleReviewComplete = async (payload: { reviewed: number; correct: number; skipped?: boolean }) => {
+  showReviewDialog.value = false
+  reviewCompleted.value = true
+  if (payload.reviewed > 0) {
+    toast(t('wordReview.summaryText', {
+      reviewed: payload.reviewed,
+      correct: payload.correct,
+    }), 'success')
+  }
+  await loadNewWordSession()
+}
+
+const startSession = async () => {
+  const saved = restoreSession()
+  if (saved) {
+    restoreSessionState(saved)
     return
   }
+  await startReviewThenNewWords()
+}
 
-  // 无保存进度 → 全新加载
-  clearProgress()
+const startReviewThenNewWords = async () => {
+  const userId = userStore.userId
+  if (!userId) {
+    router.push('/login')
+    return
+  }
   loading.value = true
-  questions.value = []
-  currentIndex.value = 0
+  reviewWords.value = []
+  showResults.value = false
+  try {
+    const reviewGoal = userStore.dailyReviewWords ?? 5
+    if (reviewGoal > 0) {
+      const due = await getReviewList(userId)
+      const limited = (due || []).slice(0, reviewGoal)
+      if (limited.length > 0) {
+        reviewWords.value = limited
+        showReviewDialog.value = true
+        loading.value = false
+        return
+      }
+    }
+    reviewCompleted.value = true
+    await loadNewWordSession()
+  } catch (e) {
+    console.warn('加载复习单词失败', e)
+    loading.value = false
+    toast(t('wordReview.loadFailed'), 'error')
+  }
+}
+
+const loadNewWordSession = async () => {
+  const userId = userStore.userId
+  if (!userId) {
+    router.push('/login')
+    return
+  }
+  loading.value = true
+  showResults.value = false
+  newWordPool.value = []
+  activeQueue.value = []
+  streaks.value = {}
+  masteredIds.value = []
+  attempts.value = 0
+  correctAttempts.value = 0
+  results.value = { items: [] }
   userAnswer.value = ''
   showFeedback.value = false
   submitResult.value = null
-  showResults.value = false
   showHint.value = false
   questionAnswer.value = ''
   hintLoading.value = false
-  results.value = { correct: 0, total: 0, items: [] }
+
   try {
-    const qs = await selectQuestions(userId, 1, dailyTarget)
-    questions.value = qs || []
-    // 预加载第一题的正确答案（供实时拼写反馈使用，不展示给用户）
-    if (qs && qs.length > 0) {
-      preloadQuestionAnswer(qs[0].id)
+    const count = userStore.dailyNewWords ?? 10
+    const pool = await selectNewVocabularyQuestions(userId, count)
+    newWordPool.value = pool || []
+    activeQueue.value = shuffle(pool || [])
+    if (activeQueue.value.length > 0) {
+      await preloadQuestionAnswer(activeQueue.value[0].id)
+      nextTick(() => blankInput.value?.focus())
     }
+    saveSession()
   } catch (e) {
-    console.warn('获取题目失败', e)
+    console.warn('获取新词失败', e)
+    toast(t('learning.loadQuestionsFailed'), 'error')
   } finally {
     loading.value = false
-    nextTick(() => blankInput.value?.focus())
+    startTime.value = Date.now()
   }
 }
 
@@ -743,7 +915,33 @@ const toggleHint = () => {
   }
 }
 
-// ========== 答题 ==========
+// ========== 新词循环答题 ==========
+const extractWord = (value?: string): string => {
+  return (value || '').trim().replace(/^[A-Da-d][.、)]\s*/, '').trim()
+}
+
+const extractTranslation = (analysis?: string): string => {
+  const match = (analysis || '').match(/[（(]([^）)]+)[）)]/)
+  return match ? match[1].trim() : ''
+}
+
+const registerMasteredWord = async (q: QuestionVO) => {
+  const userId = userStore.userId
+  const word = extractWord(submitResult.value?.correctAnswer || q.correctAnswer || '')
+  if (!userId || !word) return
+  try {
+    await addVocabulary({
+      userId,
+      word,
+      translation: extractTranslation(q.analysis || submitResult.value?.analysis || ''),
+      source: 'quiz',
+    })
+  } catch (e) {
+    const message = e instanceof Error ? e.message : t('learning.addWordFailed')
+    toast(message, 'warning')
+  }
+}
+
 const handleSubmit = async () => {
   const q = currentQuestion.value
   if (!q || !userAnswer.value.trim() || showFeedback.value) return
@@ -756,55 +954,74 @@ const handleSubmit = async () => {
       userAnswer: userAnswer.value.trim(),
       moduleType: q.moduleType || 1,
       durationSeconds: Math.round((Date.now() - startTime.value) / 1000),
+      practiceOnly: true,
     })
     submitResult.value = result
     isCorrect.value = result.isCorrect
     showFeedback.value = true
-    results.value.items.push({ question: q, answer: userAnswer.value.trim(), correct: result.isCorrect })
-    if (result.isCorrect) results.value.correct++
-    results.value.total++
-    saveProgress()
-
-    // 不自动跳转，让用户有时间阅读解析和收藏句子
-    // 用户可点击"下一题"按钮手动跳转
+    attempts.value++
+    if (result.isCorrect) correctAttempts.value++
+    const currentStreak = streaks.value[q.id] || 0
+    streaks.value = {
+      ...streaks.value,
+      [q.id]: result.isCorrect ? Math.min(3, currentStreak + 1) : 0,
+    }
+    saveSession()
   } catch (e) {
     console.warn('提交失败', e)
   }
 }
 
-const goNextOrResults = () => {
-  if (isLastQuestion.value) {
-    showResults.value = true
-    clearProgress()
-  } else {
-    nextQuestion()
-  }
-}
+const goNext = async () => {
+  const q = currentQuestion.value
+  if (!q || !showFeedback.value) return
 
-const nextQuestion = () => {
-  if (currentIndex.value < totalCount.value - 1) {
-    currentIndex.value++
-    userAnswer.value = ''
-    showFeedback.value = false
-    submitResult.value = null
-    showHint.value = false
-    questionAnswer.value = ''
-    hintLoading.value = false
-    startTime.value = Date.now()
-    nextTick(() => blankInput.value?.focus())
-    // 预加载下一题的正确答案
-    const nextQ = questions.value[currentIndex.value]
-    if (nextQ) {
-      preloadQuestionAnswer(nextQ.id)
-    }
+  const correct = isCorrect.value
+  const streak = streaks.value[q.id] || 0
+  let queue = activeQueue.value.slice(1)
+  const nextStreaks = { ...streaks.value }
+
+  if (correct && streak >= 3) {
+    masteredIds.value = [...masteredIds.value, q.id]
+    results.value.items.push({
+      question: q,
+      answer: submitResult.value?.correctAnswer || userAnswer.value.trim(),
+      correct: true,
+    })
+    delete nextStreaks[q.id]
+    await registerMasteredWord(q)
   } else {
-    showResults.value = true
-    clearProgress()
+    queue.push(q)
   }
+
+  streaks.value = nextStreaks
+  activeQueue.value = shuffle(queue)
+  userAnswer.value = ''
+  showFeedback.value = false
+  submitResult.value = null
+  showHint.value = false
+  questionAnswer.value = ''
+  hintLoading.value = false
+  startTime.value = Date.now()
+
+  if (activeQueue.value.length === 0) {
+    showResults.value = true
+    clearSession()
+    return
+  }
+
+  await preloadQuestionAnswer(activeQueue.value[0].id)
+  nextTick(() => blankInput.value?.focus())
+  saveSession()
 }
 
 const goBack = () => { if (window.history.length > 1) router.back(); else router.push('/learning') }
-const restartQuiz = () => { clearProgress(); loadQuestions() }
+const restartQuiz = async () => {
+  clearSession()
+  reviewCompleted.value = false
+  showResults.value = false
+  await startReviewThenNewWords()
+}
 
 // ========== 收藏功能 ==========
 const handleFavorite = async () => {
@@ -865,20 +1082,28 @@ watch(transcript, (val) => {
 watch(speechError, (val) => { if (val) console.warn('语音错误:', val) })
 
 // ========== 生命周期 ==========
-onMounted(() => {
+onMounted(async () => {
   aiStore.setInlineMode(true)
-  if (userStore.userId) loadQuestions()
+  if (userStore.userId) {
+    const needsGoal = await promptVocabularyGoalsIfNeeded()
+    if (!needsGoal) {
+      await startSession()
+    }
+  } else {
+    loading.value = false
+  }
   startTime.value = Date.now()
 })
 onUnmounted(() => {
   aiStore.setInlineMode(false)
 })
-watch(() => userStore.userId, (id) => { if (id) loadQuestions() })
-
-// 切换 tab 重新进入 → 重新拉题（如果是从其他页面切回）
-watch(() => route.path, (p) => {
-  if (p === '/vocab-quiz' && totalCount.value === 0 && !loading.value) {
-    loadQuestions()
+watch(() => userStore.userId, async (id) => {
+  if (!id) return
+  clearSession()
+  reviewCompleted.value = false
+  const needsGoal = await promptVocabularyGoalsIfNeeded()
+  if (!needsGoal) {
+    await startSession()
   }
 })
 

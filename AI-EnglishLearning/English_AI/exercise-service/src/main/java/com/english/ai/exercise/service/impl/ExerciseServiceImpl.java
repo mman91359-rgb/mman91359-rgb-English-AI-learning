@@ -15,13 +15,19 @@ import com.english.ai.exercise.dto.DailyWordVO;
 import com.english.ai.exercise.dto.WordDetailVO;
 import com.english.ai.exercise.dto.JudgmentResult;
 import com.english.ai.exercise.dto.WeakKnowledgePoint;
+import com.english.ai.exercise.dto.CoinAwardResult;
+import com.english.ai.exercise.dto.PreferenceResult;
 import com.english.ai.exercise.entity.*;
 import com.english.ai.exercise.event.ExerciseCompletedEvent;
 import com.english.ai.exercise.mapper.*;
 import com.english.ai.exercise.service.ExerciseService;
 import com.english.ai.exercise.service.JudgmentEngine;
 import com.english.ai.exercise.service.QuestionGenerateService;
+import com.english.ai.exercise.service.StudySessionService;
+import com.english.ai.exercise.service.VocabGroupAwardPolicy;
 import com.english.ai.exercise.util.EbbinghausUtil;
+import com.english.ai.exercise.util.StudyDurationAggregator;
+import com.english.ai.exercise.util.VocabularyLearningHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -32,8 +38,11 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.Clock;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -54,6 +63,14 @@ public class ExerciseServiceImpl implements ExerciseService {
     private final RestTemplate restTemplate;
     private final JudgmentEngine judgmentEngine;
     private final QuestionGenerateService questionGenerateService;
+    private final StudySessionService studySessionService;
+    private final Clock clock;
+
+    /** 每组单词数量的短缓存，避免每次词汇答题都跨服务查询偏好 */
+    private final Map<Long, CachedGroupSize> groupSizeCache = new ConcurrentHashMap<>();
+
+    /** 当天已发到第几组的短缓存，用于跨服务失败后的下一次答题重试 */
+    private final Map<Long, AwardedGroupState> awardedGroupCache = new ConcurrentHashMap<>();
 
     @Autowired(required = false)
     private RabbitTemplate rabbitTemplate;
@@ -193,6 +210,35 @@ public class ExerciseServiceImpl implements ExerciseService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<QuestionVO> selectNewVocabularyQuestions(Long userId, int count) {
+        int safeCount = Math.max(1, Math.min(50, count));
+        // 多取一些候选，过滤掉单词本中已有的词后再截取
+        int candidateCount = Math.min(50, Math.max(safeCount * 2, safeCount));
+        List<QuestionVO> candidates = selectQuestions(userId, 1, candidateCount);
+
+        Set<String> knownWords = vocabularyMapper.selectList(
+                        new LambdaQueryWrapper<UserVocabulary>()
+                                .eq(UserVocabulary::getUserId, userId))
+                .stream()
+                .map(v -> VocabularyLearningHelper.normalizeWord(v.getWord()).toLowerCase(Locale.ROOT))
+                .filter(word -> !word.isEmpty())
+                .collect(Collectors.toSet());
+
+        if (knownWords.isEmpty()) {
+            return candidates.stream().limit(safeCount).collect(Collectors.toList());
+        }
+
+        return candidates.stream()
+                .filter(q -> {
+                    String answer = VocabularyLearningHelper.normalizeWord(q.getAnswerWord())
+                            .toLowerCase(Locale.ROOT);
+                    return answer.isEmpty() || !knownWords.contains(answer);
+                })
+                .limit(safeCount)
+                .collect(Collectors.toList());
+    }
+
     // ============= 定级测试题 =============
 
     @Override
@@ -310,80 +356,98 @@ public class ExerciseServiceImpl implements ExerciseService {
             heuristicHint = "这个答案不太对哦，再想一想这个词的正确用法是什么？";
         }
 
-        // 写入答题记录
-        UserExerciseLog logEntry = new UserExerciseLog();
-        logEntry.setUserId(request.getUserId());
-        logEntry.setQuestionId(request.getQuestionId());
-        logEntry.setUserAnswer(request.getUserAnswer());
-        logEntry.setIsCorrect(isCorrect ? 1 : 0);
-        logEntry.setDurationSeconds(request.getDurationSeconds());
-        logEntry.setModuleType(request.getModuleType());
-        logEntry.setTraceId(traceId);
-        exerciseLogMapper.insert(logEntry);
+        // 新词循环的练习尝试只判题，不写日志、不更新 ELO/遗忘曲线、不触发金币组
+        boolean practiceOnly = Boolean.TRUE.equals(request.getPracticeOnly());
+        CoinAwardResult coinAward = null;
 
-        // 错题本
-        if (!isCorrect) {
-            upsertErrorBook(request.getUserId(), request.getQuestionId());
-        } else {
-            resolveErrorBook(request.getUserId(), request.getQuestionId());
-        }
+        if (!practiceOnly) {
+            // 写入答题记录
+            UserExerciseLog logEntry = new UserExerciseLog();
+            logEntry.setUserId(request.getUserId());
+            logEntry.setQuestionId(request.getQuestionId());
+            logEntry.setUserAnswer(request.getUserAnswer());
+            logEntry.setIsCorrect(isCorrect ? 1 : 0);
+            logEntry.setDurationSeconds(request.getDurationSeconds());
+            logEntry.setModuleType(request.getModuleType());
+            logEntry.setTraceId(traceId);
+            // 统一使用 Asia/Shanghai，保证按日统计与词汇组判定一致
+            logEntry.setCreatedAt(LocalDateTime.now(clock));
+            exerciseLogMapper.insert(logEntry);
 
-        // 调用 learning-engine 更新遗忘曲线
-        try {
-            String url = learningEngineUrl + "/learning/update-curve";
-            Map<String, Object> body = new HashMap<>();
-            body.put("userId", request.getUserId());
-            body.put("questionId", request.getQuestionId());
-            body.put("isCorrect", isCorrect);
-            body.put("moduleType", request.getModuleType());
+            // 词汇答题刚好完成一组时发放金币，失败不影响答题主流程
+            if (Integer.valueOf(1).equals(request.getModuleType())) {
+                coinAward = maybeAwardVocabGroup(request.getUserId());
+            }
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
-            restTemplate.postForEntity(url, entity, String.class);
-        } catch (Exception e) {
-            log.warn("调用learning-engine更新遗忘曲线失败: {}", e.getMessage());
-        }
+            // 错题本
+            if (!isCorrect) {
+                upsertErrorBook(request.getUserId(), request.getQuestionId());
+            } else {
+                resolveErrorBook(request.getUserId(), request.getQuestionId());
+            }
 
-        // 调用 user-service 更新ELO分
-        try {
-            String url = userServiceUrl + "/user/radar/update-elo";
-            Map<String, Object> body = new HashMap<>();
-            body.put("userId", request.getUserId());
-            body.put("difficultyLevel", info.getDifficultyLevel());
-            body.put("moduleType", request.getModuleType());
-            body.put("isCorrect", isCorrect);
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
-            restTemplate.postForEntity(url, entity, String.class);
-        } catch (Exception e) {
-            log.warn("调用user-service更新ELO失败: {}", e.getMessage());
-        }
-
-        // 发布RabbitMQ事件（异步解耦，fire-and-forget）
-        if (rabbitTemplate != null) {
+            // 调用 learning-engine 更新遗忘曲线
             try {
-                ExerciseCompletedEvent event = ExerciseCompletedEvent.builder()
-                        .userId(request.getUserId())
-                        .questionId(request.getQuestionId())
-                        .moduleType(request.getModuleType())
-                        .isCorrect(isCorrect)
-                        .attemptCount(1)
-                        .timestamp(System.currentTimeMillis())
-                        .traceId(traceId)
-                        .build();
-                rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_NAME,
-                        RabbitMQConfig.ROUTING_KEY, event);
-                log.debug("MQ事件已发送: traceId={}", traceId);
+                String url = learningEngineUrl + "/learning/update-curve";
+                Map<String, Object> body = new HashMap<>();
+                body.put("userId", request.getUserId());
+                body.put("questionId", request.getQuestionId());
+                body.put("isCorrect", isCorrect);
+                body.put("moduleType", request.getModuleType());
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+                restTemplate.postForEntity(url, entity, String.class);
             } catch (Exception e) {
-                log.warn("RabbitMQ事件发送失败（不影响主流程）: {}", e.getMessage());
+                log.warn("调用learning-engine更新遗忘曲线失败: {}", e.getMessage());
+            }
+
+            // 调用 user-service 更新ELO分
+            try {
+                String url = userServiceUrl + "/user/radar/update-elo";
+                Map<String, Object> body = new HashMap<>();
+                body.put("userId", request.getUserId());
+                body.put("difficultyLevel", info.getDifficultyLevel());
+                body.put("moduleType", request.getModuleType());
+                body.put("isCorrect", isCorrect);
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+                restTemplate.postForEntity(url, entity, String.class);
+            } catch (Exception e) {
+                log.warn("调用user-service更新ELO失败: {}", e.getMessage());
+            }
+
+            // 发布RabbitMQ事件（异步解耦，fire-and-forget）
+            if (rabbitTemplate != null) {
+                try {
+                    ExerciseCompletedEvent event = ExerciseCompletedEvent.builder()
+                            .userId(request.getUserId())
+                            .questionId(request.getQuestionId())
+                            .moduleType(request.getModuleType())
+                            .isCorrect(isCorrect)
+                            .attemptCount(1)
+                            .timestamp(System.currentTimeMillis())
+                            .traceId(traceId)
+                            .build();
+                    rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_NAME,
+                            RabbitMQConfig.ROUTING_KEY, event);
+                    log.debug("MQ事件已发送: traceId={}", traceId);
+                } catch (Exception e) {
+                    log.warn("RabbitMQ事件发送失败（不影响主流程）: {}", e.getMessage());
+                }
             }
         }
 
-        log.info("答题提交: userId={}, questionId={}, correct={}, matchedLevel={}, errorType={}, traceId={}",
-                request.getUserId(), request.getQuestionId(), isCorrect, matchedLevel, errorType, traceId);
+        if (practiceOnly) {
+            log.info("练习提交(不计分): userId={}, questionId={}, correct={}, traceId={}",
+                    request.getUserId(), request.getQuestionId(), isCorrect, traceId);
+        } else {
+            log.info("答题提交: userId={}, questionId={}, correct={}, matchedLevel={}, errorType={}, traceId={}",
+                    request.getUserId(), request.getQuestionId(), isCorrect, matchedLevel, errorType, traceId);
+        }
 
         return SubmitResponse.builder()
                 .isCorrect(isCorrect)
@@ -396,6 +460,10 @@ public class ExerciseServiceImpl implements ExerciseService {
                 .matchedLevel(matchedLevel)
                 .suggestions(suggestions)
                 .isSemanticMatch(isSemanticMatch)
+                .coinAwarded(coinAward != null && Boolean.TRUE.equals(coinAward.getAwarded())
+                        ? coinAward.getAmount() : null)
+                .coinBalance(coinAward != null && Boolean.TRUE.equals(coinAward.getAwarded())
+                        ? coinAward.getBalance() : null)
                 .build();
     }
 
@@ -643,27 +711,26 @@ public class ExerciseServiceImpl implements ExerciseService {
                 new LambdaQueryWrapper<UserExerciseLog>()
                         .eq(UserExerciseLog::getUserId, userId)
                         .orderByAsc(UserExerciseLog::getCreatedAt));
+        List<UserStudySession> studySessions = studySessionService.listByUser(userId);
 
         int totalAnswered = allLogs.size();
         int correctCount = (int) allLogs.stream().filter(l -> l.getIsCorrect() != null && l.getIsCorrect() == 1).count();
         int errorCount = totalAnswered - correctCount;
         double correctRate = totalAnswered > 0 ? (correctCount * 100.0 / totalAnswered) : 0.0;
 
-        // 2. 累计学习时长
-        int totalDurationSeconds = allLogs.stream().mapToInt(l -> l.getDurationSeconds() != null ? l.getDurationSeconds() : 0).sum();
+        // 2. 累计学习时长（改用学习会话口径）
+        int totalDurationSeconds = StudyDurationAggregator.totalSeconds(studySessions);
         double totalHours = totalDurationSeconds / 3600.0;
         int totalMinutes = (totalDurationSeconds % 3600) / 60;
 
-        java.time.LocalDate today = java.time.LocalDate.now();
+        LocalDate today = LocalDate.now(clock);
 
         // 2.1 今日学习时长
         List<UserExerciseLog> todayLogs = allLogs.stream()
                 .filter(l -> l.getCreatedAt() != null && l.getCreatedAt().toLocalDate().equals(today))
                 .collect(Collectors.toList());
 
-        int todayDurationSeconds = todayLogs.stream()
-                .mapToInt(l -> l.getDurationSeconds() != null ? l.getDurationSeconds() : 0)
-                .sum();
+        int todayDurationSeconds = StudyDurationAggregator.todaySeconds(studySessions, today);
 
         // 2.2 今日答题数统计
         int todayAnsweredCount = todayLogs.size();
@@ -674,28 +741,27 @@ public class ExerciseServiceImpl implements ExerciseService {
                 .filter(l -> l.getModuleType() != null && l.getModuleType() == 2)
                 .count();
 
+        LocalDateTime todayStart = today.atStartOfDay();
+        LocalDateTime tomorrowStart = today.plusDays(1).atStartOfDay();
+        Long learnedCount = vocabularyMapper.selectCount(new LambdaQueryWrapper<UserVocabulary>()
+                .eq(UserVocabulary::getUserId, userId)
+                .ge(UserVocabulary::getCreatedAt, todayStart)
+                .lt(UserVocabulary::getCreatedAt, tomorrowStart));
+        Long reviewedCount = vocabularyMapper.selectCount(new LambdaQueryWrapper<UserVocabulary>()
+                .eq(UserVocabulary::getUserId, userId)
+                .ge(UserVocabulary::getLastReviewedAt, todayStart)
+                .lt(UserVocabulary::getLastReviewedAt, tomorrowStart));
+        int todayLearnedWords = learnedCount != null ? learnedCount.intValue() : 0;
+        int todayReviewedWords = reviewedCount != null ? reviewedCount.intValue() : 0;
+
         // 3. 按日期分组（只看日期，不看时间）
         Map<java.time.LocalDate, List<UserExerciseLog>> byDate = allLogs.stream()
                 .filter(l -> l.getCreatedAt() != null)
                 .collect(Collectors.groupingBy(l -> l.getCreatedAt().toLocalDate()));
 
-        // 4. 活跃天数
-        int activeDays = byDate.size();
-
-        // 5. 连续学习天数（从今天向前数连续有答题记录的天数）
-        int streakDays = 0;
-        for (int i = 0; i < 365; i++) {
-            java.time.LocalDate d = today.minusDays(i);
-            if (byDate.containsKey(d)) {
-                streakDays++;
-            } else {
-                if (i == 0) continue; // 今天还没答题，不打断streak
-                break;
-            }
-        }
-        if (streakDays == 0 && byDate.containsKey(today)) {
-            streakDays = 1;
-        }
+        // 4. 活跃天数：会话日期 ∪ 答题日志日期（连续天数统一使用签到口径）
+        Set<LocalDate> sessionDates = StudyDurationAggregator.sessionDates(studySessions);
+        int activeDays = StudyDurationAggregator.activeDays(sessionDates, byDate.keySet());
 
         // 6. 已掌握单词数 = 正确答题数（词汇题占70%权重）
         long vocabCorrect = allLogs.stream()
@@ -741,31 +807,25 @@ public class ExerciseServiceImpl implements ExerciseService {
                     .questionCount(count)
                     .activityLevel(activityLevel)
                     .build());
-
-            // 当日学习时长（分钟）
-            int daySeconds = dayLogs.stream()
-                    .mapToInt(l -> l.getDurationSeconds() != null ? l.getDurationSeconds() : 0)
-                    .sum();
-            yearlyStudyMinutes.add(daySeconds / 60);
         }
+        // 年度每日学习时长（分钟）改用会话口径
+        yearlyStudyMinutes = StudyDurationAggregator.yearlyMinutes(studySessions, currentYear);
 
         // 10. 本周学习时长（分钟）+ 每日答题数
         // 按周一到周日顺序返回，确保与前端标签对齐
-        List<Integer> recentWeekMinutes = new ArrayList<>();
         List<Integer> recentWeekQuestionCounts = new ArrayList<>();
         // 获取本周一的日期（Java的DayOfWeek: 1=周一, 7=周日）
         int dayOfWeek = today.getDayOfWeek().getValue();
-        java.time.LocalDate monday = today.minusDays(dayOfWeek - 1);
+        LocalDate monday = today.minusDays(dayOfWeek - 1L);
         // 遍历周一到周日（7天）
         for (int i = 0; i < 7; i++) {
-            java.time.LocalDate d = monday.plusDays(i);
+            LocalDate d = monday.plusDays(i);
             List<UserExerciseLog> dayLogs = byDate.getOrDefault(d, Collections.emptyList());
-            int daySeconds = dayLogs.stream()
-                    .mapToInt(l -> l.getDurationSeconds() != null ? l.getDurationSeconds() : 0)
-                    .sum();
-            recentWeekMinutes.add(daySeconds / 60);
             recentWeekQuestionCounts.add(dayLogs.size());
         }
+        List<Integer> recentWeekMinutes = StudyDurationAggregator.recentWeekMinutes(studySessions, today);
+        List<Integer> recent7DaysMinutes = StudyDurationAggregator.last7DaysMinutes(studySessions, today);
+        List<String> recent7DaysLabels = StudyDurationAggregator.last7DaysLabels(today);
 
         // 10.1 本周平均每天答题数（最近7天每日答题数的平均值，四舍五入取整）
         double weeklyAvgQuestions = recentWeekQuestionCounts.stream()
@@ -788,18 +848,8 @@ public class ExerciseServiceImpl implements ExerciseService {
             yearlyMonthQuestions.add(monthQuestionCount);
         }
 
-        // 11. 24小时学习分布（按小时统计累计学习时长/分钟）
-        List<Integer> hourlyStudyMinutes = new ArrayList<>();
-        for (int h = 0; h < 24; h++) {
-            hourlyStudyMinutes.add(0);
-        }
-        for (UserExerciseLog log : allLogs) {
-            if (log.getCreatedAt() != null) {
-                int hour = log.getCreatedAt().getHour();
-                int minutes = log.getDurationSeconds() != null ? log.getDurationSeconds() / 60 : 0;
-                hourlyStudyMinutes.set(hour, hourlyStudyMinutes.get(hour) + minutes);
-            }
-        }
+        // 11. 24小时学习分布（按会话开始小时统计）
+        List<Integer> hourlyStudyMinutes = StudyDurationAggregator.hourlyMinutes(studySessions);
 
         return UserExerciseStats.builder()
                 .totalAnswered(totalAnswered)
@@ -813,13 +863,16 @@ public class ExerciseServiceImpl implements ExerciseService {
                 .todayAnsweredCount(todayAnsweredCount)
                 .todayVocabAnswered(todayVocabAnswered)
                 .todayGrammarAnswered(todayGrammarAnswered)
-                .streakDays(streakDays)
+                .todayLearnedWords(todayLearnedWords)
+                .todayReviewedWords(todayReviewedWords)
                 .activeDays(activeDays)
                 .masteredWords(masteredWords)
                 .nationalRankPercent(Math.round(nationalRank * 100.0) / 100.0)
                 .vocabularyComprehension(Math.round(vocabularyComprehension * 100.0) / 100.0)
                 .heatmapData(heatmapData)
                 .recentWeekMinutes(recentWeekMinutes)
+                .recent7DaysMinutes(recent7DaysMinutes)
+                .recent7DaysLabels(recent7DaysLabels)
                 .weeklyAverageQuestions(weeklyAverageQuestions)
                 .yearlyMonthQuestions(yearlyMonthQuestions)
                 .yearlyStudyMinutes(yearlyStudyMinutes)
@@ -851,6 +904,7 @@ public class ExerciseServiceImpl implements ExerciseService {
                 .hint(hint)
                 .analysis(content != null ? content.getAnalysis() : null)
                 .showAnswer(showAnswer)
+                .answerWord(correctAnswer)
                 .build();
     }
 
@@ -898,12 +952,23 @@ public class ExerciseServiceImpl implements ExerciseService {
     // ============= 单词本 =============
 
     @Override
-    public VocabularyVO addVocabulary(Long userId, String word, String translation) {
-        UserVocabulary v = new UserVocabulary();
-        v.setUserId(userId);
-        v.setWord(word);
-        v.setTranslation(translation);
-        v.setIsMastered(0);
+    public VocabularyVO addVocabulary(Long userId, String word, String translation, String source) {
+        String normalized = VocabularyLearningHelper.normalizeWord(word);
+        if (normalized.isEmpty()) {
+            throw new RuntimeException("单词不能为空");
+        }
+
+        // 幂等：已存在同一单词时直接返回，不重置其复习计划
+        UserVocabulary existing = vocabularyMapper.selectOne(new LambdaQueryWrapper<UserVocabulary>()
+                .eq(UserVocabulary::getUserId, userId)
+                .eq(UserVocabulary::getWord, normalized));
+        if (existing != null) {
+            return toVocabularyVO(existing);
+        }
+
+        LocalDateTime now = LocalDateTime.now(clock);
+        UserVocabulary v = VocabularyLearningHelper.buildInitialVocabulary(
+                userId, normalized, translation, source, now);
         vocabularyMapper.insert(v);
         return toVocabularyVO(v);
     }
@@ -979,7 +1044,8 @@ public class ExerciseServiceImpl implements ExerciseService {
         v.setSource(source == null || source.isBlank() ? "manual" : source);
         v.setReviewCount(0);
         v.setMasteryLevel(0);
-        v.setNextReviewAt(EbbinghausUtil.nextReviewAt(0));
+        v.setNextReviewAt(EbbinghausUtil.nextReviewAt(0, LocalDateTime.now(clock)));
+        v.setCreatedAt(LocalDateTime.now(clock));
 
         if (detail != null) {
             v.setPhonetic(detail.getPhonetic());
@@ -1061,10 +1127,11 @@ public class ExerciseServiceImpl implements ExerciseService {
             newMastery = EbbinghausUtil.nextMasteryOnWrong();
         }
 
+        LocalDateTime now = LocalDateTime.now(clock);
         v.setMasteryLevel(newMastery);
         v.setReviewCount((v.getReviewCount() == null ? 0 : v.getReviewCount()) + 1);
-        v.setLastReviewedAt(LocalDateTime.now());
-        v.setNextReviewAt(EbbinghausUtil.nextReviewAt(newMastery));
+        v.setLastReviewedAt(now);
+        v.setNextReviewAt(EbbinghausUtil.nextReviewAt(newMastery, now));
 
         // 达到最高掌握度且本次答对 → 标记为已掌握
         if (EbbinghausUtil.isMastered(newMastery, isCorrect)) {
@@ -1452,5 +1519,129 @@ public class ExerciseServiceImpl implements ExerciseService {
         log.info("同类题生成完成: 共返回{}题（正式题库{}题 + AI生成{}题）",
                 result.size(), result.size() - generated.size(), generated.size());
         return result;
+    }
+
+    // ============= 词汇组金币辅助 =============
+
+    /**
+     * 词汇答题刚好完成一组时调用 user-service 发币。
+     * 任何异常都只记日志，不影响答题主流程。
+     */
+    private CoinAwardResult maybeAwardVocabGroup(Long userId) {
+        try {
+            LocalDate today = LocalDate.now(clock);
+            LocalDateTime start = today.atStartOfDay();
+            LocalDateTime end = today.plusDays(1).atStartOfDay();
+            Long countValue = exerciseLogMapper.selectCount(new LambdaQueryWrapper<UserExerciseLog>()
+                    .eq(UserExerciseLog::getUserId, userId)
+                    .eq(UserExerciseLog::getModuleType, 1)
+                    .ge(UserExerciseLog::getCreatedAt, start)
+                    .lt(UserExerciseLog::getCreatedAt, end));
+            long answeredCount = countValue != null ? countValue : 0L;
+            int groupSize = getUserGroupSize(userId);
+            int groupIndex = VocabGroupAwardPolicy.currentGroupIndex(answeredCount, groupSize);
+            if (groupIndex <= 0) {
+                return null;
+            }
+
+            AwardedGroupState state = awardedGroupCache.get(userId);
+            if (state != null && today.equals(state.date) && groupIndex <= state.groupIndex) {
+                return null;
+            }
+
+            String bizKey = "VOCAB_GROUP:" + userId + ":" + today + ":" + groupIndex;
+            CoinAwardResult result = callCoinAward(userId, bizKey);
+            if (result != null && (Boolean.TRUE.equals(result.getAwarded())
+                    || "DUPLICATE".equals(result.getReason()))) {
+                // 成功或已发过都推进游标；失败（null）不推进，下一次答题重试同一组
+                awardedGroupCache.put(userId, new AwardedGroupState(today, groupIndex));
+                return Boolean.TRUE.equals(result.getAwarded()) ? result : null;
+            }
+            if (result != null && "DAILY_LIMIT".equals(result.getReason())) {
+                awardedGroupCache.put(userId, new AwardedGroupState(today, groupIndex));
+            }
+            return result;
+        } catch (Exception e) {
+            log.warn("词汇组金币判定失败: userId={}, reason={}", userId, e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * 读取用户每组单词数量，60 秒本地缓存，失败默认 10。
+     */
+    private int getUserGroupSize(Long userId) {
+        long now = System.currentTimeMillis();
+        CachedGroupSize cached = groupSizeCache.get(userId);
+        if (cached != null && cached.expireAt > now) {
+            return cached.size;
+        }
+
+        int size = 10;
+        try {
+            String url = userServiceUrl + "/internal/user/preference/" + userId;
+            ResponseEntity<Result<PreferenceResult>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, null,
+                    new ParameterizedTypeReference<Result<PreferenceResult>>() {
+                    });
+            if (response.getBody() != null && response.getBody().getCode() == 200
+                    && response.getBody().getData() != null
+                    && response.getBody().getData().getVocabGroupSize() != null) {
+                size = response.getBody().getData().getVocabGroupSize();
+            }
+        } catch (Exception e) {
+            log.warn("获取每组单词数量失败(userId={})，使用默认10: {}", userId, e.getMessage());
+        }
+
+        size = Math.max(5, Math.min(50, size));
+        groupSizeCache.put(userId, new CachedGroupSize(size, now + 60_000L));
+        return size;
+    }
+
+    /**
+     * 调用 user-service 内部发币接口。
+     */
+    private CoinAwardResult callCoinAward(Long userId, String bizKey) {
+        try {
+            String url = userServiceUrl + "/internal/coin/award";
+            Map<String, Object> body = new HashMap<>();
+            body.put("userId", userId);
+            body.put("bizType", "VOCAB_GROUP");
+            body.put("bizKey", bizKey);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+            ResponseEntity<Result<CoinAwardResult>> response = restTemplate.exchange(
+                    url, HttpMethod.POST, entity,
+                    new ParameterizedTypeReference<Result<CoinAwardResult>>() {
+                    });
+            if (response.getBody() != null && response.getBody().getCode() == 200) {
+                return response.getBody().getData();
+            }
+        } catch (Exception e) {
+            log.warn("词汇组金币发放失败: userId={}, bizKey={}, reason={}", userId, bizKey, e.getMessage());
+        }
+        return null;
+    }
+
+    private static class CachedGroupSize {
+        private final int size;
+        private final long expireAt;
+
+        private CachedGroupSize(int size, long expireAt) {
+            this.size = size;
+            this.expireAt = expireAt;
+        }
+    }
+
+    private static class AwardedGroupState {
+        private final LocalDate date;
+        private final int groupIndex;
+
+        private AwardedGroupState(LocalDate date, int groupIndex) {
+            this.date = date;
+            this.groupIndex = groupIndex;
+        }
     }
 }

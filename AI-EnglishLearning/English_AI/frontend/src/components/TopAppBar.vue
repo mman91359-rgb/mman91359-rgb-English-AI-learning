@@ -1,9 +1,10 @@
 <template>
   <header class="h-20 sticky top-0 z-40 bg-background/80 backdrop-blur-md flex items-center justify-between px-gutter w-full max-w-container-max mx-auto">
-    <div class="flex items-center gap-4">
+    <div class="flex items-center gap-3 sm:gap-4">
       <div class="md:hidden">
         <span class="material-symbols-outlined text-on-surface text-2xl cursor-pointer">menu</span>
       </div>
+      <CoinBadge />
       <slot name="left" />
     </div>
     <div class="flex items-center gap-2 sm:gap-4">
@@ -85,9 +86,13 @@
 
         <!-- 用户头像：有头像显示图片，无头像显示首字母 -->
         <div
-          class="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center cursor-pointer font-bold text-base select-none overflow-hidden"
+          class="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center cursor-pointer font-bold text-base select-none overflow-hidden transition-all duration-200 hover:scale-105 hover:ring-2 hover:ring-primary/40 active:scale-95"
           :title="userStore.username || '用户'"
+          :aria-label="$t('profile.userInfo')"
+          role="button"
+          tabindex="0"
           @click="$emit('userClick')"
+          @keydown.enter="$emit('userClick')"
         >
           <img
             v-if="topbarAvatarUrl"
@@ -108,6 +113,7 @@ import { useI18n } from 'vue-i18n'
 import { useAppStore } from '@/stores/app'
 import { useUserStore } from '@/stores/user'
 import { useNotifications } from '@/composables/useNotifications'
+import CoinBadge from '@/components/CoinBadge.vue'
 
 defineEmits(['userClick'])
 

@@ -2,7 +2,7 @@
   <div class="bg-background text-on-background min-h-screen flex">
     <SideNavBar />
     <main class="flex-1 w-full md:ml-sidebar-width flex flex-col min-h-screen relative">
-      <TopAppBar />
+      <TopAppBar @user-click="goProfile" />
       <div class="flex-1 px-gutter py-8 w-full max-w-container-max mx-auto space-y-8 pb-24 md:pb-8">
         <slot />
       </div>
@@ -12,7 +12,11 @@
 </template>
 
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
 import SideNavBar from './SideNavBar.vue'
 import TopAppBar from './TopAppBar.vue'
 import BottomNavBar from './BottomNavBar.vue'
+
+const router = useRouter()
+const goProfile = () => router.push('/profile')
 </script>

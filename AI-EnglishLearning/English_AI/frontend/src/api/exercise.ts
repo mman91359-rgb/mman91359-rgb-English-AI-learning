@@ -35,6 +35,8 @@ export interface SubmitRequest {
     userAnswer: string
     moduleType: number
     durationSeconds?: number
+    /** 仅练习：只判题，不写答题记录/不更新 ELO/金币 */
+    practiceOnly?: boolean
 }
 
 /**
@@ -63,6 +65,24 @@ export interface SubmitResponse {
     suggestions?: string[]
     /** 是否为语义匹配（近义词/同义表达被判对），此时应展示标准答案供参考 */
     isSemanticMatch?: boolean
+    /** 本次提交触发的金币奖励（未触发时为空） */
+    coinAwarded?: number
+    /** 发放后的金币余额 */
+    coinBalance?: number
+}
+
+/** 学习会话上报请求 */
+export interface StudySessionReportRequest {
+    userId: number
+    sessionKey: string
+    activeSeconds: number
+    sessionStartedAt: number
+}
+
+/** 学习会话上报响应 */
+export interface StudySessionReportResponse {
+    activeSeconds: number
+    statDate: string
 }
 
 /**
@@ -82,6 +102,11 @@ export interface SysKnowledgePoint {
  */
 export const selectQuestions = (userId: number, moduleType: number = 1, count: number = 10): Promise<QuestionVO[]> => {
     return get('/exercise/questions', { userId, moduleType, count })
+}
+
+/** 新词练习选题：后端会排除单词本中已有的单词 */
+export const selectNewVocabularyQuestions = (userId: number, count: number = 10): Promise<QuestionVO[]> => {
+    return get('/exercise/vocabulary/new-questions', { userId, count })
 }
 
 /**
@@ -106,6 +131,11 @@ export const getQuestionById = (id: number, showAnswer: boolean = false): Promis
  */
 export const submitAnswer = (data: SubmitRequest): Promise<SubmitResponse> => {
     return post('/exercise/submit', data)
+}
+
+/** 上报学习会话累计活跃秒数 */
+export const reportStudySession = (data: StudySessionReportRequest): Promise<StudySessionReportResponse> => {
+    return post('/exercise/study-session/report', data)
 }
 
 /**
@@ -136,13 +166,14 @@ export interface UserExerciseStats {
     totalHours: number
     totalMinutes: number
     todayDurationSeconds: number
-    streakDays: number
     activeDays: number
     masteredWords: number
     nationalRankPercent: number
     vocabularyComprehension: number
     heatmapData: { date: string; questionCount: number; activityLevel: number; title?: string }[]
     recentWeekMinutes: number[]
+    recent7DaysMinutes: number[]
+    recent7DaysLabels: string[]
     weeklyAverageQuestions: number
     yearlyMonthQuestions: number[]
     yearlyStudyMinutes: number[]
@@ -150,6 +181,8 @@ export interface UserExerciseStats {
     todayAnsweredCount: number
     todayVocabAnswered: number
     todayGrammarAnswered: number
+    todayLearnedWords: number
+    todayReviewedWords: number
 }
 
 /**
@@ -229,7 +262,12 @@ export interface ReviewResultRequest {
     isCorrect: boolean
 }
 
-export const addVocabulary = (data: { userId: number; word: string; translation?: string }): Promise<VocabularyVO> => {
+export const addVocabulary = (data: {
+    userId: number
+    word: string
+    translation?: string
+    source?: string
+}): Promise<VocabularyVO> => {
     return post('/exercise/vocabulary', data)
 }
 

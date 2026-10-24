@@ -38,9 +38,6 @@ public class UserExerciseStats {
     /** 累计学习时长（分钟，去除小时后的余数） */
     private Integer totalMinutes;
 
-    /** 连续学习天数 */
-    private Integer streakDays;
-
     /** 累计活跃天数（有答题记录的天数） */
     private Integer activeDays;
 
@@ -58,6 +55,12 @@ public class UserExerciseStats {
 
     /** 最近7天学习时长（分钟） */
     private List<Integer> recentWeekMinutes;
+
+    /** 滚动最近 7 天每日学习分钟数（索引 0 为最早一天） */
+    private List<Integer> recent7DaysMinutes;
+
+    /** 滚动最近 7 天日期标签（MM-dd） */
+    private List<String> recent7DaysLabels;
 
     /** 本周平均每天答题数（最近7天每日答题数的平均值，四舍五入取整） */
     private Integer weeklyAverageQuestions;
@@ -82,6 +85,12 @@ public class UserExerciseStats {
 
     /** 今日语法答题数（模块类型=2） */
     private Integer todayGrammarAnswered;
+
+    /** 今日新学并加入单词本的单词数 */
+    private Integer todayLearnedWords;
+
+    /** 今日已复习的单词数 */
+    private Integer todayReviewedWords;
 
     /**
      * 每日活跃度

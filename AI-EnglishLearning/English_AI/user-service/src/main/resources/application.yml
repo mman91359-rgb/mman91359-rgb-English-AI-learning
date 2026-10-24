@@ -52,3 +52,21 @@ mybatis-plus:
 jwt:
   secret: ${JWT_SECRET:EnglishAI-Local-Dev-JWT-Secret-Key-Change-Me-32-Bytes}
   expiration: ${JWT_EXPIRATION:604800000}  # 7天(毫秒)
+
+# 金币奖励配置（修改数值后重启 user-service 生效）
+app:
+  coin:
+    check-in:
+      base-reward: 10          # 每日签到基础金币
+      streak-step: 2           # 连续第 n 天额外 (n-1)*2
+      max-streak-bonus: 20     # 连续加成上限
+      milestones:              # 连续签到里程碑
+        - days: 7
+          reward: 30
+        - days: 30
+          reward: 100
+        - days: 100
+          reward: 300
+    vocab-group:
+      reward: 5                # 每完成一组单词
+      daily-limit: 3           # 每日最多奖励 3 组

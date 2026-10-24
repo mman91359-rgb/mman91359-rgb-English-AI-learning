@@ -54,8 +54,13 @@
             <span class="material-symbols-outlined text-xl">language</span>
           </button>
           <div
-            class="w-8 h-8 rounded-full bg-primary text-on-primary ml-2 flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all text-sm font-bold select-none overflow-hidden"
+            class="w-8 h-8 rounded-full bg-primary text-on-primary ml-2 flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-primary/50 hover:scale-105 active:scale-95 transition-all text-sm font-bold select-none overflow-hidden"
             :title="userStore.username || ''"
+            :aria-label="$t('profile.userInfo')"
+            role="button"
+            tabindex="0"
+            @click="router.push('/profile')"
+            @keydown.enter="router.push('/profile')"
           >
             <img v-if="quizAvatarUrl" :src="quizAvatarUrl" :alt="$t('profile.userInfo')" class="w-full h-full object-cover" />
             <span v-else>{{ avatarText }}</span>

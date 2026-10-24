@@ -55,19 +55,20 @@ instance.interceptors.response.use(
 )
 
 export const get = <T>(url: string, params?: Record<string, any>): Promise<T> => {
-  return instance.get(url, { params })
+  // 响应拦截器已把 AxiosResponse 解包为业务 data，这里显式收敛泛型
+  return instance.get(url, { params }) as unknown as Promise<T>
 }
 
 export const post = <T>(url: string, data?: Record<string, any>): Promise<T> => {
-  return instance.post(url, data)
+  return instance.post(url, data) as unknown as Promise<T>
 }
 
 export const put = <T>(url: string, data?: Record<string, any>): Promise<T> => {
-  return instance.put(url, data)
+  return instance.put(url, data) as unknown as Promise<T>
 }
 
 export const del = <T>(url: string, params?: Record<string, any>): Promise<T> => {
-  return instance.delete(url, { params })
+  return instance.delete(url, { params }) as unknown as Promise<T>
 }
 
 export default instance

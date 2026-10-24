@@ -21,11 +21,11 @@
           </div>
           <div class="bg-surface-container-lowest rounded-xl p-6 card-shadow">
             <div class="flex items-center text-on-surface-variant mb-2">
-              <span class="material-symbols-outlined mr-2 text-secondary text-[20px]" :class="{ 'opacity-30': streakDays < 3 }">local_fire_department</span>
+              <span class="material-symbols-outlined mr-2 text-secondary text-[20px]" :class="{ 'opacity-30': userStore.checkInStreak < 3 }">local_fire_department</span>
               <span class="font-label-md text-label-md">{{ $t('stats.streakDays') }}</span>
             </div>
             <div class="text-headline-lg font-headline-lg text-on-surface">
-              {{ streakDays }}<span class="text-body-md font-body-md text-on-surface-variant ml-1">{{ $t('stats.days') }}</span>
+              {{ userStore.checkInStreak }}<span class="text-body-md font-body-md text-on-surface-variant ml-1">{{ $t('stats.days') }}</span>
             </div>
           </div>
           <div class="bg-surface-container-lowest rounded-xl p-6 card-shadow">
@@ -108,10 +108,10 @@
         <!-- 学习时间曲线图 -->
         <div class="bg-surface-container-lowest rounded-[24px] p-6 md:p-8 card-shadow">
           <div class="flex justify-between items-center mb-2">
-            <h3 class="font-headline-md text-headline-md text-on-surface">{{ $t('stats.studyTime') }}</h3>
+            <h3 class="font-headline-md text-headline-md text-on-surface">{{ $t('stats.recent7DaysStudyTime') }}</h3>
           </div>
           <p class="text-label-md font-label-md text-on-surface-variant mb-4">
-            {{ $t('stats.weekAvg') }}{{ weeklyAvgMinutes }}分
+            {{ $t('stats.recent7DaysAvg', { minutes: weeklyAvgMinutes }) }}
           </p>
           <div ref="chartRef" class="w-full h-[300px]"></div>
         </div>
@@ -173,7 +173,6 @@ const appStore = useAppStore()
 // ========== 顶部统计 ==========
 const todayHours = ref(0)
 const todayMinutes = ref(0)
-const streakDays = ref(0)
 const activeDays = ref(0)
 
 // ========== 热力图 ==========
@@ -289,7 +288,8 @@ const heatmapGrid = {
 const chartRef = ref<HTMLDivElement | null>(null)
 let chartInstance: echarts.ECharts | null = null
 const weeklyAvgMinutes = ref(0)
-const hourlyStudyMinutes = ref<number[]>(new Array(24).fill(0))
+const weeklyMinutes = ref<number[]>(new Array(7).fill(0))
+const weeklyLabels = ref<string[]>([])
 
 // ========== 词汇量 ==========
 const vocabTestDate = ref('')
@@ -308,12 +308,10 @@ const initChart = () => {
 const renderChart = () => {
   if (!chartInstance) return
 
-  // 使用后端返回的24小时分布数据
-  const hourlyData = hourlyStudyMinutes.value || new Array(24).fill(0)
-  const hourLabels: string[] = []
-  for (let h = 0; h < 24; h++) {
-    hourLabels.push(`${h.toString().padStart(2, '0')}:00`)
-  }
+  const data = weeklyMinutes.value || new Array(7).fill(0)
+  const labels = weeklyLabels.value.length > 0
+    ? weeklyLabels.value
+    : data.map((_, index) => `D-${6 - index}`)
 
   chartInstance.setOption({
     tooltip: {
@@ -335,13 +333,13 @@ const renderChart = () => {
     },
     xAxis: {
       type: 'category',
-      data: hourLabels,
+      data: labels,
       axisLine: { lineStyle: { color: 'rgba(0,0,0,0.08)' } },
       axisTick: { show: false },
       axisLabel: {
         color: '#9CA3AF',
         fontSize: 11,
-        interval: 2  // 每3小时: 00:00, 03:00, 06:00...
+        interval: 0
       },
       boundaryGap: true
     },
@@ -356,14 +354,21 @@ const renderChart = () => {
     },
     series: [{
       type: 'bar',
-      data: hourlyData,
-      barWidth: '60%',
+      data,
+      barWidth: '52%',
+      label: {
+        show: true,
+        position: 'top',
+        color: '#6B7280',
+        fontSize: 11,
+        formatter: '{c}'
+      },
       itemStyle: {
         color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
           { offset: 0, color: '#a855f7' },
           { offset: 1, color: '#c084fc' }
         ]),
-        borderRadius: [2, 2, 0, 0]
+        borderRadius: [4, 4, 0, 0]
       }
     }]
   })
@@ -374,10 +379,26 @@ const handleResize = () => {
   chartInstance?.resize()
 }
 
+// 后端未返回标签时的兜底：最近 7 天 MM-dd
+const buildLast7DayLabels = (): string[] => {
+  const labels: string[] = []
+  const today = new Date()
+  for (let i = 6; i >= 0; i--) {
+    const date = new Date(today)
+    date.setDate(today.getDate() - i)
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    labels.push(`${month}-${day}`)
+  }
+  return labels
+}
+
 // ========== 加载数据 ==========
 const loadStatsData = async () => {
   const userId = userStore.userId
   if (!userId) return
+
+  await userStore.loadCoinInfo()
 
   try {
     const stats = await getExerciseStats(userId)
@@ -387,7 +408,6 @@ const loadStatsData = async () => {
     const todaySeconds = stats.todayDurationSeconds || 0
     todayHours.value = Math.floor(todaySeconds / 3600)
     todayMinutes.value = Math.floor((todaySeconds % 3600) / 60)
-    streakDays.value = stats.streakDays || 0
     activeDays.value = stats.activeDays || 0
 
     // —— 热力图 —— 将 yearlyStudyMinutes 合并到 heatmapData
@@ -398,11 +418,16 @@ const loadStatsData = async () => {
       dailyMinutes: i < yearlyMinutes.length ? (yearlyMinutes[i] || 0) : 0
     }))
 
-    // —— 学习时间趋势 ——
-    const weekMinutes: number[] = stats.recentWeekMinutes || [0, 0, 0, 0, 0, 0, 0]
+    // —— 最近 7 天学习时长 ——
+    const weekMinutes: number[] = stats.recent7DaysMinutes
+      || stats.recentWeekMinutes
+      || [0, 0, 0, 0, 0, 0, 0]
+    weeklyMinutes.value = weekMinutes
+    weeklyLabels.value = stats.recent7DaysLabels && stats.recent7DaysLabels.length > 0
+      ? stats.recent7DaysLabels
+      : buildLast7DayLabels()
     const avg = weekMinutes.reduce((a, b) => a + b, 0) / (weekMinutes.length || 1)
     weeklyAvgMinutes.value = Math.round(avg)
-    hourlyStudyMinutes.value = stats.hourlyStudyMinutes || new Array(24).fill(0)
 
     // —— 词汇量 ——
     masteredWords.value = stats.masteredWords || 0

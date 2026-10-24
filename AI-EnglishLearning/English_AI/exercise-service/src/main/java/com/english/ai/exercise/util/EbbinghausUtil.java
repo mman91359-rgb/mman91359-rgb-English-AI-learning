@@ -36,9 +36,16 @@ public final class EbbinghausUtil {
      * @return 下次复习时间
      */
     public static LocalDateTime nextReviewAt(int masteryLevel) {
+        return nextReviewAt(masteryLevel, LocalDateTime.now());
+    }
+
+    /**
+     * 指定基准时间计算下次复习时间，便于统一时区与单元测试
+     */
+    public static LocalDateTime nextReviewAt(int masteryLevel, LocalDateTime baseTime) {
         int idx = Math.max(0, Math.min(masteryLevel, MAX_MASTERY));
         int days = INTERVALS_DAYS.get(idx);
-        return LocalDateTime.now().plusDays(days);
+        return baseTime.plusDays(days);
     }
 
     /**

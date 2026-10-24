@@ -22,4 +22,7 @@ public class SubmitRequest {
 
     /** 模块类型 */
     private Integer moduleType;
+
+    /** 仅练习：只判题，不写答题记录、不更新 ELO/遗忘曲线/金币 */
+    private Boolean practiceOnly;
 }

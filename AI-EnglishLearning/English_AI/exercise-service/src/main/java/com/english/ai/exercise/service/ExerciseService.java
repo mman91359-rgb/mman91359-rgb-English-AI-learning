@@ -24,6 +24,9 @@ public interface ExerciseService {
      */
     List<QuestionVO> selectQuestions(Long userId, Integer moduleType, int count);
 
+    /** 选择新词练习题目，排除用户单词本中已存在的单词 */
+    List<QuestionVO> selectNewVocabularyQuestions(Long userId, int count);
+
     /**
      * 获取定级测试题（20题: 12词汇+8语法，难度均匀分布1~8）
      */
@@ -77,8 +80,8 @@ public interface ExerciseService {
 
     // ========== 单词本 ==========
 
-    /** 添加单词 */
-    VocabularyVO addVocabulary(Long userId, String word, String translation);
+    /** 添加单词，source 缺省为 manual，新词学习循环传 quiz */
+    VocabularyVO addVocabulary(Long userId, String word, String translation, String source);
 
     /**
      * 智能添加单词：仅传入单词，由 AI 自动补全音标/词性/释义/例句/搭配

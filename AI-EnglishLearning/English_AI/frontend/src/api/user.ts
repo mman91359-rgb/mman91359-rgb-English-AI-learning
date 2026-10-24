@@ -1,4 +1,4 @@
-import { post, get } from './request'
+import { post, get, put } from './request'
 import instance from './request'
 
 export interface LoginRequest {
@@ -33,6 +33,22 @@ export interface AssessSubmitRequest {
   isCorrect: boolean
 }
 
+/** 用户学习偏好 */
+export interface PreferenceResponse {
+  userId: number
+  vocabGroupSize: number | null
+  configured: boolean
+  minGroupSize: number
+  maxGroupSize: number
+  dailyNewWords: number | null
+  dailyReviewWords: number | null
+  vocabularyGoalsConfigured: boolean
+  minDailyNewWords: number
+  maxDailyNewWords: number
+  minDailyReviewWords: number
+  maxDailyReviewWords: number
+}
+
 export const login = (data: LoginRequest): Promise<LoginResponse> => {
   return post('/user/login', data)
 }
@@ -51,6 +67,25 @@ export const getUserByUsername = (username: string): Promise<any> => {
 
 export const getRadarData = (userId: number): Promise<any> => {
   return get(`/user/radar/${userId}`)
+}
+
+/** 查询每组单词数量 */
+export const getPreference = (userId: number): Promise<PreferenceResponse> => {
+  return get(`/user/preference/${userId}`)
+}
+
+/** 更新每组单词数量（5-50） */
+export const updateVocabGroupSize = (userId: number, vocabGroupSize: number): Promise<PreferenceResponse> => {
+  return put('/user/preference/vocab-group-size', { userId, vocabGroupSize })
+}
+
+/** 更新每日新背/复习单词目标 */
+export const updateVocabularyGoals = (
+  userId: number,
+  dailyNewWords: number,
+  dailyReviewWords: number,
+): Promise<PreferenceResponse> => {
+  return put('/user/preference/vocabulary-goals', { userId, dailyNewWords, dailyReviewWords })
 }
 
 export const submitAssessAnswer = (data: AssessSubmitRequest): Promise<any> => {

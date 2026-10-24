@@ -31,7 +31,7 @@
       >
         <div class="relative z-10 text-[#0e4f63] dark:text-[#9fdbf0]">
           <h3 class="font-headline-md text-headline-md mb-2 font-bold">{{ $t('learning.grammarPractice') }}</h3>
-          <div class="flex items-center gap-2 font-body-md text-body-md">
+          <div class="flex items-center gap-2 font-body-md text-body-md" @click.stop>
             <template v-if="editingTarget">
               <input
                 ref="targetInput"
@@ -97,29 +97,25 @@
         <!-- 主练习入口 -->
         <div
           class="col-span-1 md:col-span-8 bg-primary-container rounded-[24px] p-8 flex flex-col justify-between relative overflow-hidden group cursor-pointer hover:shadow-[0_4px_20px_rgba(51,58,72,0.15)] transition-shadow min-h-[200px]"
-          @click="startPractice"
+          @click="openVocabularyGoalDialog"
         >
           <div class="relative z-10 text-on-primary-container">
-            <h3 class="font-headline-md text-headline-md mb-2">{{ currentModuleName }}{{ $t('learning.practice') }}</h3>
-            <div class="flex items-center gap-2 text-on-primary-container/80 font-body-md text-body-md">
-              <template v-if="editingTarget">
-                <input
-                  ref="targetInput"
-                  v-model.number="editValue"
-                  class="w-16 bg-white/20 rounded px-2 py-0.5 text-center outline-none"
-                  @keydown.enter="confirmTarget"
-                  @keydown.escape="cancelTarget"
-                  @blur="confirmTarget"
-                />
-              </template>
-              <template v-else>
-                <span @click.stop="startEditTarget" class="cursor-pointer">{{ $t('learning.dailyTargetWords', { count: dailyTarget }) }}</span>
-                <span class="material-symbols-outlined text-sm cursor-pointer" @click.stop="startEditTarget">edit</span>
-              </template>
+            <h3 class="font-headline-md text-headline-md mb-3">{{ currentModuleName }}{{ $t('learning.practice') }}</h3>
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="rounded-full bg-white/15 px-3 py-1 font-label-md text-label-md">
+                {{ $t('learning.newWordsGoal', { count: dailyNewWordsDisplay }) }}
+              </span>
+              <span class="rounded-full bg-white/15 px-3 py-1 font-label-md text-label-md">
+                {{ $t('learning.reviewWordsGoal', { count: dailyReviewWordsDisplay }) }}
+              </span>
+              <span class="material-symbols-outlined text-sm opacity-70">tune</span>
             </div>
+            <p class="mt-4 font-body-sm text-body-sm text-on-primary-container/70">
+              {{ $t('learning.tapToSetGoal') }}
+            </p>
           </div>
           <div class="absolute right-8 top-1/2 -translate-y-1/2 z-10 w-16 h-16 bg-surface-container-lowest/20 rounded-full flex items-center justify-center backdrop-blur-sm group-hover:scale-110 transition-transform">
-            <span class="material-symbols-outlined text-4xl text-on-primary-container fill">play_arrow</span>
+            <span class="material-symbols-outlined text-4xl text-on-primary-container fill">tune</span>
           </div>
           <div class="absolute right-32 top-1/2 -translate-y-1/2 flex flex-col gap-2 opacity-30">
             <div class="w-1.5 h-1.5 rounded-full bg-on-primary-container"></div>
@@ -219,6 +215,22 @@
         </div>
       </div>
     </template>
+
+    <VocabularyGoalDialog
+      :visible="showVocabularyGoalDialog"
+      :new-words="userStore.dailyNewWords"
+      :review-words="userStore.dailyReviewWords"
+      :saving="goalSaving"
+      :error="goalError"
+      :min-new="userStore.minDailyNewWords"
+      :max-new="userStore.maxDailyNewWords"
+      :min-review="userStore.minDailyReviewWords"
+      :max-review="userStore.maxDailyReviewWords"
+      :submit-label="$t('vocabGoal.save')"
+      @update:visible="showVocabularyGoalDialog = $event"
+      @save="handleVocabularyGoalSave"
+      @close="closeVocabularyGoalDialog"
+    />
   </AppLayout>
 </template>
 
@@ -227,6 +239,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import AppLayout from '../components/AppLayout.vue'
+import VocabularyGoalDialog from '@/components/VocabularyGoalDialog.vue'
 import { useUserStore } from '@/stores/user'
 import { useAiStore } from '@/stores/ai'
 import { getErrorBook, getFavorites, getVocabulary } from '@/api/exercise'
@@ -314,6 +327,45 @@ const cancelTarget = () => {
   editingTarget.value = false
 }
 
+// ========== 每日词汇目标弹窗 ==========
+const showVocabularyGoalDialog = ref(false)
+const goalSaving = ref(false)
+const goalError = ref('')
+const dailyNewWordsDisplay = computed(() => userStore.dailyNewWords ?? 10)
+const dailyReviewWordsDisplay = computed(() => userStore.dailyReviewWords ?? 5)
+
+const openVocabularyGoalDialog = async () => {
+  if (!userStore.userId) {
+    toast(t('learning.pleaseLogin'), 'warning')
+    return
+  }
+  if (!userStore.preferenceLoaded) {
+    await userStore.loadPreference()
+  }
+  goalError.value = ''
+  showVocabularyGoalDialog.value = true
+}
+
+const closeVocabularyGoalDialog = () => {
+  showVocabularyGoalDialog.value = false
+  goalError.value = ''
+}
+
+const handleVocabularyGoalSave = async (payload: { newWords: number; reviewWords: number }) => {
+  goalSaving.value = true
+  goalError.value = ''
+  try {
+    await userStore.setVocabularyGoals(payload.newWords, payload.reviewWords)
+    showVocabularyGoalDialog.value = false
+    await router.push('/vocab-quiz')
+  } catch (e) {
+    goalError.value = e instanceof Error ? e.message : t('vocabGoal.saveFailed')
+    toast(goalError.value, 'error')
+  } finally {
+    goalSaving.value = false
+  }
+}
+
 watch(activeTab, () => {
   loadTarget()
 })
@@ -372,9 +424,9 @@ const startPractice = () => {
     toastComingSoon()
     return
   }
-  // 词汇/语法走专属练习页（截图风格），其他模块走统一 PracticeView
+  // 词汇先打开每日目标弹窗，语法/其他模块走原有入口
   if (currentModuleType.value === 1) {
-    router.push('/vocab-quiz')
+    void openVocabularyGoalDialog()
   } else if (currentModuleType.value === 2) {
     router.push('/grammar-quiz')
   } else {
@@ -424,7 +476,10 @@ const goToStudiedGrammar = () => {
 }
 
 watch(() => userStore.userId, (newId) => {
-  if (newId) loadLearningData()
+  if (newId) {
+    void userStore.loadPreference()
+    loadLearningData()
+  }
 }, { immediate: true })
 
 // 导航回学习中心时自动刷新数据
@@ -434,6 +489,7 @@ watch(() => route.path, (newPath) => {
 
 onMounted(() => {
   if (userStore.userId) {
+    void userStore.loadPreference()
     loadLearningData()
   }
 })

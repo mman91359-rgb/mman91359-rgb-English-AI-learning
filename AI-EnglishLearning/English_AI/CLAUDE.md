@@ -172,10 +172,18 @@ npm run build
 
 ## 数据库约定
 
-1. 建表脚本以 `sql/` 下三个库的正式 SQL 为准，`sql/init/` 下的旧脚本已废弃，禁止执行和修改
-2. 禁止修改已发布的存量建表脚本，表结构变更必须新增增量脚本（如 `07-听力模块.sql`）
+1. 数据库结构以各服务 `src/main/resources/db/migration/` 下的 Flyway 迁移为准；`sql/` 下历史脚本仅作参考，`sql/init/` 已废弃，禁止执行和修改
+2. 禁止修改已应用的 Flyway 迁移文件；表结构变更必须新增 `V1.0.x__描述.sql` 迁移
 3. 逻辑删除全局使用 `is_deleted` 字段，MyBatis-Plus 自动处理
 4. 题目分表设计：`question_info` 存元数据，`question_content` 存正文重字段，列表查询只查轻量表
+
+## 数据库迁移（Flyway）
+
+1. 数据库结构变更唯一入口是 Flyway：在对应模块 `src/main/resources/db/migration/` 新增 `V1.0.x__描述.sql`
+2. 每次迁移必须先向用户展示：迁移文件、目标库、完整 SQL、风险等级、回滚方式；获得明确批准后才能执行
+3. 执行顺序：`scripts/backup-schema.sh` → `scripts/flyway.sh <module> migrate` → `scripts/flyway.sh <module> validate` → 报告 `flyway_schema_history`
+4. 禁止：`flyway clean`、`DROP TABLE`、清空数据、修改已应用迁移、用 Navicat 直接改共享库结构
+5. 详细流程与回滚规范见 `docs/数据库迁移规范.md`
 
 ## 🔴 严格禁止行为（优先级最高）
 
@@ -185,6 +193,7 @@ npm run build
 4. 禁止在前端页面中直接使用 Element Plus 的 `el-*` 组件
 5. 禁止擅自修改 ELO 算法、遗忘曲线、判题引擎等核心业务逻辑
 6. 禁止在配置文件中硬编码 API Key、密钥等敏感信息，必须使用环境变量
+7. 禁止绕过 Flyway 用 Navicat/手工 SQL 改共享库结构；禁止 `flyway clean`、`DROP TABLE`、清空数据；每次迁移必须先预览并获批准
 
 ## Git 提交规范
 

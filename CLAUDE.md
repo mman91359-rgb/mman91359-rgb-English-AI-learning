@@ -123,7 +123,7 @@ frontend/src/
 
 ## 代码与开发约定
 
-- 数据库变更：新表/新字段以增量 SQL 脚本提交到 `English_AI/sql/`（现有 02~06 为增量脚本；基础建库在 `sql/init/` 与各库 `.sql`）
+- 数据库变更：走 Flyway，新增 `V1.0.x` 迁移；详见 `English_AI/docs/数据库迁移规范.md`；`sql/` 历史脚本仅参考
 - 跨服务数据关联走应用层，禁止跨库 JOIN
 - 答题链路用 `trace_id` 贯穿 MQ 消息与日志
 - 密码一律 BCrypt（work factor=12）；JWT 密钥等敏感信息走环境变量，禁止硬编码
@@ -135,6 +135,7 @@ frontend/src/
 - 项目设计文档：`设计方案/Claude面向四六级AI学习系统_项目设计文档.docx`
 - 数据库结构：`kown/数据库结构.txt`
 - 服务清单：`kown/服务清单.txt`
+- 数据库迁移规范：`English_AI/docs/数据库迁移规范.md`
 - 前端设计规范：`kown/recall-frontend-prompt.md`
 - 开发日志：`日志/*.docx`（6.15 起逐日记录）
 - 静态原型：`页面/`（含 `黑夜版/`）

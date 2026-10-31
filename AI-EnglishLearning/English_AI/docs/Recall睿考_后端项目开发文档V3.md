@@ -1,6 +1,8 @@
 # Recall·睿考 后端项目开发文档（V3）
 
-**版本**：V3.0　|　**基线**：`mman91359-rgb-English-AI-learning` 仓库 `AI-EnglishLearning/English_AI/` 最新提交代码事实　|　**适用阶段**：本地已跑通，进入"听力/翻译/写作模块开发 + AI 编程"阶段
+**版本**：V3.1（2026-10-31 按代码事实校准）　|　**基线**：`mman91359-rgb-English-AI-learning` 仓库 `AI-EnglishLearning/English_AI/` 最新提交代码事实　|　**适用阶段**：听力 MVP 已完成，翻译/写作未开始
+
+> **V3.1 校准摘要**：module_type 统一为 1词汇 2语法 3翻译 4听力 5造句 6写作；雷达维度 3→阅读、4→听力、6→无；ELO 初始值以代码 1000 为准；SRS 间隔以 `EbbinghausUtil` 的 1/2/4/7/15/30 为准；T-001/T-002/T-005 已完成，T-003 部分完成，T-004 暂缓，T-006 待做；听力采用"复用题库 + listening_audio"模型。
 
 ---
 
@@ -110,7 +112,8 @@ English_AI/
 - `user_ability_radar`：user_id、vocabulary_score、grammar_score、**listening_score（预留）**、**reading_score（预留）**、elo_rating、elo_level（BASIC/CET4/CET6）、updated_at。
 
 ### 5.3 exercise_db（关键表）
-- `question_info`：id、module_type（1词汇/2语法/3翻译/4听力）、question_type（SINGLE_CHOICE/FILL_BLANK/TRANSLATION/WRITING…）、difficulty_level（1~8）、target_level（BASIC/CET4/CET6）、knowledge_point_id、elo_difficulty、is_deleted、status。
+- `question_info`：id、module_type（1词汇/2语法/3翻译/4听力/5造句/6写作）、question_type（CHOICE/FILL_BLANK/SENTENCE_MAKING/TRANSLATION/WRITING）、difficulty_level（1~8）、target_level（BASIC/CET4/CET6）、knowledge_point_id、elo_difficulty、is_deleted、status。
+- `listening_audio`：id、question_id（唯一）、audio_url、transcript、duration_seconds、created_at、updated_at；题目正文仍存 `question_content`，本表只补充音频元数据。
 - `question_content`：question_id、stem、options（JSON）、correct_answer（JSON）、hint、analysis、**answer_json**（判题用 JSON，含 `ans` 键）。
 - `knowledge_mapping`：question_id ↔ knowledge_point_id（多对多）。
 - `sys_knowledge_point`：知识点字典（见 §5.7）。
@@ -159,13 +162,13 @@ ADD INDEX idx_specific_answer (specific_answer);
 ## 6. 核心算法
 
 ### 6.1 ELO 隐藏分与等级映射
-- 用户初始 ELO 1500；定级 20 题后得出初始分。
+- 用户初始 ELO 1000（`UserAbilityRadarServiceImpl.initRadar`）；定级 20 题后得出初始分。
 - 更新公式（K 系数按题量衰减）：`R' = R + K × (S − E)`，S 为实际结果（1/0/0.5），E 为期望胜率。
 - 等级映射：ELO < 1350 → BASIC；1350~1600 → CET4；> 1600 → CET6。
 - 能力雷达分与 ELO 联动：答对提分、答错降分，幅度受难度系数调节。
 
 ### 6.2 艾宾浩斯 SRS 遗忘曲线
-- 复习梯度：第 1、2、4、7、15 天（T+1/T+2/T+4/T+7/T+15），逐级加深。
+- 复习梯度：第 1、2、4、7、15、30 天（`EbbinghausUtil.INTERVALS_DAYS = [1,2,4,7,15,30]`），逐级加深。
 - 答错降级：复习时答错 → 重置回第一级，进入"重点复习"队列。
 - 每日复习任务 = 所有 `next_review_at ≤ now` 的记录，按到期时间升序返回。
 
@@ -237,6 +240,8 @@ LIMIT #{count};
 - 收藏：`GET /exercise/favorites/{userId}`、`POST /exercise/favorites/toggle`
 - 历史与统计：`GET /exercise/history/{userId}?page&size`、`GET /exercise/stats/{userId}`、`GET /exercise/stats/{userId}/weak-points`、`GET /exercise/stats/{userId}/generate-similar`
 - **AI 出题审核**：`POST /exercise/generate-questions`、`GET /exercise/pending-questions?status=`、`POST /exercise/pending-questions/{id}/approve`、`POST /exercise/pending-questions/{id}/reject`
+- **听力（已实现）**：`GET /exercise/listening/questions?userId&count`、`GET /exercise/listening/question/{id}?showAnswer`、`POST /exercise/listening/submit`、`GET /exercise/listening/stats/{userId}`
+  - 听力题 `module_type=4`、`question_type=CHOICE`；判题走 `ChoiceAnswerUtil` 本地确定性比对，不进入 AI 语义判对链；提交后写 `user_exercise_log`、错题本、遗忘曲线，并更新 `listening_score`。
 
 ### 7.5 learning-engine-service（真实接口）
 - `GET /learning/review/tasks/{userId}`（今日复习任务）
@@ -272,10 +277,10 @@ LIMIT #{count};
 4. **审核日志**：每次 AI 调用记录脱敏输入输出，便于排查与 Prompt 优化。
 
 ### 8.5 P0 安全整改项（增量补丁 + 仓库现状）
-- **API Key 泄露（最高危）**：ai-service `application.yml` 默认值明文写真实百炼 Key（`sk-ws-H.PYHPHIM...`，本仓库已二次泄露）。**立即吊销，yml 只保留 `${DASHSCOPE_API_KEY}`**。
-- **SQL 双轨清理**：归档 `sql/init/01-基础建表.sql`，README 明确唯一建库顺序。
-- **JWT 默认密钥**：启动校验 `JWT_SECRET` 环境变量，非 dev 环境未设置则拒绝启动。
-- **Long 精度**：Long/长整型统一序列化为字符串，前端 `string | number`。
+- **API Key 泄露**：✅ 源码 `application.yml` 已改为 `${DASHSCOPE_API_KEY}`，无 Key 走 Mock；⚠️ 本地 `.env`/`.idea/workspace.xml` 仍有旧 Key，需在阿里云侧吊销轮换。
+- **SQL 双轨清理**：✅ `English_AI/sql/` 已无旧单库脚本；新增 `sql/init/00-init.sql` 作为 Docker 初始化入口；⚠️ 仓库根 `AI-EnglishLearning/init/01-基础建表.sql` 仍为旧脚本，禁止执行。
+- **JWT 默认密钥**：✅ `common/EnvGuard` 在 prod profile 下校验 `JWT_SECRET`、`MYSQL_PASSWORD`、`DASHSCOPE_API_KEY`、`INTERNAL_TOKEN`。
+- **Long 精度**：⏸ 暂缓。当前 ID 量级远小于 `2^53`，投入产出比低；如后续出现真实精度问题再做。
 
 ---
 
@@ -291,10 +296,10 @@ LIMIT #{count};
 ### 9.3 双账号端到端验收方案（增量补丁）
 | 维度 | 账号 A（薄弱用户） | 账号 B（优秀用户） |
 |---|---|---|
-| 定级 ELO | ≈ 1200，等级 BASIC | ≈ 1700，等级 CET6 |
-| 推题难度 | difficulty 1~3 | difficulty 7~10 |
-| 答错后 | T+1 复习提醒，ELO 小幅下降 | T+3 复习提醒，ELO 微调下降 |
-| 雷达图 | 各维度分数偏低，图形偏小 | 各维度分数偏高，图形饱满 |
+| 初始/定级 ELO | 注册默认 1000，可保持在 1000~1200 | 测试 SQL 预置 1600+ |
+| 推题难度 | difficulty 1~3 | difficulty 6~8（题库上限 8） |
+| 答错后 | 复习间隔回落，ELO 小幅下降 | 按当前掌握度回落，ELO 微调下降 |
+| 能力雷达 | ProfileView 列表各维度偏低 | 各维度偏高（含 listeningScore） |
 
 ### 9.4 风险矩阵（增量补丁）
 | 风险项 | 等级 | 应对措施 |
@@ -308,15 +313,16 @@ LIMIT #{count};
 
 ## 10. 当前缺口与整改清单
 
-| 优先级 | 缺口 | 动作 |
+| 优先级 | 缺口 | 状态 / 动作 |
 |---|---|---|
-| P0 | AI Key 明文泄露 | 吊销 + 环境变量化（§8.5） |
-| P0 | 遗留单库 SQL | 归档 + README 明确建库顺序（§8.5） |
-| P0 | 全局异常处理器不统一 | common 增加 GlobalExceptionHandler |
-| P1 | Long 序列化精度 | JacksonConfig 统一字符串化 |
-| P1 | 听力/翻译/写作接口 | 见《开发任务书》Sprint 1/2 |
-| P2 | MQ 正式启用 | 见《开发任务书》Sprint 3 |
-| P2 | 单元测试补齐 | 见《开发任务书》Sprint 3 |
+| P0 | AI Key 明文泄露 | ✅ 源码已环境变量化；仍需吊销旧 Key |
+| P0 | 遗留单库 SQL | ✅ 主目录已清理；根 `init/` 旧脚本待归档 |
+| P0 | 全局异常处理器不统一 | 🟡 user/exercise 已有，ai/learning/gateway 缺失 |
+| P1 | Long 序列化精度 | ⏸ 暂缓（当前量级无风险） |
+| P1 | 听力接口 | ✅ 已完成（Sprint 1） |
+| P1 | 翻译/写作接口 | ⬜ 未开始（Sprint 2） |
+| P2 | MQ 正式启用 | ⬜ 代码已就绪，默认关闭 |
+| P2 | 单元测试补齐 | 🟡 已有 11+ 类，核心算法测试仍缺 |
 
 ---
 

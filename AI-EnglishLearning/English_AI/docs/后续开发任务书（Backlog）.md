@@ -2,6 +2,8 @@
 
 **版本**：V1.0　|　**基线**：`mman91359-rgb-English-AI-learning` 最新提交　|　**用途**：把"还没做 + 待优化"的目标拆成**可直接执行的开发任务**，按优先级排期，可直接投喂给 AI 编程工具（或人工作为检查单）
 
+> **最近校准（2026-10-31）**：按当前代码事实回写执行状态。T-001/T-002/T-005 已完成，T-003 部分完成，T-004 暂缓，T-006 待做；听力模块已按"复用题库 + 音频表"落地。module_type 契约统一为：1词汇 2语法 3翻译 4听力 5造句（保留）6写作。**写作不再使用 5，改为 6。**
+
 ---
 
 ## 0. 这份文档是什么
@@ -29,29 +31,34 @@
 
 ## Sprint 0 —— P0 安全与地基整改（做完再动功能）
 
-### T-001　吊销并移除明文 AI API Key
+### T-001　吊销并移除明文 AI API Key　✅ 已完成（2026-10-31）
+- **状态**：`ai-service/src/main/resources/application.yml` 已改为 `${DASHSCOPE_API_KEY}`，无 Key 走 Mock；本地 `.env` 与 `.idea/workspace.xml` 仍含旧 Key，需在阿里云侧吊销并轮换。
 - **为什么**：ai-service `application.yml` 默认值写死了真实百炼 Key（`sk-ws-H.PYHPHIM...`，本仓库已二次泄露）。这是最高危项。
 - **做什么**：① 去阿里云百炼控制台吊销该 Key 并换新；② 删除 yml 中默认值，只保留 `${DASHSCOPE_API_KEY}`；③ 本机/IDEA 环境变量注入。
 - **验收**：`git grep "sk-"` 仓库内零命中；无 Key 启动走 Mock 降级（代码已支持）。
 - **涉及**：`ai-service/src/main/resources/application.yml`。
 
-### T-002　归档并废止 `sql/init/01-基础建表.sql`（单库脚本）
+### T-002　归档并废止 `sql/init/01-基础建表.sql`（单库脚本）　✅ 已完成（2026-10-31）
+- **状态**：`English_AI/sql/` 下已无旧单库脚本；新增 `sql/init/00-init.sql` 作为 Docker 初始化入口。仓库根 `AI-EnglishLearning/init/01-基础建表.sql` 仍是旧脚本，禁止执行。
 - **为什么**：该脚本是 english_ai 单库 6 表旧版，与当前三库 9 表代码**实体不匹配**，已被你本地误跑过（Navicat 截图），继续存在会导致再次建错库。
 - **做什么**：移入 `sql/_archive/` 或删除；`README` 明确唯一建库路径 = `user_db.sql → exercise_db.sql → learning_db.sql`。
 - **验收**：`sql/` 根目录不再有单库脚本；README 写入建库顺序。
 
-### T-003　后端全局异常处理器收敛
+### T-003　后端全局异常处理器收敛　🟡 部分完成
+- **状态**：`user-service`、`exercise-service` 已有各自的 `GlobalExceptionHandler`；`ai-service`、`learning-engine-service`、`api-gateway` 仍缺失，`AiController` 的 `/ai/judge-feedback`、`/ai/judge-acceptable` 仍返回裸 Map。未下沉到 common。
 - **为什么**：Controller 内散落 try-catch（`AiController`/判题链均有），错误码不统一，AI 编程易复制坏味道。
 - **做什么**：新增 `common/exception/GlobalExceptionHandler`（`@RestControllerAdvice`），统一 `Result.fail(code,msg)`；业务异常用自定义 `BusinessException`。
 - **验收**：全部 Controller 删除 try-catch，仅保留领域逻辑；错误统一 JSON。
 - **涉及**：`common/` + 各 service Controller。
 
-### T-004　Long → String 序列化（前端 Number 精度）
+### T-004　Long → String 序列化（前端 Number 精度）　⏸ 暂缓
+- **状态**：当前 ID 量级远小于 `2^53`，实际失真风险低；引入全局 `ToStringSerializer` 会牵动所有前端类型与比较逻辑。本轮明确暂缓，待出现真实精度问题或答辩要求时再做。
 - **为什么**：`userId/questionId` 为 Long，超过 JS 安全整数后前端失真（当前量级未触发，但 AI 生成新表 ID 会踩坑）。
 - **做什么**：新增 `JacksonConfig`，Long/长整型统一序列化为字符串；前端类型 `string | number`。
 - **验收**：`/exercise/history/{userId}` 返回的 id 为字符串；前端页面正常。
 
-### T-005　JWT 默认密钥启动校验
+### T-005　JWT 默认密钥启动校验　✅ 已完成（2026-10-31）
+- **状态**：`common/EnvGuard` 已在 prod profile 下校验 `JWT_SECRET`、`MYSQL_PASSWORD`、`DASHSCOPE_API_KEY`、`INTERNAL_TOKEN`，缺失时拒绝启动。
 - **为什么**：默认密钥 `EnglishAI-Local-Dev-JWT-Secret-Key-Change-Me-32-Bytes` 人人可知，生产必炸。
 - **做什么**：启动时校验 `JWT_SECRET` 环境变量，未设置且非 dev profile 则拒绝启动（或强制随机生成并告警）。
 - **验收**：本地开发不受影响；部署需显式提供密钥。
@@ -63,34 +70,31 @@
 
 ---
 
-## Sprint 1 —— 听力模块 MVP（当前迭代核心）
+## Sprint 1 —— 听力模块 MVP　✅ 已完成（2026-10-31）
 
-> **依据**：数据库已预留 `user_ability_radar.listening_score`；`module_type=4` 为听力；前端 `HomeView.moduleNames` 已含 `4:'听力'`；`recall-frontend-prompt.md` 设计了 `/listening` 路由与 `AudioPlayer` 组件；`参考图片/` 有听力学习标签界面设计稿。
+> **依据**：数据库已预留 `user_ability_radar.listening_score`；`module_type=4` 为听力；前端映射实际在 `frontend/src/config/modules.ts`；原型资源为仓库根 `页面/`（15 个亮色 + 6 个黑夜版）与 `参考图片/听力学习标签界面.jpg`。
 
-### T-101　听力题库表结构
-- **做什么**：`exercise_db.sql` 新增 `listening_audio`（音频元数据：id/title/level/audio_url/transcript/duration_seconds/created_at）与 `listening_question`（音频+题目关联：id/audio_id/question_text/options/correct_answer/analysis/difficulty）。`question_info` 现有 `module_type` 可复用，新题 `module_type=4`。
-- **验收**：DDL 幂等（`IF NOT EXISTS`），提供种子数据 2~3 条（可用本地 mp3 占位 URL）。
-- **涉及**：`sql/exercise_db.sql`（或新增 `sql/07-listening.sql`）。
+### T-100　module_type 契约收口　✅ 已完成
+- **做什么**：在 `common/ModuleType` 固定 1词汇 2语法 3翻译 4听力 5造句 6写作；`defaultQuestionType` 决定选题题型（4→CHOICE）；`radarDimensionOf` 决定雷达维度（3→READING、4→LISTENING、6→无）。
+- **验收**：`ModuleTypeTest`、`UserAbilityRadarServiceImplTest` 通过；听力分不再写入 `reading_score`。
 
-### T-102　听力接口（exercise-service）
-- **做什么**：新增 `ListeningController`（前缀 `/exercise/listening`）：
-  - `GET /exercise/listening/list?level=&difficulty=` 分页列表
-  - `GET /exercise/listening/{id}` 详情（含音频 URL）
-  - `POST /exercise/listening/submit` 提交听力答案（复用现有判题链 `JudgmentEngine`，题型挂 `module_type=4`）
-  - `GET /exercise/listening/stats/{userId}` 听力正确率
-- **验收**：接口返回 `Result<T>`；提交后写入 `user_exercise_log`（module_type=4）并同步更新 `user_ability_radar.listening_score`（ELO 公式复用）。
-- **依赖**：T-003/T-004 完成。
+### T-101　听力数据模型　✅ 已完成
+- **做什么**：题目复用 `question_info`/`question_content`（`module_type=4`、`question_type=CHOICE`），新增 `listening_audio`（question_id 唯一，存 audio_url/transcript/duration_seconds）。种子 4 条（CET4 2 条、CET6 2 条），以题干为自然键幂等。
+- **验收**：`sql/10-listening-module.sql` 连续执行两次计数不变；未修改 02~09 已发布脚本。
+- **涉及**：`sql/10-listening-module.sql`。
 
-### T-103　听力前端页面
-- **做什么**：新增 `views/ListeningView.vue`，路由 `/listening`（requiresAuth）：
-  - 列表页：音频卡片（标题/等级/时长/难度）
-  - 详情页：内嵌播放器（复用 M3 风格，可先用原生 `<audio>` + Material Symbols 播放按钮，后续抽 `AudioPlayer.vue` 组件）+ 题目作答 + 判分结果展示（复用 PracticeView 的结果组件）
-- **验收**：可完整走通"选听力 → 播放 → 作答 → 判分 → 结果/错题入库"；无 `el-*` 组件，符合设计令牌。
-- **依赖**：T-101/T-102；`页面/听力学习标签界面` 原型为视觉参照。
+### T-102　听力接口（exercise-service）　✅ 已完成
+- **做什么**：`ListeningController` 提供 `GET /exercise/listening/questions`、`GET /exercise/listening/question/{id}`、`POST /exercise/listening/submit`、`GET /exercise/listening/stats/{userId}`。
+- **判题约定**：`moduleType=4` 走 `ChoiceAnswerUtil` 本地确定性判题，**不进入** `JudgmentEngine` 的 L2.5/L3 AI 链；提交后写 `user_exercise_log`、错题本、遗忘曲线，并通过共享映射更新 `listening_score`。
+- **验收**：接口返回 `Result<T>`；跨模块提交、越权提交、重复提交均有明确处理。
 
-### T-104　听力雷达与统计打通
-- **做什么**：`StatsView` 雷达图增加听力维度（后端 `/user/radar/{userId}` 已含 listening_score 字段，前端渲染补齐）；`HomeView` 学习量柱状图听力维度。
-- **验收**：雷达图出现听力维度且数值随听力答题更新。
+### T-103　听力前端页面　✅ 已完成
+- **做什么**：新增 `ListeningView.vue` + `AudioPlayer.vue` + `/listening` 路由；`LearningView` 听力 tab 开启并增加专属入口布局；作答前不下发 `transcript` 与 `hint`，提交后才展示原文。
+- **验收**：列表 → 播放 → 作答 → 判分 → 原文/解析 → 结果页全链路可用；空态、音频 404、提交失败有提示。
+
+### T-104　听力雷达与统计　✅ 已完成
+- **做什么**：`ProfileView` 已展示 `listeningScore`（注意：StatsView 没有雷达图）；`ListeningView` 顶部展示听力正确率；`HomeView` 暂未按模块拆分学习量，列为后续增强。
+- **验收**：听力答题后 `listening_score` 变化、`reading_score` 不变。
 
 ---
 
@@ -108,7 +112,7 @@
 
 ### T-202　写作模块（作文练习 + AI 评分）
 - **做什么**：
-  - 数据：`sql/07-writing.sql` 新增写作题库（`question_type='WRITING'`，module_type 沿用 2 或独立 5，**以 5=写作 隔离**，避免与语法混淆——需同步 HomeView moduleNames 增加 `5:'写作'`）。
+  - 数据：新增写作题库（`question_type='WRITING'`，**module_type=6**，与 5=造句 隔离——需同步 `frontend/src/config/modules.ts` 与 i18n 增加 `6:'写作'`）。写作暂无独立雷达列，提交只更新 ELO/日志；若需要写作维度，另加 `writing_score` 增量 SQL。
   - 后端：`POST /exercise/writing/submit` 提交作文 → 调 `/ai/score`（scoreType=writing, SSE）→ 落库 `user_exercise_log` + 错题本；`GET /exercise/writing/history/{userId}` 历史作文与得分。
   - 前端：`views/WritingView.vue`，路由 `/writing`：题目展示 → 文本编辑器（计时器 TimerCountdown 参照 recall prompt）→ 提交 → SSE 流式显示分项得分（内容/结构/语言）+ AI 建议。
 - **验收**：作文可提交、AI 评分流式输出、历史可回看；错题本/统计同步。
@@ -118,12 +122,14 @@
 
 ## Sprint 3 —— 体验与工程化增强
 
-### T-301　暗色主题落地
+### T-301　暗色主题落地　✅ 已完成
+- **状态**：`tailwind.config.js` 已启用 `darkMode: "class"` 并配置 dark 令牌；`stores/app.ts` 已实现切换与 `localStorage` 持久化，`TopAppBar` 已接入。
 - **做什么**：按 `页面/黑夜版/` 原型补全 `tailwind.config` dark 令牌（`dark:bg-inverse-surface` 等），`TopAppBar` 主题切换持久化到 localStorage。
 - **验收**：切换主题全站生效，无写死亮色。
 
-### T-302　路由懒加载 + 组件级错误边界
-- **做什么**：16 个视图改 `() => import()`；大视图（VocabQuiz/GrammarQuiz 40KB+）单独分包。
+### T-302　路由懒加载 + 组件级错误边界　⬜ 未完成
+- **状态**：`router/index.ts` 目前仍是全静态 import（含新增的 ListeningView）；构建产物主包 2.7MB，需后续分包。
+- **做什么**：17 个视图改 `() => import()`；大视图（VocabQuiz/GrammarQuiz 40KB+）单独分包。
 - **验收**：`npm run build` 产物分块；首屏白屏无。
 
 ### T-303　AI 侧边栏 SSE 健壮性
@@ -134,11 +140,13 @@
 - **做什么**：将雷达图/柱状图/热力图封装为 `ChartRadar.vue / ChartBar.vue / ChartHeatmap.vue`，替换 StatsView 内联 ECharts。
 - **验收**：三个图表组件可参数化复用。
 
-### T-305　单元测试
+### T-305　单元测试　🟡 部分完成
+- **状态**：已有 11 个测试类，覆盖金币/签到/偏好/学习会话/词汇工具；本轮新增 `ModuleTypeTest`、`ChoiceAnswerUtilTest`、`ListeningServiceImplTest`、`UserAbilityRadarServiceImplTest`。仍缺 `EbbinghausUtil`、ELO 公式、`JudgmentEngine`、`JwtUtil` 的专项测试。
 - **做什么**：为纯函数补测试——`EbbinghausUtil`（遗忘曲线梯度）、ELO 更新公式、`JudgmentEngine`（L1/L2 判题样例）、`JwtUtil`。
 - **验收**：`mvn test` 全绿，覆盖率报告中核心算法覆盖 >60%。
 
-### T-306　Docker 化（可展示）
+### T-306　Docker 化（可展示）　🟡 基本完成
+- **状态**：6 个 Dockerfile + `docker-compose.yml` + nginx.conf 已存在；本轮补齐 `sql/init/00-init.sql` 与 `./sql:/sql:ro` 挂载，修复首次启动不建库的问题。仍需在真实 Docker 环境跑一次全链路验证。
 - **做什么**：Dockerfile（后端 5 服务 + 网关）与 `docker-compose.yml`（mysql8 + 5 服务 + 可选 rabbitmq），环境变量统一 `.env`。
 - **验收**：`docker compose up` 一键起全套，前端代理指向容器网关。
 - **注意**：T-001（Key 环境变量）必须先行，否则镜像内仍含明文 Key。

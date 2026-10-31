@@ -1,6 +1,8 @@
 # Recall·睿考 前端项目开发文档（V3）
 
-**版本**：V3.0　|　**基线**：`mman91359-rgb-English-AI-learning` 仓库 `AI-EnglishLearning/English_AI/frontend/` 最新提交代码事实　|　**适用阶段**：本地已跑通，进入"听力/翻译/写作页面开发 + AI 编程"阶段
+**版本**：V3.1（2026-10-31 按代码事实校准）　|　**基线**：`mman91359-rgb-English-AI-learning` 仓库 `AI-EnglishLearning/English_AI/frontend/` 最新提交代码事实　|　**适用阶段**：听力 MVP 已完成，翻译/写作未开始
+
+> **V3.1 校准摘要**：暗色主题已完整实现（`darkMode: "class"` + `stores/app.ts` 持久化）；StatsView 没有雷达图，雷达数据在 ProfileView 以列表展示；原型资源为仓库根 `页面/` 的 15 个亮色 + 6 个黑夜版；已新增 `/listening` 路由、`ListeningView.vue`、`AudioPlayer.vue`。
 
 ---
 
@@ -12,7 +14,7 @@
 2. **剔除游戏化**：成就体系、徽章、分享卡片等游戏化内容**全部移除**，不在本文档任何章节（含路线图）出现。
 3. 前端设计语言确认为 **Material Design 3 设计令牌 + Tailwind**（主色 #67558c 紫、surface 色板、Inter 字体、Material Symbols 图标）。
 4. Element Plus 依赖已安装但**代码未使用**——决策：保留依赖但规范禁用组件库混用（§2 与 §10）。
-5. 听力/翻译/写作页面均未开发（路由无 `/listening /writing /translation`），开发计划见独立《后续开发任务书（Backlog）》。
+5. 听力页面已完成（`/listening` + `ListeningView.vue` + `AudioPlayer.vue`）；翻译/写作页面仍未开发（路由无 `/translation /writing`），计划见《后续开发任务书（Backlog）》。
 
 ---
 
@@ -24,14 +26,14 @@
 | 框架 | Vue 3.5 + TypeScript（`<script setup>` 组合式） |
 | 构建 | Vite 8（dev/build/preview/type-check） |
 | 状态管理 | Pinia 3 |
-| 路由 | Vue Router 5（createWebHistory，21 条路由） |
+| 路由 | Vue Router 5（createWebHistory，22 条路由，含 `/listening`） |
 | 样式 | Tailwind CSS 3.4 + M3 设计令牌（tailwind.config 扩展色板/字体/圆角/间距） |
 | 图标 | Material Symbols Outlined（非 Element Plus 图标） |
 | UI 组件库 | Element Plus ^2.14.7 **已装未用**（决策：不启用，见 §2） |
 | 图表 | ECharts 6（雷达图、热力图、柱状图） |
 | HTTP | Axios（统一封装 `src/api/request.ts`） |
 | 国际化 | vue-i18n 10 |
-| 页面数 | 16 个视图 |
+| 页面数 | 17 个视图（含 ListeningView） |
 | API 模块 | 6 个：request / user / exercise / learning / ai / stats |
 | 核心组件 | AppLayout / SideNavBar / BottomNavBar / TopAppBar / AiSidebar / AiSidebarContent / ToastNotification |
 | 对接网关 | Vite 代理 `/api` → `http://localhost:8086` |
@@ -74,7 +76,7 @@ frontend/
     ├── api/                       # 6 个模块（唯一数据出口）
     │   ├── request.ts             # Axios：baseURL=/api、token 注入、Result 解包、401 处理
     │   ├── user.ts / exercise.ts / learning.ts / ai.ts / stats.ts
-    ├── router/index.ts            # 21 条路由 + 全局守卫
+    ├── router/index.ts            # 22 条路由 + 全局守卫
     ├── stores/                    # Pinia：user 等
     ├── i18n/                      # 多语言词条
     ├── composables/               # useToast 等
@@ -98,6 +100,7 @@ frontend/
 | `/dashboard` | HomeView | 首页（每日目标进度环/连续打卡/学习量柱状图/每日单词） |
 | `/learning` | LearningView | 学习中心 |
 | `/learning/practice` | PracticeView | 练习作答（QuestionCard） |
+| `/listening` | ListeningView | 听力练习（列表 → 播放 → 作答 → 判分） |
 | `/assess` | AssessView | ELO 定级测试 |
 | `/vocabulary` | VocabularyView | 生词本 |
 | `/vocab-quiz` | VocabQuizView | 词汇测验 |
@@ -105,7 +108,7 @@ frontend/
 | `/error-book` | ErrorBookView | 错题本 |
 | `/favorites` | FavoritesView | 收藏句子 |
 | `/history` | HistoryView | 学习历史 |
-| `/stats` | StatsView | 学习统计（雷达图/热力图） |
+| `/stats` | StatsView | 学习统计（热力图 / 7 日柱状图；雷达数据在 ProfileView） |
 | `/profile` | ProfileView | 个人中心 |
 | `/settings` 及子路由 | SettingsView | 设置 |
 | `/logout` | — | 登出跳转 |
@@ -117,7 +120,7 @@ frontend/
 
 ## 5. 设计系统（M3 设计令牌）
 
-### 5.1 色彩（M3 亮色为主，`dark` 类切换黑夜版）
+### 5.1 色彩（M3 亮色为主，`dark` 类切换黑夜版；已实现持久化）
 
 | 令牌 | 值 | 用途 |
 |---|---|---|
@@ -164,7 +167,7 @@ frontend/
 - SSE（`/ai/chat`、`/ai/score`）不走 Axios，用 fetch + ReadableStream，复用 AiSidebarContent 流式渲染。
 
 ### 6.2 关键类型（与后端 DTO 对齐，来自 `api/exercise.ts`）
-- `QuestionVO`：id/moduleType(1词汇 2语法)/difficultyLevel(1~8)/questionType/stem/options/correctAnswer?/hint?/analysis?/showAnswer?。
+- `QuestionVO`：id/moduleType(1词汇 2语法 3翻译 4听力 5造句 6写作)/difficultyLevel(1~8)/questionType/stem/options/correctAnswer?/hint?/analysis?/showAnswer?/audioUrl?/transcript?/durationSeconds?（后三者仅听力题有值，transcript 提交后才下发）。
 - `SubmitResponse`：isCorrect/userAnswer/correctAnswer/analysis/**traceId**/heuristicHint?/errorType?/suggestions?/isSemanticMatch?。
 - `UserExerciseStats`：totalAnswered/correctRate/totalHours/streakDays/**heatmapData**/**recentWeekMinutes**/**yearlyMonthQuestions**/**todayVocabAnswered**。
 - `VocabularyVO`：word/translation/phonetic/pos/example/exampleTranslation/collocation/masteryLevel/nextReviewAt。
@@ -204,7 +207,7 @@ frontend/
 - PracticeView/QuizView 状态流：`待作答 → 作答中 → 提交中 → 判分结果(正确/错误/语义匹配)`；提交后展示标准答案 + AI 启发提示 + 收藏/错题按钮。
 
 ### 7.5 图表封装
-- StatsView 内联 ECharts（雷达图/柱状图/热力图）；后续沉淀为 ChartRadar/ChartBar/ChartHeatmap 公共组件（Backlog T-304）。
+- StatsView 内联 ECharts 绘制 7 日柱状图，热力图为手写 div 网格；**没有雷达图**。雷达数据在 ProfileView 以列表展示（词汇/语法/翻译/听力）。后续沉淀为 ChartRadar/ChartBar/ChartHeatmap 公共组件（Backlog T-304）。
 
 ### 7.6 QuestionCard 状态机规范（增量补丁）
 **四种状态**：`UNANSWERED → SUBMITTING → CORRECT / WRONG → EXPLAINED`
@@ -263,14 +266,14 @@ frontend/
 
 ## 10. 当前缺口与整改清单
 
-| 优先级 | 缺口 | 建议 |
+| 优先级 | 缺口 | 状态 / 建议 |
 |---|---|---|
-| P0 | 听力/翻译/写作页面未开发（路由缺失） | 按《开发任务书》落地 `/listening /translation /writing` |
-| P0 | `待开发界面.html` 占位页需替换为真实页面 | 同上 |
-| P1 | Element Plus 依赖已装未用 | 决策：不启用组件库；或统一封装层引入（二选一，避免混用） |
+| ✅ | 听力页面 | 已完成：`/listening` + `ListeningView` + `AudioPlayer` |
+| ✅ | 暗色主题 | 已完成：`darkMode: "class"` + `stores/app.ts` 持久化 |
+| P0 | 翻译/写作页面未开发 | 按 Backlog Sprint 2 落地 `/translation /writing` |
+| P1 | Element Plus 依赖已装未用 | 保持禁用，避免两套风格混用 |
 | P1 | SSE 断线重连 | AiSidebar 增加重试与 loading 态 |
-| P1 | 路由懒加载 | 大页面按需 `import()` |
-| P1 | 主题切换仅原型有（`dark` 类） | 用 `页面/黑夜版/` 令牌补全暗色 Token |
+| P1 | 路由懒加载未实现 | 当前全静态 import，主包约 2.7MB；按 Backlog T-302 分包 |
 | P2 | 图表组件未抽公共封装 | ChartRadar/ChartBar/ChartHeatmap |
 
 ---
@@ -279,9 +282,10 @@ frontend/
 
 | 阶段 | 目标 | 关键任务 |
 |---|---|---|
-| 近期 | 听力模块页面 | `/listening` 列表+详情+作答（AudioPlayer 波形组件）、听力结果页、雷达图听力维度 |
-| 中期 | 翻译 + 写作页面 | `/translation` 作答（AI 语义判分展示）、`/writing` 作文编辑器（SSE 流式评分+分项得分） |
-| 远期 | 体验增强 | 模拟考试(/mock-exam)、学习数据驾驶舱、暗色主题完善 |
+| ✅ 已完成 | 听力模块 | `/listening` 列表 → 播放 → 作答 → 判分 → 原文/解析；`listening_score` 联动 |
+| 近期 | 翻译模块 | `/translation` 作答（AI 语义判分展示），可把造句作为子模式 |
+| 中期 | 写作模块 | `/writing` 作文编辑器（SSE 流式评分+分项得分），module_type=6 |
+| 远期 | 体验增强 | 模拟考试(/mock-exam)、学习数据驾驶舱、路由懒加载、图表组件 |
 
 > **产品明确不做**：成就体系、徽章、排行榜、分享卡片等游戏化设计，全站保持一致的学习工具定位。
 

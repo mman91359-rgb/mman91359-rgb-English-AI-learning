@@ -21,10 +21,8 @@ services:
     volumes:
       # 数据持久化（命名卷）
       - mysql_data:/var/lib/mysql
-      # 首次启动自动执行初始化 SQL（建库建表），入口脚本见 ./sql/init/00-init.sql
-      - ./sql/init:/docker-entrypoint-initdb.d
-      # 只读挂载全量 SQL，供 00-init.sql 通过 SOURCE 按序导入
-      - ./sql:/sql:ro
+      # 首次启动只创建三个空库；表结构由各服务的 Flyway 迁移负责
+      - ./sql/flyway-init:/docker-entrypoint-initdb.d
     ports:
       # 如需在宿主机用 Navicat 连库调试，开放 3306；正式上线可注释掉
       - "3306:3306"

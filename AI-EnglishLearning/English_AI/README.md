@@ -15,40 +15,60 @@ Spring Boot 3 多模块微服务 + Vue 3 前端。本文只记录**当前代码�
 
 本地启动顺序：`user-service → exercise-service → learning-engine-service → ai-service → api-gateway`，最后启动前端。
 
-## 数据库初始化
+## 数据库初始化（Flyway）
 
-### 本地 MySQL（推荐）
+三库由各业务服务独立管理，**不再手工重放历史 SQL**：
 
-唯一建库路径：**三份基线 dump + 按编号执行增量脚本**。
+| 服务 | 数据库 | 迁移目录 |
+|---|---|---|
+| user-service | user_db | `user-service/src/main/resources/db/migration` |
+| exercise-service | exercise_db | `exercise-service/src/main/resources/db/migration` |
+| learning-engine-service | learning_db | `learning-engine-service/src/main/resources/db/migration` |
+
+- `V1.0.0__init_*.sql` 是 2026-10-31 由本地 MySQL 8.0 实际结构生成的完整快照。
+- `V1.0.1__seed_*.sql` 是幂等种子（词库/题库/听力/欢迎通知），不包含用户个人数据。
+- 历史 `sql/*.sql` 仅作参考；`sql/init/00-init.sql` 已废弃，Docker 改用 `sql/flyway-init/00-create-databases.sql`。
+- Flyway 配置：`validate-on-migrate=true`、`clean-disabled=true`、`out-of-order=false`、UTF-8。
+
+### 现有库（已有表结构）
 
 ```bash
-# 1. 建库（基线 dump 不含 CREATE DATABASE）
+# 1. 先备份结构到 sql/backup/（已 gitignore）
+scripts/backup-schema.sh
+
+# 2. 核对表结构后，baseline 到 1.0.0（每库只需一次）
+scripts/flyway.sh user-service baseline
+scripts/flyway.sh exercise-service baseline
+scripts/flyway.sh learning-engine-service baseline
+
+# 3. 应用后续迁移（当前为 V1.0.1 种子）
+scripts/flyway.sh user-service migrate
+scripts/flyway.sh exercise-service migrate
+scripts/flyway.sh learning-engine-service migrate
+```
+
+### 全新库
+
+```bash
+# 先创建三个空库（Docker 会自动创建）
 mysql -uroot -p -e "CREATE DATABASE IF NOT EXISTS user_db DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 mysql -uroot -p -e "CREATE DATABASE IF NOT EXISTS exercise_db DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 mysql -uroot -p -e "CREATE DATABASE IF NOT EXISTS learning_db DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
-# 2. 基线
-mysql -uroot -p user_db < sql/user_db.sql
-mysql -uroot -p exercise_db < sql/exercise_db.sql
-mysql -uroot -p learning_db < sql/learning_db.sql
-
-# 3. 增量（严格按编号顺序）
-mysql -uroot -p < sql/02-add-favorites-vocabulary.sql
-mysql -uroot -p < sql/03-add-daily-word.sql
-mysql -uroot -p < sql/03-upgrade-vocabulary.sql
-mysql -uroot -p < sql/03b-fix-phonetic.sql
-mysql -uroot -p < sql/04-add-buggy-paths.sql
-mysql -uroot -p < sql/05-add-accepted-answers.sql
-mysql -uroot -p < sql/06-add-pending-questions.sql
-mysql -uroot -p < sql/07-user-coin-checkin-preference.sql
-mysql -uroot -p < sql/08-study-session.sql
-mysql -uroot -p < sql/09-user-preference-daily-goals.sql
-mysql -uroot -p < sql/10-listening-module.sql
-mysql -uroot -p < sql/11-admin-module.sql
+# 直接 migrate（会执行 V1.0.0 + V1.0.1）
+scripts/flyway.sh user-service migrate
+scripts/flyway.sh exercise-service migrate
+scripts/flyway.sh learning-engine-service migrate
 ```
 
-- `sql/init/00-init.sql` 是 Docker 首次启动的入口脚本，会建库并按序 `SOURCE` 上述文件。
-- 仓库根 `init/01-基础建表.sql` 是旧单库脚本，**已废弃，禁止执行**。
+### 本地启动读取 .env
+
+Spring Boot 不原生读取 `.env`；用脚本先注入环境变量：
+
+```bash
+scripts/with-env.sh mvn -pl user-service spring-boot:run
+scripts/with-env.sh mvn -pl exercise-service spring-boot:run
+```
 
 ### Docker
 
@@ -57,7 +77,7 @@ cp .env.example .env   # 填入真实密钥
 docker compose --env-file .env up -d --build
 ```
 
-仅 frontend 对外暴露 80/443；MySQL 3306 默认开放供 Navicat 调试。首次启动会自动执行 `sql/init/00-init.sql`。
+仅 frontend 对外暴露 80/443；MySQL 3306 默认开放供 Navicat 调试。首次启动只执行 `sql/flyway-init/00-create-databases.sql` 建三个空库，表结构由各服务启动时的 Flyway 迁移完成。
 
 ## 环境变量
 

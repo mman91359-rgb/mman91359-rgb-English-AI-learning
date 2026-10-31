@@ -39,7 +39,7 @@ SET @qid = (
     JOIN question_content qc ON qc.question_id = qi.id
     WHERE qi.module_type = 4
       AND qi.question_type = 'CHOICE'
-      AND qc.stem = @stem
+      AND BINARY qc.stem = BINARY @stem
     LIMIT 1
 );
 INSERT INTO question_info
@@ -74,7 +74,7 @@ SET @qid = (
     JOIN question_content qc ON qc.question_id = qi.id
     WHERE qi.module_type = 4
       AND qi.question_type = 'CHOICE'
-      AND qc.stem = @stem
+      AND BINARY qc.stem = BINARY @stem
     LIMIT 1
 );
 INSERT INTO question_info
@@ -109,7 +109,7 @@ SET @qid = (
     JOIN question_content qc ON qc.question_id = qi.id
     WHERE qi.module_type = 4
       AND qi.question_type = 'CHOICE'
-      AND qc.stem = @stem
+      AND BINARY qc.stem = BINARY @stem
     LIMIT 1
 );
 INSERT INTO question_info
@@ -144,7 +144,7 @@ SET @qid = (
     JOIN question_content qc ON qc.question_id = qi.id
     WHERE qi.module_type = 4
       AND qi.question_type = 'CHOICE'
-      AND qc.stem = @stem
+      AND BINARY qc.stem = BINARY @stem
     LIMIT 1
 );
 INSERT INTO question_info

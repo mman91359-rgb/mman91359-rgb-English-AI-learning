@@ -202,6 +202,17 @@
 
 ---
 
+## Sprint 5 —— Flyway 数据库版本管理（2026-10-31）
+
+### T-501　Flyway 接入与基线　✅ 已完成
+- **做什么**：三个有库模块独立接入 Flyway 9.22.3（Boot 管理）；`V1.0.0` 为当前完整结构快照，`V1.0.1` 为幂等种子；配置 `validate-on-migrate=true`、`clean-disabled=true`、`out-of-order=false`。
+- **Docker**：`sql/flyway-init/00-create-databases.sql` 只建三库，表结构由服务启动时 Flyway 迁移。
+- **脚本**：`scripts/with-env.sh`、`scripts/backup-schema.sh`、`scripts/flyway.sh`。
+- **验收**：三库 baseline 1.0.0 + migrate 成功；`flyway_verify_*` 空库从零迁移成功；`mvn test` 全绿。
+- **规范**：`docs/数据库迁移规范.md`。
+
+---
+
 ## 附：开发执行建议（喂 AI 时的措辞模板）
 
 把本任务书按 Sprint 逐条喂给 AI 编程工具时，**每条任务请附带以下 3 句话**（示例，以 T-102 为例）：

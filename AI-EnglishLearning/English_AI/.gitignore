@@ -20,6 +20,9 @@ uploads/
 .uploads/
 .env
 
+# 数据库结构备份（只在本地保留，不提交）
+sql/backup/
+
 # 日志
 *.log
 

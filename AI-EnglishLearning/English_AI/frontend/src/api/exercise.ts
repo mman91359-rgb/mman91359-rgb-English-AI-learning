@@ -6,7 +6,7 @@ import { get, post, del, put } from './request'
 export interface QuestionVO {
     /** 题目ID */
     id: number
-    /** 模块类型: 1=词汇, 2=语法 */
+    /** 模块类型: 1词汇 2语法 3翻译 4听力 5造句 6写作 */
     moduleType: number
     /** 难度等级: 1~8 */
     difficultyLevel: number
@@ -24,6 +24,12 @@ export interface QuestionVO {
     analysis?: string
     /** 是否展示答案 */
     showAnswer?: boolean
+    /** 听力音频地址（仅听力题有值） */
+    audioUrl?: string
+    /** 听力原文（提交后才返回） */
+    transcript?: string
+    /** 音频时长（秒），区别于答题用时 */
+    durationSeconds?: number
 }
 
 /**
@@ -69,6 +75,8 @@ export interface SubmitResponse {
     coinAwarded?: number
     /** 发放后的金币余额 */
     coinBalance?: number
+    /** 听力原文（仅听力题提交后返回） */
+    transcript?: string
 }
 
 /** 学习会话上报请求 */
@@ -131,6 +139,45 @@ export const getQuestionById = (id: number, showAnswer: boolean = false): Promis
  */
 export const submitAnswer = (data: SubmitRequest): Promise<SubmitResponse> => {
     return post('/exercise/submit', data)
+}
+
+/** 听力答题统计 */
+export interface ListeningStats {
+    totalAnswered: number
+    correctCount: number
+    correctRate: number
+}
+
+/**
+ * 听力练习队列（复用智能选题）
+ * GET /exercise/listening/questions?userId=1&count=5
+ */
+export const selectListeningQuestions = (userId: number, count: number = 5): Promise<QuestionVO[]> => {
+    return get('/exercise/listening/questions', { userId, count })
+}
+
+/**
+ * 听力单题详情
+ * GET /exercise/listening/question/{id}
+ */
+export const getListeningQuestion = (id: number, showAnswer: boolean = false): Promise<QuestionVO> => {
+    return get(`/exercise/listening/question/${id}`, { showAnswer })
+}
+
+/**
+ * 提交听力答案（强制 moduleType=4）
+ * POST /exercise/listening/submit
+ */
+export const submitListeningAnswer = (data: Omit<SubmitRequest, 'moduleType'>): Promise<SubmitResponse> => {
+    return post('/exercise/listening/submit', { ...data, moduleType: 4 })
+}
+
+/**
+ * 听力答题统计
+ * GET /exercise/listening/stats/{userId}
+ */
+export const getListeningStats = (userId: number): Promise<ListeningStats> => {
+    return get(`/exercise/listening/stats/${userId}`)
 }
 
 /** 上报学习会话累计活跃秒数 */
@@ -366,7 +413,7 @@ export const getExerciseHistory = (
 export interface PendingQuestion {
     /** 主键ID */
     id: number
-    /** 模块类型: 1=词汇, 2=语法 */
+    /** 模块类型: 1词汇 2语法 3翻译 4听力 5造句 6写作 */
     moduleType: number
     /** 目标等级: CET4/CET6 */
     targetLevel: string

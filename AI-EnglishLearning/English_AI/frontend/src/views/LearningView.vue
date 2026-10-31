@@ -91,6 +91,32 @@
       </div>
     </template>
 
+    <!-- ========== 听力 tab 专属布局 ========== -->
+    <template v-else-if="activeTab === 'listening'">
+      <div
+        class="bg-primary-container rounded-[24px] p-8 flex flex-col justify-between relative overflow-hidden cursor-pointer hover:shadow-[0_4px_20px_rgba(51,58,72,0.15)] transition-shadow min-h-[200px] mb-8 group"
+        @click="startListening"
+      >
+        <div class="relative z-10 text-on-primary-container">
+          <h3 class="font-headline-md text-headline-md mb-2 font-bold">{{ $t('learning.listeningPractice') }}</h3>
+          <p class="font-body-md text-body-md text-on-primary-container/80">{{ $t('learning.listeningDescription') }}</p>
+        </div>
+        <div class="absolute right-8 top-1/2 -translate-y-1/2 z-10 w-16 h-16 bg-surface-container-lowest/20 rounded-full flex items-center justify-center backdrop-blur-sm group-hover:scale-110 transition-transform">
+          <span class="material-symbols-outlined text-4xl text-on-primary-container" style="font-variation-settings: 'FILL' 1;">headphones</span>
+        </div>
+      </div>
+
+      <div class="bg-surface-container-lowest rounded-[24px] shadow-soft-glow overflow-hidden">
+        <div class="flex items-center gap-4 p-6 border-b border-outline-variant/10">
+          <div class="w-10 h-10 rounded-full bg-primary-container/30 flex items-center justify-center">
+            <span class="material-symbols-outlined text-primary">graphic_eq</span>
+          </div>
+          <span class="font-body-lg text-body-lg text-on-surface">{{ $t('learning.listeningTips') }}</span>
+        </div>
+        <p class="p-6 font-body-md text-body-md text-on-surface-variant">{{ $t('learning.listeningTipsContent') }}</p>
+      </div>
+    </template>
+
     <!-- ========== 其他 tab 原有布局 ========== -->
     <template v-else>
       <div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
@@ -259,7 +285,7 @@ const tabs = computed(() => [
   { key: 'vocab', label: t('learning.vocabTab'), moduleType: 1, available: true },
   { key: 'grammar', label: t('learning.grammarTab'), moduleType: 2, available: true },
   { key: 'translation', label: t('learning.translationTab'), moduleType: 3, available: false },
-  { key: 'listening', label: t('learning.listeningTab'), moduleType: 4, available: false },
+  { key: 'listening', label: t('learning.listeningTab'), moduleType: 4, available: true },
   { key: 'sentence', label: t('learning.sentenceTab'), moduleType: 5, available: false },
 ])
 const activeTab = ref('vocab')
@@ -429,9 +455,19 @@ const startPractice = () => {
     void openVocabularyGoalDialog()
   } else if (currentModuleType.value === 2) {
     router.push('/grammar-quiz')
+  } else if (currentModuleType.value === 4) {
+    router.push('/listening')
   } else {
     router.push({ path: '/learning/practice', query: { moduleType: currentModuleType.value, count: dailyTarget.value } })
   }
+}
+
+const startListening = () => {
+  if (!userStore.userId) {
+    toast(t('learning.pleaseLogin'), 'warning')
+    return
+  }
+  router.push('/listening')
 }
 
 const switchTab = (key: string) => {

@@ -10,6 +10,7 @@ export const MODULE_NAME_KEYS: Record<number, string> = {
   3: 'dashboard.moduleTranslation',
   4: 'dashboard.moduleListening',
   5: 'learning.moduleSentenceMaking',
+  6: 'dashboard.moduleWriting',
 }
 
 export const MODULE_SOURCE_TYPES: Record<string, number> = {
@@ -17,6 +18,7 @@ export const MODULE_SOURCE_TYPES: Record<string, number> = {
   grammar: 2,
   translation: 3,
   listening: 4,
+  writing: 6,
 }
 
 export function moduleName(type: number, t: Translate, fallbackType = 0): string {

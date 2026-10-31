@@ -16,6 +16,7 @@ import VocabQuizView from '../views/VocabQuizView.vue'
 import GrammarQuizView from '../views/GrammarQuizView.vue'
 import AssessView from '../views/AssessView.vue'
 import AdminQuestions from '../views/AdminQuestions.vue'
+import ListeningView from '../views/ListeningView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -49,6 +50,12 @@ const router = createRouter({
       path: '/learning',
       name: 'learning',
       component: LearningView,
+      meta: { requiresAuth: true, studyTracked: true },
+    },
+    {
+      path: '/listening',
+      name: 'listening',
+      component: ListeningView,
       meta: { requiresAuth: true, studyTracked: true },
     },
     {

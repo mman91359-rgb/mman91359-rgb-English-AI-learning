@@ -1,14 +1,5 @@
 <template>
-  <Teleport to="body">
-    <Transition name="modal-fade">
-      <div
-        v-if="visible"
-        class="fixed inset-0 z-[120] flex items-center justify-center bg-black/45 px-4 backdrop-blur-[2px]"
-        role="dialog"
-        aria-modal="true"
-        @click.self="close"
-      >
-        <div class="modal-card w-full max-w-2xl rounded-[28px] bg-surface p-6 sm:p-8 soft-shadow" @click.stop>
+  <BaseDialog :visible="visible" max-width="max-w-2xl" @close="close">
           <!-- 标题 -->
           <div class="flex items-start justify-between gap-4 mb-2">
             <div class="flex items-center gap-3">
@@ -169,15 +160,13 @@
               {{ saving ? $t('common.saving') : (submitLabel || $t('vocabGoal.save')) }}
             </button>
           </div>
-        </div>
-      </div>
-    </Transition>
-  </Teleport>
+  </BaseDialog>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import BaseDialog from './ui/BaseDialog.vue'
 
 interface Props {
   visible: boolean

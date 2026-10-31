@@ -70,21 +70,23 @@
     </div>
 
     <!-- 加载中 -->
-    <div v-if="loading" class="flex justify-center py-20">
-      <span class="material-symbols-outlined text-4xl text-primary animate-spin">progress_activity</span>
-    </div>
+    <LoadingState v-if="loading" />
+
+    <ErrorState
+      v-else-if="loadError"
+      :message="loadError"
+      :action-label="$t('common.retry')"
+      @retry="load"
+    />
 
     <!-- 空状态 -->
-    <div v-else-if="history.length === 0" class="text-center py-20">
-      <span class="material-symbols-outlined text-5xl text-outline">filter_alt_off</span>
-      <p class="mt-3 text-on-surface-variant font-body-md text-body-md">{{ $t('learning.noFilterResult') }}</p>
-      <button
-        class="mt-3 px-5 py-2 rounded-full border border-outline-variant text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-variant transition-colors"
-        @click="moduleFilter = 0; correctFilter = -1; timeRangeFilter = 'all'; applyFilter()"
-      >
-        {{ $t('learning.resetFilter') }}
-      </button>
-    </div>
+    <EmptyState
+      v-else-if="history.length === 0"
+      icon="filter_alt_off"
+      :title="$t('learning.noFilterResult')"
+      :action-label="$t('learning.resetFilter')"
+      @action="moduleFilter = 0; correctFilter = -1; timeRangeFilter = 'all'; applyFilter()"
+    />
 
     <!-- 历史记录列表 -->
     <div v-else class="space-y-3">
@@ -123,7 +125,7 @@
                 class="font-label-sm text-label-sm"
                 :class="item.moduleType === 1 ? 'text-primary' : 'text-secondary'"
               >
-                {{ moduleNameMap(item.moduleType) || $t('learning.sentenceMaking') }}
+                {{ moduleName(item.moduleType, t, 5) }}
               </span>
               <span class="font-label-sm text-label-sm text-on-surface-variant">
                 Lv.{{ item.difficultyLevel || '-' }}
@@ -136,7 +138,7 @@
           <!-- 时间与结果 -->
           <div class="text-right shrink-0">
             <span class="font-label-sm text-label-sm text-on-surface-variant block">
-              {{ formatTime(item.createdAt) }}
+              {{ formatDateTime(item.createdAt, locale) }}
             </span>
             <span
               class="font-label-sm text-label-sm"
@@ -223,7 +225,7 @@
             <!-- 题目信息 -->
             <div class="flex items-center gap-4 pt-1">
               <span class="font-label-sm text-label-sm text-on-surface-variant">
-                {{ $t('learning.moduleType') }}：{{ moduleNameMap(item.moduleType) }}
+                {{ $t('learning.moduleType') }}：{{ moduleName(item.moduleType, t, 5) }}
               </span>
               <span class="font-label-sm text-label-sm text-on-surface-variant">
                 {{ $t('learning.difficulty') }}：Lv.{{ item.difficultyLevel || '-' }}
@@ -268,7 +270,12 @@
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppLayout from '../components/AppLayout.vue'
+import LoadingState from '@/components/ui/LoadingState.vue'
+import EmptyState from '@/components/ui/EmptyState.vue'
+import ErrorState from '@/components/ui/ErrorState.vue'
 import { useUserStore } from '@/stores/user'
+import { moduleName } from '@/config/modules'
+import { formatDateTime } from '@/utils/format'
 import { getExerciseHistory, type ExerciseHistoryVO } from '@/api/exercise'
 
 const { t, locale } = useI18n()
@@ -277,23 +284,12 @@ const userStore = useUserStore()
 // ========== 数据状态 ==========
 const history = ref<ExerciseHistoryVO[]>([])
 const loading = ref(true)
+const loadError = ref('')
 const page = ref(1)
 const total = ref(0)
 const size = 20
 
 const totalPages = computed(() => Math.max(1, Math.ceil(total.value / size)))
-
-// ========== 模块名称映射 ==========
-const moduleNameMap = computed(() => {
-  const map: Record<number, string> = {
-    1: t('dashboard.moduleVocabulary'),
-    2: t('dashboard.moduleGrammar'),
-    3: t('dashboard.moduleTranslation'),
-    4: t('dashboard.moduleListening'),
-    5: t('learning.moduleSentenceMaking')
-  }
-  return (type: number) => map[type] || map[5]
-})
 
 // ========== 筛选配置 ==========
 const moduleFilters = computed(() => [
@@ -363,6 +359,7 @@ const load = async () => {
   const uid = userStore.userId
   if (!uid) return
   loading.value = true
+  loadError.value = ''
   expandedLogId.value = null
   try {
     const startTime = timeRangeFilter.value !== 'all' 
@@ -376,6 +373,7 @@ const load = async () => {
     total.value = res.total || 0
   } catch (e) {
     console.warn('加载学习历史失败', e)
+    loadError.value = e instanceof Error ? e.message : '加载学习历史失败'
   } finally {
     loading.value = false
   }
@@ -385,14 +383,6 @@ const changePage = (p: number) => {
   page.value = p
   load()
   window.scrollTo({ top: 0, behavior: 'smooth' })
-}
-
-// ========== 时间格式化 ==========
-const formatTime = (d: string) => {
-  if (!d) return ''
-  return new Date(d).toLocaleString(locale.value, {
-    month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
-  })
 }
 
 // ========== 答案显示格式化 ==========

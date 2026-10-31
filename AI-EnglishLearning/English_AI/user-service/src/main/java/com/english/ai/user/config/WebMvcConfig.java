@@ -1,18 +1,23 @@
 package com.english.ai.user.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.nio.file.Paths;
 
 /**
- * Web MVC 配置 — 静态资源映射
+ * Web MVC 配置 — 静态资源映射与内部接口鉴权
  * 将 /user/avatar/** 请求映射到磁盘头像文件目录
  */
 @Configuration
+@RequiredArgsConstructor
 public class WebMvcConfig implements WebMvcConfigurer {
+
+    private final InternalAuthInterceptor internalAuthInterceptor;
 
     /** 头像文件存储目录，与 UserController 中一致 */
     @Value("${avatar.upload-dir:./uploads/avatars}")
@@ -25,5 +30,11 @@ public class WebMvcConfig implements WebMvcConfigurer {
         // 必须以 file: 协议前缀 + 目录结尾的 / 才能正确映射
         registry.addResourceHandler("/user/avatar/**")
                 .addResourceLocations("file:" + absolutePath + "/");
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(internalAuthInterceptor)
+                .addPathPatterns("/internal/**");
     }
 }

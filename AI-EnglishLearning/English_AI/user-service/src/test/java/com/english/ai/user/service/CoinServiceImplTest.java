@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DuplicateKeyException;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -24,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -58,6 +60,22 @@ class CoinServiceImplTest {
     void duplicateBizKeyDoesNotAddBalance() {
         when(transactionMapper.selectOne(any())).thenReturn(new UserCoinTransaction());
         when(accountMapper.selectOne(any())).thenReturn(account(100));
+
+        AwardCoinResponse response = service.award(1L, "VOCAB_GROUP",
+                "VOCAB_GROUP:1:2026-10-24:1", 5, "完成一组单词");
+
+        assertFalse(response.getAwarded());
+        assertEquals("DUPLICATE", response.getReason());
+        assertEquals(100, response.getBalance());
+        verify(accountMapper, never()).addBalance(any(), anyInt());
+    }
+
+    @Test
+    void concurrentDuplicateInsertReturnsDuplicateWithoutAddingBalance() {
+        when(transactionMapper.selectOne(any())).thenReturn(null);
+        when(accountMapper.selectOne(any())).thenReturn(account(100));
+        doThrow(new DuplicateKeyException("uk_biz_key"))
+                .when(transactionMapper).insert(any());
 
         AwardCoinResponse response = service.award(1L, "VOCAB_GROUP",
                 "VOCAB_GROUP:1:2026-10-24:1", 5, "完成一组单词");

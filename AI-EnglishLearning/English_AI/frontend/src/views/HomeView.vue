@@ -249,7 +249,7 @@
   </AppLayout>
 </template>
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onUnmounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import AppLayout from '../components/AppLayout.vue'
@@ -257,6 +257,7 @@ import CoinBurst from '@/components/CoinBurst.vue'
 import VocabularyGoalDialog from '@/components/VocabularyGoalDialog.vue'
 import { useToast } from '@/composables/useToast'
 import { useUserStore } from '@/stores/user'
+import { moduleName } from '@/config/modules'
 import { getDailyWord, getExerciseStats } from '@/api/exercise'
 import type { DailyWordVO } from '@/api/exercise'
 import { getReviewTasks } from '@/api/learning'
@@ -462,13 +463,6 @@ const continueInfo = ref(t('dashboard.unitInfo', { unit: 1 }))
 const reviewTasks = ref<ReviewTaskVO[]>([])
 // ========== 每日单词 ==========
 const dailyWord = ref<DailyWordVO | null>(null)
-// ========== 模块名称映射 ==========
-const moduleNames: Record<number, string> = {
-  1: '词汇',
-  2: '语法',
-  3: '翻译',
-  4: '听力',
-}
 // ========== 加载真实学习量数据 ==========
 const loadStatsData = async () => {
   const uid = userStore.userId
@@ -508,7 +502,7 @@ const loadHomeData = async () => {
       const firstTask = tasks[0]
       continueInfo.value = t('dashboard.reviewTasksPending', {
         count: tasks.length,
-        module: moduleNames[firstTask.moduleType] || t('dashboard.moduleVocabulary'),
+        module: moduleName(firstTask.moduleType, t, 1),
       })
     } else {
       continueInfo.value = t('dashboard.reviewTasksDone')
@@ -544,12 +538,6 @@ watch(() => userStore.userId, (newId) => {
 watch(() => route.path, (newPath) => {
   if (newPath === '/' || newPath === '/home') {
     if (userStore.userId) loadHomeData()
-  }
-})
-
-onMounted(() => {
-  if (userStore.userId) {
-    loadHomeData()
   }
 })
 </script>

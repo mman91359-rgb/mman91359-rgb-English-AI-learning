@@ -1,7 +1,10 @@
-package com.english.ai.user.util;
+package com.english.ai.common;
 
 /**
- * 网关透传用户身份校验工具
+ * 网关透传用户身份校验工具。
+ * <p>
+ * 网关校验 JWT 后透传 X-User-Id；下游服务用该工具确认请求中的 userId
+ * 与网关头一致，避免已登录用户通过修改 userId 访问他人数据。
  */
 public final class UserIdentityUtil {
 

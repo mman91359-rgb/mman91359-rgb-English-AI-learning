@@ -18,12 +18,13 @@
 <script setup lang="ts">
 import { computed, onUnmounted, ref, watch } from 'vue'
 import { useUserStore } from '@/stores/user'
+import { formatNumber } from '@/utils/format'
 
 const userStore = useUserStore()
 const bumping = ref(false)
 let bumpTimer: number | null = null
 
-const formattedBalance = computed(() => (userStore.coinBalance ?? 0).toLocaleString('zh-CN'))
+const formattedBalance = computed(() => formatNumber(userStore.coinBalance ?? 0, 'zh-CN'))
 
 watch(() => userStore.coinBalance, (next, previous) => {
   if (next > previous) {

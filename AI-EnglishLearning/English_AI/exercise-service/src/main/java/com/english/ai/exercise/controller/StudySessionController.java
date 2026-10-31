@@ -1,9 +1,13 @@
 package com.english.ai.exercise.controller;
 
+import com.english.ai.common.BusinessException;
+import com.english.ai.common.ErrorCode;
 import com.english.ai.common.Result;
+import com.english.ai.common.UserIdentityUtil;
 import com.english.ai.exercise.dto.StudySessionReportRequest;
 import com.english.ai.exercise.dto.StudySessionReportResponse;
 import com.english.ai.exercise.service.StudySessionService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,13 +33,13 @@ public class StudySessionController {
      */
     @PostMapping("/study-session/report")
     public Result<StudySessionReportResponse> report(
-            @RequestBody StudySessionReportRequest request,
+            @Valid @RequestBody StudySessionReportRequest request,
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
         if (request == null || request.getUserId() == null) {
             return Result.badRequest("userId不能为空");
         }
-        if (headerUserId != null && !headerUserId.equals(request.getUserId())) {
-            return Result.error(403, "无权操作其他用户数据");
+        if (UserIdentityUtil.isForbidden(headerUserId, request.getUserId())) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
         }
         try {
             return Result.success(studySessionService.report(request));

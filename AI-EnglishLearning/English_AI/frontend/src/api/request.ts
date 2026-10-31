@@ -29,6 +29,18 @@ instance.interceptors.request.use(
   }
 )
 
+function isAuthRequest(url: string = ''): boolean {
+  return url.includes('/user/login') || url.includes('/user/register')
+}
+
+function clearAuthAndRedirect(): void {
+  sessionStorage.removeItem('token')
+  sessionStorage.removeItem('user')
+  if (window.location.pathname !== '/login') {
+    window.location.href = '/login'
+  }
+}
+
 instance.interceptors.response.use(
   (response: AxiosResponse<ApiResponse>) => {
     const res = response.data
@@ -36,11 +48,8 @@ instance.interceptors.response.use(
       if (res.code === 401) {
         // 登录、注册接口的 401 是业务错误（如密码错误），不跳转，让调用方显示错误提示
         const url = response.config.url || ''
-        const isAuthRequest = url.includes('/user/login') || url.includes('/user/register')
-        if (!isAuthRequest) {
-          sessionStorage.removeItem('token')
-          sessionStorage.removeItem('user')
-          window.location.href = '/login'
+        if (!isAuthRequest(url)) {
+          clearAuthAndRedirect()
           return Promise.reject(new Error(res.message || '请求失败'))
         }
       }
@@ -49,6 +58,11 @@ instance.interceptors.response.use(
     return res.data
   },
   (error) => {
+    const status = error.response?.status
+    const url = error.config?.url || ''
+    if (status === 401 && !isAuthRequest(url)) {
+      clearAuthAndRedirect()
+    }
     const message = error.response?.data?.message || error.message || '网络异常'
     return Promise.reject(new Error(message))
   }

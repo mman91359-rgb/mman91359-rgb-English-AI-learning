@@ -1,5 +1,6 @@
 package com.english.ai.exercise.dto;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 /**
@@ -10,8 +11,10 @@ import lombok.Data;
 public class ReviewResultRequest {
 
     /** 用户ID */
+    @NotNull(message = "userId不能为空")
     private Long userId;
 
     /** 是否记住：true=记住（提升掌握度，延长下次复习间隔），false=没记住（重置掌握度） */
+    @NotNull(message = "isCorrect不能为空")
     private Boolean isCorrect;
 }

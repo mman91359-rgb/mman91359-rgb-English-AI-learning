@@ -1,6 +1,9 @@
 package com.english.ai.user.controller;
 
+import com.english.ai.common.BusinessException;
+import com.english.ai.common.ErrorCode;
 import com.english.ai.common.Result;
+import com.english.ai.common.UserIdentityUtil;
 import com.english.ai.user.config.CoinRewardProperties;
 import com.english.ai.user.dto.CheckInRequest;
 import com.english.ai.user.dto.CheckInResponse;
@@ -9,7 +12,7 @@ import com.english.ai.user.dto.CoinInfoResponse;
 import com.english.ai.user.entity.UserCoinAccount;
 import com.english.ai.user.service.CheckInService;
 import com.english.ai.user.service.CoinService;
-import com.english.ai.user.util.UserIdentityUtil;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
@@ -43,7 +46,7 @@ public class CoinController {
             @PathVariable Long userId,
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
         if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            return Result.error(403, "无权访问其他用户数据");
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
         }
         if (!coinService.userExists(userId)) {
             return Result.error(404, "用户不存在");
@@ -77,13 +80,13 @@ public class CoinController {
      */
     @PostMapping("/check-in")
     public Result<CheckInResponse> checkIn(
-            @RequestBody CheckInRequest request,
+            @Valid @RequestBody CheckInRequest request,
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
         if (request == null || request.getUserId() == null) {
             return Result.badRequest("userId不能为空");
         }
         if (UserIdentityUtil.isForbidden(headerUserId, request.getUserId())) {
-            return Result.error(403, "无权操作其他用户数据");
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
         }
         try {
             return Result.success(checkInService.checkIn(request.getUserId()));

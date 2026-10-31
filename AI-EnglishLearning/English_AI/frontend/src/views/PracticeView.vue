@@ -231,6 +231,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import AppLayout from '../components/AppLayout.vue'
 import { useUserStore } from '@/stores/user'
+import { moduleName as moduleLabel } from '@/config/modules'
 import { selectQuestions, submitAnswer, addFavorite } from '@/api/exercise'
 import type { QuestionVO, SubmitResponse } from '@/api/exercise'
 
@@ -242,15 +243,7 @@ const userStore = useUserStore()
 const moduleType = computed(() => Number(route.query.moduleType) || 1)
 const count = computed(() => Number(route.query.count) || 10)
 
-const moduleName = computed(() => {
-  const names: Record<number, string> = {
-    1: t('dashboard.moduleVocabulary'),
-    2: t('dashboard.moduleGrammar'),
-    3: t('dashboard.moduleTranslation'),
-    4: t('dashboard.moduleListening')
-  }
-  return names[moduleType.value] || names[1]
-})
+const moduleName = computed(() => moduleLabel(moduleType.value, t, 1))
 
 // ========== 练习状态 ==========
 const loading = ref(false)

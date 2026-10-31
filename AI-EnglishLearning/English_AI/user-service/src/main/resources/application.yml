@@ -55,6 +55,9 @@ jwt:
 
 # 金币奖励配置（修改数值后重启 user-service 生效）
 app:
+  internal:
+    # 服务间 /internal/** 调用令牌；生产通过 INTERNAL_TOKEN 注入
+    token: ${INTERNAL_TOKEN:local-dev-internal-token}
   coin:
     check-in:
       base-reward: 10          # 每日签到基础金币

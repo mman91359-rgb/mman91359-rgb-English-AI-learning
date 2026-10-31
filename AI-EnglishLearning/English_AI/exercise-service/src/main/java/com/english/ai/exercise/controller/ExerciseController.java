@@ -1,9 +1,13 @@
 package com.english.ai.exercise.controller;
 
+import com.english.ai.common.BusinessException;
+import com.english.ai.common.ErrorCode;
 import com.english.ai.common.Result;
+import com.english.ai.common.UserIdentityUtil;
 import com.english.ai.exercise.dto.*;
 import com.english.ai.exercise.entity.SysKnowledgePoint;
 import com.english.ai.exercise.service.ExerciseService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -82,9 +86,14 @@ public class ExerciseController {
      * POST /exercise/submit
      */
     @PostMapping("/submit")
-    public Result<SubmitResponse> submit(@RequestBody SubmitRequest request) {
+    public Result<SubmitResponse> submit(
+            @Valid @RequestBody SubmitRequest request,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
         if (request.getUserId() == null || request.getQuestionId() == null) {
             return Result.badRequest("userId和questionId不能为空");
+        }
+        if (UserIdentityUtil.isForbidden(headerUserId, request.getUserId())) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
         }
         try {
             SubmitResponse response = exerciseService.submitAnswer(request);
@@ -142,9 +151,14 @@ public class ExerciseController {
 
     /** POST /exercise/favorites */
     @PostMapping("/favorites")
-    public Result<FavoriteVO> addFavorite(@RequestBody AddFavoriteRequest request) {
+    public Result<FavoriteVO> addFavorite(
+            @Valid @RequestBody AddFavoriteRequest request,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
         if (request.getUserId() == null || request.getSentenceText() == null || request.getSentenceText().isBlank()) {
             return Result.badRequest("userId和sentenceText不能为空");
+        }
+        if (UserIdentityUtil.isForbidden(headerUserId, request.getUserId())) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
         }
         FavoriteVO vo = exerciseService.addFavorite(request.getUserId(), request.getSentenceText(), request.getQuestionId());
         return Result.success(vo);
@@ -158,7 +172,13 @@ public class ExerciseController {
 
     /** DELETE /exercise/favorites/{id}?userId=1 */
     @DeleteMapping("/favorites/{id}")
-    public Result<String> removeFavorite(@PathVariable Long id, @RequestParam Long userId) {
+    public Result<String> removeFavorite(
+            @PathVariable Long id,
+            @RequestParam Long userId,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
+        }
         exerciseService.removeFavorite(id, userId);
         return Result.success("已删除");
     }
@@ -167,9 +187,14 @@ public class ExerciseController {
 
     /** POST /exercise/vocabulary */
     @PostMapping("/vocabulary")
-    public Result<VocabularyVO> addVocabulary(@RequestBody AddVocabularyRequest request) {
+    public Result<VocabularyVO> addVocabulary(
+            @Valid @RequestBody AddVocabularyRequest request,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
         if (request.getUserId() == null || request.getWord() == null || request.getWord().isBlank()) {
             return Result.badRequest("userId和word不能为空");
+        }
+        if (UserIdentityUtil.isForbidden(headerUserId, request.getUserId())) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
         }
         VocabularyVO vo = exerciseService.addVocabulary(
                 request.getUserId(), request.getWord(), request.getTranslation(), request.getSource());
@@ -182,9 +207,14 @@ public class ExerciseController {
      * POST /exercise/vocabulary/smart
      */
     @PostMapping("/vocabulary/smart")
-    public Result<VocabularyVO> addVocabularySmart(@RequestBody AddVocabularyRequest request) {
+    public Result<VocabularyVO> addVocabularySmart(
+            @Valid @RequestBody AddVocabularyRequest request,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
         if (request.getUserId() == null || request.getWord() == null || request.getWord().isBlank()) {
             return Result.badRequest("userId和word不能为空");
+        }
+        if (UserIdentityUtil.isForbidden(headerUserId, request.getUserId())) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
         }
         try {
             VocabularyVO vo = exerciseService.addVocabularySmart(
@@ -218,14 +248,26 @@ public class ExerciseController {
 
     /** DELETE /exercise/vocabulary/{id}?userId=1 */
     @DeleteMapping("/vocabulary/{id}")
-    public Result<String> removeVocabulary(@PathVariable Long id, @RequestParam Long userId) {
+    public Result<String> removeVocabulary(
+            @PathVariable Long id,
+            @RequestParam Long userId,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
+        }
         exerciseService.removeVocabulary(id, userId);
         return Result.success("已删除");
     }
 
     /** PUT /exercise/vocabulary/{id}/toggle?userId=1 */
     @PutMapping("/vocabulary/{id}/toggle")
-    public Result<VocabularyVO> toggleMastered(@PathVariable Long id, @RequestParam Long userId) {
+    public Result<VocabularyVO> toggleMastered(
+            @PathVariable Long id,
+            @RequestParam Long userId,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
+        }
         VocabularyVO vo = exerciseService.toggleMastered(id, userId);
         return Result.success(vo);
     }
@@ -246,9 +288,15 @@ public class ExerciseController {
      * PUT /exercise/vocabulary/{id}/review
      */
     @PutMapping("/vocabulary/{id}/review")
-    public Result<VocabularyVO> reviewWord(@PathVariable Long id, @RequestBody ReviewResultRequest request) {
+    public Result<VocabularyVO> reviewWord(
+            @PathVariable Long id,
+            @Valid @RequestBody ReviewResultRequest request,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
         if (request.getUserId() == null || request.getIsCorrect() == null) {
             return Result.badRequest("userId和isCorrect不能为空");
+        }
+        if (UserIdentityUtil.isForbidden(headerUserId, request.getUserId())) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
         }
         try {
             VocabularyVO vo = exerciseService.reviewWord(id, request.getUserId(), request.getIsCorrect());

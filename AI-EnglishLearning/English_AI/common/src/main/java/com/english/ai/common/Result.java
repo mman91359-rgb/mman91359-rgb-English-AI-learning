@@ -44,6 +44,12 @@ public class Result<T> {
         return r;
     }
 
+    public static <T> Result<T> success(T data, String message) {
+        Result<T> r = success(data);
+        r.message = message;
+        return r;
+    }
+
     public static <T> Result<T> success() {
         return success(null);
     }
@@ -53,6 +59,14 @@ public class Result<T> {
         r.code = code;
         r.message = message;
         return r;
+    }
+
+    public static <T> Result<T> error(ErrorCode errorCode) {
+        return error(errorCode.getCode(), errorCode.getMessage());
+    }
+
+    public static <T> Result<T> error(ErrorCode errorCode, String message) {
+        return error(errorCode.getCode(), message);
     }
 
     public static <T> Result<T> error(String message) {

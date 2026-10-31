@@ -81,7 +81,13 @@ public class CoinServiceImpl implements CoinService {
         transaction.setDescription(description);
         // 显式使用统一时区，避免 JVM 默认时区与 Asia/Shanghai 不一致导致每日上限误判
         transaction.setCreatedAt(LocalDateTime.now(clock));
-        transactionMapper.insert(transaction);
+        try {
+            transactionMapper.insert(transaction);
+        } catch (DuplicateKeyException e) {
+            // 并发重复请求：唯一键是幂等唯一真相，直接返回当前余额
+            log.info("金币流水已存在，按幂等返回: userId={}, bizKey={}", userId, bizKey);
+            return buildResult(false, 0, getBalance(userId), "DUPLICATE");
+        }
 
         accountMapper.addBalance(userId, amount);
         UserCoinAccount updated = selectAccount(userId);

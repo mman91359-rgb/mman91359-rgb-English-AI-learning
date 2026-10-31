@@ -7,6 +7,7 @@ import com.english.ai.user.dto.PreferenceResponse;
 import com.english.ai.user.entity.UserCoinAccount;
 import com.english.ai.user.service.CoinService;
 import com.english.ai.user.service.UserPreferenceService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
@@ -35,7 +36,7 @@ public class InternalController {
      * POST /internal/coin/award
      */
     @PostMapping("/coin/award")
-    public Result<AwardCoinResponse> award(@RequestBody AwardCoinRequest request) {
+    public Result<AwardCoinResponse> award(@Valid @RequestBody AwardCoinRequest request) {
         if (request == null || request.getUserId() == null) {
             return Result.badRequest("userId不能为空");
         }

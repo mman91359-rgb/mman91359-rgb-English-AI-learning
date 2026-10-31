@@ -305,3 +305,92 @@ npm run build
 4. 清理旧 `dailyTarget_vocab` 前端逻辑与不再使用的 `vocabGroupSize` 相关 UI/文案。
 5. 若允许引入前端测试依赖，优先补词汇目标弹窗、复习队列和新词连续答对循环的组件测试。
 6. 增加跨会话的新词去重策略（按单词本或练习记录），避免未掌握词反复出现。
+
+---
+
+## 变更记录（2026-10-31）
+
+### 本次修改文件
+
+**common**
+- `EnvGuard.java`（新增）：prod profile 下校验 JWT/DB/AI/内部 token 环境变量。
+- `UserIdentityUtil.java`（迁入）：网关透传 `X-User-Id` 与请求 userId 一致性校验。
+- `ErrorCode.java`、`BusinessException.java`（新增）：统一错误码与业务异常。
+- `Result.java`：增加 `error(ErrorCode)`、`success(data, message)`。
+
+**user-service**
+- `UserApplication.java`、`config/InternalAuthInterceptor.java`（新增）、`config/WebMvcConfig.java`
+- `controller/CoinController.java`、`PreferenceController.java`、`InternalController.java`、`UserController.java`
+- `service/impl/CoinServiceImpl.java`
+- `dto/UpdateVocabularyGoalsRequest.java`、`UpdateVocabGroupSizeRequest.java`、`CheckInRequest.java`、`AwardCoinRequest.java`
+- `handler/GlobalExceptionHandler.java`（新增）
+- `pom.xml`、`src/main/resources/application.yml`
+- 测试：`CoinServiceImplTest`、`UserIdentityUtilTest`（新增）、`GlobalExceptionHandlerTest`（新增）、`VocabularyGoalsValidationTest`（新增）
+
+**exercise-service**
+- `ExerciseApplication.java`、`config/RestTemplateConfig.java`
+- `controller/ExerciseController.java`、`StudySessionController.java`
+- `service/impl/ExerciseServiceImpl.java`
+- `dto/SubmitRequest.java`、`AddVocabularyRequest.java`、`AddFavoriteRequest.java`、`ReviewResultRequest.java`、`StudySessionReportRequest.java`
+- `handler/GlobalExceptionHandler.java`（新增）
+- `pom.xml`、`src/main/resources/application.yml`
+
+**learning-engine-service**
+- `LearningApplication.java`、`config/RestTemplateConfig.java`
+- `handler/MyMetaObjectHandler.java`（新增）
+
+**ai-service / api-gateway**
+- `AiApplication.java`、`application.yml`
+- `ApiGatewayApplication.java`、`application.yml`
+
+**frontend**
+- `components/ui/BaseDialog.vue`、`LoadingState.vue`、`EmptyState.vue`、`ErrorState.vue`（新增）
+- `components/VocabularyGoalDialog.vue`、`WordReviewDialog.vue`：改用 BaseDialog；shuffle/日期格式化复用工具类。
+- `config/modules.ts`、`utils/array.ts`、`utils/format.ts`（新增）
+- `api/request.ts`：HTTP 401 清理登录态；错误信息读取 `response.data.message`。
+- `api/user.ts`：删除重复的 `getUserInfo`/`getRadarData`。
+- `views/HomeView.vue`、`StatsView.vue`、`LearningView.vue`、`ProfileView.vue`：去掉重复首屏加载。
+- `views/VocabularyView.vue`、`HistoryView.vue`、`FavoritesView.vue`：接入 Loading/Empty/Error。
+- `views/ErrorBookView.vue`、`PracticeView.vue`、`GrammarQuizView.vue`、`VocabQuizView.vue`：复用模块映射/shuffle。
+- `components/CoinBadge.vue`、`views/ProfileView.vue`、`views/StatsView.vue`：复用数字格式化。
+
+**部署配置**
+- `docker-compose.yml`、`.env.example`：增加 `APP_CORS_ALLOWED_ORIGINS`、`INTERNAL_TOKEN`、`SPRING_PROFILES_ACTIVE=prod`。
+
+### 实现功能
+
+1. 生产环境启动校验：prod profile 缺少 `JWT_SECRET`、`MYSQL_PASSWORD`、`DASHSCOPE_API_KEY`、`INTERNAL_TOKEN` 时拒绝启动；AI Key 不再有明文默认值；网关 CORS 收敛为环境变量配置。
+2. 统一错误契约：`ErrorCode` + `BusinessException` + user/exercise 本地 `GlobalExceptionHandler`；业务异常、参数错误、未知异常分别返回标准 HTTP 状态与 `Result` body。
+3. 参数校验：user-service/exercise-service 引入 `spring-boot-starter-validation`，核心 DTO 增加 `@NotNull/@NotBlank/@Min/@Max`，Controller 加 `@Valid`。
+4. 数据一致性：金币流水并发重复键在 `CoinService.award()` 内按幂等返回；答题日志与错题本本地写放入事务，金币/ELO/learning/MQ 移到事务提交后。
+5. 身份与内部接口：`UserIdentityUtil` 迁入 common；高风险写接口补 `X-User-Id` 校验并抛 403；`/internal/**` 增加 `X-Internal-Token` 拦截器。
+6. 稳定性：exercise/learning 的 RestTemplate 设置 connect 2s/read 10s；learning 补 `MyMetaObjectHandler`，`createdAt/updatedAt` 自动填充恢复。
+7. 前端复用：`BaseDialog`、`Loading/Empty/Error`、模块映射、日期/数字格式化、shuffle 统一；HTTP 401 统一清登录态；4 个页面去掉重复首屏请求。
+
+### 验证结果
+
+- `mvn -pl user-service,exercise-service -am test`：55 个用例全部通过，通过率 100%（user-service 35、exercise-service 20，Failures/Errors/Skipped 均为 0）。
+- `mvn -DskipTests install`：7/7 模块 BUILD SUCCESS。
+- `npm run build`：`vue-tsc` 类型检查 + Vite 构建通过，仅保留既有 chunk 体积警告。
+- 手工验证：非法每日目标返回 HTTP 400；`X-User-Id` 不匹配的签到请求返回 HTTP 403；`/internal/user/preference/1` 无 token 返回 401、带 token 返回 200；网关 CORS 预检返回 `Access-Control-Allow-Origin: http://localhost:5173`。
+- 未启动完整前端做浏览器 E2E；未连接真实 MySQL 做完整业务联调。
+
+### 遗留风险 / 待办
+
+1. 读接口 IDOR 未全量修复：`ExerciseController` 多数读接口、`UserController` 读接口、learning/ai 接口仍信任请求参数中的 userId。
+2. `/internal/**` 需要生产设置 `INTERNAL_TOKEN`；本地默认 token 仅用于开发。
+3. 生产必须设置 `SPRING_PROFILES_ACTIVE=prod`，否则启动校验不会触发；还需要在阿里云侧轮换已暴露过的 AI Key。
+4. 网关 CORS 当前按单值 `APP_CORS_ALLOWED_ORIGINS` 配置；多来源部署需确认 Spring 列表解析方式。
+5. `SubmitRequest.userAnswer` 已加 `@NotBlank`；若未来有允许空答案的题型，需要单独放宽。
+6. 两套遗忘曲线、两套 7 天统计口径仍并存；本轮未合并。
+7. `awardedGroupCache` 仍是 JVM 内存缓存，多实例/重启时依赖数据库唯一键兜底。
+8. 前端仍无单元测试框架；`BaseDialog` 的焦点陷阱、移动端交互需浏览器验收。
+9. `QuestionGenerateService` 的 unchecked 编译警告为既有问题，本次未处理。
+
+### 后续开发建议
+
+1. 下一轮补读接口 IDOR 统一校验，优先 `/exercise/stats`、`/exercise/history`、`/user/info`、`/user/radar`。
+2. 若前端交互频繁，再评估 `useAsyncState`、`ProgressBar`、`StatTile`，不要一次性全站重构。
+3. 等出现第二个分页页再抽 `PageResult`/分页拦截器；等出现第三个 servlet 服务再评估 `common-web`。
+4. 新增金币奖励类型时再抽 `BizKeyFactory`；新增复习入口时再评估 `VocabularyReviewPolicy`。
+5. 部署前补一次真实 MySQL 端到端联调和浏览器 E2E。

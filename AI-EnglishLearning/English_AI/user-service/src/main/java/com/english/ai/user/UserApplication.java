@@ -1,5 +1,6 @@
 package com.english.ai.user;
 
+import com.english.ai.common.EnvGuard;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -12,6 +13,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class UserApplication {
 
     public static void main(String[] args) {
+        EnvGuard.requireInProd("JWT_SECRET", "MYSQL_PASSWORD", "INTERNAL_TOKEN");
         SpringApplication.run(UserApplication.class, args);
         System.out.println("========================================");
         System.out.println("  User Service 启动成功!");

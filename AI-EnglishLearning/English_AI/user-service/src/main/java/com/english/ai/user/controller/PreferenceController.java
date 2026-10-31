@@ -1,11 +1,14 @@
 package com.english.ai.user.controller;
 
+import com.english.ai.common.BusinessException;
+import com.english.ai.common.ErrorCode;
 import com.english.ai.common.Result;
+import com.english.ai.common.UserIdentityUtil;
 import com.english.ai.user.dto.PreferenceResponse;
 import com.english.ai.user.dto.UpdateVocabGroupSizeRequest;
 import com.english.ai.user.dto.UpdateVocabularyGoalsRequest;
 import com.english.ai.user.service.UserPreferenceService;
-import com.english.ai.user.util.UserIdentityUtil;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,7 +39,7 @@ public class PreferenceController {
             @PathVariable Long userId,
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
         if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            return Result.error(403, "无权访问其他用户数据");
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
         }
         return Result.success(preferenceService.get(userId));
     }
@@ -47,13 +50,13 @@ public class PreferenceController {
      */
     @PutMapping("/vocab-group-size")
     public Result<PreferenceResponse> updateVocabGroupSize(
-            @RequestBody UpdateVocabGroupSizeRequest request,
+            @Valid @RequestBody UpdateVocabGroupSizeRequest request,
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
         if (request == null || request.getUserId() == null) {
             return Result.badRequest("userId不能为空");
         }
         if (UserIdentityUtil.isForbidden(headerUserId, request.getUserId())) {
-            return Result.error(403, "无权操作其他用户数据");
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
         }
         try {
             return Result.success(preferenceService.updateVocabGroupSize(
@@ -72,13 +75,13 @@ public class PreferenceController {
      */
     @PutMapping("/vocabulary-goals")
     public Result<PreferenceResponse> updateVocabularyGoals(
-            @RequestBody UpdateVocabularyGoalsRequest request,
+            @Valid @RequestBody UpdateVocabularyGoalsRequest request,
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
         if (request == null || request.getUserId() == null) {
             return Result.badRequest("userId不能为空");
         }
         if (UserIdentityUtil.isForbidden(headerUserId, request.getUserId())) {
-            return Result.error(403, "无权操作其他用户数据");
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
         }
         try {
             return Result.success(preferenceService.updateVocabularyGoals(

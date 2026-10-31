@@ -344,6 +344,7 @@ import { useAppStore } from '@/stores/app'
 import { selectQuestions, submitAnswer as submitAnswerApi, getQuestionById, addFavorite } from '@/api/exercise'
 import { useSpeechRecognition } from '@/composables/useSpeechRecognition'
 import { useAiStore } from '@/stores/ai'
+import { shuffle } from '@/utils/array'
 import type { QuestionVO, SubmitResponse } from '@/api/exercise'
 
 const { t } = useI18n()
@@ -624,16 +625,6 @@ function generateVerbVariations(baseWords: string[]): string[] {
   }
 
   return variations
-}
-
-// 打乱数组
-const shuffle = <T,>(arr: T[]): T[] => {
-  const a = [...arr]
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[a[i], a[j]] = [a[j], a[i]]
-  }
-  return a
 }
 
 // ========== 解析单题为造句题形式（完整句子拼图 + 时态干扰词） ==========

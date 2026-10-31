@@ -39,3 +39,8 @@ service:
     url: ${LEARNING_SERVICE_URL:http://localhost:8083}
   ai:
     url: ${AI_SERVICE_URL:http://localhost:8084}
+
+# 内部接口令牌：调用 user-service 的 /internal/** 时携带
+app:
+  internal:
+    token: ${INTERNAL_TOKEN:local-dev-internal-token}

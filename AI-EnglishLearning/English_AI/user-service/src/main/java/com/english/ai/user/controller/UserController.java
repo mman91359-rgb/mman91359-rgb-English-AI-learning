@@ -1,6 +1,9 @@
 package com.english.ai.user.controller;
 
+import com.english.ai.common.BusinessException;
+import com.english.ai.common.ErrorCode;
 import com.english.ai.common.Result;
+import com.english.ai.common.UserIdentityUtil;
 import com.english.ai.user.dto.AssessSubmitRequest;
 import com.english.ai.user.dto.LoginRequest;
 import com.english.ai.user.dto.LoginResponse;
@@ -108,8 +111,12 @@ public class UserController {
     @PostMapping("/avatar/upload")
     public Result<String> uploadAvatar(
             @RequestParam("userId") Long userId,
-            @RequestParam("file") MultipartFile file) {
+            @RequestParam("file") MultipartFile file,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
 
+        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
+        }
         // 校验文件
         if (file == null || file.isEmpty()) {
             return Result.badRequest("请选择头像文件");
@@ -163,11 +170,16 @@ public class UserController {
      * Body: {"userId": 1, "nickname": "新昵称"}
      */
     @PostMapping("/nickname/update")
-    public Result<String> updateNickname(@RequestBody Map<String, Object> body) {
+    public Result<String> updateNickname(
+            @RequestBody Map<String, Object> body,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
         Object userIdObj = body.get("userId");
         Object nicknameObj = body.get("nickname");
         if (userIdObj == null) {
             return Result.badRequest("userId不能为空");
+        }
+        if (UserIdentityUtil.isForbidden(headerUserId, Long.valueOf(String.valueOf(userIdObj)))) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
         }
         if (nicknameObj == null || String.valueOf(nicknameObj).isBlank()) {
             return Result.badRequest("昵称不能为空");
@@ -196,12 +208,17 @@ public class UserController {
      * Body: {"userId": 1, "oldPassword": "旧密码", "newPassword": "新密码"}
      */
     @PostMapping("/password/update")
-    public Result<Boolean> updatePassword(@RequestBody Map<String, Object> body) {
+    public Result<Boolean> updatePassword(
+            @RequestBody Map<String, Object> body,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
         Object userIdObj = body.get("userId");
         Object oldPwdObj = body.get("oldPassword");
         Object newPwdObj = body.get("newPassword");
         if (userIdObj == null) {
             return Result.badRequest("userId不能为空");
+        }
+        if (UserIdentityUtil.isForbidden(headerUserId, Long.valueOf(String.valueOf(userIdObj)))) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
         }
         if (oldPwdObj == null || String.valueOf(oldPwdObj).isBlank()) {
             return Result.badRequest("原密码不能为空");
@@ -234,11 +251,16 @@ public class UserController {
      * Body: {"userId": 1, "phone": "13800138000"}
      */
     @PostMapping("/phone/update")
-    public Result<String> updatePhone(@RequestBody Map<String, Object> body) {
+    public Result<String> updatePhone(
+            @RequestBody Map<String, Object> body,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
         Object userIdObj = body.get("userId");
         Object phoneObj = body.get("phone");
         if (userIdObj == null) {
             return Result.badRequest("userId不能为空");
+        }
+        if (UserIdentityUtil.isForbidden(headerUserId, Long.valueOf(String.valueOf(userIdObj)))) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
         }
         if (phoneObj == null || String.valueOf(phoneObj).isBlank()) {
             return Result.badRequest("手机号不能为空");

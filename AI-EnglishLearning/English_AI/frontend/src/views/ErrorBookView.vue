@@ -421,6 +421,8 @@ import AppLayout from '../components/AppLayout.vue'
 import { useUserStore } from '@/stores/user'
 import { getErrorBook, submitAnswer, getWeakPoints, generateSimilar, type QuestionVO, type SubmitResponse, type WeakKnowledgePoint } from '@/api/exercise'
 import { useToast } from '@/composables/useToast'
+import { moduleName } from '@/config/modules'
+import { shuffle } from '@/utils/array'
 
 const { t } = useI18n()
 const userStore = useUserStore()
@@ -479,15 +481,7 @@ const filteredErrors = computed(() => {
   return errors.value.filter(q => q.moduleType === moduleFilter.value)
 })
 
-const moduleTagName = (type: number) => {
-  const map: Record<number, string> = {
-    1: t('dashboard.moduleVocabulary'),
-    2: t('dashboard.moduleGrammar'),
-    3: t('dashboard.moduleTranslation'),
-    4: t('dashboard.moduleListening'),
-  }
-  return map[type] || ''
-}
+const moduleTagName = (type: number) => moduleName(type, t)
 
 const moduleTagClass = (type: number) => {
   const map: Record<number, string> = {
@@ -526,15 +520,6 @@ const load = async () => {
 }
 
 // ========== 通用辅助 ==========
-/** 数组洗牌（Fisher-Yates） */
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr]
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[a[i], a[j]] = [a[j], a[i]]
-  }
-  return a
-}
 
 // ========== 语法题：构建词语排序状态 ==========
 /** 把选择题格式（stem 带 ___ 占位符 + options + correctAnswer）转为词语排序题状态 */

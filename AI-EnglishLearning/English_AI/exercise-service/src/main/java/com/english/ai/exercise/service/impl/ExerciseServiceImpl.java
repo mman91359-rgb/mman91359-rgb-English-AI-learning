@@ -36,6 +36,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.Clock;
@@ -65,6 +67,7 @@ public class ExerciseServiceImpl implements ExerciseService {
     private final QuestionGenerateService questionGenerateService;
     private final StudySessionService studySessionService;
     private final Clock clock;
+    private final PlatformTransactionManager transactionManager;
 
     /** 每组单词数量的短缓存，避免每次词汇答题都跨服务查询偏好 */
     private final Map<Long, CachedGroupSize> groupSizeCache = new ConcurrentHashMap<>();
@@ -83,6 +86,9 @@ public class ExerciseServiceImpl implements ExerciseService {
 
     @Value("${service.ai.url}")
     private String aiServiceUrl;
+
+    @Value("${app.internal.token:}")
+    private String internalToken;
 
     // ============= 智能选题 =============
 
@@ -361,7 +367,7 @@ public class ExerciseServiceImpl implements ExerciseService {
         CoinAwardResult coinAward = null;
 
         if (!practiceOnly) {
-            // 写入答题记录
+            // 本地写操作放在同一事务：日志 + 错题本要么都成功，要么都回滚
             UserExerciseLog logEntry = new UserExerciseLog();
             logEntry.setUserId(request.getUserId());
             logEntry.setQuestionId(request.getQuestionId());
@@ -372,18 +378,22 @@ public class ExerciseServiceImpl implements ExerciseService {
             logEntry.setTraceId(traceId);
             // 统一使用 Asia/Shanghai，保证按日统计与词汇组判定一致
             logEntry.setCreatedAt(LocalDateTime.now(clock));
-            exerciseLogMapper.insert(logEntry);
 
+            Long userId = request.getUserId();
+            Long questionId = request.getQuestionId();
+            new TransactionTemplate(transactionManager).executeWithoutResult(status -> {
+                exerciseLogMapper.insert(logEntry);
+                if (!isCorrect) {
+                    upsertErrorBook(userId, questionId);
+                } else {
+                    resolveErrorBook(userId, questionId);
+                }
+            });
+
+            // 事务提交后再执行跨服务/消息副作用，避免长事务与本地回滚不一致
             // 词汇答题刚好完成一组时发放金币，失败不影响答题主流程
             if (Integer.valueOf(1).equals(request.getModuleType())) {
                 coinAward = maybeAwardVocabGroup(request.getUserId());
-            }
-
-            // 错题本
-            if (!isCorrect) {
-                upsertErrorBook(request.getUserId(), request.getQuestionId());
-            } else {
-                resolveErrorBook(request.getUserId(), request.getQuestionId());
             }
 
             // 调用 learning-engine 更新遗忘曲线
@@ -1580,8 +1590,12 @@ public class ExerciseServiceImpl implements ExerciseService {
         int size = 10;
         try {
             String url = userServiceUrl + "/internal/user/preference/" + userId;
+            HttpHeaders headers = new HttpHeaders();
+            if (internalToken != null && !internalToken.isBlank()) {
+                headers.set("X-Internal-Token", internalToken);
+            }
             ResponseEntity<Result<PreferenceResult>> response = restTemplate.exchange(
-                    url, HttpMethod.GET, null,
+                    url, HttpMethod.GET, new HttpEntity<>(headers),
                     new ParameterizedTypeReference<Result<PreferenceResult>>() {
                     });
             if (response.getBody() != null && response.getBody().getCode() == 200
@@ -1611,6 +1625,9 @@ public class ExerciseServiceImpl implements ExerciseService {
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
+            if (internalToken != null && !internalToken.isBlank()) {
+                headers.set("X-Internal-Token", internalToken);
+            }
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
             ResponseEntity<Result<CoinAwardResult>> response = restTemplate.exchange(
                     url, HttpMethod.POST, entity,

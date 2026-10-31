@@ -18,21 +18,28 @@
       </div>
     </div>
 
-    <div v-if="loading" class="flex justify-center py-20">
-      <span class="material-symbols-outlined text-4xl text-primary animate-spin">progress_activity</span>
-    </div>
+    <LoadingState v-if="loading" />
 
-    <div v-else-if="favorites.length === 0" class="text-center py-20">
-      <span class="material-symbols-outlined text-6xl text-outline">favorite_border</span>
-      <p class="mt-4 text-on-surface-variant font-body-lg text-body-lg">{{ $t('learning.noFavorites') }}</p>
-      <p class="mt-2 text-on-surface-variant/60 font-body-md text-body-md">{{ $t('learning.noFavoritesHint') }}</p>
-    </div>
+    <ErrorState
+      v-else-if="loadError"
+      :message="loadError"
+      :action-label="$t('common.retry')"
+      @retry="load"
+    />
 
-    <div v-else-if="filteredFavorites.length === 0" class="text-center py-20">
-      <span class="material-symbols-outlined text-6xl text-outline">search_off</span>
-      <p class="mt-4 text-on-surface-variant font-body-lg text-body-lg">{{ $t('learning.noMatchingFavorites') }}</p>
-      <p class="mt-2 text-on-surface-variant/60 font-body-md text-body-md">{{ $t('learning.tryOtherKeywords') }}</p>
-    </div>
+    <EmptyState
+      v-else-if="favorites.length === 0"
+      icon="favorite_border"
+      :title="$t('learning.noFavorites')"
+      :description="$t('learning.noFavoritesHint')"
+    />
+
+    <EmptyState
+      v-else-if="filteredFavorites.length === 0"
+      icon="search_off"
+      :title="$t('learning.noMatchingFavorites')"
+      :description="$t('learning.tryOtherKeywords')"
+    />
 
     <div v-else class="space-y-4">
       <div
@@ -56,7 +63,7 @@
             </p>
             <div class="flex items-center gap-2 mt-1 flex-wrap">
               <span class="font-label-sm text-label-sm text-on-surface-variant">
-                {{ formatDate(fav.createdAt) }}
+                {{ formatDate(fav.createdAt, locale) }}
               </span>
               <span
                 v-if="fav.questionId && getModuleInfo(fav.sourceType)"
@@ -93,7 +100,12 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import AppLayout from '../components/AppLayout.vue'
+import LoadingState from '@/components/ui/LoadingState.vue'
+import EmptyState from '@/components/ui/EmptyState.vue'
+import ErrorState from '@/components/ui/ErrorState.vue'
 import { useUserStore } from '@/stores/user'
+import { moduleName, moduleTypeFromSource } from '@/config/modules'
+import { formatDate } from '@/utils/format'
 import { getFavorites, removeFavorite, type FavoriteVO } from '@/api/exercise'
 
 const { t, locale } = useI18n()
@@ -101,30 +113,13 @@ const router = useRouter()
 const userStore = useUserStore()
 const favorites = ref<FavoriteVO[]>([])
 const loading = ref(true)
+const loadError = ref('')
 const searchKeyword = ref('')
 
-const moduleTypeMap: Record<string, number> = {
-  'vocab': 1,
-  'grammar': 2,
-  'translation': 3,
-  'listening': 4,
-}
-
-const moduleNames = computed(() => {
-  const map: Record<number, string> = {
-    1: t('dashboard.moduleVocabulary'),
-    2: t('dashboard.moduleGrammar'),
-    3: t('dashboard.moduleTranslation'),
-    4: t('dashboard.moduleListening'),
-  }
-  return map
-})
-
 const getModuleInfo = (sourceType: string): { type: number; name: string } | null => {
-  if (!sourceType) return null
-  const type = moduleTypeMap[sourceType.toLowerCase()]
+  const type = moduleTypeFromSource(sourceType)
   if (!type) return null
-  return { type, name: moduleNames.value[type] }
+  return { type, name: moduleName(type, t) }
 }
 
 const filteredFavorites = computed(() => {
@@ -139,10 +134,12 @@ const load = async () => {
   const uid = userStore.userId
   if (!uid) return
   loading.value = true
+  loadError.value = ''
   try {
     favorites.value = await getFavorites(uid)
   } catch (e) {
     console.warn('加载收藏列表失败', e)
+    loadError.value = e instanceof Error ? e.message : '加载收藏列表失败'
   } finally {
     loading.value = false
   }
@@ -167,11 +164,6 @@ const handleRemove = async (fav: FavoriteVO) => {
   } catch (e) {
     console.warn('删除收藏失败', e)
   }
-}
-
-const formatDate = (d: string) => {
-  if (!d) return ''
-  return new Date(d).toLocaleDateString(locale.value, { year: 'numeric', month: 'long', day: 'numeric' })
 }
 
 onMounted(load)

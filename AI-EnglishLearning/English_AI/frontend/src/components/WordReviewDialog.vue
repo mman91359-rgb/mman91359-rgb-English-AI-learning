@@ -1,13 +1,5 @@
 <template>
-  <Teleport to="body">
-    <Transition name="modal-fade">
-      <div
-        v-if="visible"
-        class="fixed inset-0 z-[120] flex items-center justify-center bg-black/45 px-4 backdrop-blur-[2px]"
-        role="dialog"
-        aria-modal="true"
-      >
-        <div class="modal-card w-full max-w-2xl rounded-[28px] bg-surface p-6 sm:p-8 soft-shadow" @click.stop>
+  <BaseDialog :visible="visible" max-width="max-w-2xl" @close="skip">
           <!-- 顶部 -->
           <div class="flex items-start justify-between gap-4">
             <div>
@@ -152,7 +144,7 @@
                 {{ $t('wordReview.correctAnswer') }}：<span class="font-bold">{{ current.word }}</span>
               </p>
               <p v-if="feedback.nextReviewAt" class="mt-1 font-body-sm text-body-sm text-on-surface-variant">
-                {{ $t('wordReview.nextReview') }}：{{ formatNextReview(feedback.nextReviewAt) }}
+                {{ $t('wordReview.nextReview') }}：{{ formatShortDate(feedback.nextReviewAt) }}
               </p>
               <button
                 type="button"
@@ -170,18 +162,18 @@
               @click="skip"
             >{{ $t('wordReview.skip') }}</button>
           </div>
-        </div>
-      </div>
-    </Transition>
-  </Teleport>
+  </BaseDialog>
 </template>
 
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import BaseDialog from './ui/BaseDialog.vue'
 import { useUserStore } from '@/stores/user'
 import { reviewWord, type VocabularyVO } from '@/api/exercise'
 import { useToast } from '@/composables/useToast'
+import { shuffle } from '@/utils/array'
+import { formatShortDate } from '@/utils/format'
 
 interface Props {
   visible: boolean
@@ -216,15 +208,6 @@ const progressPercent = computed(() => {
   if (total.value === 0) return 100
   return Math.min(100, (reviewedCount.value / total.value) * 100)
 })
-
-const shuffle = <T,>(items: T[]): T[] => {
-  const result = [...items]
-  for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[result[i], result[j]] = [result[j], result[i]]
-  }
-  return result
-}
 
 const canFill = (word: VocabularyVO): boolean => {
   if (!word.example || !word.word) return false
@@ -329,9 +312,4 @@ const skip = () => {
   emit('update:visible', false)
 }
 
-const formatNextReview = (value: string): string => {
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return value
-  return date.toLocaleDateString('zh-CN')
-}
 </script>

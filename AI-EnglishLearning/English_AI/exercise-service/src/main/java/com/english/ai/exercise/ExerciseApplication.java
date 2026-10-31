@@ -1,5 +1,6 @@
 package com.english.ai.exercise;
 
+import com.english.ai.common.EnvGuard;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -11,6 +12,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class ExerciseApplication {
 
     public static void main(String[] args) {
+        EnvGuard.requireInProd("MYSQL_PASSWORD", "INTERNAL_TOKEN");
         SpringApplication.run(ExerciseApplication.class, args);
         System.out.println("========================================");
         System.out.println("  Exercise Service 启动成功!");

@@ -109,14 +109,14 @@
           <div>
             <p class="font-label-md text-label-md text-on-surface-variant">{{ $t('coin.balance') }}</p>
             <p class="font-headline-lg text-headline-lg text-on-surface tabular-nums">
-              {{ userStore.coinBalance.toLocaleString('zh-CN') }}
+              {{ formatNumber(userStore.coinBalance, 'zh-CN') }}
             </p>
           </div>
         </div>
         <div class="flex items-center justify-between p-4 rounded-xl bg-surface-container-low">
           <span class="font-body-md text-body-md text-on-surface-variant">{{ $t('coin.totalEarned') }}</span>
           <span class="font-label-lg text-label-lg text-on-surface tabular-nums">
-            {{ userStore.totalEarned.toLocaleString('zh-CN') }}
+            {{ formatNumber(userStore.totalEarned, 'zh-CN') }}
           </span>
         </div>
       </div>
@@ -256,10 +256,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, nextTick } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppLayout from '../components/AppLayout.vue'
 import { useUserStore } from '@/stores/user'
+import { formatNumber } from '@/utils/format'
 import { getRadarData } from '@/api/stats'
 import { getExerciseStats } from '@/api/exercise'
 import { uploadAvatar, updateNickname } from '@/api/user'
@@ -460,10 +461,4 @@ const loadProfileData = async () => {
 watch(() => userStore.userId, (newId) => {
   if (newId) loadProfileData()
 }, { immediate: true })
-
-onMounted(() => {
-  if (userStore.userId) {
-    loadProfileData()
-  }
-})
 </script>

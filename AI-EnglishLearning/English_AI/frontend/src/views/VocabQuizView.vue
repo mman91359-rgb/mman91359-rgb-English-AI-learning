@@ -456,6 +456,7 @@ import {
 } from '@/api/exercise'
 import { useSpeechRecognition } from '@/composables/useSpeechRecognition'
 import { useAiStore } from '@/stores/ai'
+import { shuffle } from '@/utils/array'
 import type { QuestionVO, SubmitResponse, VocabularyVO } from '@/api/exercise'
 
 const router = useRouter()
@@ -666,15 +667,6 @@ interface SavedSession {
   attempts: number
   correctAttempts: number
   resultsItems: ResultItem[]
-}
-
-const shuffle = <T,>(items: T[]): T[] => {
-  const result = [...items]
-  for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[result[i], result[j]] = [result[j], result[i]]
-  }
-  return result
 }
 
 const saveSession = () => {

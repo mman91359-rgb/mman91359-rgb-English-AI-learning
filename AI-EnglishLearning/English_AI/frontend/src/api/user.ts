@@ -57,16 +57,8 @@ export const register = (data: RegisterRequest): Promise<number> => {
   return post('/user/register', data)
 }
 
-export const getUserInfo = (userId: number): Promise<any> => {
-  return get(`/user/info/${userId}`)
-}
-
 export const getUserByUsername = (username: string): Promise<any> => {
   return get(`/user/by-username/${username}`)
-}
-
-export const getRadarData = (userId: number): Promise<any> => {
-  return get(`/user/radar/${userId}`)
 }
 
 /** 查询每组单词数量 */

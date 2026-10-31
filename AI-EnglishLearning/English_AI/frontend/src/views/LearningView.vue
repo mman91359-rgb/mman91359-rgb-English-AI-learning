@@ -235,7 +235,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import AppLayout from '../components/AppLayout.vue'
@@ -485,12 +485,5 @@ watch(() => userStore.userId, (newId) => {
 // 导航回学习中心时自动刷新数据
 watch(() => route.path, (newPath) => {
   if (newPath === '/learning') loadLearningData()
-})
-
-onMounted(() => {
-  if (userStore.userId) {
-    void userStore.loadPreference()
-    loadLearningData()
-  }
 })
 </script>

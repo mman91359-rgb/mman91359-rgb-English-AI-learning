@@ -133,7 +133,7 @@
               <p class="text-label-md font-label-md text-on-surface-variant mb-1">{{ $t('stats.masteredWords') }}</p>
               <div class="text-headline-lg font-headline-lg text-primary flex items-center justify-center">
                 <span class="material-symbols-outlined mr-2 text-primary text-[20px]">auto_stories</span>
-                {{ masteredWords.toLocaleString() }}
+                {{ formatNumber(masteredWords) }}
               </div>
             </div>
             <div class="bg-surface-container-lowest/60 backdrop-blur-sm rounded-xl p-4 text-center border border-surface-container-lowest">
@@ -164,6 +164,7 @@ import * as echarts from 'echarts'
 import AppLayout from '../components/AppLayout.vue'
 import { useUserStore } from '@/stores/user'
 import { useAppStore } from '@/stores/app'
+import { formatNumber } from '@/utils/format'
 import { getExerciseStats } from '@/api/exercise'
 
 const { tm } = useI18n()
@@ -450,9 +451,6 @@ watch(() => userStore.userId, (newId) => {
 }, { immediate: true })
 
 onMounted(() => {
-  if (userStore.userId) {
-    loadStatsData()
-  }
   window.addEventListener('resize', handleResize)
 })
 

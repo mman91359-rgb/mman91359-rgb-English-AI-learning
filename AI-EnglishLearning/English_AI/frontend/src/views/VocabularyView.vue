@@ -69,15 +69,21 @@
       </button>
     </div>
 
-    <div v-if="loading" class="flex justify-center py-20">
-      <span class="material-symbols-outlined text-4xl text-primary animate-spin">progress_activity</span>
-    </div>
+    <LoadingState v-if="loading" />
 
-    <div v-else-if="filteredWords.length === 0" class="text-center py-20">
-      <span class="material-symbols-outlined text-6xl text-outline">bookmark_border</span>
-      <p class="mt-4 text-on-surface-variant font-body-lg text-body-lg">{{ emptyHint }}</p>
-      <p class="mt-2 text-on-surface-variant/60 font-body-md text-body-md">在上方输入单词开始积累</p>
-    </div>
+    <ErrorState
+      v-else-if="loadError"
+      :message="loadError"
+      :action-label="$t('common.retry')"
+      @retry="load"
+    />
+
+    <EmptyState
+      v-else-if="filteredWords.length === 0"
+      icon="bookmark_border"
+      :title="emptyHint"
+      description="在上方输入单词开始积累"
+    />
 
     <div v-else class="space-y-3">
       <div
@@ -259,6 +265,9 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import AppLayout from '../components/AppLayout.vue'
+import LoadingState from '@/components/ui/LoadingState.vue'
+import EmptyState from '@/components/ui/EmptyState.vue'
+import ErrorState from '@/components/ui/ErrorState.vue'
 import { useUserStore } from '@/stores/user'
 import {
   getVocabulary,
@@ -273,6 +282,7 @@ import {
 const userStore = useUserStore()
 const words = ref<VocabularyVO[]>([])
 const loading = ref(true)
+const loadError = ref('')
 const adding = ref(false)
 const newWord = ref('')
 const addHint = ref('')
@@ -313,10 +323,12 @@ const load = async () => {
   const uid = userStore.userId
   if (!uid) return
   loading.value = true
+  loadError.value = ''
   try {
     words.value = await getVocabulary(uid)
   } catch (e) {
     console.warn('加载单词本失败', e)
+    loadError.value = e instanceof Error ? e.message : '加载单词本失败'
   } finally {
     loading.value = false
   }

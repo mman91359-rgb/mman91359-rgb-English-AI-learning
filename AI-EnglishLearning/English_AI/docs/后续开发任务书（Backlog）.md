@@ -153,6 +153,55 @@
 
 ---
 
+## Sprint 4 —— 管理员端（2026-10-31 本轮）
+
+> 目标：统一 `/admin/**` API，支持查看用户数据、管理用户、发放通知/活动；管理员 UI 契约见 `docs/管理员端UI设计契约.md`，API 契约见 `docs/管理员端API契约.md`。
+
+### T-401　RBAC 与网关可信头　✅ 已完成
+- **做什么**：`common/Roles`；网关剥离客户端 `X-User-*` 后注入 `X-User-Id/X-Username/X-User-Role/X-Gateway-Token`；非管理员访问 `/admin/**` 直接 403；下游 `AdminAuthInterceptor` 校验网关令牌，user-service 再回查数据库角色/状态。
+- **验收**：无 token 401；普通用户 403；伪造角色直连 8081/8082 403；管理员 200。
+
+### T-402　用户管理接口　✅ 已完成
+- **做什么**：`GET /admin/users` 分页/筛选；`GET /admin/users/{id}`；`PUT /admin/users/{id}/status`；`PUT /admin/users/{id}/role`；`POST /admin/users/{id}/reset-password` 返回一次性临时密码。
+- **规则**：禁止禁用/降级自己；至少保留一个启用管理员；手机号脱敏、不返回密码。
+- **验收**：`AdminUserServiceImplTest` 覆盖自锁/最后管理员/临时密码。
+
+### T-403　通知管理　✅ 已完成
+- **做什么**：`/admin/notices` CRUD + publish/expire；用户端 `/user/notices`、未读数、已读；目标人群 `ALL/CET4/CET6`。
+- **规则**：仅草稿可编辑/删除；已发布不可改内容，只能下线；已读前再次校验可见性。
+- **验收**：`AdminNoticeServiceImplTest` 覆盖已发布不可编辑/删除、发布状态流转。
+
+### T-404　活动管理　✅ 已完成
+- **做什么**：`/admin/activities` CRUD + publish/end；用户端 `/user/activities`；目标人群与起止时间校验。
+- **规则**：仅草稿可编辑/删除；发布后只能结束；`startAt < endAt`。
+- **验收**：活动内容可见性按时间与人群过滤。
+
+### T-405　操作审计日志　✅ 已完成
+- **做什么**：`admin_operation_log` 表；用户/通知/活动写操作本地同事务记录；exercise-service 审核通过/驳回/生成通过 `AdminAuditClient` 上报；`GET /admin/operation-logs` 分页筛选。
+- **验收**：禁用/改角色/重置密码/发布通知/审核题目均有日志；detail 不记录密码。
+
+### T-406　题目审核迁移与状态机　✅ 已完成
+- **做什么**：旧 `/exercise/generate-questions`、`/exercise/pending-questions/**` 迁移到 `/admin/questions`；仅 `PENDING` 可通过/驳回；条件更新防并发重复审核；reviewerId 取 `X-User-Id`。
+- **验收**：`QuestionGenerateServiceTest` 覆盖重复审核 409、条件更新冲突、正式题目只插入一次。
+
+### T-407　管理看板聚合　✅ 已完成
+- **做什么**：`GET /admin/overview` 聚合 user_db 用户/金币/签到/通知/活动；调用 exercise-service `/internal/admin/overview` 获取学习统计；超时 1s/2s，失败 `exerciseDegraded=true`。
+- **验收**：停掉 exercise-service 时 HTTP 200 + 降级标记。
+
+### T-408　管理员引导　✅ 已完成
+- **做什么**：`AdminBootstrapRunner` 读取 `ADMIN_BOOTSTRAP_USERNAME/PASSWORD`，仅在无启用管理员时创建；不写死 SQL 账号。
+- **验收**：未配置密码跳过；已有管理员跳过；弱密码拒绝；不打印明文。
+
+### T-409　测试与文档　🟡 进行中
+- **状态**：新增 `RolesTest`、`AdminAuthInterceptorTest`、`AdminUserServiceImplTest`、`AdminNoticeServiceImplTest`、`QuestionGenerateServiceTest`；当前 user-service 51、exercise-service 40，共 91 个用例通过。文档已新增 UI/API 契约。
+- **待办**：活动状态机测试、看板降级测试、Controller MockMvc 测试、真实 MySQL/浏览器联调。
+
+### T-410　管理员 UI 实现　⬜ 未开始
+- **做什么**：按 `docs/管理员端UI设计契约.md` 实现 `AdminLayout`、六页、表格/分页/筛选/抽屉/确认框、角色守卫、通知铃铛改造。
+- **验收**：契约第 10 节清单全部通过。
+
+---
+
 ## 附：开发执行建议（喂 AI 时的措辞模板）
 
 把本任务书按 Sprint 逐条喂给 AI 编程工具时，**每条任务请附带以下 3 句话**（示例，以 T-102 为例）：

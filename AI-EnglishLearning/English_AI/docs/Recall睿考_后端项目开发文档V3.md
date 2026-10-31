@@ -259,6 +259,19 @@ LIMIT #{count};
 
 ---
 
+### 7.8 管理员端接口（2026-10-31 新增）
+
+- 统一基座 `/admin/**`，JWT 必须含 `ROLE_ADMIN`；网关注入 `X-Gateway-Token`，下游强校验。
+- `GET /admin/overview`（用户/金币/签到/通知/活动 + 学习统计聚合，exercise-service 不可用时降级）
+- 用户：`GET /admin/users`、`GET /admin/users/{id}`、`PUT /admin/users/{id}/status`、`PUT /admin/users/{id}/role`、`POST /admin/users/{id}/reset-password`
+- 通知：`/admin/notices` CRUD + `publish`/`expire`；用户端 `/user/notices`、未读数、已读
+- 活动：`/admin/activities` CRUD + `publish`/`end`；用户端 `/user/activities`
+- 日志：`GET /admin/operation-logs`
+- 题目审核：`GET /admin/questions`、`POST /admin/questions/{id}/approve|reject`、`POST /admin/questions/generate`
+- 内部统计：`GET /internal/admin/overview`、`GET /internal/admin/user-stats/{userId}`（`X-Internal-Token`）
+- 管理员账号由 `AdminBootstrapRunner` + `ADMIN_BOOTSTRAP_PASSWORD` 创建，不写死在 SQL。
+- 详细字段见 `docs/管理员端API契约.md`。
+
 ## 8. 安全设计
 
 ### 8.1 认证鉴权

@@ -3,6 +3,7 @@ package com.english.ai.user.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.english.ai.common.JwtUtil;
 import com.english.ai.common.PasswordUtil;
+import com.english.ai.common.Roles;
 import com.english.ai.user.dto.LoginRequest;
 import com.english.ai.user.dto.LoginResponse;
 import com.english.ai.user.dto.RegisterRequest;
@@ -13,6 +14,7 @@ import com.english.ai.user.service.UserAbilityRadarService;
 import com.english.ai.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -24,6 +26,10 @@ public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
     private final UserAbilityRadarService radarService;
+
+    /** 管理员 Token 有效期（默认 2 小时），降低降权/禁用后的残留窗口 */
+    @Value("${jwt.admin-expiration:7200000}")
+    private long adminExpiration;
 
     @Override
     public Long register(RegisterRequest request) {
@@ -65,7 +71,9 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("用户名或密码错误");
         }
 
-        String token = JwtUtil.generate(user.getId(), user.getUsername(), user.getRoles());
+        String token = Roles.isAdmin(user.getRoles())
+                ? JwtUtil.generate(user.getId(), user.getUsername(), user.getRoles(), adminExpiration)
+                : JwtUtil.generate(user.getId(), user.getUsername(), user.getRoles());
 
         user.setLastLoginAt(LocalDateTime.now());
         userMapper.updateById(user);

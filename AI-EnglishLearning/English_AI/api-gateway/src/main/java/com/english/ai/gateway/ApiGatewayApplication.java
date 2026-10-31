@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class ApiGatewayApplication {
 
     public static void main(String[] args) {
-        EnvGuard.requireInProd("JWT_SECRET");
+        EnvGuard.requireInProd("JWT_SECRET", "INTERNAL_TOKEN");
         SpringApplication.run(ApiGatewayApplication.class, args);
     }
 }

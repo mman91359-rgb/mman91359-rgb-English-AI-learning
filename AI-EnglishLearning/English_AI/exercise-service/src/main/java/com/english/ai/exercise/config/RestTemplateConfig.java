@@ -21,4 +21,15 @@ public class RestTemplateConfig {
                 .setReadTimeout(Duration.ofSeconds(10))
                 .build();
     }
+
+    /**
+     * 审计上报专用：短超时，失败不阻塞审核主流程。
+     */
+    @Bean("auditRestTemplate")
+    public RestTemplate auditRestTemplate(RestTemplateBuilder builder) {
+        return builder
+                .setConnectTimeout(Duration.ofSeconds(1))
+                .setReadTimeout(Duration.ofSeconds(2))
+                .build();
+    }
 }

@@ -39,13 +39,21 @@ public class JwtUtil {
      * @param roles    角色（ROLE_USER / ROLE_ADMIN）
      */
     public static String generate(Long userId, String username, String roles) {
+        return generate(userId, username, roles, EXPIRATION_MILLIS);
+    }
+
+    /**
+     * 生成指定有效期的 JWT。管理员使用更短 TTL，降低降权后的残留窗口。
+     */
+    public static String generate(Long userId, String username, String roles, long ttlMillis) {
         Date now = new Date();
+        long ttl = ttlMillis > 0 ? ttlMillis : EXPIRATION_MILLIS;
         return Jwts.builder()
                 .subject(String.valueOf(userId))
                 .claim("username", username)
                 .claim("roles", roles)
                 .issuedAt(now)
-                .expiration(new Date(now.getTime() + EXPIRATION_MILLIS))
+                .expiration(new Date(now.getTime() + ttl))
                 .signWith(KEY)
                 .compact();
     }

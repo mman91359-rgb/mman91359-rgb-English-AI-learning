@@ -55,6 +55,9 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       INTERNAL_TOKEN: ${INTERNAL_TOKEN}
+      EXERCISE_SERVICE_URL: http://exercise-service:8082
+      ADMIN_BOOTSTRAP_USERNAME: ${ADMIN_BOOTSTRAP_USERNAME:-admin}
+      ADMIN_BOOTSTRAP_PASSWORD: ${ADMIN_BOOTSTRAP_PASSWORD}
       AVATAR_UPLOAD_DIR: /app/uploads/avatars
     volumes:
       # 头像持久化：宿主机 ./uploads/avatars <-> 容器内
@@ -135,6 +138,7 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: prod
       JWT_SECRET: ${JWT_SECRET}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN}
       APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS}
       USER_SERVICE_URL: http://user-service:8081
       EXERCISE_SERVICE_URL: http://exercise-service:8082

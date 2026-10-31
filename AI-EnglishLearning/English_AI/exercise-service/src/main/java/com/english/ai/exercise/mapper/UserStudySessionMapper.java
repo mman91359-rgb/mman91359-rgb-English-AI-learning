@@ -3,8 +3,10 @@ package com.english.ai.exercise.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.english.ai.exercise.entity.UserStudySession;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -21,4 +23,10 @@ public interface UserStudySessionMapper extends BaseMapper<UserStudySession> {
                             @Param("sessionKey") String sessionKey,
                             @Param("seconds") int seconds,
                             @Param("now") LocalDateTime now);
+
+    @Select("SELECT COALESCE(SUM(active_seconds), 0) FROM user_study_session")
+    Long sumActiveSeconds();
+
+    @Select("SELECT COUNT(DISTINCT user_id) FROM user_study_session WHERE stat_date >= #{start}")
+    Long countActiveUsersSince(@Param("start") LocalDate start);
 }

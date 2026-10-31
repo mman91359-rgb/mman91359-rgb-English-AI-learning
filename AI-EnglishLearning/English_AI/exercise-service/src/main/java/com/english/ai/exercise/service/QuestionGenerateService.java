@@ -1,7 +1,12 @@
 package com.english.ai.exercise.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.english.ai.common.BusinessException;
+import com.english.ai.common.ErrorCode;
+import com.english.ai.common.PageResult;
 import com.english.ai.common.Result;
+import com.english.ai.exercise.dto.AdminQuestionQuery;
 import com.english.ai.exercise.entity.KnowledgeMapping;
 import com.english.ai.exercise.entity.QuestionContent;
 import com.english.ai.exercise.entity.QuestionInfo;
@@ -168,18 +173,25 @@ public class QuestionGenerateService {
      * @return 是否成功
      */
     @Transactional(rollbackFor = Exception.class)
-    public boolean approveQuestion(Long pendingId, Long reviewerId) {
+    public Long approveQuestion(Long pendingId, Long reviewerId) {
         // 1. 查询待审核题目
         QuestionPending pending = pendingMapper.selectById(pendingId);
         if (pending == null) {
-            log.warn("待审核题目不存在: pendingId={}", pendingId);
-            return false;
+            throw new BusinessException(ErrorCode.NOT_FOUND, "待审核题目不存在");
+        }
+        if (!"PENDING".equals(pending.getStatus())) {
+            throw new BusinessException(ErrorCode.CONFLICT, "只有待审核题目可以通过");
         }
 
-        // 2. 更新待审核状态为已通过
-        pending.setStatus("APPROVED");
-        pending.setReviewerId(reviewerId);
-        pendingMapper.updateById(pending);
+        // 2. 条件更新，防止并发重复审核
+        int updated = pendingMapper.update(null, new UpdateWrapper<QuestionPending>()
+                .eq("id", pendingId)
+                .eq("status", "PENDING")
+                .set("status", "APPROVED")
+                .set("reviewer_id", reviewerId));
+        if (updated == 0) {
+            throw new BusinessException(ErrorCode.CONFLICT, "题目已被其他管理员审核");
+        }
 
         // 3. 根据知识点名称查找或创建知识点
         Long knowledgePointId = findOrCreateKnowledgePoint(pending.getKnowledgePointName(), pending.getTargetLevel());
@@ -213,7 +225,7 @@ public class QuestionGenerateService {
         knowledgeMappingMapper.insert(mapping);
 
         log.info("审核通过，题目已正式入库: pendingId={}, questionId={}", pendingId, questionId);
-        return true;
+        return questionId;
     }
 
     /**
@@ -254,20 +266,56 @@ public class QuestionGenerateService {
      * @param comment    审核意见（驳回原因）
      * @return 是否成功
      */
+    @Transactional
     public boolean rejectQuestion(Long pendingId, Long reviewerId, String comment) {
         QuestionPending pending = pendingMapper.selectById(pendingId);
         if (pending == null) {
-            log.warn("待审核题目不存在: pendingId={}", pendingId);
-            return false;
+            throw new BusinessException(ErrorCode.NOT_FOUND, "待审核题目不存在");
+        }
+        if (!"PENDING".equals(pending.getStatus())) {
+            throw new BusinessException(ErrorCode.CONFLICT, "只有待审核题目可以驳回");
         }
 
-        pending.setStatus("REJECTED");
-        pending.setReviewerId(reviewerId);
-        pending.setReviewComment(comment);
-        pendingMapper.updateById(pending);
+        int updated = pendingMapper.update(null, new UpdateWrapper<QuestionPending>()
+                .eq("id", pendingId)
+                .eq("status", "PENDING")
+                .set("status", "REJECTED")
+                .set("reviewer_id", reviewerId)
+                .set("review_comment", comment));
+        if (updated == 0) {
+            throw new BusinessException(ErrorCode.CONFLICT, "题目已被其他管理员审核");
+        }
 
         log.info("审核驳回: pendingId={}, reviewerId={}, comment={}", pendingId, reviewerId, comment);
         return true;
+    }
+
+    /**
+     * 管理端分页查询待审核题目。
+     */
+    public PageResult<QuestionPending> pagePending(AdminQuestionQuery query) {
+        int page = Math.max(1, query.getPage());
+        int size = Math.max(1, Math.min(100, query.getSize()));
+        String status = query.getStatus() == null || query.getStatus().isBlank()
+                ? "PENDING" : query.getStatus().trim();
+        if (!List.of("PENDING", "APPROVED", "REJECTED").contains(status)) {
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "审核状态不合法");
+        }
+        LambdaQueryWrapper<QuestionPending> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(QuestionPending::getStatus, status);
+        if (query.getModuleType() != null) {
+            wrapper.eq(QuestionPending::getModuleType, query.getModuleType());
+        }
+        if (query.getTargetLevel() != null && !query.getTargetLevel().isBlank()) {
+            wrapper.eq(QuestionPending::getTargetLevel, query.getTargetLevel().trim());
+        }
+        if (query.getKeyword() != null && !query.getKeyword().isBlank()) {
+            wrapper.like(QuestionPending::getStem, query.getKeyword().trim());
+        }
+        long total = pendingMapper.selectCount(wrapper);
+        wrapper.orderByDesc(QuestionPending::getCreatedAt)
+                .last("LIMIT " + ((page - 1) * size) + "," + size);
+        return PageResult.of(pendingMapper.selectList(wrapper), total, page, size);
     }
 
     /**

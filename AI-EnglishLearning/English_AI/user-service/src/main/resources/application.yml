@@ -52,12 +52,23 @@ mybatis-plus:
 jwt:
   secret: ${JWT_SECRET:EnglishAI-Local-Dev-JWT-Secret-Key-Change-Me-32-Bytes}
   expiration: ${JWT_EXPIRATION:604800000}  # 7天(毫秒)
+  admin-expiration: ${JWT_ADMIN_EXPIRATION:7200000}  # 管理员2小时(毫秒)
+
+# 服务间调用地址
+service:
+  exercise:
+    url: ${EXERCISE_SERVICE_URL:http://localhost:8082}
 
 # 金币奖励配置（修改数值后重启 user-service 生效）
 app:
   internal:
     # 服务间 /internal/** 调用令牌；生产通过 INTERNAL_TOKEN 注入
     token: ${INTERNAL_TOKEN:local-dev-internal-token}
+  admin:
+    bootstrap:
+      # 仅在系统没有启用管理员且显式配置密码时创建管理员
+      username: ${ADMIN_BOOTSTRAP_USERNAME:admin}
+      password: ${ADMIN_BOOTSTRAP_PASSWORD:}
   coin:
     check-in:
       base-reward: 10          # 每日签到基础金币

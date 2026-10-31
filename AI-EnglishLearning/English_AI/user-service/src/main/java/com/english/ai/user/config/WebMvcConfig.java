@@ -18,6 +18,7 @@ import java.nio.file.Paths;
 public class WebMvcConfig implements WebMvcConfigurer {
 
     private final InternalAuthInterceptor internalAuthInterceptor;
+    private final AdminAuthInterceptor adminAuthInterceptor;
 
     /** 头像文件存储目录，与 UserController 中一致 */
     @Value("${avatar.upload-dir:./uploads/avatars}")
@@ -36,5 +37,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(internalAuthInterceptor)
                 .addPathPatterns("/internal/**");
+        registry.addInterceptor(adminAuthInterceptor)
+                .addPathPatterns("/admin/**");
     }
 }

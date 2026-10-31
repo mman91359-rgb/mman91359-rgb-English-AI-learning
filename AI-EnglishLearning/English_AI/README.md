@@ -44,6 +44,7 @@ mysql -uroot -p < sql/07-user-coin-checkin-preference.sql
 mysql -uroot -p < sql/08-study-session.sql
 mysql -uroot -p < sql/09-user-preference-daily-goals.sql
 mysql -uroot -p < sql/10-listening-module.sql
+mysql -uroot -p < sql/11-admin-module.sql
 ```
 
 - `sql/init/00-init.sql` 是 Docker 首次启动的入口脚本，会建库并按序 `SOURCE` 上述文件。
@@ -65,9 +66,19 @@ docker compose --env-file .env up -d --build
 | `MYSQL_ROOT_PASSWORD` / `MYSQL_USERNAME` / `MYSQL_PASSWORD` | MySQL 连接 |
 | `JWT_SECRET` | JWT 签名密钥（生产要求 32 字节以上随机串） |
 | `DASHSCOPE_API_KEY` / `DASHSCOPE_BASE_URL` / `DASHSCOPE_MODEL` | AI 服务；无 Key 自动 Mock |
-| `INTERNAL_TOKEN` | 服务间 `/internal/**` 调用令牌 |
+| `INTERNAL_TOKEN` | 服务间 `/internal/**` 调用令牌；网关也用它注入 `X-Gateway-Token` |
+| `ADMIN_BOOTSTRAP_USERNAME` | 管理员引导用户名，默认 `admin` |
+| `ADMIN_BOOTSTRAP_PASSWORD` | 管理员引导密码；为空则跳过创建；至少 12 位且不能等于用户名 |
 
 生产必须设置 `SPRING_PROFILES_ACTIVE=prod`，否则启动校验不会触发。
+
+## 管理员端
+
+- API 基座：`/admin/**`；用户/通知/活动/看板/日志走 user-service，题目审核/学习统计走 exercise-service。
+- 鉴权：JWT 必须含 `ROLE_ADMIN`；网关注入 `X-Gateway-Token`，下游 `/admin/**` 强校验。管理员 Token 默认 2 小时。
+- 首次启用：设置 `ADMIN_BOOTSTRAP_PASSWORD`（≥12 位）后启动 user-service，`AdminBootstrapRunner` 在系统没有启用管理员时创建账号；不会重置已有管理员密码。
+- 设计契约：`docs/管理员端UI设计契约.md`；接口契约：`docs/管理员端API契约.md`。
+- 普通用户访问 `/admin/**` 会被网关直接拒绝；生产环境不要暴露 8081/8082 端口。
 
 ## 构建与运行
 

@@ -17,6 +17,15 @@ spring:
             allowCredentials: true
       # 路由规则（uri 通过环境变量覆盖，本地默认 localhost，生产用 docker 服务名）
       routes:
+        # 管理端：具体路径必须排在通用 /admin/** 之前
+        - id: admin-exercise-service
+          uri: ${EXERCISE_SERVICE_URL:http://localhost:8082}
+          predicates:
+            - Path=/admin/questions,/admin/questions/**,/admin/learning-stats/**
+        - id: admin-user-service
+          uri: ${USER_SERVICE_URL:http://localhost:8081}
+          predicates:
+            - Path=/admin/overview,/admin/users,/admin/users/**,/admin/notices,/admin/notices/**,/admin/activities,/admin/activities/**,/admin/operation-logs
         - id: user-service
           uri: ${USER_SERVICE_URL:http://localhost:8081}
           predicates:
@@ -37,3 +46,8 @@ spring:
 jwt:
   secret: ${JWT_SECRET:EnglishAI-Local-Dev-JWT-Secret-Key-Change-Me-32-Bytes}
   expiration: ${JWT_EXPIRATION:604800000}
+
+# 网关可信令牌：下游 /admin/** 校验该头，防止直连服务伪造 X-User-Role
+app:
+  internal:
+    token: ${INTERNAL_TOKEN:local-dev-internal-token}

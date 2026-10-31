@@ -44,3 +44,6 @@ SOURCE /sql/09-user-preference-daily-goals.sql;
 
 USE exercise_db;
 SOURCE /sql/10-listening-module.sql;
+
+USE user_db;
+SOURCE /sql/11-admin-module.sql;

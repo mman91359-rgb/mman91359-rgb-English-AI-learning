@@ -1,6 +1,7 @@
 package com.english.ai.gateway.filter;
 
 import com.english.ai.common.JwtUtil;
+import com.english.ai.common.Roles;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,6 +42,9 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
+    @Value("${app.internal.token:}")
+    private String gatewayToken;
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String path = exchange.getRequest().getURI().getPath();
@@ -62,11 +66,27 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
             Claims claims = JwtUtil.parse(token, jwtSecret);
             String userId = claims.getSubject();
             String username = claims.get("username", String.class);
+            String roles = claims.get("roles", String.class);
 
-            // 透传用户信息到下游
+            // 管理端路径必须有管理员角色；下游还会校验网关令牌
+            if (isAdminPath(path) && !Roles.isAdmin(roles)) {
+                return forbidden(exchange, "需要管理员权限");
+            }
+
+            // 先剥离客户端可能伪造的身份头，再写入网关可信值
             ServerHttpRequest modifiedRequest = exchange.getRequest().mutate()
-                    .header("X-User-Id", userId)
-                    .header("X-Username", username)
+                    .headers(headers -> {
+                        headers.remove("X-User-Id");
+                        headers.remove("X-Username");
+                        headers.remove("X-User-Role");
+                        headers.remove("X-Gateway-Token");
+                        headers.set("X-User-Id", userId);
+                        headers.set("X-Username", username == null ? "" : username);
+                        headers.set("X-User-Role", roles == null || roles.isBlank() ? Roles.USER : roles);
+                        if (gatewayToken != null && !gatewayToken.isBlank()) {
+                            headers.set("X-Gateway-Token", gatewayToken);
+                        }
+                    })
                     .build();
 
             log.debug("JWT校验通过: userId={}, path={}", userId, path);
@@ -85,6 +105,20 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
 
     private boolean isWhitelisted(String path) {
         return WHITELIST.stream().anyMatch(path::startsWith);
+    }
+
+    private boolean isAdminPath(String path) {
+        return path.equals("/admin") || path.startsWith("/admin/");
+    }
+
+    private Mono<Void> forbidden(ServerWebExchange exchange, String message) {
+        ServerHttpResponse response = exchange.getResponse();
+        response.setStatusCode(HttpStatus.FORBIDDEN);
+        response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+        String body = String.format("{\"code\":403,\"message\":\"%s\"}", message);
+        DataBuffer buffer = response.bufferFactory()
+                .wrap(body.getBytes(StandardCharsets.UTF_8));
+        return response.writeWith(Mono.just(buffer));
     }
 
     private Mono<Void> unauthorized(ServerWebExchange exchange, String message) {

@@ -189,14 +189,14 @@ CREATE TABLE `user_exercise_log` (
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `user_favorite` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `user_id` bigint NOT NULL COMMENT '??ID',
-  `sentence_text` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '?????/??',
-  `question_id` bigint DEFAULT NULL COMMENT '????ID????',
-  `source_type` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'SENTENCE' COMMENT '??: SENTENCE/EXERCISE',
+  `user_id` bigint NOT NULL COMMENT '用户ID',
+  `sentence_text` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '收藏的句子/题干',
+  `question_id` bigint DEFAULT NULL COMMENT '关联题目ID（可空）',
+  `source_type` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'SENTENCE' COMMENT '来源: SENTENCE/EXERCISE',
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`) USING BTREE,
   KEY `idx_user_favorite` (`user_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC COMMENT='?????';
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC COMMENT='收藏句';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -219,9 +219,9 @@ CREATE TABLE `user_study_session` (
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `user_vocabulary` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `user_id` bigint NOT NULL COMMENT '??ID',
-  `word` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '??',
-  `translation` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '??/??',
+  `user_id` bigint NOT NULL COMMENT '用户ID',
+  `word` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '单词',
+  `translation` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '释义',
   `phonetic` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '音标',
   `pos` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '词性',
   `example` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '英文例句',
@@ -232,13 +232,13 @@ CREATE TABLE `user_vocabulary` (
   `mastery_level` int DEFAULT '0' COMMENT '掌握度等级',
   `last_reviewed_at` datetime DEFAULT NULL COMMENT '上次复习时间',
   `next_review_at` datetime DEFAULT NULL COMMENT '下次复习时间',
-  `is_mastered` tinyint DEFAULT '0' COMMENT '?????: 0=???, 1=???',
+  `is_mastered` tinyint DEFAULT '0' COMMENT '是否掌握: 0=未掌握, 1=已掌握',
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `uk_user_word` (`user_id`,`word`) USING BTREE,
   KEY `idx_user_vocab` (`user_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC COMMENT='?????';
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC COMMENT='用户单词本';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -251,7 +251,7 @@ CREATE TABLE `word_dictionary` (
   `example` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '渚嬪彞(鑻辨枃)',
   `example_translation` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '渚嬪彞缈昏瘧',
   `level` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'CET4' COMMENT '绛夌骇: CET4/CET6',
-  `usage_count` int DEFAULT '0' COMMENT '琚??涓烘瘡鏃ュ崟璇嶇殑娆℃暟',
+  `usage_count` int DEFAULT '0' COMMENT '被用作每日单词的次数',
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`) USING BTREE,

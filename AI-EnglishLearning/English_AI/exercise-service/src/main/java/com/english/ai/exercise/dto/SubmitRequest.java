@@ -27,7 +27,7 @@ public class SubmitRequest {
     @Min(value = 0, message = "答题用时不能为负数")
     private Integer durationSeconds;
 
-    /** 模块类型 */
+    /** 模块类型: 1词汇 2语法 3翻译 4听力 5造句 6写作；以数据库题目为准，传错会被拒绝 */
     private Integer moduleType;
 
     /** 仅练习：只判题，不写答题记录、不更新 ELO/遗忘曲线/金币 */

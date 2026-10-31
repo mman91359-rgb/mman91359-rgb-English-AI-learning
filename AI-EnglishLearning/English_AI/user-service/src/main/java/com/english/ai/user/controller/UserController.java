@@ -304,10 +304,12 @@ public class UserController {
                 request.getDifficultyLevel(),
                 Boolean.TRUE.equals(request.getIsCorrect()),
                 false);
-        // 同步更新模块维度分
-        radarService.updateModuleScore(request.getUserId(),
-                request.getModuleType() != null ? request.getModuleType() : 1,
-                Boolean.TRUE.equals(request.getIsCorrect()));
+        // 同步更新模块维度分；未知模块不默认写词汇维度
+        if (request.getModuleType() != null) {
+            radarService.updateModuleScore(request.getUserId(),
+                    request.getModuleType(),
+                    Boolean.TRUE.equals(request.getIsCorrect()));
+        }
         Map<String, Object> data = radarService.getRadarData(request.getUserId());
         log.info("ELO更新: userId={}, newElo={}", request.getUserId(), newElo);
         return Result.success(data);
@@ -328,10 +330,12 @@ public class UserController {
                 request.getDifficultyLevel(),
                 Boolean.TRUE.equals(request.getIsCorrect()),
                 true);
-        // 同步更新模块维度分
-        radarService.updateModuleScore(request.getUserId(),
-                request.getModuleType() != null ? request.getModuleType() : 1,
-                Boolean.TRUE.equals(request.getIsCorrect()));
+        // 同步更新模块维度分；未知模块不默认写词汇维度
+        if (request.getModuleType() != null) {
+            radarService.updateModuleScore(request.getUserId(),
+                    request.getModuleType(),
+                    Boolean.TRUE.equals(request.getIsCorrect()));
+        }
         Map<String, Object> data = radarService.getRadarData(request.getUserId());
         log.info("定级评估: userId={}, difficulty={}, correct={}, newElo={}",
                 request.getUserId(), request.getDifficultyLevel(), request.getIsCorrect(), newElo);

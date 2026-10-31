@@ -1,6 +1,8 @@
 package com.english.ai.user.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.english.ai.common.ModuleType;
+import com.english.ai.common.RadarDimension;
 import com.english.ai.user.entity.UserAbilityRadar;
 import com.english.ai.user.mapper.UserAbilityRadarMapper;
 import com.english.ai.user.service.EloCalculator;
@@ -65,8 +67,14 @@ public class UserAbilityRadarServiceImpl implements UserAbilityRadarService {
 
     @Override
     public void updateModuleScore(Long userId, int moduleType, boolean isCorrect) {
+        RadarDimension dimension = ModuleType.radarDimensionOf(moduleType);
+        if (dimension == null) {
+            // 写作(6)等暂无雷达列的模块只更新 ELO/日志，不写模块分
+            log.warn("模块无对应雷达维度，跳过模块分更新: userId={}, moduleType={}", userId, moduleType);
+            return;
+        }
         UserAbilityRadar radar = getOrCreateRadar(userId);
-        BigDecimal current = getModuleScore(radar, moduleType);
+        BigDecimal current = getModuleScore(radar, dimension);
         // 移动加权平均: 正确+10%剩余距离, 错误-10%当前值
         double rate = 0.1;
         double newVal = isCorrect
@@ -74,10 +82,10 @@ public class UserAbilityRadarServiceImpl implements UserAbilityRadarService {
                 : current.doubleValue() * (1.0 - rate);
         newVal = Math.max(0, Math.min(100, newVal));
         BigDecimal newScore = BigDecimal.valueOf(Math.round(newVal * 10) / 10.0);
-        setModuleScore(radar, moduleType, newScore);
+        setModuleScore(radar, dimension, newScore);
         radarMapper.updateById(radar);
-        log.info("模块分更新: userId={}, moduleType={}, correct={}, {}→{}",
-                userId, moduleType, isCorrect, current, newScore);
+        log.info("模块分更新: userId={}, moduleType={}, dimension={}, correct={}, {}→{}",
+                userId, moduleType, dimension, isCorrect, current, newScore);
     }
 
     private UserAbilityRadar getOrCreateRadar(Long userId) {
@@ -90,22 +98,21 @@ public class UserAbilityRadarServiceImpl implements UserAbilityRadarService {
         return radar;
     }
 
-    private BigDecimal getModuleScore(UserAbilityRadar radar, int moduleType) {
-        return switch (moduleType) {
-            case 1 -> radar.getVocabularyScore();
-            case 2 -> radar.getGrammarScore();
-            case 3 -> radar.getListeningScore();
-            case 4 -> radar.getReadingScore();
-            default -> BigDecimal.ZERO;
+    private BigDecimal getModuleScore(UserAbilityRadar radar, RadarDimension dimension) {
+        return switch (dimension) {
+            case VOCABULARY -> radar.getVocabularyScore();
+            case GRAMMAR -> radar.getGrammarScore();
+            case LISTENING -> radar.getListeningScore();
+            case READING -> radar.getReadingScore();
         };
     }
 
-    private void setModuleScore(UserAbilityRadar radar, int moduleType, BigDecimal score) {
-        switch (moduleType) {
-            case 1 -> radar.setVocabularyScore(score);
-            case 2 -> radar.setGrammarScore(score);
-            case 3 -> radar.setListeningScore(score);
-            case 4 -> radar.setReadingScore(score);
+    private void setModuleScore(UserAbilityRadar radar, RadarDimension dimension, BigDecimal score) {
+        switch (dimension) {
+            case VOCABULARY -> radar.setVocabularyScore(score);
+            case GRAMMAR -> radar.setGrammarScore(score);
+            case LISTENING -> radar.setListeningScore(score);
+            case READING -> radar.setReadingScore(score);
         }
     }
 

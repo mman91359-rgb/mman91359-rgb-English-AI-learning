@@ -1,6 +1,9 @@
 package com.english.ai.exercise.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.english.ai.common.BusinessException;
+import com.english.ai.common.ErrorCode;
+import com.english.ai.common.ModuleType;
 import com.english.ai.common.Result;
 import com.english.ai.exercise.config.RabbitMQConfig;
 import com.english.ai.exercise.dto.QuestionVO;
@@ -25,6 +28,7 @@ import com.english.ai.exercise.service.JudgmentEngine;
 import com.english.ai.exercise.service.QuestionGenerateService;
 import com.english.ai.exercise.service.StudySessionService;
 import com.english.ai.exercise.service.VocabGroupAwardPolicy;
+import com.english.ai.exercise.util.ChoiceAnswerUtil;
 import com.english.ai.exercise.util.EbbinghausUtil;
 import com.english.ai.exercise.util.StudyDurationAggregator;
 import com.english.ai.exercise.util.VocabularyLearningHelper;
@@ -149,8 +153,8 @@ public class ExerciseServiceImpl implements ExerciseService {
             levelCandidates = new String[]{cetLevel, "CET4", "CET6"};
         }
 
-        // moduleType=1(词汇)取FILL_BLANK, moduleType=2(语法)取SENTENCE_MAKING
-        String questionType = moduleType == 2 ? "SENTENCE_MAKING" : "FILL_BLANK";
+        // 题型由共享契约统一决定：1词汇→FILL_BLANK、2语法/5造句→SENTENCE_MAKING、3翻译→TRANSLATION、4听力→CHOICE、6写作→WRITING
+        String questionType = ModuleType.defaultQuestionType(moduleType);
 
         List<QuestionInfo> candidates = new ArrayList<>();
 
@@ -200,8 +204,12 @@ public class ExerciseServiceImpl implements ExerciseService {
             candidates.addAll(questionInfoMapper.selectList(wrapper));
         }
 
-        // 7. 取前count个，更新usage_count，填充题目内容
-        List<QuestionInfo> selected = candidates.stream().limit(count).collect(Collectors.toList());
+        // 7. 分级兜底可能把同一道题多次加入候选，先按 ID 去重再截取，避免听力等小题库重复出题
+        Map<Long, QuestionInfo> dedupedMap = new LinkedHashMap<>();
+        for (QuestionInfo candidate : candidates) {
+            dedupedMap.putIfAbsent(candidate.getId(), candidate);
+        }
+        List<QuestionInfo> selected = dedupedMap.values().stream().limit(count).collect(Collectors.toList());
         log.info("智能选题: userId={}, userLevel={}, 实际使用等级{}条, moduleType={}, 需求{}题, 返回{}题",
                 userId, cetLevel, selected.size() > 0 ? "混合" : "无", moduleType, count, selected.size());
 
@@ -312,6 +320,12 @@ public class ExerciseServiceImpl implements ExerciseService {
             throw new RuntimeException("题目不存在");
         }
 
+        // 以数据库题目为准，避免客户端伪造 moduleType 污染日志/ELO/雷达维度
+        int moduleType = info.getModuleType();
+        if (request.getModuleType() != null && !request.getModuleType().equals(moduleType)) {
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "模块类型与题目不一致");
+        }
+
         String traceId = UUID.randomUUID().toString().substring(0, 8);
 
         boolean isCorrect;
@@ -325,7 +339,7 @@ public class ExerciseServiceImpl implements ExerciseService {
         String judgeContext = content.getStem();
 
         JudgmentResult judgmentResult;
-        if (request.getModuleType() != null && request.getModuleType() == 2) {
+        if (moduleType == 2) {
             String[] display = buildGrammarDisplay(content, request.getUserAnswer());
             String fullSentence = display[0] != null ? display[0] : "";
             String correctText = display[1] != null ? display[1] : "";
@@ -347,6 +361,17 @@ public class ExerciseServiceImpl implements ExerciseService {
             } else {
                 judgmentResult = judgmentEngine.judge(request, judgeCorrectAnswer, judgeContext);
             }
+        } else if (moduleType == 4) {
+            // 听力选择题只做本地确定性比对，不走 AI 语义判对/兜底，避免无 Key 时误判或 AI 放水
+            boolean choiceCorrect = ChoiceAnswerUtil.isCorrect(
+                    request.getUserAnswer(), content.getCorrectAnswer(), content.getOptions());
+            judgmentResult = JudgmentResult.builder()
+                    .isCorrect(choiceCorrect)
+                    .heuristicHint(choiceCorrect ? "回答正确！" : "再听一遍录音，注意关键信息。")
+                    .matchedLevel(1)
+                    .suggestions(List.of())
+                    .isSemanticMatch(false)
+                    .build();
         } else {
             judgmentResult = judgmentEngine.judge(request, judgeCorrectAnswer, judgeContext);
         }
@@ -374,7 +399,7 @@ public class ExerciseServiceImpl implements ExerciseService {
             logEntry.setUserAnswer(request.getUserAnswer());
             logEntry.setIsCorrect(isCorrect ? 1 : 0);
             logEntry.setDurationSeconds(request.getDurationSeconds());
-            logEntry.setModuleType(request.getModuleType());
+            logEntry.setModuleType(moduleType);
             logEntry.setTraceId(traceId);
             // 统一使用 Asia/Shanghai，保证按日统计与词汇组判定一致
             logEntry.setCreatedAt(LocalDateTime.now(clock));
@@ -392,7 +417,7 @@ public class ExerciseServiceImpl implements ExerciseService {
 
             // 事务提交后再执行跨服务/消息副作用，避免长事务与本地回滚不一致
             // 词汇答题刚好完成一组时发放金币，失败不影响答题主流程
-            if (Integer.valueOf(1).equals(request.getModuleType())) {
+            if (moduleType == 1) {
                 coinAward = maybeAwardVocabGroup(request.getUserId());
             }
 
@@ -403,7 +428,7 @@ public class ExerciseServiceImpl implements ExerciseService {
                 body.put("userId", request.getUserId());
                 body.put("questionId", request.getQuestionId());
                 body.put("isCorrect", isCorrect);
-                body.put("moduleType", request.getModuleType());
+                body.put("moduleType", moduleType);
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);
@@ -419,7 +444,7 @@ public class ExerciseServiceImpl implements ExerciseService {
                 Map<String, Object> body = new HashMap<>();
                 body.put("userId", request.getUserId());
                 body.put("difficultyLevel", info.getDifficultyLevel());
-                body.put("moduleType", request.getModuleType());
+                body.put("moduleType", moduleType);
                 body.put("isCorrect", isCorrect);
 
                 HttpHeaders headers = new HttpHeaders();
@@ -436,7 +461,7 @@ public class ExerciseServiceImpl implements ExerciseService {
                     ExerciseCompletedEvent event = ExerciseCompletedEvent.builder()
                             .userId(request.getUserId())
                             .questionId(request.getQuestionId())
-                            .moduleType(request.getModuleType())
+                            .moduleType(moduleType)
                             .isCorrect(isCorrect)
                             .attemptCount(1)
                             .timestamp(System.currentTimeMillis())
@@ -898,10 +923,14 @@ public class ExerciseServiceImpl implements ExerciseService {
                         .eq(QuestionContent::getQuestionId, info.getId()));
 
         String correctAnswer = content != null ? content.getCorrectAnswer() : null;
-        // hint = 正确答案前2个字母（练习模式可用，答题前提示）
+        // hint = 正确答案前2个字母（词汇/语法练习可用）
         String hint = (correctAnswer != null && correctAnswer.length() >= 2)
                 ? correctAnswer.substring(0, 2)
                 : (correctAnswer != null ? correctAnswer : "");
+        // 选择题的 hint 等于泄露正确选项字母，听力题不下发
+        if (info.getModuleType() != null && info.getModuleType() == 4) {
+            hint = null;
+        }
 
         return QuestionVO.builder()
                 .id(info.getId())

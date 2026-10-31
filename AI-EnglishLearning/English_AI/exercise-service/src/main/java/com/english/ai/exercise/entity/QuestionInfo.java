@@ -15,7 +15,7 @@ public class QuestionInfo {
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    /** 模块类型: 1=词汇, 2=语法 */
+    /** 模块类型: 1词汇 2语法 3翻译 4听力 5造句 6写作 */
     private Integer moduleType;
 
     /** 目标等级: CET4/CET6 */

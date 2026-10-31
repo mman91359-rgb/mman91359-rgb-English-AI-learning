@@ -14,7 +14,7 @@ public class QuestionVO {
     /** 题目ID */
     private Long id;
 
-    /** 模块类型: 1=词汇, 2=语法 */
+    /** 模块类型: 1词汇 2语法 3翻译 4听力 5造句 6写作 */
     private Integer moduleType;
 
     /** 难度等级: 1~8 */
@@ -40,6 +40,15 @@ public class QuestionVO {
 
     /** 是否展示答案 */
     private Boolean showAnswer;
+
+    /** 听力音频地址（仅听力题有值） */
+    private String audioUrl;
+
+    /** 听力原文（仅 showAnswer=true 时下发，作答前不泄题） */
+    private String transcript;
+
+    /** 音频时长（秒），区别于 SubmitRequest 的答题用时 */
+    private Integer durationSeconds;
 
     /** 仅后端新词去重使用，不返回前端 */
     @JsonIgnore

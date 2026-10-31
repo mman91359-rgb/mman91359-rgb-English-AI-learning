@@ -48,4 +48,7 @@ public class SubmitResponse {
 
     /** 发放后的金币余额（未触发为 null） */
     private Integer coinBalance;
+
+    /** 听力原文（仅听力题提交后返回） */
+    private String transcript;
 }

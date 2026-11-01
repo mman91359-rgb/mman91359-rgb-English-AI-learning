@@ -35,3 +35,24 @@ frontend/public/audio/exams/*.lrc
 # OS
 .DS_Store
 Thumbs.db
+
+# ========== 新增：文档、表格、幻灯片（避免git刷屏） ==========
+*.docx
+*.doc
+*.pdf
+*.xls
+*.xlsx
+*.ppt
+*.pptx
+
+# 开发日志文件夹
+日志/
+
+# 临时文件
+*.tmp
+*.swp
+*.swo
+
+# 外部独立项目目录
+cet-word-keeper-main/
+wordhtml-main/

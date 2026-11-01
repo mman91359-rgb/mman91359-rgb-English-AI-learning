@@ -9,6 +9,6 @@ spring:
 dashscope:
   api-key: ${DASHSCOPE_API_KEY}
   base-url: ${DASHSCOPE_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode/v1}
-  model: ${DASHSCOPE_MODEL:qwen-plus}
+  model: ${DASHSCOPE_MODEL:qwen-plus}nt
   max-tokens: ${DASHSCOPE_MAX_TOKENS:1500}
   temperature: ${DASHSCOPE_TEMPERATURE:0.7}

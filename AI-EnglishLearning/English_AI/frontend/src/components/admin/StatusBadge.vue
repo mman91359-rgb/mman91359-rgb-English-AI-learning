@@ -1,29 +1,25 @@
 <template>
-  <span class="inline-flex items-center rounded-full px-2.5 py-1 font-label-md text-label-md" :class="badgeClass">
-    {{ text || status }}
+  <span class="inline-flex items-center rounded-full px-2.5 py-1 font-label-md text-label-md" :class="toneClass">
+    {{ label }}
   </span>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import type { BadgeTone } from './tableTypes'
 
-const props = defineProps<{
-  status: string | number
-  text?: string
-}>()
+const props = withDefaults(defineProps<{
+  tone?: BadgeTone
+  label: string
+}>(), {
+  tone: 'neutral',
+})
 
-const normalized = computed(() => String(props.status).toUpperCase())
-
-const badgeClass = computed(() => {
-  if (['1', 'APPROVED', 'PUBLISHED', 'ACTIVE'].includes(normalized.value)) {
-    return 'bg-tertiary-container/25 text-tertiary'
-  }
-  if (['0', 'REJECTED', 'FAILED'].includes(normalized.value)) {
-    return 'bg-error-container/40 text-error'
-  }
-  if (['PENDING', 'DRAFT', 'SCHEDULED'].includes(normalized.value)) {
-    return 'bg-secondary-container/30 text-secondary'
-  }
+const toneClass = computed(() => {
+  if (props.tone === 'success') return 'bg-tertiary-container/50 text-on-tertiary-container'
+  if (props.tone === 'danger') return 'bg-error-container text-on-error-container'
+  if (props.tone === 'warning') return 'bg-warning-container text-on-warning-container'
+  if (props.tone === 'info') return 'bg-secondary-container text-on-secondary-container'
   return 'bg-surface-container-high text-on-surface-variant'
 })
 </script>

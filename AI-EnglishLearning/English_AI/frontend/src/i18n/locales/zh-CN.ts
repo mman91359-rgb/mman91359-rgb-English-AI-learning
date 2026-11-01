@@ -1,3 +1,6 @@
+import adminConsole from './admin-console.zh-CN'
+import writing from './writing.zh-CN'
+
 export default {
   app: {
     title: 'Recall-睿考',
@@ -642,4 +645,6 @@ export default {
     comingSoon: '功能开发中，敬请期待',
     close: '关闭',
   },
+  adminConsole,
+  writing,
 }

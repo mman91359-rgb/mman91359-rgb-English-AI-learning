@@ -8,6 +8,19 @@ export interface ApiResponse<T = any> {
   traceId?: string
 }
 
+/** 带 HTTP 状态码与业务码的请求异常，便于页面区分 409/403 等场景 */
+export class ApiError extends Error {
+  readonly status: number
+  readonly code: number
+
+  constructor(message: string, status = 0, code = 0) {
+    super(message)
+    this.name = 'ApiError'
+    this.status = status
+    this.code = code
+  }
+}
+
 const instance: AxiosInstance = axios.create({
   baseURL: '/api',
   timeout: 10000,
@@ -50,10 +63,10 @@ instance.interceptors.response.use(
         const url = response.config.url || ''
         if (!isAuthRequest(url)) {
           clearAuthAndRedirect()
-          return Promise.reject(new Error(res.message || '请求失败'))
+          return Promise.reject(new ApiError(res.message || '请求失败', response.status, res.code))
         }
       }
-      return Promise.reject(new Error(res.message || '请求失败'))
+      return Promise.reject(new ApiError(res.message || '请求失败', response.status, res.code))
     }
     return res.data
   },
@@ -64,7 +77,8 @@ instance.interceptors.response.use(
       clearAuthAndRedirect()
     }
     const message = error.response?.data?.message || error.message || '网络异常'
-    return Promise.reject(new Error(message))
+    const code = error.response?.data?.code ?? status ?? 0
+    return Promise.reject(new ApiError(message, status ?? 0, code))
   }
 )
 

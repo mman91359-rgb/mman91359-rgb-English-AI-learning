@@ -3,6 +3,7 @@
     <span class="material-symbols-outlined text-6xl text-outline">{{ icon }}</span>
     <p class="mt-4 font-body-lg text-body-lg text-on-surface-variant">{{ title }}</p>
     <p v-if="description" class="mt-2 font-body-md text-body-md text-on-surface-variant/60">{{ description }}</p>
+    <slot name="action" />
     <button
       v-if="actionLabel"
       type="button"

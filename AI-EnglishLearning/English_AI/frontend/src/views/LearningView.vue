@@ -101,15 +101,9 @@
       <TranslationEntryPanel />
     </template>
 
-    <!-- ========== 写作 tab：设计稿待补 ========== -->
+    <!-- ========== 写作 tab：学习中心内的写作入口面板 ========== -->
     <template v-else-if="activeTab === 'writing'">
-      <div class="bg-surface-container-lowest rounded-[24px] p-8 shadow-soft-glow border border-outline-variant/20">
-        <div class="flex items-center gap-3 mb-3">
-          <span class="material-symbols-outlined text-primary text-3xl">edit_note</span>
-          <h3 class="font-headline-md text-headline-md text-on-surface">{{ $t('learning.writingTab') }}</h3>
-        </div>
-        <p class="font-body-md text-body-md text-on-surface-variant">{{ $t('learning.writingPlaceholder') }}</p>
-      </div>
+      <WritingEntryPanel />
     </template>
 
     <!-- ========== 其他 tab 原有布局 ========== -->
@@ -262,6 +256,7 @@ import { useI18n } from 'vue-i18n'
 import AppLayout from '../components/AppLayout.vue'
 import ListeningEntryPanel from '../components/listening/ListeningEntryPanel.vue'
 import TranslationEntryPanel from '../components/translation/TranslationEntryPanel.vue'
+import WritingEntryPanel from '../components/writing/WritingEntryPanel.vue'
 import VocabularyGoalDialog from '@/components/VocabularyGoalDialog.vue'
 import { useUserStore } from '@/stores/user'
 import { useAiStore } from '@/stores/ai'

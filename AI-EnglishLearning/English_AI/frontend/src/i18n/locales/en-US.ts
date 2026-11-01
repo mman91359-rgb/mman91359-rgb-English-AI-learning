@@ -1,3 +1,6 @@
+import adminConsole from './admin-console.en-US'
+import writing from './writing.en-US'
+
 export default {
   app: {
     title: 'Recall',
@@ -642,4 +645,6 @@ export default {
     comingSoon: 'Coming soon',
     close: 'Close',
   },
+  adminConsole,
+  writing,
 }

@@ -9,11 +9,35 @@
         @click.self="onBackdrop"
       >
         <div
-          class="modal-card w-full rounded-[28px] bg-surface p-6 sm:p-8 soft-shadow"
+          class="modal-card flex max-h-[90vh] w-full flex-col rounded-[28px] bg-surface soft-shadow"
           :class="maxWidth"
           @click.stop
         >
-          <slot />
+          <template v-if="title || $slots.header">
+            <header class="flex items-center justify-between gap-4 border-b border-outline-variant/40 px-6 py-4">
+              <slot name="header">
+                <h2 class="font-headline-sm text-headline-sm text-on-surface">{{ title }}</h2>
+              </slot>
+              <button
+                type="button"
+                class="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-surface-container-high disabled:opacity-50"
+                :disabled="closeDisabled"
+                :aria-label="$t('adminConsole.common.close')"
+                @click="close"
+              >
+                <span class="material-symbols-outlined text-icon-md">close</span>
+              </button>
+            </header>
+            <div class="overflow-y-auto px-6 py-6">
+              <slot />
+            </div>
+            <footer v-if="$slots.footer" class="flex items-center justify-end gap-3 border-t border-outline-variant/40 px-6 py-4">
+              <slot name="footer" />
+            </footer>
+          </template>
+          <div v-else class="overflow-y-auto p-6 sm:p-8">
+            <slot />
+          </div>
         </div>
       </div>
     </Transition>
@@ -25,15 +49,19 @@ import { onBeforeUnmount, watch } from 'vue'
 
 interface Props {
   visible: boolean
+  title?: string
   maxWidth?: string
   closeOnBackdrop?: boolean
   closeOnEsc?: boolean
+  closeDisabled?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  title: '',
   maxWidth: 'max-w-2xl',
   closeOnBackdrop: true,
   closeOnEsc: true,
+  closeDisabled: false,
 })
 
 const emit = defineEmits<{
@@ -45,7 +73,7 @@ let previousOverflow = ''
 let listening = false
 
 const close = () => {
-  if (!props.visible) return
+  if (!props.visible || props.closeDisabled) return
   emit('update:visible', false)
   emit('close')
 }

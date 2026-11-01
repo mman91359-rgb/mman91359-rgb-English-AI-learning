@@ -1,0 +1,125 @@
+import flat from './handoff.en-US'
+import { deepMerge, nestMessages } from '../nest'
+
+const writingFlat = Object.fromEntries(
+  Object.entries(flat)
+    .filter(([key]) => key.startsWith('writing.'))
+    .map(([key, value]) => [key.slice('writing.'.length), value]),
+)
+
+const base = nestMessages(writingFlat)
+
+const extra = {
+  preview: {
+    badge: 'Preview mode · Backend not connected',
+    banner: 'Style preview · Sample data only; submissions are not saved to the backend',
+  },
+  level: {
+    POOR: 'Poor',
+  },
+  correction: {
+    PUNCTUATION: 'Punctuation',
+  },
+  entry: {
+    title: 'Writing Practice',
+    description: 'Complete an essay to the prompt and receive AI dimension scores and sentence-level corrections',
+    typeLabel: 'Choose a type',
+    levelLabel: 'Choose a level',
+    startPractice: 'Start practice',
+    favorites: 'My favorites',
+    favoritesDesc: 'Practice the topics you saved',
+    errors: 'My mistakes',
+    errorsDesc: 'Review low-scoring essays and rewrite',
+    history: 'Writing history',
+    historyDesc: 'Review every submission and report',
+    report: 'Score report',
+    reportDesc: 'Open your latest five-dimension report',
+    ai: 'AI Q&A',
+    aiDesc: 'Ask AI for writing ideas',
+    aiComingSoon: 'AI writing Q&A is coming soon',
+  },
+  practice: {
+    backToLearning: 'Learning Center',
+    loading: 'Loading topic…',
+    timeUp: 'Time is up. Your current draft will be submitted automatically.',
+    autoSubmitted: 'Time is up; submitted automatically',
+    wordCountRange: '{count} words entered / suggested {min}-{max}',
+    tooShort: 'Too short. Aim for at least {min} words.',
+    tooLong: 'A bit long. Keep it under {max} words if possible.',
+    saveDraft: 'Save draft',
+    viewHints: 'View hints',
+    hideHints: 'Hide hints',
+    submitConfirmTitle: 'Submit this essay?',
+    submitConfirm: 'It will be scored immediately. Make sure your essay is complete.',
+    scoring: 'Scoring…',
+    scoringFailed: 'Scoring failed. Your essay is kept; please retry.',
+    retry: 'Retry',
+    draftRestoreTitle: 'Unsaved draft found',
+    draftRestoreDesc: 'Restore the content saved last time?',
+    restore: 'Restore draft',
+    discard: 'Discard draft',
+    questionIndex: 'Question {index}',
+    new: 'New',
+    source: 'Source',
+    outline: 'Outline / hints',
+    usefulExpressions: 'Useful expressions',
+    submittedProgress: '{done}/{total} submitted',
+    confirmSubmit: 'Submit',
+    continueWriting: 'Keep writing',
+    scoredToast: 'Scoring complete; opening your report',
+  },
+  score: {
+    raw: 'Raw score',
+    weighted: 'Weighted score',
+    weightedValue: '{score} / 106.5',
+    dimensionTitle: 'Five dimensions',
+    pendingTitle: 'Score generated after submission',
+    pendingDesc: 'Scoring covers content, structure, language, vocabulary and grammar, plus sentence-level corrections and a model essay.',
+  },
+  report: {
+    weighted: 'CET weighted score',
+    rewriteSuggestions: 'Rewrite suggestions',
+    backToLearning: 'Back to Learning Center',
+    favorite: 'Favorite topic',
+    unfavorite: 'Remove favorite',
+  },
+  history: {
+    type: 'Type',
+    level: 'Level',
+    dateFrom: 'From',
+    dateTo: 'To',
+    scoreMin: 'Min score',
+    scoreMax: 'Max score',
+    score: 'Score',
+    date: 'Date',
+    duration: 'Duration',
+    status: 'Status',
+    trend: 'Score trend',
+    trendEmpty: 'Not enough records for a trend yet',
+    lowScoresOnly: 'Mistakes only',
+    showAll: 'Show all',
+    draft: 'Draft',
+    openDraft: 'Continue',
+    scoreValue: '{score} / 15',
+    filterAll: 'All',
+    clearFilters: 'Clear filters',
+  },
+  status: {
+    SCORED: 'Scored',
+    DRAFT: 'Draft',
+    SCORING: 'Scoring',
+    FAILED: 'Failed',
+  },
+  common: {
+    back: 'Back',
+    cancel: 'Cancel',
+    confirm: 'Confirm',
+    loading: 'Loading…',
+    retry: 'Retry',
+    close: 'Close',
+    empty: 'No data',
+    error: 'Failed to load',
+  },
+}
+
+export default deepMerge(base, extra)

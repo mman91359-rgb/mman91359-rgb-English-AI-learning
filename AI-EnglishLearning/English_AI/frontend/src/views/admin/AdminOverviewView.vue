@@ -1,74 +1,142 @@
 <template>
-  <LoadingState v-if="loading" :message="$t('admin.loading')" />
-  <ErrorState v-else-if="error" :message="error" :action-label="$t('common.retry')" @retry="load" />
-  <template v-else-if="data">
-    <div v-if="data.exerciseDegraded" class="mb-4 rounded-xl border border-secondary/30 bg-secondary-container/20 px-4 py-3 font-body-md text-body-md text-secondary">
-      {{ $t('admin.degraded') }}
+  <LoadingState v-if="loading && !data" :message="$t('adminConsole.common.loading')" />
+  <ErrorState
+    v-else-if="error"
+    :message="errorMessage"
+    :action-label="$t('adminConsole.common.retry')"
+    @retry="reload"
+  />
+  <div v-else-if="data" class="flex flex-col gap-6">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <p class="font-body-sm text-body-sm text-on-surface-variant">
+        {{ $t('adminConsole.overview.generatedAt', { time: formatAdminDateTime(data.generatedAt) }) }}
+      </p>
+      <button
+        type="button"
+        class="flex items-center gap-2 rounded-full border border-outline-variant px-4 py-2 font-label-lg text-label-lg text-on-surface-variant transition-colors hover:bg-surface-container-low"
+        @click="reload"
+      >
+        <span class="material-symbols-outlined text-icon-md" :class="loading ? 'animate-spin' : ''">refresh</span>
+        {{ $t('adminConsole.common.refresh') }}
+      </button>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-      <AdminStatCard :label="$t('admin.totalUsers')" :value="data.totalUsers" icon="group" tone="primary" :hint="`${$t('admin.enabled')} ${data.enabledUsers} · ${$t('admin.disabled')} ${data.disabledUsers}`" />
-      <AdminStatCard :label="$t('admin.newUsersToday')" :value="data.newUsersToday" icon="person_add" tone="secondary" :hint="`7d ${data.newUsers7d} · ${$t('admin.roleAdmin')} ${data.adminUsers}`" />
-      <AdminStatCard :label="$t('admin.activeUsersToday')" :value="data.exercise.activeUsersToday" icon="bolt" tone="tertiary" :hint="`7d ${data.exercise.activeUsers7d}`" />
-      <AdminStatCard :label="$t('admin.answeredLast30d')" :value="data.exercise.answeredLast30d" icon="fact_check" tone="primary" :hint="`${data.exercise.dataWindowDays} days`" />
-      <AdminStatCard :label="$t('admin.todayAnswered')" :value="data.exercise.todayAnswered" icon="today" tone="secondary" :hint="`${$t('admin.total')}: ${data.exercise.questionTotal}`" />
-      <AdminStatCard :label="$t('admin.pendingReview')" :value="data.exercise.pendingReview" icon="pending_actions" tone="error" :hint="`${$t('admin.approved')} ${data.exercise.approvedTotal} · ${$t('admin.rejected')} ${data.exercise.rejectedTotal}`" />
+    <div
+      v-if="data.exerciseDegraded"
+      role="status"
+      class="flex items-center gap-3 rounded-xl border border-warning/30 bg-warning-container px-4 py-3 text-on-warning-container"
+    >
+      <span class="material-symbols-outlined text-icon-md">warning</span>
+      <span class="font-body-sm text-body-sm">{{ $t('adminConsole.overview.degradedBanner') }}</span>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-6">
-      <RouterLink to="/admin/users" class="bg-surface-container-lowest rounded-[20px] p-6 shadow-soft-glow border border-outline-variant/20 flex items-center justify-between hover:bg-surface-container transition-colors">
-        <div class="flex items-center gap-4">
-          <div class="w-11 h-11 rounded-full bg-primary-container/20 flex items-center justify-center">
-            <span class="material-symbols-outlined text-primary">group</span>
-          </div>
-          <div>
-            <p class="font-body-lg text-body-lg text-on-surface">{{ $t('admin.users') }}</p>
-            <p class="font-label-md text-label-md text-on-surface-variant">{{ $t('admin.usersSubtitle') }}</p>
-          </div>
-        </div>
-        <span class="material-symbols-outlined text-outline">chevron_right</span>
-      </RouterLink>
+    <section class="grid grid-cols-1 gap-gutter sm:grid-cols-2 xl:grid-cols-4">
+      <AdminStatCard
+        icon="group"
+        :label="$t('adminConsole.overview.totalUsers')"
+        :value="formatNumber(data.totalUsers, locale)"
+        :hint="$t('adminConsole.overview.todayNewUsers', { count: data.newUsersToday })"
+      />
+      <AdminStatCard
+        icon="person_add"
+        :label="$t('adminConsole.overview.newUsers7d')"
+        :value="formatNumber(data.newUsers7d, locale)"
+        :hint="$t('adminConsole.overview.adminUsers', { count: data.adminUsers })"
+        tone="secondary"
+      />
+      <AdminStatCard
+        icon="bolt"
+        :label="$t('adminConsole.overview.activeUsersToday')"
+        :value="data.exerciseDegraded ? $t('adminConsole.common.unavailable') : formatNumber(data.exercise.activeUsersToday, locale)"
+        :hint="data.exerciseDegraded ? undefined : $t('adminConsole.overview.activeUsers7d', { count: data.exercise.activeUsers7d })"
+        tone="tertiary"
+      />
+      <AdminStatCard
+        icon="edit_note"
+        :label="$t('adminConsole.overview.answeredLast30d')"
+        :value="data.exerciseDegraded ? $t('adminConsole.common.unavailable') : formatNumber(data.exercise.answeredLast30d, locale)"
+        :hint="data.exerciseDegraded ? undefined : $t('adminConsole.overview.todayAnswered', { count: data.exercise.todayAnswered })"
+      />
+      <AdminStatCard
+        icon="pending_actions"
+        :label="$t('adminConsole.overview.pendingReview')"
+        :value="formatNumber(data.exercise.pendingReview, locale)"
+        :hint="$t('adminConsole.overview.questionTotal', { count: data.exercise.questionTotal })"
+        tone="warning"
+      />
+      <AdminStatCard
+        icon="monetization_on"
+        :label="$t('adminConsole.overview.totalCoinBalance')"
+        :value="formatNumber(data.totalCoinBalance, locale)"
+        :hint="$t('adminConsole.overview.todayCheckIns', { count: data.todayCheckIns })"
+        tone="tertiary"
+      />
+      <AdminStatCard
+        icon="campaign"
+        :label="$t('adminConsole.overview.activeNotices')"
+        :value="formatNumber(data.activeNotices, locale)"
+        :hint="$t('adminConsole.overview.activeActivities', { count: data.activeActivities })"
+        tone="secondary"
+      />
+      <AdminStatCard
+        icon="schedule"
+        :label="$t('adminConsole.overview.totalStudyTime')"
+        :value="data.exerciseDegraded ? $t('adminConsole.common.unavailable') : formatStudyDuration(data.exercise.totalStudySeconds)"
+        :hint="data.exerciseDegraded ? undefined : $t('adminConsole.overview.dataWindow', { days: data.exercise.dataWindowDays })"
+      />
+    </section>
 
-      <RouterLink to="/admin/questions" class="bg-surface-container-lowest rounded-[20px] p-6 shadow-soft-glow border border-outline-variant/20 flex items-center justify-between hover:bg-surface-container transition-colors">
-        <div class="flex items-center gap-4">
-          <div class="w-11 h-11 rounded-full bg-secondary-container/30 flex items-center justify-center">
-            <span class="material-symbols-outlined text-secondary">fact_check</span>
-          </div>
-          <div>
-            <p class="font-body-lg text-body-lg text-on-surface">{{ $t('admin.questions') }}</p>
-            <p class="font-label-md text-label-md text-on-surface-variant">{{ $t('admin.questionsSubtitle') }}</p>
-          </div>
-        </div>
-        <span class="material-symbols-outlined text-outline">chevron_right</span>
-      </RouterLink>
-    </div>
-  </template>
+    <section class="grid grid-cols-1 gap-gutter lg:grid-cols-3">
+      <AdminChartCard
+        :title="$t('adminConsole.overview.userStatusTitle')"
+        :description="$t('adminConsole.overview.userStatusDesc')"
+        :data="[
+          { label: $t('adminConsole.enum.userActive'), value: data.enabledUsers },
+          { label: $t('adminConsole.enum.userDisabled'), value: data.disabledUsers },
+          { label: $t('adminConsole.enum.roleAdmin'), value: data.adminUsers },
+        ]"
+        bar-class-name="bg-tertiary"
+      />
+      <AdminChartCard
+        :title="$t('adminConsole.overview.questionStatusTitle')"
+        :description="$t('adminConsole.overview.questionStatusDesc')"
+        :data="[
+          { label: $t('adminConsole.enum.reviewPending'), value: data.exercise.pendingReview },
+          { label: $t('adminConsole.enum.reviewApproved'), value: data.exercise.approvedTotal },
+          { label: $t('adminConsole.enum.reviewRejected'), value: data.exercise.rejectedTotal },
+        ]"
+        bar-class-name="bg-primary"
+      />
+      <AdminChartCard
+        :title="$t('adminConsole.overview.practiceTitle')"
+        :description="$t('adminConsole.overview.practiceDesc')"
+        :data="data.exerciseDegraded ? [] : [
+          { label: $t('adminConsole.overview.todayAnsweredLabel'), value: data.exercise.todayAnswered },
+          { label: $t('adminConsole.overview.activeUsersTodayLabel'), value: data.exercise.activeUsersToday },
+          { label: $t('adminConsole.overview.activeUsers7dLabel'), value: data.exercise.activeUsers7d },
+        ]"
+        bar-class-name="bg-secondary"
+      />
+    </section>
+
+    <OverviewPanels />
+  </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import AdminChartCard from '../../components/admin/AdminChartCard.vue'
 import AdminStatCard from '../../components/admin/AdminStatCard.vue'
 import LoadingState from '../../components/ui/LoadingState.vue'
 import ErrorState from '../../components/ui/ErrorState.vue'
-import { getAdminOverview, type AdminOverview } from '../../api/admin'
+import OverviewPanels from './components/OverviewPanels.vue'
+import { useAsyncData } from '../../composables/useAsyncData'
+import { getAdminOverview } from '../../api/admin'
+import { formatAdminDateTime, formatNumber, formatStudyDuration } from '../../utils/format'
 
-const { t } = useI18n()
-const data = ref<AdminOverview | null>(null)
-const loading = ref(false)
-const error = ref('')
+const { t, locale } = useI18n()
+const { data, error, loading, reload } = useAsyncData(() => getAdminOverview())
 
-const load = async () => {
-  loading.value = true
-  error.value = ''
-  try {
-    data.value = await getAdminOverview()
-  } catch (e) {
-    error.value = e instanceof Error ? e.message : t('admin.error')
-  } finally {
-    loading.value = false
-  }
-}
-
-onMounted(load)
+const errorMessage = computed(() => (error.value instanceof Error ? error.value.message : t('adminConsole.error.generic')))
 </script>

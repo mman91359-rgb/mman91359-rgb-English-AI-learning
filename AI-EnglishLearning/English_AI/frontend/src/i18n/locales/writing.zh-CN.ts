@@ -1,0 +1,125 @@
+import flat from './handoff.zh-CN'
+import { deepMerge, nestMessages } from '../nest'
+
+const writingFlat = Object.fromEntries(
+  Object.entries(flat)
+    .filter(([key]) => key.startsWith('writing.'))
+    .map(([key, value]) => [key.slice('writing.'.length), value]),
+)
+
+const base = nestMessages(writingFlat)
+
+const extra = {
+  preview: {
+    badge: '预览模式 · 未接后端',
+    banner: '样式预览 · 数据为示例，提交不会写入后端',
+  },
+  level: {
+    POOR: '差',
+  },
+  correction: {
+    PUNCTUATION: '标点',
+  },
+  entry: {
+    title: '写作练习',
+    description: '按题目要求完成作文，提交后获得 AI 分项评分与逐句批改',
+    typeLabel: '选择题型',
+    levelLabel: '选择级别',
+    startPractice: '开始练习',
+    favorites: '我的收藏',
+    favoritesDesc: '集中练习你收藏的题目',
+    errors: '我的错题',
+    errorsDesc: '查看低分作文并重写',
+    history: '写作历史',
+    historyDesc: '回顾每次提交的得分与报告',
+    report: '评分报告',
+    reportDesc: '查看最近一次五维评分',
+    ai: 'AI 问答',
+    aiDesc: '向 AI 请教写作思路',
+    aiComingSoon: 'AI 写作问答即将上线',
+  },
+  practice: {
+    backToLearning: '学习中心',
+    loading: '正在加载题目…',
+    timeUp: '写作时间已到，系统将自动提交当前内容',
+    autoSubmitted: '时间到，已自动提交',
+    wordCountRange: '已输入 {count} 词 / 建议 {min}-{max} 词',
+    tooShort: '字数不足，建议至少 {min} 词',
+    tooLong: '字数偏多，建议不超过 {max} 词',
+    saveDraft: '保存草稿',
+    viewHints: '查看提示',
+    hideHints: '收起提示',
+    submitConfirmTitle: '确认提交作文？',
+    submitConfirm: '提交后立即进入评分，提交前请确认内容完整。',
+    scoring: '正在评分…',
+    scoringFailed: '评分失败，作文已保留，请重试',
+    retry: '重试',
+    draftRestoreTitle: '发现未提交的草稿',
+    draftRestoreDesc: '是否恢复上次保存的内容？',
+    restore: '恢复草稿',
+    discard: '放弃草稿',
+    questionIndex: '第 {index} 题',
+    new: '全新',
+    source: '来源',
+    outline: '提纲 / 提示',
+    usefulExpressions: '可用的高级表达',
+    submittedProgress: '已提交 {done}/{total}',
+    confirmSubmit: '确认提交',
+    continueWriting: '继续写作',
+    scoredToast: '评分完成，正在打开报告',
+  },
+  score: {
+    raw: '原始分',
+    weighted: '折算分',
+    weightedValue: '{score} / 106.5',
+    dimensionTitle: '五维评分',
+    pendingTitle: '提交后生成评分',
+    pendingDesc: '评分包含内容、结构、语言、词汇、语法五个维度，并给出逐句批改与参考范文。',
+  },
+  report: {
+    weighted: 'CET 写作折算分',
+    rewriteSuggestions: '重写建议',
+    backToLearning: '返回学习中心',
+    favorite: '收藏题目',
+    unfavorite: '取消收藏',
+  },
+  history: {
+    type: '题型',
+    level: '级别',
+    dateFrom: '开始日期',
+    dateTo: '结束日期',
+    scoreMin: '最低分',
+    scoreMax: '最高分',
+    score: '分数',
+    date: '日期',
+    duration: '用时',
+    status: '状态',
+    trend: '得分趋势',
+    trendEmpty: '暂无足够记录生成趋势',
+    lowScoresOnly: '只看错题',
+    showAll: '显示全部',
+    draft: '草稿',
+    openDraft: '继续作答',
+    scoreValue: '{score} / 15',
+    filterAll: '全部',
+    clearFilters: '清空筛选',
+  },
+  status: {
+    SCORED: '已评分',
+    DRAFT: '草稿',
+    SCORING: '评分中',
+    FAILED: '评分失败',
+  },
+  common: {
+    back: '返回',
+    cancel: '取消',
+    confirm: '确认',
+    loading: '加载中…',
+    retry: '重试',
+    close: '关闭',
+    empty: '暂无数据',
+    error: '加载失败',
+  },
+}
+
+export default deepMerge(base, extra)

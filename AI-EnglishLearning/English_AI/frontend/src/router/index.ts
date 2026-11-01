@@ -20,9 +20,15 @@ import AdminOverviewView from '../views/admin/AdminOverviewView.vue'
 import AdminUsersView from '../views/admin/AdminUsersView.vue'
 import AdminUserDetailView from '../views/admin/AdminUserDetailView.vue'
 import AdminQuestionsView from '../views/admin/AdminQuestionsView.vue'
+import AdminNoticesView from '../views/admin/AdminNoticesView.vue'
+import AdminActivitiesView from '../views/admin/AdminActivitiesView.vue'
+import AdminOperationLogsView from '../views/admin/AdminOperationLogsView.vue'
 import ForbiddenView from '../views/ForbiddenView.vue'
 import ListeningQuizView from '../views/ListeningQuizView.vue'
 import TranslationPracticeView from '../views/TranslationPracticeView.vue'
+import WritingPracticeView from '../views/writing/WritingPracticeView.vue'
+import WritingReportView from '../views/writing/WritingReportView.vue'
+import WritingHistoryView from '../views/writing/WritingHistoryView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -76,6 +82,28 @@ const router = createRouter({
       path: '/translation/practice',
       name: 'translation-practice',
       component: TranslationPracticeView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/writing',
+      redirect: { path: '/learning', query: { tab: 'writing' } },
+    },
+    {
+      path: '/writing/practice',
+      name: 'writing-practice',
+      component: WritingPracticeView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/writing/report',
+      name: 'writing-report',
+      component: WritingReportView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/writing/history',
+      name: 'writing-history',
+      component: WritingHistoryView,
       meta: { requiresAuth: true },
     },
     {
@@ -189,25 +217,47 @@ const router = createRouter({
           path: 'overview',
           name: 'admin-overview',
           component: AdminOverviewView,
-          meta: { requiresAuth: true, requiresAdmin: true, adminTitle: '概览' },
+          meta: { requiresAuth: true, requiresAdmin: true, adminTitleKey: 'adminConsole.nav.overview' },
         },
         {
           path: 'users',
           name: 'admin-users',
           component: AdminUsersView,
-          meta: { requiresAuth: true, requiresAdmin: true, adminTitle: '用户管理' },
+          meta: { requiresAuth: true, requiresAdmin: true, adminTitleKey: 'adminConsole.nav.users' },
         },
         {
           path: 'users/:id',
           name: 'admin-user-detail',
           component: AdminUserDetailView,
-          meta: { requiresAuth: true, requiresAdmin: true, adminTitle: '用户详情' },
+          meta: { requiresAuth: true, requiresAdmin: true, adminTitleKey: 'adminConsole.nav.userDetail' },
         },
         {
           path: 'questions',
           name: 'admin-questions',
           component: AdminQuestionsView,
-          meta: { requiresAuth: true, requiresAdmin: true, adminTitle: '题目审核' },
+          meta: { requiresAuth: true, requiresAdmin: true, adminTitleKey: 'adminConsole.nav.questions' },
+        },
+        {
+          path: 'notices',
+          name: 'admin-notices',
+          component: AdminNoticesView,
+          meta: { requiresAuth: true, requiresAdmin: true, adminTitleKey: 'adminConsole.nav.notices' },
+        },
+        {
+          path: 'activities',
+          name: 'admin-activities',
+          component: AdminActivitiesView,
+          meta: { requiresAuth: true, requiresAdmin: true, adminTitleKey: 'adminConsole.nav.activities' },
+        },
+        {
+          path: 'operation-logs',
+          name: 'admin-operation-logs',
+          component: AdminOperationLogsView,
+          meta: { requiresAuth: true, requiresAdmin: true, adminTitleKey: 'adminConsole.nav.operationLogs' },
+        },
+        {
+          path: 'logs',
+          redirect: '/admin/operation-logs',
         },
       ],
     },

@@ -167,6 +167,95 @@ interface WritingHistoryItem {
 
 ---
 
+## 4.1 字段核对表（开发前必须确认）
+
+### 题型
+
+| 值 | 中文 | 说明 |
+|---|---|---|
+| `SHORT_ESSAY` | 短文写作 | 命题短文/观点短文 |
+| `PRACTICAL` | 应用文 | 通知、申请、建议等 |
+| `ARGUMENTATIVE` | 议论文 | 观点论证 |
+| `CHART` | 图表作文 | 图表描述 + 分析 |
+| `LETTER` | 书信 | 正式/非正式书信 |
+
+### 题目字段
+
+```ts
+interface WritingTopic {
+  id: string
+  type: 'SHORT_ESSAY' | 'PRACTICAL' | 'ARGUMENTATIVE' | 'CHART' | 'LETTER'
+  level: 'CET4' | 'CET6'
+  title: string
+  directions: string          // 指令（英文/中文）
+  topic: string               // 题目正文/引语
+  requirements: string[]      // 字数、结构、必须覆盖的要点
+  wordRange: [number, number] // CET4 120-180；CET6 150-200
+  timeLimitSeconds: number    // 默认 1800
+  source?: string
+  outlineHints: string[]      // 提纲/提示
+  usefulExpressions: string[] // 可用的高级表达
+}
+```
+
+### 评分字段与口径
+
+默认 **15 分制**，5 个维度各 0–3 分，合计 0–15；同时折算 CET 写作满分 106.5：
+
+`weightedScore = rawScore / 15 * 106.5`
+
+```ts
+interface WritingScore {
+  scoreVersion: string
+  provider: 'MOCK' | 'LLM'
+  scoredAt: string
+  rawScore: number            // 0-15
+  maxRawScore: 15
+  weightedScore: number       // rawScore / 15 * 106.5，保留 1 位
+  level: '优秀' | '良好' | '中等' | '较差' | '差'
+  dimensions: {
+    content: number           // 0-3
+    structure: number         // 0-3
+    language: number          // 0-3
+    vocabulary: number        // 0-3
+    grammar: number           // 0-3
+  }
+  strengths: string[]
+  issues: string[]
+  corrections: Array<{
+    original: string
+    suggestion: string
+    reason: string
+    type: 'GRAMMAR' | 'VOCABULARY' | 'STRUCTURE' | 'SPELLING' | 'PUNCTUATION'
+  }>
+  highlights: string[]
+  modelEssay: string
+  rewriteSuggestions: string[]
+}
+```
+
+页面必须同时显示 `rawScore/15` 和 `weightedScore/106.5`，不能只写“15 分”或“106.5 分”造成口径混淆。
+
+### 可替换评分接口
+
+```ts
+interface WritingScoringService {
+  score(input: {
+    topic: WritingTopic
+    content: string
+    wordCount: number
+    durationSeconds: number
+  }): Promise<WritingScore>
+}
+```
+
+- 当前：`MockWritingScoringService` 返回 2–3 套固定 fixture，页面标注“预览模式 · 未接后端”。
+- 后续：`HttpWritingScoringService` 调 `/ai/writing/score` 或独立评分服务；UI 不直接依赖后端 DTO。
+- 真实评分服务后续单独设计：评分 prompt、结构化 JSON 校验、`writing_submission`/`writing_score` 表、异步任务、重试、审计、成本控制。
+- 示例报告不要写死在组件里；组件只消费 `WritingScore`。
+
+---
+
 ## 5. 状态与交互
 
 必须覆盖：
@@ -257,8 +346,9 @@ interface WritingHistoryItem {
 - 筛选（题型/等级/时间/分数）；列表（题目/分数/字数/用时/日期/状态）；分数趋势图；空/加载/错误状态。
 
 【数据 mock】
-- WritingTopic { id,type,level,title,directions,requirements[],wordRange,timeLimitSeconds,source }
-- WritingScore { total,level,dimensions{content,structure,language,vocabulary,grammar},strengths[],issues[],corrections[],highlights[],modelEssay }
+- WritingTopic { id,type,level,title,directions,topic,requirements[],wordRange,timeLimitSeconds,source,outlineHints[],usefulExpressions[] }
+- WritingScore { scoreVersion,provider,scoredAt,rawScore,maxRawScore=15,weightedScore,level,dimensions{content,structure,language,vocabulary,grammar},strengths[],issues[],corrections[]{original,suggestion,reason,type},highlights[],modelEssay,rewriteSuggestions[] }
+- 评分口径：5 维各 0-3，合计 0-15；weightedScore = rawScore/15*106.5；页面同时显示 raw/15 和 106.5 折算分。
 - WritingHistoryItem { id,title,type,score,wordCount,durationSeconds,createdAt,status }
 
 【交互】

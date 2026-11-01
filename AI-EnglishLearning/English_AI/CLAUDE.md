@@ -102,11 +102,12 @@ mvn -DskipTests install
 # 构建单个模块及其依赖
 mvn -pl exercise-service -am clean package -DskipTests
 
-# 启动单个服务
-mvn -pl user-service spring-boot:run
+# 启动单个服务（必须通过 with-env 注入 .env）
+scripts/with-env.sh mvn -pl user-service spring-boot:run
 ```
 
 - 本地开发启动顺序：`user-service(8081)` → `exercise-service(8082)` → `learning-engine-service(8083)` → `ai-service(8084)` → `api-gateway(8086)`
+- **user-service 与 api-gateway 必须都通过 `scripts/with-env.sh` 启动**：前者签发 JWT，后者校验 JWT。两者 `JWT_SECRET` 不一致时，登录接口会成功，但所有受保护接口返回 401，前端会立即清登录态跳回 `/login`。不要混用 IDEA 直接 Run 与脚本启动。
 - 当前无单元测试，`src/test` 目录为空
 - 本地开发默认无需启动 RabbitMQ
 

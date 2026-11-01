@@ -70,6 +70,8 @@ scripts/with-env.sh mvn -pl user-service spring-boot:run
 scripts/with-env.sh mvn -pl exercise-service spring-boot:run
 ```
 
+> **不要混用启动方式**：`user-service` 签发 JWT，`api-gateway` 校验 JWT，两者必须加载同一个 `.env` 的 `JWT_SECRET`。如果 user-service 用 IDEA/普通 `mvn` 启动、gateway 用脚本启动，登录接口会成功，但随后的 `/user/info`、`/user/preference`、`/exercise/stats` 等接口会 401，前端会立即清登录态并跳回 `/login`。本地开发请统一使用 `scripts/with-env.sh`。
+
 ### Docker
 
 ```bash

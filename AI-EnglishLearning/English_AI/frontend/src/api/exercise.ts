@@ -28,8 +28,24 @@ export interface QuestionVO {
     audioUrl?: string
     /** 听力原文（提交后才返回） */
     transcript?: string
-    /** 音频时长（秒），区别于答题用时 */
+    /** 听力 LRC 字幕（提交后才返回） */
+    lrcContent?: string
+    /** 文章段播放时长（秒），区别于答题用时 */
     durationSeconds?: number
+    /** 完整音频总时长（秒） */
+    audioTotalSeconds?: number
+    /** 文章段起点（秒，包含） */
+    audioStartSeconds?: number
+    /** 文章段终点（秒，不包含） */
+    audioEndSeconds?: number
+    /** 题目段起点（秒，包含） */
+    questionStartSeconds?: number
+    /** 题目段终点（秒，不包含） */
+    questionEndSeconds?: number
+    /** 题组/音频段落标识 */
+    groupKey?: string
+    /** 听力题型 */
+    listeningType?: string
 }
 
 /**
@@ -77,6 +93,8 @@ export interface SubmitResponse {
     coinBalance?: number
     /** 听力原文（仅听力题提交后返回） */
     transcript?: string
+    /** 听力 LRC 字幕（仅听力题提交后返回） */
+    lrcContent?: string
 }
 
 /** 学习会话上报请求 */
@@ -148,20 +166,40 @@ export interface ListeningStats {
     correctRate: number
 }
 
+/** 听力题型（与后端 ListeningType 一致） */
+export const LISTENING_TYPES = [
+    'SHORT_DIALOGUE',
+    'LONG_DIALOGUE',
+    'PASSAGE',
+    'LECTURE',
+    'NEWS',
+    'OTHER',
+] as const
+
+export type ListeningType = (typeof LISTENING_TYPES)[number]
+
 /**
  * 听力练习队列（复用智能选题）
- * GET /exercise/listening/questions?userId=1&count=5
+ * GET /exercise/listening/questions?userId=1&count=5&listeningType=LONG_DIALOGUE
  */
-export const selectListeningQuestions = (userId: number, count: number = 5): Promise<QuestionVO[]> => {
-    return get('/exercise/listening/questions', { userId, count })
+export const selectListeningQuestions = (
+    userId: number,
+    count: number = 5,
+    listeningType?: string,
+): Promise<QuestionVO[]> => {
+    return get('/exercise/listening/questions', { userId, count, listeningType })
 }
 
 /**
  * 听力单题详情
- * GET /exercise/listening/question/{id}
+ * GET /exercise/listening/question/{id}?showAnswer=false&userId=1
  */
-export const getListeningQuestion = (id: number, showAnswer: boolean = false): Promise<QuestionVO> => {
-    return get(`/exercise/listening/question/${id}`, { showAnswer })
+export const getListeningQuestion = (
+    id: number,
+    showAnswer: boolean = false,
+    userId?: number,
+): Promise<QuestionVO> => {
+    return get(`/exercise/listening/question/${id}`, { showAnswer, userId })
 }
 
 /**

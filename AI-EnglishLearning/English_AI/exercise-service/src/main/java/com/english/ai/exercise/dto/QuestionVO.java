@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 /**
  * 题目视图对象 — 返回给前端（合并info+content）
  */
@@ -47,8 +49,32 @@ public class QuestionVO {
     /** 听力原文（仅 showAnswer=true 时下发，作答前不泄题） */
     private String transcript;
 
-    /** 音频时长（秒），区别于 SubmitRequest 的答题用时 */
+    /** 文章段播放时长（秒），区别于 SubmitRequest 的答题用时 */
     private Integer durationSeconds;
+
+    /** 完整音频总时长（秒） */
+    private Integer audioTotalSeconds;
+
+    /** 文章段起点（秒，包含） */
+    private BigDecimal audioStartSeconds;
+
+    /** 文章段终点（秒，不包含） */
+    private BigDecimal audioEndSeconds;
+
+    /** 题目段起点（秒，包含） */
+    private BigDecimal questionStartSeconds;
+
+    /** 题目段终点（秒，不包含） */
+    private BigDecimal questionEndSeconds;
+
+    /** 题组/音频段落标识 */
+    private String groupKey;
+
+    /** 听力题型 */
+    private String listeningType;
+
+    /** 听力 LRC 字幕（仅提交后返回，作答前不下发） */
+    private String lrcContent;
 
     /** 仅后端新词去重使用，不返回前端 */
     @JsonIgnore

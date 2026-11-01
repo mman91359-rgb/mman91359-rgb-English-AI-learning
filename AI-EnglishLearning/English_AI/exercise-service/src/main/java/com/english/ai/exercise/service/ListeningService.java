@@ -13,9 +13,15 @@ import java.util.List;
  */
 public interface ListeningService {
 
-    List<QuestionVO> listListeningQuestions(Long userId, int count);
+    /**
+     * 听力选题；listeningType 为 null 表示全部题型。
+     */
+    List<QuestionVO> listListeningQuestions(Long userId, int count, String listeningType);
 
-    QuestionVO getListeningQuestion(Long questionId, boolean showAnswer);
+    /**
+     * 听力单题详情；showAnswer=true 时必须传 userId，且该用户已作答过该题。
+     */
+    QuestionVO getListeningQuestion(Long questionId, boolean showAnswer, Long userId);
 
     SubmitResponse submitListeningAnswer(SubmitRequest request);
 

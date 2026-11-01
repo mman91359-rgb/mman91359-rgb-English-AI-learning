@@ -16,12 +16,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 /**
@@ -47,19 +51,44 @@ class ListeningServiceImplTest {
     }
 
     @Test
-    void listSkipsQuestionsWithoutAudioAndHidesTranscript() {
-        QuestionVO withAudio = QuestionVO.builder().id(1L).moduleType(4).build();
+    void listFiltersByTypeAndHidesTranscriptLrcAnalysis() {
+        QuestionVO withAudio = QuestionVO.builder()
+                .id(1L)
+                .moduleType(4)
+                .analysis("会泄题的解析")
+                .build();
         QuestionVO withoutAudio = QuestionVO.builder().id(2L).moduleType(4).build();
-        when(exerciseService.selectQuestions(9L, 4, 5)).thenReturn(List.of(withAudio, withoutAudio));
-        when(listeningAudioMapper.selectList(any())).thenReturn(List.of(audio(1L, "secret")));
+        when(listeningAudioMapper.selectList(any())).thenReturn(List.of(audio(1L, "原文", "字幕")));
+        when(exerciseService.selectQuestions(anyLong(), anyInt(), anyInt(), anyList()))
+                .thenReturn(List.of(withAudio, withoutAudio));
 
-        List<QuestionVO> result = service.listListeningQuestions(9L, 5);
+        List<QuestionVO> result = service.listListeningQuestions(9L, 5, "LONG_DIALOGUE");
 
         assertEquals(1, result.size());
         assertEquals(1L, result.get(0).getId());
-        assertEquals("/audio/test.mp3", result.get(0).getAudioUrl());
+        assertEquals("/audio/exams/test.mp3", result.get(0).getAudioUrl());
         assertEquals(30, result.get(0).getDurationSeconds());
+        assertEquals("cet6-test-g01", result.get(0).getGroupKey());
+        assertEquals("LONG_DIALOGUE", result.get(0).getListeningType());
+        assertEquals(new BigDecimal("10.00"), result.get(0).getAudioStartSeconds());
         assertNull(result.get(0).getTranscript());
+        assertNull(result.get(0).getLrcContent());
+        assertNull(result.get(0).getAnalysis());
+    }
+
+    @Test
+    void listReturnsEmptyWhenNoQuestionMatchesType() {
+        when(listeningAudioMapper.selectList(any())).thenReturn(List.of());
+
+        List<QuestionVO> result = service.listListeningQuestions(9L, 5, "NEWS");
+
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    void listRejectsIllegalType() {
+        assertThrows(BusinessException.class,
+                () -> service.listListeningQuestions(9L, 5, "NOT_A_TYPE"));
     }
 
     @Test
@@ -67,26 +96,49 @@ class ListeningServiceImplTest {
         when(exerciseService.getQuestionById(1L, false))
                 .thenReturn(QuestionVO.builder().id(1L).moduleType(2).build());
 
-        assertThrows(BusinessException.class, () -> service.getListeningQuestion(1L, false));
+        assertThrows(BusinessException.class, () -> service.getListeningQuestion(1L, false, 9L));
     }
 
     @Test
-    void detailHidesTranscriptBeforeSubmitAndReturnsItWithAnswer() {
+    void detailHidesSensitiveFieldsBeforeSubmit() {
         when(exerciseService.getQuestionById(1L, false))
-                .thenReturn(QuestionVO.builder().id(1L).moduleType(4).build());
-        when(exerciseService.getQuestionById(1L, true))
-                .thenReturn(QuestionVO.builder().id(1L).moduleType(4).build());
-        when(listeningAudioMapper.selectOne(any())).thenReturn(audio(1L, "secret"));
+                .thenReturn(QuestionVO.builder().id(1L).moduleType(4).analysis("解析").build());
+        when(listeningAudioMapper.selectOne(any())).thenReturn(audio(1L, "原文", "字幕"));
 
-        QuestionVO beforeSubmit = service.getListeningQuestion(1L, false);
-        QuestionVO withAnswer = service.getListeningQuestion(1L, true);
+        QuestionVO beforeSubmit = service.getListeningQuestion(1L, false, 9L);
 
         assertNull(beforeSubmit.getTranscript());
-        assertEquals("secret", withAnswer.getTranscript());
+        assertNull(beforeSubmit.getLrcContent());
+        assertNull(beforeSubmit.getAnalysis());
     }
 
     @Test
-    void submitDelegatesAndReturnsTranscript() {
+    void detailRejectsShowAnswerWhenUserHasNotAnswered() {
+        when(exerciseService.getQuestionById(1L, true))
+                .thenReturn(QuestionVO.builder().id(1L).moduleType(4).analysis("解析").build());
+        when(listeningAudioMapper.selectOne(any())).thenReturn(audio(1L, "原文", "字幕"));
+        when(exerciseLogMapper.selectCount(any())).thenReturn(0L);
+
+        assertThrows(BusinessException.class,
+                () -> service.getListeningQuestion(1L, true, 9L));
+    }
+
+    @Test
+    void detailReturnsTranscriptAfterAnswered() {
+        when(exerciseService.getQuestionById(1L, true))
+                .thenReturn(QuestionVO.builder().id(1L).moduleType(4).analysis("解析").build());
+        when(listeningAudioMapper.selectOne(any())).thenReturn(audio(1L, "原文", "字幕"));
+        when(exerciseLogMapper.selectCount(any())).thenReturn(1L);
+
+        QuestionVO withAnswer = service.getListeningQuestion(1L, true, 9L);
+
+        assertEquals("原文", withAnswer.getTranscript());
+        assertEquals("字幕", withAnswer.getLrcContent());
+        assertEquals("解析", withAnswer.getAnalysis());
+    }
+
+    @Test
+    void submitDelegatesAndReturnsTranscriptAndLrc() {
         QuestionVO question = QuestionVO.builder().id(1L).moduleType(4).build();
         SubmitRequest request = new SubmitRequest();
         request.setUserId(9L);
@@ -97,11 +149,12 @@ class ListeningServiceImplTest {
 
         when(exerciseService.getQuestionById(1L, false)).thenReturn(question);
         when(exerciseService.submitAnswer(request)).thenReturn(response);
-        when(listeningAudioMapper.selectOne(any())).thenReturn(audio(1L, "secret"));
+        when(listeningAudioMapper.selectOne(any())).thenReturn(audio(1L, "原文", "字幕"));
 
         SubmitResponse result = service.submitListeningAnswer(request);
 
-        assertEquals("secret", result.getTranscript());
+        assertEquals("原文", result.getTranscript());
+        assertEquals("字幕", result.getLrcContent());
     }
 
     @Test
@@ -117,12 +170,20 @@ class ListeningServiceImplTest {
         assertEquals(50.0, stats.getCorrectRate());
     }
 
-    private ListeningAudio audio(Long questionId, String transcript) {
+    private ListeningAudio audio(Long questionId, String transcript, String lrc) {
         ListeningAudio audio = new ListeningAudio();
         audio.setQuestionId(questionId);
-        audio.setAudioUrl("/audio/test.mp3");
+        audio.setAudioUrl("/audio/exams/test.mp3");
         audio.setTranscript(transcript);
+        audio.setLrcContent(lrc);
         audio.setDurationSeconds(30);
+        audio.setAudioTotalSeconds(300);
+        audio.setAudioStartSeconds(new BigDecimal("10.00"));
+        audio.setAudioEndSeconds(new BigDecimal("40.00"));
+        audio.setQuestionStartSeconds(new BigDecimal("45.00"));
+        audio.setQuestionEndSeconds(new BigDecimal("60.00"));
+        audio.setGroupKey("cet6-test-g01");
+        audio.setListeningType("LONG_DIALOGUE");
         return audio;
     }
 

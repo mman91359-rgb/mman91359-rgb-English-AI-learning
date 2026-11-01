@@ -23,6 +23,12 @@ uploads/
 # 数据库结构备份（只在本地保留，不提交）
 sql/backup/
 
+# 听力原始资源与运行时音频（含版权，只在本地保留）
+listening-source/
+frontend/public/audio/exams/*.mp3
+frontend/public/audio/exams/*.m4a
+frontend/public/audio/exams/*.lrc
+
 # 日志
 *.log
 

@@ -31,6 +31,36 @@
     />
 
     <template v-else-if="mode === 'list'">
+      <div v-if="stats" class="mb-6 bg-surface rounded-[24px] p-5 shadow-soft-glow flex items-center justify-between">
+        <div>
+          <p class="font-label-md text-label-md text-on-surface-variant">{{ $t('listening.overallAccuracy') }}</p>
+          <p class="font-headline-md text-headline-md text-primary mt-1">{{ stats.correctRate }}%</p>
+        </div>
+        <div class="text-right font-label-md text-label-md text-on-surface-variant">
+          <p>{{ $t('listening.answeredCount', { count: stats.totalAnswered }) }}</p>
+          <p class="mt-1">{{ $t('listening.correctCountLabel', { count: stats.correctCount }) }}</p>
+        </div>
+      </div>
+
+      <div class="mb-6">
+        <p class="font-label-md text-label-md text-on-surface-variant mb-3">{{ $t('listening.typeFilter') }}</p>
+        <div class="flex flex-wrap gap-2">
+          <button
+            v-for="option in typeOptions"
+            :key="option.value"
+            type="button"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-full font-label-lg text-label-lg transition-colors"
+            :class="selectedType === option.value
+              ? 'bg-primary text-on-primary'
+              : 'bg-surface-container-high text-on-surface-variant hover:text-primary'"
+            @click="selectType(option.value)"
+          >
+            <span class="material-symbols-outlined text-[18px]">{{ option.icon }}</span>
+            {{ option.label }}
+          </button>
+        </div>
+      </div>
+
       <div v-if="questions.length === 0">
         <EmptyState
           icon="headphones"
@@ -41,124 +71,144 @@
         />
       </div>
 
-      <template v-else>
-        <div v-if="stats" class="mb-6 bg-surface rounded-[24px] p-5 shadow-soft-glow flex items-center justify-between">
-          <div>
-            <p class="font-label-md text-label-md text-on-surface-variant">{{ $t('listening.overallAccuracy') }}</p>
-            <p class="font-headline-md text-headline-md text-primary mt-1">{{ stats.correctRate }}%</p>
+      <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <button
+          v-for="(question, index) in questions"
+          :key="question.id"
+          type="button"
+          class="text-left bg-surface rounded-[24px] p-6 shadow-soft-glow hover:shadow-[0_4px_20px_rgba(51,58,72,0.15)] transition-shadow"
+          @click="startQuiz(index)"
+        >
+          <div class="flex items-center gap-2 mb-3">
+            <span class="w-10 h-10 rounded-full bg-primary-container/30 flex items-center justify-center">
+              <span class="material-symbols-outlined text-primary">headphones</span>
+            </span>
+            <span class="rounded-full bg-primary-container/20 text-primary px-2.5 py-1 font-label-md text-label-md">
+              {{ typeLabel(question.listeningType) }}
+            </span>
+            <span class="font-label-md text-label-md text-on-surface-variant">Lv.{{ question.difficultyLevel }}</span>
+            <span v-if="question.durationSeconds" class="ml-auto font-label-md text-label-md text-on-surface-variant">
+              {{ formatDuration(question.durationSeconds) }}
+            </span>
           </div>
-          <div class="text-right font-label-md text-label-md text-on-surface-variant">
-            <p>{{ $t('listening.answeredCount', { count: stats.totalAnswered }) }}</p>
-            <p class="mt-1">{{ $t('listening.correctCountLabel', { count: stats.correctCount }) }}</p>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <button
-            v-for="(question, index) in questions"
-            :key="question.id"
-            type="button"
-            class="text-left bg-surface rounded-[24px] p-6 shadow-soft-glow hover:shadow-[0_4px_20px_rgba(51,58,72,0.15)] transition-shadow"
-            @click="startQuiz(index)"
-          >
-            <div class="flex items-center gap-2 mb-3">
-              <span class="w-10 h-10 rounded-full bg-primary-container/30 flex items-center justify-center">
-                <span class="material-symbols-outlined text-primary">headphones</span>
-              </span>
-              <span class="font-label-md text-label-md text-on-surface-variant">Lv.{{ question.difficultyLevel }}</span>
-              <span v-if="question.durationSeconds" class="ml-auto font-label-md text-label-md text-on-surface-variant">
-                {{ formatDuration(question.durationSeconds) }}
-              </span>
-            </div>
-            <p class="font-body-lg text-body-lg text-on-surface leading-relaxed">{{ question.stem }}</p>
-            <p class="mt-3 font-label-md text-label-md text-primary">{{ $t('listening.startQuestion') }} →</p>
-          </button>
-        </div>
-      </template>
+          <p class="font-body-lg text-body-lg text-on-surface leading-relaxed">{{ question.stem }}</p>
+          <p class="mt-3 font-label-md text-label-md text-primary">{{ $t('listening.startQuestion') }} →</p>
+        </button>
+      </div>
     </template>
 
-    <div v-else-if="mode === 'quiz' && currentQuestion" class="max-w-3xl mx-auto">
-      <div class="bg-surface rounded-2xl p-6 md:p-8 shadow-soft-glow mb-6">
-        <div class="flex items-center justify-between mb-3">
-          <span class="font-label-md text-label-md text-on-surface-variant">
-            {{ $t('listening.questionLabel', { index: currentIndex + 1 }) }}
-          </span>
-          <span class="font-label-md text-label-md text-on-surface-variant">Lv.{{ currentQuestion.difficultyLevel }}</span>
-        </div>
-        <p class="font-body-lg text-body-lg text-on-surface leading-relaxed">{{ currentQuestion.stem }}</p>
-      </div>
-
-      <AudioPlayer
-        :key="currentQuestion.id"
-        :src="currentQuestion.audioUrl || ''"
-        :duration-seconds="currentQuestion.durationSeconds"
-        :transcript="showResult ? (submitResult?.transcript || '') : ''"
-        :disabled="submitting"
-        @error="handleAudioError"
-      />
-
-      <div class="mt-6 space-y-3">
-        <button
-          v-for="option in parsedOptions"
-          :key="option.key"
-          type="button"
-          class="w-full text-left p-4 md:p-5 rounded-xl border-2 transition-all font-body-md text-body-md"
-          :class="optionClass(option.key)"
-          :disabled="showResult || submitting"
-          @click="selectAnswer(option.key)"
-        >
-          <div class="flex items-center gap-3">
-            <span class="w-8 h-8 rounded-full flex items-center justify-center font-label-lg text-label-lg shrink-0" :class="optionKeyClass(option.key)">
-              {{ option.key }}
+    <div v-else-if="mode === 'quiz' && currentQuestion" class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_380px] gap-6 items-start">
+      <div class="min-w-0">
+        <div class="bg-surface rounded-2xl p-6 md:p-8 shadow-soft-glow mb-5">
+          <div class="flex flex-wrap items-center gap-2 mb-3">
+            <span class="rounded-full bg-primary-container/20 text-primary px-3 py-1 font-label-md text-label-md">
+              {{ $t('listening.questionLabel', { index: currentIndex + 1 }) }}
             </span>
-            <span class="flex-1">{{ option.text }}</span>
-            <span v-if="showResult && submitResult?.correctAnswerKey === option.key" class="material-symbols-outlined text-green-600">check</span>
-            <span v-else-if="showResult && selectedAnswer === option.key && !submitResult?.isCorrect" class="material-symbols-outlined text-red-500">close</span>
+            <span class="rounded-full bg-tertiary-fixed/50 text-tertiary px-3 py-1 font-label-md text-label-md">
+              {{ typeLabel(currentQuestion.listeningType) }}
+            </span>
+            <span class="font-label-md text-label-md text-on-surface-variant">Lv.{{ currentQuestion.difficultyLevel }}</span>
           </div>
-        </button>
-      </div>
-
-      <button
-        v-if="!showResult"
-        type="button"
-        class="w-full mt-6 bg-primary text-on-primary py-4 rounded-xl font-label-lg text-label-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        :disabled="!selectedAnswer || submitting"
-        @click="submitCurrentAnswer"
-      >
-        {{ submitting ? $t('common.loading') : $t('learning.submit') }}
-      </button>
-
-      <div v-else class="mt-6 space-y-4">
-        <div
-          class="p-4 rounded-xl font-label-lg text-label-lg text-center"
-          :class="submitResult?.isCorrect ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300' : 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300'"
-        >
-          <span class="material-symbols-outlined align-middle mr-1">{{ submitResult?.isCorrect ? 'check_circle' : 'cancel' }}</span>
-          {{ submitResult?.isCorrect ? $t('learning.correct') : $t('learning.incorrect') }}
+          <p class="font-body-lg text-body-lg text-on-surface leading-relaxed">{{ currentQuestion.stem }}</p>
         </div>
 
-        <div v-if="submitResult?.correctAnswer" class="bg-surface rounded-xl p-4 border border-outline-variant/20">
-          <p class="font-label-md text-label-md text-on-surface-variant mb-1">{{ $t('learning.correctAnswer') }}</p>
-          <p class="font-body-md text-body-md text-primary font-semibold">{{ submitResult.correctAnswer }}</p>
-        </div>
+        <AudioPlayer
+          :key="currentQuestion.groupKey || 'q-' + currentQuestion.id"
+          :src="currentQuestion.audioUrl || ''"
+          :duration-seconds="currentQuestion.durationSeconds"
+          :audio-total-seconds="currentQuestion.audioTotalSeconds"
+          :audio-start-seconds="currentQuestion.audioStartSeconds"
+          :audio-end-seconds="currentQuestion.audioEndSeconds"
+          :question-start-seconds="currentQuestion.questionStartSeconds"
+          :question-end-seconds="currentQuestion.questionEndSeconds"
+          :transcript="submittedContent[currentQuestion.id]?.transcript || ''"
+          :lrc-content="submittedContent[currentQuestion.id]?.lrcContent || ''"
+          :disabled="submitting"
+          @error="handleAudioError"
+        />
 
-        <div v-if="submitResult?.analysis" class="bg-surface rounded-xl p-4 border border-outline-variant/20">
-          <p class="font-label-md text-label-md text-on-surface-variant mb-1">{{ $t('learning.analysis') }}</p>
-          <p class="font-body-md text-body-md text-on-surface">{{ submitResult.analysis }}</p>
+        <div class="mt-5 space-y-3">
+          <button
+            v-for="option in parsedOptions"
+            :key="option.key"
+            type="button"
+            class="w-full text-left p-4 md:p-5 rounded-xl border-2 transition-all font-body-md text-body-md"
+            :class="optionClass(option.key)"
+            :disabled="showResult || submitting"
+            @click="selectAnswer(option.key)"
+          >
+            <div class="flex items-center gap-3">
+              <span class="w-8 h-8 rounded-full flex items-center justify-center font-label-lg text-label-lg shrink-0" :class="optionKeyClass(option.key)">
+                {{ option.key }}
+              </span>
+              <span class="flex-1">{{ option.text }}</span>
+              <span v-if="showResult && submitResult?.correctAnswerKey === option.key" class="material-symbols-outlined text-green-600">check</span>
+              <span v-else-if="showResult && selectedAnswer === option.key && !submitResult?.isCorrect" class="material-symbols-outlined text-red-500">close</span>
+            </div>
+          </button>
         </div>
-
-        <p v-if="submitResult?.heuristicHint" class="font-body-md text-body-md text-on-surface-variant">
-          {{ submitResult.heuristicHint }}
-        </p>
 
         <button
+          v-if="!showResult"
           type="button"
-          class="w-full bg-primary text-on-primary py-4 rounded-xl font-label-lg text-label-lg hover:bg-primary/90 transition-colors"
-          @click="nextQuestion"
+          class="w-full mt-5 bg-primary text-on-primary py-4 rounded-xl font-label-lg text-label-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          :disabled="!selectedAnswer || submitting"
+          @click="submitCurrentAnswer"
         >
-          {{ isLastQuestion ? $t('learning.viewResults') : $t('learning.next') }}
+          {{ submitting ? $t('common.loading') : $t('learning.submit') }}
         </button>
       </div>
+
+      <aside class="space-y-4 lg:sticky lg:top-24">
+        <div v-if="!showResult" class="bg-surface rounded-2xl p-5 shadow-soft-glow">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="material-symbols-outlined text-tertiary">tips_and_updates</span>
+            <h3 class="font-headline-md text-headline-md text-on-surface">{{ $t('listening.howToListen') }}</h3>
+          </div>
+          <ol class="space-y-2 font-body-md text-body-md text-on-surface-variant list-decimal list-inside">
+            <li>{{ $t('listening.stepArticle') }}</li>
+            <li>{{ $t('listening.stepQuestion') }}</li>
+            <li>{{ $t('listening.stepAnswer') }}</li>
+          </ol>
+          <p class="mt-4 font-label-md text-label-md text-on-surface-variant">
+            {{ $t('listening.audioHint') }}
+          </p>
+        </div>
+
+        <div v-else class="bg-surface rounded-2xl p-5 shadow-soft-glow">
+          <div
+            class="p-3 rounded-xl font-label-lg text-label-lg text-center mb-4"
+            :class="submitResult?.isCorrect ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'"
+          >
+            <span class="material-symbols-outlined align-middle mr-1">{{ submitResult?.isCorrect ? 'check_circle' : 'cancel' }}</span>
+            {{ submitResult?.isCorrect ? $t('learning.correct') : $t('learning.incorrect') }}
+          </div>
+
+          <div v-if="submitResult?.correctAnswer" class="mb-3">
+            <p class="font-label-md text-label-md text-on-surface-variant mb-1">{{ $t('learning.correctAnswer') }}</p>
+            <p class="font-body-md text-body-md text-primary font-semibold">
+              {{ submitResult.correctAnswerKey || submitResult.correctAnswer }}
+            </p>
+          </div>
+
+          <div v-if="submitResult?.analysis" class="mb-4">
+            <p class="font-label-md text-label-md text-on-surface-variant mb-1">{{ $t('learning.analysis') }}</p>
+            <p class="font-body-md text-body-md text-on-surface leading-relaxed">{{ submitResult.analysis }}</p>
+          </div>
+
+          <p v-if="submitResult?.heuristicHint" class="font-body-md text-body-md text-on-surface-variant mb-4">
+            {{ submitResult.heuristicHint }}
+          </p>
+
+          <button
+            type="button"
+            class="w-full bg-primary text-on-primary py-3 rounded-xl font-label-lg text-label-lg hover:bg-primary/90 transition-colors"
+            @click="nextQuestion"
+          >
+            {{ isLastQuestion ? $t('learning.viewResults') : $t('learning.next') }}
+          </button>
+        </div>
+      </aside>
     </div>
 
     <div v-else-if="mode === 'summary'" class="max-w-3xl mx-auto">
@@ -219,6 +269,11 @@ interface QuestionResult {
   isCorrect: boolean
 }
 
+interface SubmittedContent {
+  transcript?: string
+  lrcContent?: string
+}
+
 const router = useRouter()
 const { t } = useI18n()
 const { show: toast } = useToast()
@@ -235,6 +290,8 @@ const loading = ref(false)
 const loadError = ref('')
 const stats = ref<ListeningStats | null>(null)
 const results = ref<QuestionResult[]>([])
+const submittedContent = ref<Record<number, SubmittedContent>>({})
+const selectedType = ref('')
 const questionStartedAt = ref(Date.now())
 
 const currentQuestion = computed(() => questions.value[currentIndex.value])
@@ -244,6 +301,16 @@ const accuracy = computed(() => {
   if (questions.value.length === 0) return 0
   return Math.round((correctCount.value / questions.value.length) * 100)
 })
+
+const typeOptions = computed(() => [
+  { value: '', label: t('listening.typeAll'), icon: 'apps' },
+  { value: 'SHORT_DIALOGUE', label: t('listening.typeShortDialogue'), icon: 'chat' },
+  { value: 'LONG_DIALOGUE', label: t('listening.typeLongDialogue'), icon: 'record_voice_over' },
+  { value: 'PASSAGE', label: t('listening.typePassage'), icon: 'menu_book' },
+  { value: 'LECTURE', label: t('listening.typeLecture'), icon: 'podcasts' },
+  { value: 'NEWS', label: t('listening.typeNews'), icon: 'newspaper' },
+  { value: 'OTHER', label: t('listening.typeOther'), icon: 'category' },
+])
 
 const parsedOptions = computed<ParsedOption[]>(() => {
   const options = currentQuestion.value?.options
@@ -270,6 +337,12 @@ const parsedOptions = computed<ParsedOption[]>(() => {
   }
 })
 
+const typeLabel = (type?: string) => {
+  if (!type) return t('listening.typeOther')
+  const option = typeOptions.value.find(item => item.value === type)
+  return option?.label || type
+}
+
 const formatDuration = (seconds: number) => {
   const total = Math.max(0, Math.round(seconds))
   const minutes = Math.floor(total / 60)
@@ -280,10 +353,10 @@ const formatDuration = (seconds: number) => {
 const optionClass = (key: string) => {
   if (showResult.value) {
     if (submitResult.value?.correctAnswerKey === key) {
-      return 'border-green-500 bg-green-50 dark:bg-green-900/30 text-green-800 dark:text-green-300'
+      return 'border-green-500 bg-green-50 text-green-800'
     }
     if (selectedAnswer.value === key && !submitResult.value?.isCorrect) {
-      return 'border-red-400 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+      return 'border-red-400 bg-red-50 text-red-700'
     }
   }
   if (selectedAnswer.value === key) {
@@ -319,8 +392,9 @@ const loadQuestions = async () => {
   loading.value = true
   loadError.value = ''
   try {
-    questions.value = await selectListeningQuestions(userId, 5)
+    questions.value = await selectListeningQuestions(userId, 5, selectedType.value || undefined)
     results.value = []
+    submittedContent.value = {}
     currentIndex.value = 0
     mode.value = 'list'
     try {
@@ -333,6 +407,12 @@ const loadQuestions = async () => {
   } finally {
     loading.value = false
   }
+}
+
+const selectType = (value: string) => {
+  if (selectedType.value === value) return
+  selectedType.value = value
+  void loadQuestions()
 }
 
 const startQuiz = (index: number) => {
@@ -362,6 +442,13 @@ const submitCurrentAnswer = async () => {
     submitResult.value = response
     showResult.value = true
     results.value.push({ questionId: question.id, isCorrect: response.isCorrect })
+    submittedContent.value = {
+      ...submittedContent.value,
+      [question.id]: {
+        transcript: response.transcript,
+        lrcContent: response.lrcContent,
+      },
+    }
   } catch (error) {
     toast(errorMessage(error, t('listening.submitError')), 'error')
   } finally {
@@ -390,7 +477,7 @@ const restart = () => {
 }
 
 const goBack = () => {
-  if (mode.value === 'quiz') {
+  if (mode.value === 'quiz' || mode.value === 'summary') {
     mode.value = 'list'
     return
   }

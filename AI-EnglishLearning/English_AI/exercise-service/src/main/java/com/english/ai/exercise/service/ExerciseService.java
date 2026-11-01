@@ -12,6 +12,7 @@ import com.english.ai.exercise.dto.DailyWordVO;
 import com.english.ai.exercise.dto.WeakKnowledgePoint;
 import com.english.ai.exercise.entity.SysKnowledgePoint;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -23,6 +24,15 @@ public interface ExerciseService {
      * 智能选题
      */
     List<QuestionVO> selectQuestions(Long userId, Integer moduleType, int count);
+
+    /**
+     * 智能选题（带题目白名单）。
+     *
+     * <p>听力等需要按题型预过滤时，先查出允许的 questionId，再走同一套 ELO/难度逻辑，
+     * 避免“先选题再过滤”造成 usage_count 多扣和数量不足。传入空集合直接返回空。</p>
+     */
+    List<QuestionVO> selectQuestions(Long userId, Integer moduleType, int count,
+                                     Collection<Long> allowedQuestionIds);
 
     /** 选择新词练习题目，排除用户单词本中已存在的单词 */
     List<QuestionVO> selectNewVocabularyQuestions(Long userId, int count);

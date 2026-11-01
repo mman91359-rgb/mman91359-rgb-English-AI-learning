@@ -1,6 +1,7 @@
 package com.english.ai.exercise.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.english.ai.common.BusinessException;
 import com.english.ai.common.ErrorCode;
 import com.english.ai.common.ModuleType;
@@ -98,6 +99,17 @@ public class ExerciseServiceImpl implements ExerciseService {
 
     @Override
     public List<QuestionVO> selectQuestions(Long userId, Integer moduleType, int count) {
+        return selectQuestions(userId, moduleType, count, null);
+    }
+
+    @Override
+    public List<QuestionVO> selectQuestions(Long userId, Integer moduleType, int count,
+                                            Collection<Long> allowedQuestionIds) {
+        // 白名单为空表示该筛选条件下没有可用题，直接返回，避免空 IN 和无效 usage_count
+        if (allowedQuestionIds != null && allowedQuestionIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+
         // 1. 调 user-service 获取用户 ELO分 和 cetLevel
         int eloScore = 1000;
         String cetLevel = "CET4";
@@ -169,6 +181,9 @@ public class ExerciseServiceImpl implements ExerciseService {
                     .eq(QuestionInfo::getQuestionType, questionType)
                     .between(QuestionInfo::getDifficultyLevel, loDifficulty, hiDifficulty)
                     .eq(QuestionInfo::getIsDeleted, 0);
+            if (allowedQuestionIds != null) {
+                wrapper.in(QuestionInfo::getId, allowedQuestionIds);
+            }
             if (!recentIds.isEmpty()) {
                 wrapper.notIn(QuestionInfo::getId, recentIds);
             }
@@ -186,8 +201,11 @@ public class ExerciseServiceImpl implements ExerciseService {
                 wrapper.eq(QuestionInfo::getTargetLevel, level)
                         .eq(QuestionInfo::getModuleType, moduleType)
                         .eq(QuestionInfo::getQuestionType, questionType)
-                        .eq(QuestionInfo::getIsDeleted, 0)
-                        .orderByAsc(QuestionInfo::getUsageCount)
+                        .eq(QuestionInfo::getIsDeleted, 0);
+                if (allowedQuestionIds != null) {
+                    wrapper.in(QuestionInfo::getId, allowedQuestionIds);
+                }
+                wrapper.orderByAsc(QuestionInfo::getUsageCount)
                         .last("LIMIT " + remaining);
                 candidates.addAll(questionInfoMapper.selectList(wrapper));
             }
@@ -198,8 +216,11 @@ public class ExerciseServiceImpl implements ExerciseService {
             LambdaQueryWrapper<QuestionInfo> wrapper = new LambdaQueryWrapper<>();
             wrapper.eq(QuestionInfo::getModuleType, moduleType)
                     .eq(QuestionInfo::getQuestionType, questionType)
-                    .eq(QuestionInfo::getIsDeleted, 0)
-                    .orderByAsc(QuestionInfo::getUsageCount)
+                    .eq(QuestionInfo::getIsDeleted, 0);
+            if (allowedQuestionIds != null) {
+                wrapper.in(QuestionInfo::getId, allowedQuestionIds);
+            }
+            wrapper.orderByAsc(QuestionInfo::getUsageCount)
                     .last("LIMIT " + count);
             candidates.addAll(questionInfoMapper.selectList(wrapper));
         }
@@ -213,10 +234,11 @@ public class ExerciseServiceImpl implements ExerciseService {
         log.info("智能选题: userId={}, userLevel={}, 实际使用等级{}条, moduleType={}, 需求{}题, 返回{}题",
                 userId, cetLevel, selected.size() > 0 ? "混合" : "无", moduleType, count, selected.size());
 
-        // 更新usage_count
-        for (QuestionInfo qi : selected) {
-            qi.setUsageCount(qi.getUsageCount() + 1);
-            questionInfoMapper.updateById(qi);
+        // 更新 usage_count：单条 SQL 原子自增，避免并发读改写丢更新
+        if (!selected.isEmpty()) {
+            questionInfoMapper.update(null, new UpdateWrapper<QuestionInfo>()
+                    .in("id", selected.stream().map(QuestionInfo::getId).toList())
+                    .setSql("usage_count = usage_count + 1"));
         }
 
         return selected.stream()

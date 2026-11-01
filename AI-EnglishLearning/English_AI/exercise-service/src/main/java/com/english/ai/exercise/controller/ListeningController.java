@@ -40,23 +40,26 @@ public class ListeningController {
      */
     @GetMapping("/questions")
     public Result<List<QuestionVO>> questions(@RequestParam Long userId,
-                                              @RequestParam(defaultValue = "5") Integer count) {
+                                              @RequestParam(defaultValue = "5") Integer count,
+                                              @RequestParam(required = false) String listeningType) {
         if (count > 20) {
             count = 20;
         }
-        List<QuestionVO> questions = listeningService.listListeningQuestions(userId, count);
-        log.info("听力选题: userId={}, count={}, 实际返回{}题", userId, count, questions.size());
+        List<QuestionVO> questions = listeningService.listListeningQuestions(userId, count, listeningType);
+        log.info("听力选题: userId={}, count={}, listeningType={}, 实际返回{}题",
+                userId, count, listeningType, questions.size());
         return Result.success(questions);
     }
 
     /**
      * 单题详情。
-     * GET /exercise/listening/question/{id}?showAnswer=false
+     * GET /exercise/listening/question/{id}?showAnswer=false&userId=1
      */
     @GetMapping("/question/{id}")
     public Result<QuestionVO> question(@PathVariable Long id,
-                                       @RequestParam(defaultValue = "false") boolean showAnswer) {
-        return Result.success(listeningService.getListeningQuestion(id, showAnswer));
+                                       @RequestParam(defaultValue = "false") boolean showAnswer,
+                                       @RequestParam(required = false) Long userId) {
+        return Result.success(listeningService.getListeningQuestion(id, showAnswer, userId));
     }
 
     /**

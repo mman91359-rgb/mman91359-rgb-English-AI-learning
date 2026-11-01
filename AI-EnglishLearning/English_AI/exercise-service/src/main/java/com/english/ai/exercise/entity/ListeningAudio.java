@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -29,8 +30,32 @@ public class ListeningAudio {
     /** 听力原文 */
     private String transcript;
 
-    /** 音频时长（秒） */
+    /** 文章段播放时长（秒） */
     private Integer durationSeconds;
+
+    /** 完整音频总时长（秒） */
+    private Integer audioTotalSeconds;
+
+    /** 文章段起点（秒，包含） */
+    private BigDecimal audioStartSeconds;
+
+    /** 文章段终点（秒，不包含） */
+    private BigDecimal audioEndSeconds;
+
+    /** 题目段起点（秒，包含） */
+    private BigDecimal questionStartSeconds;
+
+    /** 题目段终点（秒，不包含） */
+    private BigDecimal questionEndSeconds;
+
+    /** 题组/音频段落标识 */
+    private String groupKey;
+
+    /** 听力题型 */
+    private String listeningType;
+
+    /** 片段 LRC 字幕（完整音频绝对时间轴） */
+    private String lrcContent;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;

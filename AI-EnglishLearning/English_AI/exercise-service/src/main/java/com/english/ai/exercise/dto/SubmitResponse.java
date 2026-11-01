@@ -51,4 +51,7 @@ public class SubmitResponse {
 
     /** 听力原文（仅听力题提交后返回） */
     private String transcript;
+
+    /** 听力 LRC 字幕（仅听力题提交后返回） */
+    private String lrcContent;
 }

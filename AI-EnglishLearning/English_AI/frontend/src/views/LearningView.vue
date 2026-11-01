@@ -284,7 +284,7 @@ const route = useRoute()
 const tabs = computed(() => [
   { key: 'vocab', label: t('learning.vocabTab'), moduleType: 1, available: true },
   { key: 'grammar', label: t('learning.grammarTab'), moduleType: 2, available: true },
-  { key: 'translation', label: t('learning.translationTab'), moduleType: 3, available: false },
+  { key: 'translation', label: t('learning.translationTab'), moduleType: 3, available: true },
   { key: 'listening', label: t('learning.listeningTab'), moduleType: 4, available: true },
   { key: 'sentence', label: t('learning.sentenceTab'), moduleType: 5, available: false },
 ])
@@ -455,6 +455,8 @@ const startPractice = () => {
     void openVocabularyGoalDialog()
   } else if (currentModuleType.value === 2) {
     router.push('/grammar-quiz')
+  } else if (currentModuleType.value === 3) {
+    router.push('/translation')
   } else if (currentModuleType.value === 4) {
     router.push('/listening')
   } else {
@@ -474,6 +476,15 @@ const switchTab = (key: string) => {
   const target = tabs.value.find(tab => tab.key === key)
   if (target && !target.available) {
     toastComingSoon()
+    return
+  }
+  // 听力和翻译使用独立入口页，保持与设计稿一致
+  if (key === 'listening') {
+    router.push('/listening')
+    return
+  }
+  if (key === 'translation') {
+    router.push('/translation')
     return
   }
   activeTab.value = key

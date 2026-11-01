@@ -16,7 +16,10 @@ import VocabQuizView from '../views/VocabQuizView.vue'
 import GrammarQuizView from '../views/GrammarQuizView.vue'
 import AssessView from '../views/AssessView.vue'
 import AdminQuestions from '../views/AdminQuestions.vue'
-import ListeningView from '../views/ListeningView.vue'
+import ListeningEntryView from '../views/ListeningEntryView.vue'
+import ListeningQuizView from '../views/ListeningQuizView.vue'
+import TranslationEntryView from '../views/TranslationEntryView.vue'
+import TranslationPracticeView from '../views/TranslationPracticeView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -55,8 +58,26 @@ const router = createRouter({
     {
       path: '/listening',
       name: 'listening',
-      component: ListeningView,
+      component: ListeningEntryView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/listening/quiz',
+      name: 'listening-quiz',
+      component: ListeningQuizView,
       meta: { requiresAuth: true, studyTracked: true },
+    },
+    {
+      path: '/translation',
+      name: 'translation',
+      component: TranslationEntryView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/translation/practice',
+      name: 'translation-practice',
+      component: TranslationPracticeView,
+      meta: { requiresAuth: true },
     },
     {
       path: '/stats',

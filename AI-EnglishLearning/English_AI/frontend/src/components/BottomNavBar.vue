@@ -33,6 +33,13 @@ const isActive = (path: string) => {
   if (path === '/dashboard') {
     return route.path === '/dashboard' || route.path === '/'
   }
+  if (path === '/learning') {
+    return route.path.startsWith('/learning')
+      || route.path.startsWith('/listening')
+      || route.path.startsWith('/translation')
+      || route.path === '/vocab-quiz'
+      || route.path === '/grammar-quiz'
+  }
   return route.path.startsWith(path)
 }
 </script>

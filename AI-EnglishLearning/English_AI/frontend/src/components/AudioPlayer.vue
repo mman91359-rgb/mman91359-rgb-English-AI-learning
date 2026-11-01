@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-surface-container-low rounded-2xl p-4 md:p-5">
+  <div class="space-y-4">
     <audio
       ref="audioEl"
       :src="src"
@@ -13,161 +13,110 @@
       @error="handleError"
     />
 
-    <div class="space-y-3">
-      <div
-        class="rounded-xl border p-3 transition-colors"
-        :class="range === 'article' ? 'border-tertiary/40 bg-tertiary/5' : 'border-outline-variant/20'"
-      >
-        <div class="flex items-center gap-2">
-          <span class="material-symbols-outlined text-tertiary text-[20px]">article</span>
-          <span class="font-label-lg text-label-lg" :class="range === 'article' ? 'text-tertiary' : 'text-on-surface'">
-            {{ $t('listening.articleAudio') }}
-          </span>
-          <span class="ml-auto font-label-md text-label-md text-on-surface-variant">
-            {{ range === 'article' ? formatTime(currentTime) : '00:00' }} / {{ formatTime(articleDuration) }}
-          </span>
-        </div>
-        <div class="flex items-center gap-2 mt-2">
-          <button
-            type="button"
-            class="w-9 h-9 rounded-full bg-tertiary text-on-tertiary flex items-center justify-center disabled:opacity-50"
-            :disabled="disabled || hasError"
-            :aria-label="range === 'article' && isPlaying ? $t('listening.pause') : $t('listening.play')"
-            @click="playRange('article')"
-          >
-            <span class="material-symbols-outlined text-[20px]">
-              {{ range === 'article' && isPlaying ? 'pause' : 'play_arrow' }}
-            </span>
-          </button>
-          <input
-            type="range"
-            min="0"
-            :max="articleDuration || 0"
-            step="0.1"
-            :value="range === 'article' ? currentTime : 0"
-            class="flex-1 accent-tertiary disabled:opacity-50"
-            :disabled="disabled || hasError || range !== 'article'"
-            :aria-label="$t('listening.progress')"
-            @input="seekFrom('article', $event)"
-          />
-          <button
-            type="button"
-            class="p-2 rounded-full text-tertiary hover:bg-tertiary/10 disabled:opacity-50"
-            :disabled="disabled || hasError"
-            :aria-label="$t('listening.replay')"
-            @click="replayRange('article')"
-          >
-            <span class="material-symbols-outlined text-[20px]">replay</span>
-          </button>
-        </div>
-      </div>
-
-      <div
-        v-if="hasQuestionTrack"
-        class="rounded-xl border p-3 transition-colors"
-        :class="range === 'question' ? 'border-secondary/40 bg-secondary/5' : 'border-outline-variant/20'"
-      >
-        <div class="flex items-center gap-2">
-          <span class="material-symbols-outlined text-secondary text-[20px]">record_voice_over</span>
-          <span class="font-label-lg text-label-lg" :class="range === 'question' ? 'text-secondary' : 'text-on-surface'">
-            {{ $t('listening.questionAudio') }}
-          </span>
-          <span class="ml-auto font-label-md text-label-md text-on-surface-variant">
-            {{ range === 'question' ? formatTime(currentTime) : '00:00' }} / {{ formatTime(questionDuration) }}
-          </span>
-        </div>
-        <div class="flex items-center gap-2 mt-2">
-          <button
-            type="button"
-            class="w-9 h-9 rounded-full bg-secondary text-on-secondary flex items-center justify-center disabled:opacity-50"
-            :disabled="disabled || hasError"
-            :aria-label="range === 'question' && isPlaying ? $t('listening.pause') : $t('listening.play')"
-            @click="playRange('question')"
-          >
-            <span class="material-symbols-outlined text-[20px]">
-              {{ range === 'question' && isPlaying ? 'pause' : 'play_arrow' }}
-            </span>
-          </button>
-          <input
-            type="range"
-            min="0"
-            :max="questionDuration || 0"
-            step="0.1"
-            :value="range === 'question' ? currentTime : 0"
-            class="flex-1 accent-secondary disabled:opacity-50"
-            :disabled="disabled || hasError || range !== 'question'"
-            :aria-label="$t('listening.progress')"
-            @input="seekFrom('question', $event)"
-          />
-          <button
-            type="button"
-            class="p-2 rounded-full text-secondary hover:bg-secondary/10 disabled:opacity-50"
-            :disabled="disabled || hasError"
-            :aria-label="$t('listening.replay')"
-            @click="replayRange('question')"
-          >
-            <span class="material-symbols-outlined text-[20px]">replay</span>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <p v-if="hasError" class="mt-2 font-label-md text-label-md text-error">
-      {{ $t('listening.audioError') }}
-    </p>
-
-    <div v-if="hasContent" class="mt-4">
-      <div class="flex items-center gap-2 border-b border-outline-variant/20 pb-2">
-        <button
-          v-if="lrcContent"
-          type="button"
-          class="px-2 py-1 rounded-lg font-label-md text-label-md transition-colors"
-          :class="view === 'lyrics' ? 'bg-primary-container/30 text-primary' : 'text-on-surface-variant hover:text-primary'"
-          @click="view = 'lyrics'"
-        >
-          {{ $t('listening.lyrics') }}
-        </button>
-        <button
-          v-if="transcript"
-          type="button"
-          class="px-2 py-1 rounded-lg font-label-md text-label-md transition-colors"
-          :class="view === 'transcript' ? 'bg-primary-container/30 text-primary' : 'text-on-surface-variant hover:text-primary'"
-          @click="view = 'transcript'"
-        >
-          {{ $t('listening.transcript') }}
-        </button>
-        <span v-if="range === 'question' && activeCue" class="ml-auto font-label-md text-label-md text-secondary truncate">
-          {{ activeCue.text }}
+    <div class="bg-tertiary-container/10 rounded-[20px] p-5">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="material-symbols-outlined text-tertiary text-[20px]">article</span>
+        <span class="font-label-lg text-label-lg text-tertiary">{{ $t('listening.articleAudio') }}</span>
+        <span class="ml-auto font-label-md text-label-md text-on-surface-variant">
+          {{ range === 'article' ? formatTime(currentTime) : '0:00' }} / {{ formatTime(articleDuration) }}
         </span>
       </div>
-
-      <div v-if="view === 'transcript' && transcript" class="mt-3 max-h-64 overflow-y-auto">
-        <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed whitespace-pre-line">
-          {{ transcript }}
-        </p>
-      </div>
-
-      <div v-else-if="view === 'lyrics' && lrcContent" ref="lyricsEl" class="mt-3 max-h-64 overflow-y-auto">
+      <div class="flex items-center gap-4">
         <button
-          v-for="(cue, index) in segmentCues"
-          :key="`${cue.time}-${index}`"
           type="button"
-          class="block w-full text-left px-2 py-1.5 rounded-lg transition-colors"
-          :class="index === activeCueIndex ? 'bg-primary-container/30 text-primary font-semibold' : 'text-on-surface-variant hover:bg-surface-container-high/50'"
-          :data-active="index === activeCueIndex"
-          @click="seekToCue(cue.time)"
+          class="w-12 h-12 rounded-full bg-tertiary text-on-tertiary flex items-center justify-center flex-shrink-0 hover:opacity-90 transition-opacity shadow-[0_4px_14px_rgba(0,110,32,0.25)] disabled:opacity-50"
+          :disabled="disabled || hasError"
+          :aria-label="range === 'article' && isPlaying ? $t('listening.pause') : $t('listening.play')"
+          @click="playRange('article')"
         >
-          <span class="font-body-md text-body-md leading-relaxed">{{ cue.text }}</span>
-          <span v-if="cue.translation" class="block font-label-md text-label-md opacity-70 mt-0.5">{{ cue.translation }}</span>
+          <span class="material-symbols-outlined text-[24px] fill">{{ range === 'article' && isPlaying ? 'pause' : 'play_arrow' }}</span>
+        </button>
+        <div
+          class="flex-1 flex items-center gap-[3px] h-10 cursor-pointer"
+          role="slider"
+          :aria-label="$t('listening.progress')"
+          :aria-valuenow="Math.round(articleProgress * 100)"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          tabindex="0"
+          @click="seekByWave('article', $event)"
+        >
+          <span
+            v-for="(height, index) in waveBars"
+            :key="index"
+            class="wave-bar w-1 rounded-full"
+            :class="barClass('article', index)"
+            :style="{ height: `${height}px`, animationDelay: `${index * 0.05}s` }"
+          ></span>
+        </div>
+        <button
+          type="button"
+          class="p-2 rounded-full text-tertiary hover:bg-tertiary/10 transition-colors flex-shrink-0 disabled:opacity-50"
+          :disabled="disabled || hasError"
+          :aria-label="$t('listening.replay')"
+          @click="replayRange('article')"
+        >
+          <span class="material-symbols-outlined text-[20px]">replay</span>
         </button>
       </div>
     </div>
+
+    <div v-if="hasQuestionTrack" class="bg-secondary-container/10 rounded-[20px] p-5">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="material-symbols-outlined text-secondary text-[20px]">record_voice_over</span>
+        <span class="font-label-lg text-label-lg text-secondary">{{ $t('listening.questionAudio') }}</span>
+        <span class="ml-auto font-label-md text-label-md text-on-surface-variant">
+          {{ range === 'question' ? formatTime(currentTime) : '0:00' }} / {{ formatTime(questionDuration) }}
+        </span>
+      </div>
+      <div class="flex items-center gap-4">
+        <button
+          type="button"
+          class="w-12 h-12 rounded-full bg-secondary text-on-secondary flex items-center justify-center flex-shrink-0 hover:opacity-90 transition-opacity shadow-[0_4px_14px_rgba(12,103,128,0.25)] disabled:opacity-50"
+          :disabled="disabled || hasError"
+          :aria-label="range === 'question' && isPlaying ? $t('listening.pause') : $t('listening.play')"
+          @click="playRange('question')"
+        >
+          <span class="material-symbols-outlined text-[24px] fill">{{ range === 'question' && isPlaying ? 'pause' : 'play_arrow' }}</span>
+        </button>
+        <div
+          class="flex-1 flex items-center gap-[3px] h-10 cursor-pointer"
+          role="slider"
+          :aria-label="$t('listening.progress')"
+          :aria-valuenow="Math.round(questionProgress * 100)"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          tabindex="0"
+          @click="seekByWave('question', $event)"
+        >
+          <span
+            v-for="(height, index) in questionWaveBars"
+            :key="index"
+            class="w-1 rounded-full"
+            :class="barClass('question', index)"
+            :style="{ height: `${height}px` }"
+          ></span>
+        </div>
+        <button
+          type="button"
+          class="p-2 rounded-full text-secondary hover:bg-secondary/10 transition-colors flex-shrink-0 disabled:opacity-50"
+          :disabled="disabled || hasError"
+          :aria-label="$t('listening.replay')"
+          @click="replayRange('question')"
+        >
+          <span class="material-symbols-outlined text-[20px]">replay</span>
+        </button>
+      </div>
+    </div>
+
+    <p v-if="hasError" class="font-label-md text-label-md text-error">
+      {{ $t('listening.audioError') }}
+    </p>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
-import { findCueIndex, parseLrc, sliceLrc } from '../utils/lrc'
 
 type RangeMode = 'article' | 'question'
 
@@ -179,8 +128,6 @@ const props = withDefaults(defineProps<{
   audioEndSeconds?: number
   questionStartSeconds?: number
   questionEndSeconds?: number
-  transcript?: string
-  lrcContent?: string
   disabled?: boolean
 }>(), {
   disabled: false,
@@ -192,63 +139,82 @@ const emit = defineEmits<{
   pause: []
   ended: []
   error: [message: string]
-  timeupdate: [payload: { currentTime: number; duration: number; range: RangeMode }]
+  timeupdate: [payload: { currentTime: number; duration: number; range: RangeMode; absoluteTime: number }]
 }>()
 
+const waveBars = [12, 24, 36, 28, 40, 20, 32, 16, 36, 24, 28, 16, 36, 24, 40, 20, 32, 12, 28, 20, 36, 16, 32, 24, 12]
+const questionWaveBars = [12, 16, 20, 14, 24, 18, 22, 12, 20, 16, 18, 14]
+
 const audioEl = ref<HTMLAudioElement | null>(null)
-const lyricsEl = ref<HTMLElement | null>(null)
 const duration = ref(0)
 const currentTime = ref(0)
 const isPlaying = ref(false)
 const hasError = ref(false)
 const range = ref<RangeMode>('article')
-const view = ref<'lyrics' | 'transcript'>('lyrics')
+const playbackRate = ref(1)
 
-const totalDuration = computed(() => {
-  return duration.value || props.audioTotalSeconds || props.durationSeconds || 0
-})
-
+const totalDuration = computed(() => duration.value || props.audioTotalSeconds || props.durationSeconds || 0)
 const articleStart = computed(() => props.audioStartSeconds ?? 0)
 const articleEnd = computed(() => props.audioEndSeconds ?? totalDuration.value)
 const questionStart = computed(() => props.questionStartSeconds ?? articleStart.value)
 const questionEnd = computed(() => props.questionEndSeconds ?? articleEnd.value)
-
-const hasQuestionTrack = computed(() => {
-  return props.questionStartSeconds != null && props.questionEndSeconds != null
-})
+const hasQuestionTrack = computed(() => props.questionStartSeconds != null && props.questionEndSeconds != null)
 
 const activeStart = computed(() => (range.value === 'article' ? articleStart.value : questionStart.value))
 const activeEnd = computed(() => {
   const end = range.value === 'article' ? articleEnd.value : questionEnd.value
   return totalDuration.value > 0 ? Math.min(end, totalDuration.value) : end
 })
-
 const articleDuration = computed(() => Math.max(0, safeEndFor('article') - articleStart.value))
 const questionDuration = computed(() => Math.max(0, safeEndFor('question') - questionStart.value))
 const segmentDuration = computed(() => Math.max(0, activeEnd.value - activeStart.value))
-
-const cues = computed(() => parseLrc(props.lrcContent))
-const segmentCues = computed(() => {
-  const start = range.value === 'article' ? articleStart.value : questionStart.value
-  const end = range.value === 'article' ? articleEnd.value : questionEnd.value
-  return sliceLrc(cues.value, start, end, true)
-})
-const activeCueIndex = computed(() => findCueIndex(segmentCues.value, currentTime.value))
-const activeCue = computed(() => (activeCueIndex.value >= 0 ? segmentCues.value[activeCueIndex.value] : null))
-
-const hasContent = computed(() => Boolean(props.transcript || props.lrcContent))
+const articleProgress = computed(() => (articleDuration.value > 0 && range.value === 'article' ? currentTime.value / articleDuration.value : 0))
+const questionProgress = computed(() => (questionDuration.value > 0 && range.value === 'question' ? currentTime.value / questionDuration.value : 0))
 
 function safeEndFor(mode: RangeMode): number {
   const end = mode === 'article' ? articleEnd.value : questionEnd.value
   return totalDuration.value > 0 ? Math.min(end, totalDuration.value) : end
 }
 
+function round2(value: number) {
+  return Math.round(value * 100) / 100
+}
+
 function formatTime(seconds: number): string {
-  if (!Number.isFinite(seconds) || seconds < 0) return '00:00'
+  if (!Number.isFinite(seconds) || seconds < 0) return '0:00'
   const total = Math.floor(seconds)
   const minutes = Math.floor(total / 60)
   const remain = total % 60
-  return `${String(minutes).padStart(2, '0')}:${String(remain).padStart(2, '0')}`
+  return `${minutes}:${String(remain).padStart(2, '0')}`
+}
+
+function barClass(track: RangeMode, index: number): string {
+  const progress = track === 'article' ? articleProgress.value : questionProgress.value
+  const barCount = track === 'article' ? waveBars.length : questionWaveBars.length
+  const active = range.value === track && index < Math.round(progress * barCount)
+  if (track === 'article') {
+    return active ? 'bg-tertiary' : 'bg-tertiary-container/40'
+  }
+  return active ? 'bg-secondary' : 'bg-secondary-container/40'
+}
+
+function toggleRate() {
+  const next = playbackRate.value === 1 ? 1.25 : 1
+  setPlaybackRate(next)
+}
+
+function setPlaybackRate(rate: number) {
+  playbackRate.value = rate
+  if (audioEl.value) audioEl.value.playbackRate = rate
+}
+
+function emitTime() {
+  emit('timeupdate', {
+    currentTime: currentTime.value,
+    duration: segmentDuration.value,
+    range: range.value,
+    absoluteTime: round2(activeStart.value + currentTime.value),
+  })
 }
 
 function syncCurrentTime() {
@@ -256,10 +222,6 @@ function syncCurrentTime() {
   if (!audio) return
   const relative = audio.currentTime - activeStart.value
   currentTime.value = Math.min(Math.max(round2(relative), 0), segmentDuration.value)
-}
-
-function round2(value: number) {
-  return Math.round(value * 100) / 100
 }
 
 function seekToAbsolute(absolute: number) {
@@ -270,21 +232,24 @@ function seekToAbsolute(absolute: number) {
   const target = Math.min(Math.max(absolute, start), Math.max(start, end - 0.05))
   audio.currentTime = target
   currentTime.value = Math.min(Math.max(target - start, 0), segmentDuration.value)
+  emitTime()
 }
 
-function switchRange(next: RangeMode) {
+function setRange(next: RangeMode) {
   if (next === 'question' && !hasQuestionTrack.value) return
   if (range.value === next) return
   audioEl.value?.pause()
   range.value = next
   currentTime.value = 0
-  void nextTick(() => seekToAbsolute(activeStart.value))
+  void nextTick(() => {
+    seekToAbsolute(activeStart.value)
+  })
 }
 
 async function playRange(next: RangeMode) {
   if (next === 'question' && !hasQuestionTrack.value) return
   if (range.value !== next) {
-    switchRange(next)
+    setRange(next)
     await nextTick()
   }
   await toggle()
@@ -302,6 +267,7 @@ async function toggle() {
     currentTime.value = 0
   }
   try {
+    audio.playbackRate = playbackRate.value
     await audio.play()
   } catch {
     hasError.value = true
@@ -315,6 +281,7 @@ async function replay() {
   audio.currentTime = activeStart.value
   currentTime.value = 0
   try {
+    audio.playbackRate = playbackRate.value
     await audio.play()
   } catch {
     hasError.value = true
@@ -325,25 +292,25 @@ async function replay() {
 async function replayRange(next: RangeMode) {
   if (next === 'question' && !hasQuestionTrack.value) return
   if (range.value !== next) {
-    switchRange(next)
+    setRange(next)
     await nextTick()
   }
   await replay()
 }
 
-function seekFrom(next: RangeMode, event: Event) {
-  if (next === 'question' && !hasQuestionTrack.value) return
-  if (range.value !== next) {
+function seekByWave(track: RangeMode, event: MouseEvent) {
+  if (track === 'question' && !hasQuestionTrack.value) return
+  if (range.value !== track) {
     audioEl.value?.pause()
-    range.value = next
+    range.value = track
     currentTime.value = 0
   }
-  const target = event.target as HTMLInputElement
-  seekToAbsolute(activeStart.value + Number(target.value))
-}
-
-function seekToCue(relativeTime: number) {
-  seekToAbsolute(activeStart.value + relativeTime)
+  const target = event.currentTarget as HTMLElement
+  const rect = target.getBoundingClientRect()
+  const ratio = Math.min(Math.max((event.clientX - rect.left) / rect.width, 0), 1)
+  const start = track === 'article' ? articleStart.value : questionStart.value
+  const end = track === 'article' ? articleEnd.value : questionEnd.value
+  seekToAbsolute(start + ratio * Math.max(0, end - start))
 }
 
 function handleLoaded() {
@@ -356,6 +323,7 @@ function handleLoaded() {
     audio.currentTime = activeStart.value
   }
   syncCurrentTime()
+  emitTime()
   emit('loaded', actual)
 }
 
@@ -365,21 +333,19 @@ function handleTimeUpdate() {
   if (audio.currentTime < activeStart.value - 0.1) {
     audio.currentTime = activeStart.value
     currentTime.value = 0
+    emitTime()
     return
   }
   if (audio.currentTime >= activeEnd.value - 0.05) {
     audio.pause()
     audio.currentTime = activeEnd.value
     currentTime.value = segmentDuration.value
+    emitTime()
     emit('ended')
     return
   }
   syncCurrentTime()
-  emit('timeupdate', {
-    currentTime: currentTime.value,
-    duration: segmentDuration.value,
-    range: range.value,
-  })
+  emitTime()
 }
 
 function handlePlay() {
@@ -414,7 +380,7 @@ function reset() {
   isPlaying.value = false
   hasError.value = false
   range.value = 'article'
-  view.value = 'lyrics'
+  playbackRate.value = 1
 }
 
 watch(() => props.src, reset)
@@ -424,9 +390,6 @@ watch(() => props.disabled, (value) => {
 watch(hasQuestionTrack, (value) => {
   if (!value) range.value = 'article'
 })
-watch(() => props.lrcContent, (value) => {
-  view.value = value ? 'lyrics' : 'transcript'
-}, { immediate: true })
 watch([() => props.questionStartSeconds, () => props.questionEndSeconds], () => {
   const audio = audioEl.value
   if (!audio) return
@@ -436,21 +399,21 @@ watch([() => props.questionStartSeconds, () => props.questionEndSeconds], () => 
     seekToAbsolute(range.value === 'article' ? articleStart.value : questionStart.value)
   })
 })
-watch(activeCueIndex, () => {
-  void nextTick(() => {
-    const container = lyricsEl.value
-    if (!container) return
-    const active = container.querySelector<HTMLElement>('[data-active="true"]')
-    const target = (active || container.children.item(activeCueIndex.value)) as HTMLElement | null
-    if (target) {
-      container.scrollTop = target.offsetTop - container.clientHeight / 2 + target.clientHeight / 2
-    }
-  })
-})
 
 onBeforeUnmount(() => {
   audioEl.value?.pause()
 })
 
-defineExpose({ toggle, replay, reset })
+defineExpose({ toggle, replay, reset, setPlaybackRate, seekToAbsolute, setRange, toggleRate })
 </script>
+
+<style scoped>
+@keyframes wave-pulse {
+  0%, 100% { transform: scaleY(0.4); }
+  50% { transform: scaleY(1); }
+}
+.wave-bar {
+  transform-origin: center;
+  animation: wave-pulse 1.2s ease-in-out infinite;
+}
+</style>

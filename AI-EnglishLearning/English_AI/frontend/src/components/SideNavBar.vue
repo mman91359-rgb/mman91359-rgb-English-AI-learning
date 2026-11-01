@@ -33,7 +33,7 @@
         <span class="font-label-lg text-label-lg transition-all duration-300 group-hover:tracking-wide">{{ item.label }}</span>
       </router-link>
     </nav>
-    <div class="mt-auto flex flex-col gap-2">
+    <div class="mt-auto flex flex-col gap-2 pt-8 border-t border-outline-variant/30">
       <router-link
         v-for="item in bottomNavItems"
         :key="item.name"
@@ -98,6 +98,8 @@ const isActive = (path: string) => {
   if (path === '/learning') {
     return route.path === '/learning'
       || route.path.startsWith('/learning/practice')
+      || route.path.startsWith('/listening')
+      || route.path.startsWith('/translation')
       || route.path === '/vocab-quiz'
       || route.path === '/grammar-quiz'
   }

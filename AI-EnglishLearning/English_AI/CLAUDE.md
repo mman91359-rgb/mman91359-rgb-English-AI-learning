@@ -404,3 +404,41 @@ npm run build
 3. 等出现第二个分页页再抽 `PageResult`/分页拦截器；等出现第三个 servlet 服务再评估 `common-web`。
 4. 新增金币奖励类型时再抽 `BizKeyFactory`；新增复习入口时再评估 `VocabularyReviewPolicy`。
 5. 部署前补一次真实 MySQL 端到端联调和浏览器 E2E。
+
+---
+
+## 变更记录（2026-11-01）
+
+### 本次修改文件
+
+**frontend**
+- `tailwind.config.js`、`src/assets/main.css`：新增 `info` 蓝色令牌；浅色 `warning` 提亮为 `#B45309`；补充字号/间距/动画。
+- `src/views/LearningView.vue`：词汇/语法入口统一为 8/4 彩色 hero；删除语法入口硬编码色与 green/cyan 原生色；修正 `?tab=grammar` 首次深链的每日目标初始化。
+- `src/i18n/locales/zh-CN.ts`、`en-US.ts`：补充 `vocabEntryDesc`、`vocabStart`、`grammarEntryDesc`、`grammarStart`；入口收藏文案改为“我的收藏”。
+- `src/i18n/locales/admin-console.zh-CN.ts`、`admin-console.en-US.ts`：补齐 `nav.backToLearning`。
+- `vite.config.ts`、`vite.config.js`：dev 代理在 `/api` 请求进入代理前重写 `Origin` 为 `http://localhost:5173`，修复非 5173 端口登录 403。
+- 管理员端 7 页与写作 Mock 模块文件：详见 `docs/2026-11-01-新增功能报告.md`。
+
+### 实现功能
+
+1. 管理员端 7 页：概览、用户、用户详情、题目审核、通知、活动、操作日志；接真实 `/admin/**` 接口，侧栏分组导航，P1 不再占位。
+2. 写作 Mock 模块：`/writing` 重定向学习中心 Tab；`/writing/practice`、`/writing/report`、`/writing/history`；30 分钟倒计时、10 秒自动保存、草稿恢复、四步评分、五维报告、逐句批改、历史趋势；`WritingScoringService` 可替换，当前仅 localStorage。
+3. 学习中心入口视觉统一：五个入口统一 8/4；主色为紫/蓝/青/绿/琥珀；语法新增 `info` 蓝色令牌。
+4. 本地 403 修复：根因是网关 CORS 只放行 5173 + 被跟踪的旧 `vite.config.js` 遮蔽 `.ts`；通过 dev 代理 Origin 重写解决。
+
+### 验证结果
+
+- `npm run type-check`、`npm run build` 通过（仅保留既有 chunk 体积警告）。
+- 浏览器 UI 登录：`listen_e2e_1793508633` → `/dashboard`；`admin_e2e` → `/admin/overview`。
+- 代理登录 `POST /api/user/login` 返回 200 + token。
+- 管理员 7 页真实数据正常；写作提交报告 `13/15`、`92.3/106.5`，历史与趋势正常。
+- 五个入口主色、8/4 比例、375/768 无溢出、亮/暗色均验证通过。
+
+### 遗留风险 / 待办
+
+1. 管理员写操作未在共享库做完整写入回归，上线前建议在测试库执行一轮。
+2. 写作为预览模式：评分是确定性 mock，草稿/历史只写 localStorage。
+3. 前端仍无单元测试；写作 AI 问答为占位。
+4. `vite.config.js` 由 `vue-tsc` 生成且被 git 跟踪，必须与 `vite.config.ts` 同步；建议后续把 `tsconfig.node` 的 `outDir` 移出根目录并清理生成物。
+5. `origin` remote URL 内嵌 GitHub PAT，建议改用凭据管理器/SSH 并轮换；本次未修改 remote。
+6. 远端 `refactor/reuse-baseline` 与本地分叉；本次推送到新分支 `feature/admin-writing-ui-20261101`，未覆盖旧分支。

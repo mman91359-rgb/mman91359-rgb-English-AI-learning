@@ -9,6 +9,9 @@ const extra = {
     loading: '加载中...',
     confirm: '确认',
   },
+  nav: {
+    backToLearning: '返回学习中心',
+  },
   detail: {
     fields: {
       eloScore: 'ELO',

@@ -9,6 +9,9 @@ const extra = {
     loading: 'Loading...',
     confirm: 'Confirm',
   },
+  nav: {
+    backToLearning: 'Back to Learning',
+  },
   detail: {
     fields: {
       eloScore: 'ELO',

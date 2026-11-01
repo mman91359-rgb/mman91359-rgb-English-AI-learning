@@ -22,69 +22,121 @@
       </button>
     </div>
 
-    <!-- ========== 语法 tab 专属布局（截图风格） ========== -->
+    <!-- ========== 语法 tab：与翻译/听力/写作一致的 8/4 布局 ========== -->
     <template v-if="activeTab === 'grammar'">
-      <!-- 语法学习主卡（淡蓝大卡片） -->
-      <div
-        class="bg-[#cdf0fa] dark:bg-[#1e3a4a] rounded-[24px] p-8 flex flex-col justify-between relative overflow-hidden cursor-pointer hover:shadow-[0_4px_20px_rgba(51,58,72,0.15)] transition-shadow min-h-[200px] mb-8 group"
-        @click="startPractice"
-      >
-        <div class="relative z-10 text-[#0e4f63] dark:text-[#9fdbf0]">
-          <h3 class="font-headline-md text-headline-md mb-2 font-bold">{{ $t('learning.grammarPractice') }}</h3>
-          <div class="flex items-center gap-2 font-body-md text-body-md" @click.stop>
-            <template v-if="editingTarget">
-              <input
-                ref="targetInput"
-                v-model.number="editValue"
-                class="w-16 bg-white/30 rounded px-2 py-0.5 text-center outline-none text-[#0e4f63]"
-                @keydown.enter="confirmTarget"
-                @keydown.escape="cancelTarget"
-                @blur="confirmTarget"
-              />
-            </template>
-            <template v-else>
-              <span @click.stop="startEditTarget" class="cursor-pointer">{{ $t('learning.dailyTargetItems', { count: dailyTarget }) }}</span>
-              <span class="material-symbols-outlined text-sm cursor-pointer" @click.stop="startEditTarget">edit</span>
-            </template>
-          </div>
-        </div>
-        <!-- 右侧装饰：四个点 + 圆形播放按钮 -->
-        <div class="absolute right-8 top-1/2 -translate-y-1/2 z-10 flex items-center gap-3">
-          <div class="flex flex-col gap-2 opacity-50">
-            <div class="w-1.5 h-1.5 rounded-full bg-[#0e4f63] dark:bg-[#9fdbf0]"></div>
-            <div class="w-1.5 h-1.5 rounded-full bg-[#0e4f63] dark:bg-[#9fdbf0]"></div>
-            <div class="w-1.5 h-1.5 rounded-full bg-[#0e4f63] dark:bg-[#9fdbf0]"></div>
-            <div class="w-1.5 h-1.5 rounded-full bg-[#0e4f63] dark:bg-[#9fdbf0]"></div>
-          </div>
-          <div class="w-16 h-16 bg-white/40 rounded-full flex items-center justify-center backdrop-blur-sm group-hover:scale-110 transition-transform">
-            <span class="material-symbols-outlined text-4xl text-[#0e4f63] dark:text-[#9fdbf0]" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
-          </div>
-        </div>
-      </div>
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+        <div class="relative flex flex-col overflow-hidden rounded-[24px] bg-info p-8 md:col-span-8">
+          <div class="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-info-container/30 blur-3xl" aria-hidden="true" />
+          <div class="relative z-10">
+            <h3 class="font-headline-md text-headline-md mb-2 text-on-info">{{ $t('learning.grammarPractice') }}</h3>
+            <p class="mb-5 font-body-md text-body-md text-on-info/80">{{ $t('learning.grammarEntryDesc') }}</p>
 
-      <!-- 学习过的语法 / 查看所有的AI问答 -->
-      <div class="bg-surface-container-lowest rounded-[24px] shadow-soft-glow overflow-hidden">
+            <div class="mb-6 flex flex-wrap items-center gap-3">
+              <span class="font-label-lg text-label-lg text-on-info/90">{{ $t('learning.dailyTarget') }}</span>
+              <div class="flex items-center gap-2 rounded-full bg-on-info/15 px-4 py-2 font-label-lg text-label-lg text-on-info">
+                <template v-if="editingTarget">
+                  <input
+                    ref="targetInput"
+                    v-model.number="editValue"
+                    class="w-16 rounded bg-on-info/15 px-2 py-0.5 text-center text-on-info outline-none"
+                    @keydown.enter="confirmTarget"
+                    @keydown.escape="cancelTarget"
+                    @blur="confirmTarget"
+                  />
+                  <span>{{ $t('learning.questions') }}</span>
+                </template>
+                <template v-else>
+                  <span class="cursor-pointer" @click="startEditTarget">{{ dailyTarget }} {{ $t('learning.questions') }}</span>
+                  <span class="material-symbols-outlined cursor-pointer text-sm" @click="startEditTarget">edit</span>
+                </template>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              class="flex w-full items-center justify-center gap-2 rounded-[16px] bg-surface-container-lowest px-8 py-4 font-label-lg text-label-lg text-info transition-colors hover:bg-surface-container-lowest/90 sm:w-auto sm:inline-flex"
+              @click="startPractice"
+            >
+              <span class="material-symbols-outlined">play_arrow</span>{{ $t('learning.grammarStart') }}
+            </button>
+          </div>
+        </div>
+
+        <div class="col-span-1 flex flex-col gap-4 md:col-span-4">
+          <div
+            class="flex cursor-pointer items-center justify-between rounded-[24px] bg-surface-container-lowest p-6 shadow-soft-glow transition-colors hover:bg-surface-container-lowest/80"
+            @click="goToFavorites"
+          >
+            <div class="flex items-center gap-4">
+              <div class="flex h-10 w-10 items-center justify-center rounded-full bg-error-container/30">
+                <span class="material-symbols-outlined fill text-error">favorite</span>
+              </div>
+              <div class="flex flex-col gap-0.5">
+                <span class="font-body-lg text-body-lg text-on-surface">{{ $t('learning.myFavorites') }}</span>
+                <span class="font-label-md text-label-md text-on-surface-variant">{{ $t('learning.favoritesCount', { count: favoriteCount }) }}</span>
+              </div>
+            </div>
+            <span class="material-symbols-outlined text-outline">chevron_right</span>
+          </div>
+          <div
+            class="flex cursor-pointer items-center justify-between rounded-[24px] bg-surface-container-lowest p-6 shadow-soft-glow transition-colors hover:bg-surface-container-lowest/80"
+            @click="goToErrorBook"
+          >
+            <div class="flex items-center gap-4">
+              <div class="flex h-10 w-10 items-center justify-center rounded-full bg-secondary-container/30">
+                <span class="material-symbols-outlined text-secondary">build</span>
+              </div>
+              <div class="flex flex-col gap-0.5">
+                <span class="font-body-lg text-body-lg text-on-surface">{{ $t('learning.myErrorBook') }}</span>
+                <span class="font-label-md text-label-md text-on-surface-variant">{{ $t('learning.errorCountLabel', { count: errorCount }) }}</span>
+              </div>
+            </div>
+            <span class="material-symbols-outlined text-outline">chevron_right</span>
+          </div>
+        </div>
+
         <div
-          class="flex items-center justify-between p-6 cursor-pointer hover:bg-surface-container-lowest/80 transition-colors border-b border-outline-variant/10"
-          @click="goToStudiedGrammar"
+          class="col-span-1 flex cursor-pointer items-center justify-between rounded-[24px] bg-surface-container-lowest p-6 shadow-soft-glow transition-colors hover:bg-surface-container-lowest/80 md:col-span-4"
+          @click="goToHistory"
         >
           <div class="flex items-center gap-4">
-            <div class="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-              <span class="material-symbols-outlined text-green-600 dark:text-green-400" style="font-variation-settings: 'FILL' 1;">hourglass</span>
+            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-tertiary-container/30">
+              <span class="material-symbols-outlined text-tertiary">hourglass_bottom</span>
             </div>
-            <span class="font-body-lg text-body-lg text-on-surface">{{ $t('learning.studiedGrammar') }}</span>
+            <div class="flex flex-col gap-0.5">
+              <span class="font-body-lg text-body-lg text-on-surface">{{ $t('learning.learningHistory') }}</span>
+              <span class="font-label-md text-label-md text-on-surface-variant">{{ $t('learning.answeredCountLabel', { count: totalAnswered }) }}</span>
+            </div>
           </div>
           <span class="material-symbols-outlined text-outline">chevron_right</span>
         </div>
         <div
-          class="flex items-center justify-between p-6 cursor-pointer hover:bg-surface-container-lowest/80 transition-colors"
+          class="col-span-1 flex cursor-pointer items-center justify-between rounded-[24px] bg-surface-container-lowest p-6 shadow-soft-glow transition-colors hover:bg-surface-container-lowest/80 md:col-span-4"
+          @click="goToStudiedGrammar"
+        >
+          <div class="flex items-center gap-4">
+            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-primary-container/30">
+              <span class="material-symbols-outlined fill text-primary">hourglass</span>
+            </div>
+            <div class="flex flex-col gap-0.5">
+              <span class="font-body-lg text-body-lg text-on-surface">{{ $t('learning.studiedGrammar') }}</span>
+              <span class="font-label-md text-label-md text-on-surface-variant">{{ $t('learning.grammarPractice') }}</span>
+            </div>
+          </div>
+          <span class="material-symbols-outlined text-outline">chevron_right</span>
+        </div>
+        <div
+          class="col-span-1 flex cursor-pointer items-center justify-between rounded-[24px] bg-surface-container-lowest p-6 shadow-soft-glow transition-colors hover:bg-surface-container-lowest/80 md:col-span-4"
           @click="toastComingSoon"
         >
           <div class="flex items-center gap-4">
-            <div class="w-10 h-10 rounded-full bg-cyan-100 dark:bg-cyan-900/30 flex items-center justify-center">
-              <span class="material-symbols-outlined text-cyan-600 dark:text-cyan-400" style="font-variation-settings: 'FILL' 1;">lightbulb</span>
+            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-secondary-container/30">
+              <span class="material-symbols-outlined text-secondary">psychology</span>
             </div>
-            <span class="font-body-lg text-body-lg text-on-surface">{{ $t('learning.viewAllAiQA') }}</span>
+            <div class="flex flex-col gap-0.5">
+              <span class="font-body-lg text-body-lg text-on-surface">{{ $t('learning.aiQA') }}</span>
+              <span class="font-label-md text-label-md text-on-surface-variant">{{ $t('learning.aiAssistant') }}</span>
+            </div>
           </div>
           <span class="material-symbols-outlined text-outline">chevron_right</span>
         </div>
@@ -111,32 +163,31 @@
       <div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
         <!-- 主练习入口 -->
         <div
-          class="col-span-1 md:col-span-8 bg-primary-container rounded-[24px] p-8 flex flex-col justify-between relative overflow-hidden group cursor-pointer hover:shadow-[0_4px_20px_rgba(51,58,72,0.15)] transition-shadow min-h-[200px]"
-          @click="openVocabularyGoalDialog"
+          class="col-span-1 md:col-span-8 bg-primary rounded-[24px] p-8 flex flex-col justify-between relative overflow-hidden min-h-[200px]"
         >
-          <div class="relative z-10 text-on-primary-container">
-            <h3 class="font-headline-md text-headline-md mb-3">{{ currentModuleName }}{{ $t('learning.practice') }}</h3>
+          <div class="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-primary-fixed/20 blur-3xl" aria-hidden="true" />
+          <div class="relative z-10 text-on-primary">
+            <h3 class="font-headline-md text-headline-md mb-2">{{ currentModuleName }}{{ $t('learning.practice') }}</h3>
+            <p class="mb-5 font-body-sm text-body-sm text-on-primary/80">{{ $t('learning.vocabEntryDesc') }}</p>
             <div class="flex flex-wrap items-center gap-2">
-              <span class="rounded-full bg-white/15 px-3 py-1 font-label-md text-label-md">
+              <span class="rounded-full bg-on-primary/15 px-3 py-1 font-label-md text-label-md">
                 {{ $t('learning.newWordsGoal', { count: dailyNewWordsDisplay }) }}
               </span>
-              <span class="rounded-full bg-white/15 px-3 py-1 font-label-md text-label-md">
+              <span class="rounded-full bg-on-primary/15 px-3 py-1 font-label-md text-label-md">
                 {{ $t('learning.reviewWordsGoal', { count: dailyReviewWordsDisplay }) }}
               </span>
               <span class="material-symbols-outlined text-sm opacity-70">tune</span>
             </div>
-            <p class="mt-4 font-body-sm text-body-sm text-on-primary-container/70">
+            <p class="mt-4 font-body-sm text-body-sm text-on-primary/70">
               {{ $t('learning.tapToSetGoal') }}
             </p>
-          </div>
-          <div class="absolute right-8 top-1/2 -translate-y-1/2 z-10 w-16 h-16 bg-surface-container-lowest/20 rounded-full flex items-center justify-center backdrop-blur-sm group-hover:scale-110 transition-transform">
-            <span class="material-symbols-outlined text-4xl text-on-primary-container fill">tune</span>
-          </div>
-          <div class="absolute right-32 top-1/2 -translate-y-1/2 flex flex-col gap-2 opacity-30">
-            <div class="w-1.5 h-1.5 rounded-full bg-on-primary-container"></div>
-            <div class="w-1.5 h-1.5 rounded-full bg-on-primary-container"></div>
-            <div class="w-1.5 h-1.5 rounded-full bg-on-primary-container"></div>
-            <div class="w-1.5 h-1.5 rounded-full bg-on-primary-container"></div>
+            <button
+              type="button"
+              class="mt-6 flex w-full items-center justify-center gap-2 rounded-[16px] bg-surface-container-lowest px-8 py-4 font-label-lg text-label-lg text-primary transition-colors hover:bg-surface-container-lowest/90 sm:w-auto sm:inline-flex"
+              @click="openVocabularyGoalDialog"
+            >
+              <span class="material-symbols-outlined">play_arrow</span>{{ $t('learning.vocabStart') }}
+            </button>
           </div>
         </div>
 
@@ -391,6 +442,7 @@ const applyTabFromQuery = () => {
   }
 }
 applyTabFromQuery()
+loadTarget()
 watch(() => route.query.tab, applyTabFromQuery)
 
 watch(activeTab, () => {

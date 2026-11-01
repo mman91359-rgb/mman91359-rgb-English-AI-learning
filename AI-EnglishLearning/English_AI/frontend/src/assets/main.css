@@ -107,10 +107,16 @@ button, .material-symbols-outlined {
   --color-on-error-container: 147 0 10;
 
   /* 警告色 */
-  --color-warning: 138 83 0;
+  --color-warning: 180 83 9;
   --color-warning-container: 255 222 166;
   --color-on-warning: 255 255 255;
   --color-on-warning-container: 74 44 0;
+
+  /* 信息/语法蓝 */
+  --color-info: 26 95 180;
+  --color-info-container: 199 226 255;
+  --color-on-info: 255 255 255;
+  --color-on-info-container: 0 47 85;
 }
 
 /* 暗色模式：覆盖上述 CSS 变量 */
@@ -172,6 +178,12 @@ html.dark {
   --color-warning-container: 92 61 0;
   --color-on-warning: 71 43 0;
   --color-on-warning-container: 255 222 166;
+
+  /* 信息/语法蓝 */
+  --color-info: 160 201 255;
+  --color-info-container: 0 72 120;
+  --color-on-info: 0 48 86;
+  --color-on-info-container: 199 226 255;
 }
 
 body {

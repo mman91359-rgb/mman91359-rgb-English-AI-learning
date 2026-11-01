@@ -62,6 +62,11 @@ export default {
         "warning-container": "rgb(var(--color-warning-container) / <alpha-value>)",
         "on-warning": "rgb(var(--color-on-warning) / <alpha-value>)",
         "on-warning-container": "rgb(var(--color-on-warning-container) / <alpha-value>)",
+
+        info: "rgb(var(--color-info) / <alpha-value>)",
+        "info-container": "rgb(var(--color-info-container) / <alpha-value>)",
+        "on-info": "rgb(var(--color-on-info) / <alpha-value>)",
+        "on-info-container": "rgb(var(--color-on-info-container) / <alpha-value>)",
       },
       borderRadius: {
         DEFAULT: "0.25rem",

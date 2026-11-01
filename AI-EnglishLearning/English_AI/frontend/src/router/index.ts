@@ -15,7 +15,12 @@ import PracticeView from '../views/PracticeView.vue'
 import VocabQuizView from '../views/VocabQuizView.vue'
 import GrammarQuizView from '../views/GrammarQuizView.vue'
 import AssessView from '../views/AssessView.vue'
-import AdminQuestions from '../views/AdminQuestions.vue'
+import AdminLayout from '../views/admin/AdminLayout.vue'
+import AdminOverviewView from '../views/admin/AdminOverviewView.vue'
+import AdminUsersView from '../views/admin/AdminUsersView.vue'
+import AdminUserDetailView from '../views/admin/AdminUserDetailView.vue'
+import AdminQuestionsView from '../views/admin/AdminQuestionsView.vue'
+import ForbiddenView from '../views/ForbiddenView.vue'
 import ListeningQuizView from '../views/ListeningQuizView.vue'
 import TranslationPracticeView from '../views/TranslationPracticeView.vue'
 
@@ -169,10 +174,42 @@ const router = createRouter({
       },
     },
     {
-      path: '/admin/questions',
-      name: 'admin-questions',
-      component: AdminQuestions,
+      path: '/403',
+      name: 'forbidden',
+      component: ForbiddenView,
       meta: { requiresAuth: true },
+    },
+    {
+      path: '/admin',
+      component: AdminLayout,
+      meta: { requiresAuth: true, requiresAdmin: true },
+      children: [
+        { path: '', redirect: '/admin/overview' },
+        {
+          path: 'overview',
+          name: 'admin-overview',
+          component: AdminOverviewView,
+          meta: { requiresAuth: true, requiresAdmin: true, adminTitle: '概览' },
+        },
+        {
+          path: 'users',
+          name: 'admin-users',
+          component: AdminUsersView,
+          meta: { requiresAuth: true, requiresAdmin: true, adminTitle: '用户管理' },
+        },
+        {
+          path: 'users/:id',
+          name: 'admin-user-detail',
+          component: AdminUserDetailView,
+          meta: { requiresAuth: true, requiresAdmin: true, adminTitle: '用户详情' },
+        },
+        {
+          path: 'questions',
+          name: 'admin-questions',
+          component: AdminQuestionsView,
+          meta: { requiresAuth: true, requiresAdmin: true, adminTitle: '题目审核' },
+        },
+      ],
     },
   ],
 })
@@ -183,6 +220,12 @@ router.beforeEach((to, _from, next) => {
   // 未登录 + 需要登录 → 强制跳转登录页
   if (to.meta.requiresAuth && !userStore.isLoggedIn) {
     next({ path: '/login', query: { redirect: to.fullPath } })
+    return
+  }
+
+  // 管理端：仅 ROLE_ADMIN 可进入
+  if (to.meta.requiresAdmin && !userStore.isAdmin) {
+    next('/403')
     return
   }
 

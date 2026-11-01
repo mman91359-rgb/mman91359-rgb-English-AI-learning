@@ -164,9 +164,14 @@ const handleLogin = async () => {
   try {
     await userStore.login({ username: username.value, password: password.value })
     toast(t('auth.loginSuccess'), 'success')
-    // 等下一个微任务周期确保 store 状态已经更新，再导航到首页
+    // 等下一个微任务周期确保 store 状态已经更新，再导航
     await new Promise(r => setTimeout(r, 50))
-    router.push('/dashboard')
+    if (userStore.isAdmin) {
+      router.push('/admin/overview')
+      return
+    }
+    const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : '/dashboard'
+    router.push(redirect)
   } catch (error: any) {
     toast(error.message || t('auth.login') + '失败', 'error')
   }

@@ -35,6 +35,14 @@
     </nav>
     <div class="mt-auto flex flex-col gap-2 pt-8 border-t border-outline-variant/30">
       <router-link
+        v-if="userStore.isAdmin"
+        to="/admin/overview"
+        class="group relative flex items-center gap-4 px-4 py-3 rounded-xl overflow-hidden transition-all duration-300 ease-out hover:translate-x-1 hover:bg-primary-container/15 hover:shadow-sm active:scale-[0.98] text-primary"
+      >
+        <span class="material-symbols-outlined transition-transform duration-300 group-hover:scale-110">admin_panel_settings</span>
+        <span class="font-label-lg text-label-lg transition-all duration-300 group-hover:tracking-wide">{{ $t('admin.title') }}</span>
+      </router-link>
+      <router-link
         v-for="item in bottomNavItems"
         :key="item.name"
         :to="item.path"

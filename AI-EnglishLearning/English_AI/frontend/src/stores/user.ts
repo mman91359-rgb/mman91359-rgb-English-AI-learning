@@ -87,6 +87,8 @@ const user = ref<LoginResponse | null>(parsedUser)
   const username = computed(() => user.value?.username || '')
   const avatarUrl = computed(() => user.value?.avatarUrl || '')
   const phone = computed(() => user.value?.phone || '')
+  const roles = computed(() => user.value?.roles || '')
+  const isAdmin = computed(() => roles.value.split(',').map(role => role.trim()).includes('ROLE_ADMIN'))
 
   /** 从后端获取用户学习统计数据 */
   const loadUserStats = async (): Promise<void> => {
@@ -268,6 +270,8 @@ const user = ref<LoginResponse | null>(parsedUser)
     username,
     avatarUrl,
     phone,
+    roles,
+    isAdmin,
     activeDays,
     masteredWords,
     coinBalance,

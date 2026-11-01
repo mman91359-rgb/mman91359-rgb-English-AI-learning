@@ -1,15 +1,12 @@
 <template>
   <AppLayout flush hide-top-bar>
     <template #topbar>
-      <header class="h-20 sticky top-0 z-40 bg-background/80 backdrop-blur-md flex items-center justify-between px-gutter w-full max-w-container-max mx-auto">
-        <button type="button" class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high/50 transition-all" :aria-label="$t('common.back')" @click="router.push('/translation')">
-          <span class="material-symbols-outlined">arrow_back_ios_new</span>
-        </button>
-        <div class="flex items-center gap-1.5 text-secondary">
-          <div class="relative w-10 h-10 rounded-full border-4 border-secondary/30 border-t-secondary flex items-center justify-center">
-            <span class="font-label-md text-label-md text-secondary font-bold">1/1</span>
-          </div>
-          <span class="material-symbols-outlined text-secondary fill">emoji_events</span>
+      <header class="h-20 sticky top-0 z-40 bg-background/80 backdrop-blur-md flex items-center justify-between px-gutter w-full max-w-[1192px] mx-auto">
+        <div class="flex items-center gap-4 flex-1">
+          <button type="button" class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high/50 transition-all" :aria-label="$t('common.back')" @click="router.push({ path: '/learning', query: { tab: 'translation' } })">
+            <span class="material-symbols-outlined">arrow_back_ios_new</span>
+          </button>
+          <QuizProgressBar :answered="submitted ? 1 : 0" :total="1" />
         </div>
         <div class="flex items-center gap-2">
           <span class="bg-secondary-container/30 text-secondary font-label-md text-label-md px-3 py-1 rounded-full">{{ $t('translation.previewBadge') }}</span>
@@ -20,7 +17,7 @@
       </header>
     </template>
 
-    <div class="flex-1 w-full max-w-container-max mx-auto px-gutter py-8 pb-24 md:pb-8">
+    <div class="flex-1 w-full max-w-[1192px] mx-auto px-gutter py-8 pb-24 md:pb-8">
       <div class="mb-4 flex flex-wrap items-center gap-3">
         <span class="bg-secondary-container/30 text-secondary font-label-md text-label-md px-3 py-1 rounded-full">
           {{ $t('translation.previewBanner') }}
@@ -41,8 +38,8 @@
         </div>
       </div>
 
-      <div class="flex flex-col lg:flex-row gap-gutter flex-1">
-        <section class="flex-1 flex flex-col gap-6 min-w-0">
+      <div class="flex flex-col lg:grid lg:grid-cols-[minmax(0,1fr)_340px] xl:grid-cols-[minmax(0,1fr)_360px] 2xl:grid-cols-[minmax(0,768px)_400px] justify-center gap-gutter flex-1">
+        <section class="w-full max-w-3xl flex flex-col gap-6 min-w-0">
           <div class="bg-surface-container-lowest rounded-[24px] p-8 md:p-10 shadow-[0_4px_20px_rgba(51,58,72,0.05)] border border-outline-variant/20 relative flex flex-col">
             <div class="flex items-center justify-between mb-8">
               <div class="flex items-center gap-2">
@@ -124,7 +121,7 @@
           </div>
         </section>
 
-        <aside class="lg:w-[380px] flex flex-col gap-4">
+        <aside class="w-full min-w-0 flex flex-col gap-4">
           <div class="flex items-center gap-2 mb-2">
             <span class="material-symbols-outlined text-primary">auto_awesome</span>
             <h3 class="font-headline-md text-headline-md text-on-surface">{{ $t('translation.aiFeedback') }}</h3>
@@ -175,6 +172,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import AppLayout from '../components/AppLayout.vue'
 import FeedbackPanel from '../components/listening/FeedbackPanel.vue'
+import QuizProgressBar from '../components/quiz/QuizProgressBar.vue'
 import { useToast } from '../composables/useToast'
 import { useUserStore } from '../stores/user'
 import { getTranslationFixture } from '../mocks/translationPreview'

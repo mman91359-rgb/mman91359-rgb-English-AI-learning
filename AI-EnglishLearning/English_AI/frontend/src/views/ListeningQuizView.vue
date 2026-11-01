@@ -1,22 +1,27 @@
 <template>
   <AppLayout flush hide-top-bar>
     <template #topbar>
-      <header class="h-20 sticky top-0 z-40 bg-background/80 backdrop-blur-md flex items-center justify-between px-gutter w-full max-w-container-max mx-auto">
-        <button
-          type="button"
-          class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high/50 transition-all"
-          :aria-label="$t('common.back')"
-          @click="goBack"
-        >
-          <span class="material-symbols-outlined">arrow_back_ios_new</span>
-        </button>
-        <div class="flex items-center gap-1.5 text-tertiary">
-          <div class="relative w-10 h-10 rounded-full border-4 border-tertiary/30 border-t-tertiary flex items-center justify-center">
-            <span class="font-label-md text-label-md text-tertiary font-bold">{{ currentIndex + 1 }}/{{ questions.length || 1 }}</span>
-          </div>
-          <span class="material-symbols-outlined text-tertiary fill">emoji_events</span>
+      <header class="h-20 sticky top-0 z-40 bg-background/80 backdrop-blur-md flex items-center justify-between px-gutter w-full max-w-[1192px] mx-auto">
+        <div class="flex items-center gap-4 flex-1">
+          <button
+            type="button"
+            class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high/50 transition-all"
+            :aria-label="$t('common.back')"
+            @click="goBack"
+          >
+            <span class="material-symbols-outlined">arrow_back_ios_new</span>
+          </button>
+          <QuizProgressBar :answered="answeredCount" :total="questions.length || 5" />
         </div>
         <div class="flex items-center gap-2">
+          <button
+            type="button"
+            class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high/50 transition-all"
+            :aria-label="appStore.isDark ? $t('topbar.switchToLight') : $t('topbar.switchToDark')"
+            @click="appStore.toggleTheme"
+          >
+            <span class="material-symbols-outlined">{{ appStore.isDark ? 'light_mode' : 'dark_mode' }}</span>
+          </button>
           <button
             type="button"
             class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high/50 transition-all"
@@ -32,7 +37,7 @@
       </header>
     </template>
 
-    <div class="flex-1 w-full max-w-container-max mx-auto px-gutter py-8 pb-24 md:pb-8">
+    <div class="flex-1 w-full max-w-[1192px] mx-auto px-gutter py-8 pb-24 md:pb-8">
       <LoadingState v-if="loading" :message="$t('common.loading')" />
       <ErrorState
         v-else-if="loadError"
@@ -71,8 +76,8 @@
         </div>
       </div>
 
-      <div v-else-if="currentQuestion" class="flex flex-col lg:flex-row gap-gutter flex-1">
-        <section class="flex-1 flex flex-col gap-6 min-w-0">
+      <div v-else-if="currentQuestion" class="flex flex-col lg:grid lg:grid-cols-[minmax(0,1fr)_340px] xl:grid-cols-[minmax(0,1fr)_360px] 2xl:grid-cols-[minmax(0,768px)_400px] justify-center gap-gutter flex-1">
+        <section class="w-full max-w-3xl flex flex-col gap-6 min-w-0">
           <div class="bg-surface-container-lowest rounded-[24px] p-8 md:p-10 shadow-[0_4px_20px_rgba(51,58,72,0.05)] border border-outline-variant/20 relative flex flex-col">
             <div class="flex items-center justify-between mb-6">
               <div class="flex items-center gap-2">
@@ -171,7 +176,7 @@
           </div>
         </section>
 
-        <aside class="lg:w-[380px] flex flex-col gap-4">
+        <aside class="w-full min-w-0 flex flex-col gap-4">
           <div class="flex items-center gap-2 mb-2">
             <span class="material-symbols-outlined text-primary">auto_awesome</span>
             <h3 class="font-headline-md text-headline-md text-on-surface">{{ $t('listening.aiFeedback') }}</h3>
@@ -218,10 +223,12 @@ import AudioPlayer from '../components/AudioPlayer.vue'
 import StepIndicator from '../components/listening/StepIndicator.vue'
 import FeedbackPanel from '../components/listening/FeedbackPanel.vue'
 import TranscriptPanel from '../components/listening/TranscriptPanel.vue'
+import QuizProgressBar from '../components/quiz/QuizProgressBar.vue'
 import LoadingState from '../components/ui/LoadingState.vue'
 import EmptyState from '../components/ui/EmptyState.vue'
 import ErrorState from '../components/ui/ErrorState.vue'
 import { useUserStore } from '../stores/user'
+import { useAppStore } from '../stores/app'
 import { useToast } from '../composables/useToast'
 import {
   addFavorite,
@@ -246,6 +253,7 @@ const router = useRouter()
 const { t } = useI18n()
 const { show: toast } = useToast()
 const userStore = useUserStore()
+const appStore = useAppStore()
 
 const audioRef = ref<InstanceType<typeof AudioPlayer> | null>(null)
 const questions = ref<QuestionVO[]>([])
@@ -270,6 +278,7 @@ const currentContent = computed(() => {
 })
 const isLastQuestion = computed(() => currentIndex.value >= questions.value.length - 1)
 const correctCount = computed(() => results.value.filter(item => item.isCorrect).length)
+const answeredCount = computed(() => results.value.length)
 const accuracy = computed(() => questions.value.length === 0 ? 0 : Math.round((correctCount.value / questions.value.length) * 100))
 const avatarText = computed(() => (userStore.username || 'U').slice(0, 1).toUpperCase())
 const stepCurrent = computed(() => (showResult.value || selectedAnswer.value ? 3 : 2))
@@ -450,7 +459,7 @@ const favoriteCurrent = async () => {
 
 const handleAudioError = (message: string) => toast(message || t('listening.audioError'), 'warning')
 const restart = () => void loadQuestions()
-const goBack = () => router.push('/listening')
+const goBack = () => router.push({ path: '/learning', query: { tab: 'listening' } })
 
 onMounted(() => {
   void loadQuestions()

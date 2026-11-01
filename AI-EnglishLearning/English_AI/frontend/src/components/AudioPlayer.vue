@@ -45,7 +45,7 @@
             v-for="(height, index) in waveBars"
             :key="index"
             class="wave-bar w-1 rounded-full"
-            :class="barClass('article', index)"
+            :class="[barClass('article', index), { 'is-playing': isPlaying && range === 'article' }]"
             :style="{ height: `${height}px`, animationDelay: `${index * 0.05}s` }"
           ></span>
         </div>
@@ -90,11 +90,11 @@
           @click="seekByWave('question', $event)"
         >
           <span
-            v-for="(height, index) in questionWaveBars"
+            v-for="(height, index) in waveBars"
             :key="index"
-            class="w-1 rounded-full"
-            :class="barClass('question', index)"
-            :style="{ height: `${height}px` }"
+            class="wave-bar w-1 rounded-full"
+            :class="[barClass('question', index), { 'is-playing': isPlaying && range === 'question' }]"
+            :style="{ height: `${height}px`, animationDelay: `${index * 0.05}s` }"
           ></span>
         </div>
         <button
@@ -143,7 +143,6 @@ const emit = defineEmits<{
 }>()
 
 const waveBars = [12, 24, 36, 28, 40, 20, 32, 16, 36, 24, 28, 16, 36, 24, 40, 20, 32, 12, 28, 20, 36, 16, 32, 24, 12]
-const questionWaveBars = [12, 16, 20, 14, 24, 18, 22, 12, 20, 16, 18, 14]
 
 const audioEl = ref<HTMLAudioElement | null>(null)
 const duration = ref(0)
@@ -190,8 +189,7 @@ function formatTime(seconds: number): string {
 
 function barClass(track: RangeMode, index: number): string {
   const progress = track === 'article' ? articleProgress.value : questionProgress.value
-  const barCount = track === 'article' ? waveBars.length : questionWaveBars.length
-  const active = range.value === track && index < Math.round(progress * barCount)
+  const active = range.value === track && index < Math.round(progress * waveBars.length)
   if (track === 'article') {
     return active ? 'bg-tertiary' : 'bg-tertiary-container/40'
   }
@@ -415,5 +413,9 @@ defineExpose({ toggle, replay, reset, setPlaybackRate, seekToAbsolute, setRange,
 .wave-bar {
   transform-origin: center;
   animation: wave-pulse 1.2s ease-in-out infinite;
+  animation-play-state: paused;
+}
+.wave-bar.is-playing {
+  animation-play-state: running;
 }
 </style>

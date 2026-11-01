@@ -16,9 +16,7 @@ import VocabQuizView from '../views/VocabQuizView.vue'
 import GrammarQuizView from '../views/GrammarQuizView.vue'
 import AssessView from '../views/AssessView.vue'
 import AdminQuestions from '../views/AdminQuestions.vue'
-import ListeningEntryView from '../views/ListeningEntryView.vue'
 import ListeningQuizView from '../views/ListeningQuizView.vue'
-import TranslationEntryView from '../views/TranslationEntryView.vue'
 import TranslationPracticeView from '../views/TranslationPracticeView.vue'
 
 const router = createRouter({
@@ -57,9 +55,7 @@ const router = createRouter({
     },
     {
       path: '/listening',
-      name: 'listening',
-      component: ListeningEntryView,
-      meta: { requiresAuth: true },
+      redirect: { path: '/learning', query: { tab: 'listening' } },
     },
     {
       path: '/listening/quiz',
@@ -69,9 +65,7 @@ const router = createRouter({
     },
     {
       path: '/translation',
-      name: 'translation',
-      component: TranslationEntryView,
-      meta: { requiresAuth: true },
+      redirect: { path: '/learning', query: { tab: 'translation' } },
     },
     {
       path: '/translation/practice',

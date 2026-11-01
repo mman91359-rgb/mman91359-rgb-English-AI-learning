@@ -91,29 +91,24 @@
       </div>
     </template>
 
-    <!-- ========== 听力 tab 专属布局 ========== -->
+    <!-- ========== 听力 tab：复用学习中心的 8/4 布局 ========== -->
     <template v-else-if="activeTab === 'listening'">
-      <div
-        class="bg-primary-container rounded-[24px] p-8 flex flex-col justify-between relative overflow-hidden cursor-pointer hover:shadow-[0_4px_20px_rgba(51,58,72,0.15)] transition-shadow min-h-[200px] mb-8 group"
-        @click="startListening"
-      >
-        <div class="relative z-10 text-on-primary-container">
-          <h3 class="font-headline-md text-headline-md mb-2 font-bold">{{ $t('learning.listeningPractice') }}</h3>
-          <p class="font-body-md text-body-md text-on-primary-container/80">{{ $t('learning.listeningDescription') }}</p>
-        </div>
-        <div class="absolute right-8 top-1/2 -translate-y-1/2 z-10 w-16 h-16 bg-surface-container-lowest/20 rounded-full flex items-center justify-center backdrop-blur-sm group-hover:scale-110 transition-transform">
-          <span class="material-symbols-outlined text-4xl text-on-primary-container" style="font-variation-settings: 'FILL' 1;">headphones</span>
-        </div>
-      </div>
+      <ListeningEntryPanel />
+    </template>
 
-      <div class="bg-surface-container-lowest rounded-[24px] shadow-soft-glow overflow-hidden">
-        <div class="flex items-center gap-4 p-6 border-b border-outline-variant/10">
-          <div class="w-10 h-10 rounded-full bg-primary-container/30 flex items-center justify-center">
-            <span class="material-symbols-outlined text-primary">graphic_eq</span>
-          </div>
-          <span class="font-body-lg text-body-lg text-on-surface">{{ $t('learning.listeningTips') }}</span>
+    <!-- ========== 翻译 tab：纯前端预览面板 ========== -->
+    <template v-else-if="activeTab === 'translation'">
+      <TranslationEntryPanel />
+    </template>
+
+    <!-- ========== 写作 tab：设计稿待补 ========== -->
+    <template v-else-if="activeTab === 'writing'">
+      <div class="bg-surface-container-lowest rounded-[24px] p-8 shadow-soft-glow border border-outline-variant/20">
+        <div class="flex items-center gap-3 mb-3">
+          <span class="material-symbols-outlined text-primary text-3xl">edit_note</span>
+          <h3 class="font-headline-md text-headline-md text-on-surface">{{ $t('learning.writingTab') }}</h3>
         </div>
-        <p class="p-6 font-body-md text-body-md text-on-surface-variant">{{ $t('learning.listeningTipsContent') }}</p>
+        <p class="font-body-md text-body-md text-on-surface-variant">{{ $t('learning.writingPlaceholder') }}</p>
       </div>
     </template>
 
@@ -265,6 +260,8 @@ import { ref, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import AppLayout from '../components/AppLayout.vue'
+import ListeningEntryPanel from '../components/listening/ListeningEntryPanel.vue'
+import TranslationEntryPanel from '../components/translation/TranslationEntryPanel.vue'
 import VocabularyGoalDialog from '@/components/VocabularyGoalDialog.vue'
 import { useUserStore } from '@/stores/user'
 import { useAiStore } from '@/stores/ai'
@@ -286,7 +283,7 @@ const tabs = computed(() => [
   { key: 'grammar', label: t('learning.grammarTab'), moduleType: 2, available: true },
   { key: 'translation', label: t('learning.translationTab'), moduleType: 3, available: true },
   { key: 'listening', label: t('learning.listeningTab'), moduleType: 4, available: true },
-  { key: 'sentence', label: t('learning.sentenceTab'), moduleType: 5, available: false },
+  { key: 'writing', label: t('learning.writingTab'), moduleType: 6, available: true },
 ])
 const activeTab = ref('vocab')
 
@@ -304,7 +301,7 @@ const currentModuleName = computed(() => {
     grammar: t('learning.grammarTab'),
     translation: t('learning.translationTab'),
     listening: t('learning.listeningTab'),
-    sentence: t('learning.sentenceTab'),
+    writing: t('learning.writingTab'),
   }
   return names[activeTab.value] || t('learning.vocabTab')
 })
@@ -392,6 +389,15 @@ const handleVocabularyGoalSave = async (payload: { newWords: number; reviewWords
   }
 }
 
+const applyTabFromQuery = () => {
+  const tab = route.query.tab
+  if (typeof tab === 'string' && tabs.value.some(item => item.key === tab)) {
+    activeTab.value = tab
+  }
+}
+applyTabFromQuery()
+watch(() => route.query.tab, applyTabFromQuery)
+
 watch(activeTab, () => {
   loadTarget()
 })
@@ -464,30 +470,14 @@ const startPractice = () => {
   }
 }
 
-const startListening = () => {
-  if (!userStore.userId) {
-    toast(t('learning.pleaseLogin'), 'warning')
-    return
-  }
-  router.push('/listening')
-}
-
 const switchTab = (key: string) => {
   const target = tabs.value.find(tab => tab.key === key)
   if (target && !target.available) {
     toastComingSoon()
     return
   }
-  // 听力和翻译使用独立入口页，保持与设计稿一致
-  if (key === 'listening') {
-    router.push('/listening')
-    return
-  }
-  if (key === 'translation') {
-    router.push('/translation')
-    return
-  }
   activeTab.value = key
+  router.replace({ path: '/learning', query: key === 'vocab' ? {} : { tab: key } })
 }
 
 // ========== 开发中功能提示 ==========

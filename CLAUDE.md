@@ -138,6 +138,7 @@ frontend/src/
 - 数据库迁移规范：`English_AI/docs/数据库迁移规范.md`
 - 听力资源导入规范：`English_AI/docs/听力资源导入规范.md`
 - 作文模块 UI 设计契约：`English_AI/docs/作文模块UI设计契约.md`
+- 作文模块 UI 生成提示词：`English_AI/docs/作文模块UI生成提示词.md`
 - 管理员端 UI 设计契约 V2：`English_AI/docs/管理员端UI设计契约V2.md`
 - 前端设计规范：`kown/recall-frontend-prompt.md`
 - 开发日志：`日志/*.docx`（6.15 起逐日记录）

@@ -40,6 +40,10 @@
           <span class="material-symbols-outlined text-icon-sm">lock_reset</span>
           {{ $t('adminConsole.users.actionReset') }}
         </button>
+        <button type="button" class="flex items-center gap-2 rounded-full border border-outline-variant px-4 py-2 font-label-lg text-label-lg text-on-surface-variant" @click="action = { kind: 'setPassword', user: data.user }">
+          <span class="material-symbols-outlined text-icon-sm">key</span>
+          {{ $t('adminConsole.users.actionSetPassword') }}
+        </button>
         <button type="button" class="flex items-center gap-2 rounded-full border border-outline-variant px-4 py-2 font-label-lg text-label-lg text-on-surface-variant" @click="action = { kind: 'role', user: data.user }">
           <span class="material-symbols-outlined text-icon-sm">manage_accounts</span>
           {{ $t('adminConsole.users.actionRole') }}

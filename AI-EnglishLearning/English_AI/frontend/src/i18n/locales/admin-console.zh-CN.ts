@@ -12,6 +12,18 @@ const extra = {
   nav: {
     backToLearning: '返回学习中心',
   },
+  users: {
+    actionSetPassword: '设置新密码',
+    setPasswordTitle: '设置新密码',
+    setPasswordTarget: '正在为 {name} 设置新密码。',
+    setPasswordField: '新密码',
+    setPasswordConfirmField: '确认新密码',
+    setPasswordImpact: '保存后用户旧密码立即失效，请通过安全渠道告知用户新密码。',
+    confirmSetPassword: '保存新密码',
+    setPasswordToast: '用户密码已更新',
+    passwordTooShort: '新密码不能少于 6 位',
+    passwordMismatch: '两次输入的新密码不一致',
+  },
   detail: {
     fields: {
       eloScore: 'ELO',

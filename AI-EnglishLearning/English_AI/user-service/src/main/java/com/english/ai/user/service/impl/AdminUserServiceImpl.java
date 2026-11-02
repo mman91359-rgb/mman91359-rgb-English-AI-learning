@@ -191,6 +191,15 @@ public class AdminUserServiceImpl implements AdminUserService {
         return new ResetPasswordResponse(userId, temporaryPassword);
     }
 
+    @Override
+    @Transactional
+    public void setPassword(Long userId, String password) {
+        SysUser user = requireUser(userId);
+        user.setPassword(PasswordUtil.encode(password));
+        userMapper.updateById(user);
+        auditService.record("USER_PASSWORD_SET", "USER", userId, "username=" + user.getUsername());
+    }
+
     private SysUser requireUser(Long userId) {
         SysUser user = userMapper.selectById(userId);
         if (user == null) {

@@ -327,6 +327,10 @@ export const updateUserRole = async (id: number, role: UserRole): Promise<AdminU
 export const resetUserPassword = (id: number): Promise<ResetPasswordResult> =>
   post(`/admin/users/${id}/reset-password`)
 
+/** 管理员直接设置指定用户的新密码 */
+export const setUserPassword = (id: number, password: string): Promise<void> =>
+  put(`/admin/users/${id}/password`, { password })
+
 /** ---------- 通知 ---------- */
 
 export const getAdminNotices = (params: NoticeListQuery): Promise<AdminPage<AdminNotice>> =>

@@ -20,4 +20,9 @@ public interface AdminUserService {
     AdminUserListItem updateRole(Long userId, String role);
 
     ResetPasswordResponse resetPassword(Long userId);
+
+    /**
+     * 管理员直接设置指定用户的新密码（不要求旧密码）。
+     */
+    void setPassword(Long userId, String password);
 }

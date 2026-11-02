@@ -60,6 +60,59 @@
   </BaseDialog>
 
   <BaseDialog
+    v-else-if="kind === 'setPassword'"
+    :visible="true"
+    :title="$t('adminConsole.users.setPasswordTitle')"
+    max-width="max-w-lg"
+    :close-disabled="submitting"
+    @update:visible="close"
+  >
+    <div class="flex flex-col gap-5">
+      <p class="font-body-sm text-body-sm text-on-surface-variant">
+        {{ $t('adminConsole.users.setPasswordTarget', { name: targetName }) }}
+      </p>
+      <FormField :label="$t('adminConsole.users.setPasswordField')" required>
+        <input
+          v-model="newPassword"
+          type="password"
+          autocomplete="new-password"
+          :class="inputClass"
+        />
+      </FormField>
+      <FormField :label="$t('adminConsole.users.setPasswordConfirmField')" required :error="passwordError">
+        <input
+          v-model="confirmPassword"
+          type="password"
+          autocomplete="new-password"
+          :class="inputClass"
+          @keyup.enter="runSetPassword"
+        />
+      </FormField>
+      <p class="rounded-xl bg-surface-container-low px-4 py-3 font-body-sm text-body-sm text-on-surface-variant">
+        {{ $t('adminConsole.users.setPasswordImpact') }}
+      </p>
+    </div>
+    <template #footer>
+      <button
+        type="button"
+        class="rounded-full border border-outline-variant px-5 py-2.5 font-label-lg text-label-lg text-on-surface-variant"
+        :disabled="submitting"
+        @click="close"
+      >
+        {{ $t('adminConsole.common.cancel') }}
+      </button>
+      <button
+        type="button"
+        class="rounded-full bg-primary px-5 py-2.5 font-label-lg text-label-lg text-on-primary disabled:opacity-60"
+        :disabled="submitting"
+        @click="runSetPassword"
+      >
+        {{ submitting ? $t('adminConsole.common.loading') : $t('adminConsole.users.confirmSetPassword') }}
+      </button>
+    </template>
+  </BaseDialog>
+
+  <BaseDialog
     v-else
     :visible="true"
     :title="$t('adminConsole.users.roleTitle')"
@@ -110,6 +163,7 @@ import { useToast } from '../../composables/useToast'
 import {
   getAdminErrorKey,
   resetUserPassword,
+  setUserPassword,
   updateUserRole,
   updateUserStatus,
   type UserRole,
@@ -125,6 +179,9 @@ const { show: toast } = useToast()
 const submitting = ref(false)
 const changed = ref(false)
 const tempPassword = ref<string | null>(null)
+const newPassword = ref('')
+const confirmPassword = ref('')
+const passwordError = ref('')
 
 const user = computed(() => props.action.user)
 const kind = computed(() => props.action.kind)
@@ -163,6 +220,29 @@ const runReset = async () => {
     const result = await resetUserPassword(user.value.id)
     changed.value = true
     tempPassword.value = result.temporaryPassword
+  } catch (error) {
+    toast(t(getAdminErrorKey(error)), 'error')
+  } finally {
+    submitting.value = false
+  }
+}
+
+const runSetPassword = async () => {
+  passwordError.value = ''
+  if (newPassword.value.length < 6) {
+    passwordError.value = t('adminConsole.users.passwordTooShort')
+    return
+  }
+  if (newPassword.value !== confirmPassword.value) {
+    passwordError.value = t('adminConsole.users.passwordMismatch')
+    return
+  }
+  submitting.value = true
+  try {
+    await setUserPassword(user.value.id, newPassword.value)
+    changed.value = true
+    toast(t('adminConsole.users.setPasswordToast'), 'success')
+    emit('close', true)
   } catch (error) {
     toast(t(getAdminErrorKey(error)), 'error')
   } finally {

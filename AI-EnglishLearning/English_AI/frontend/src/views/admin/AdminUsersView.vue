@@ -108,6 +108,9 @@
               <button type="button" class="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant transition-all hover:scale-110 hover:bg-primary-container/30 hover:text-primary" :aria-label="$t('adminConsole.users.actionReset')" :title="$t('adminConsole.users.actionReset')" @click="action = { kind: 'reset', user: row }">
                 <span class="material-symbols-outlined text-icon-md">lock_reset</span>
               </button>
+              <button type="button" class="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant transition-all hover:scale-110 hover:bg-primary-container/30 hover:text-primary" :aria-label="$t('adminConsole.users.actionSetPassword')" :title="$t('adminConsole.users.actionSetPassword')" @click="action = { kind: 'setPassword', user: row }">
+                <span class="material-symbols-outlined text-icon-md">key</span>
+              </button>
               <button type="button" class="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant transition-all hover:scale-110 hover:bg-primary-container/30 hover:text-primary" :aria-label="$t('adminConsole.users.actionRole')" :title="$t('adminConsole.users.actionRole')" @click="action = { kind: 'role', user: row }">
                 <span class="material-symbols-outlined text-icon-md">manage_accounts</span>
               </button>

@@ -1,6 +1,7 @@
 package com.english.ai.user.service;
 
 import com.english.ai.common.BusinessException;
+import com.english.ai.common.PasswordUtil;
 import com.english.ai.common.Roles;
 import com.english.ai.user.config.AdminContext;
 import com.english.ai.user.dto.admin.ResetPasswordResponse;
@@ -20,6 +21,7 @@ import org.springframework.web.client.RestTemplate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -86,6 +88,26 @@ class AdminUserServiceImplTest {
         assertEquals(12, response.getTemporaryPassword().length());
         verify(userMapper).updateById(target);
         verify(auditService).record("USER_PASSWORD_RESET", "USER", 2L, "username=user2");
+    }
+
+    @Test
+    void setPasswordEncodesAndPersistsChosenPassword() {
+        SysUser target = user(2L, Roles.USER, 1);
+        when(userMapper.selectById(2L)).thenReturn(target);
+
+        service.setPassword(2L, "NewPass123");
+
+        assertTrue(PasswordUtil.matches("NewPass123", target.getPassword()));
+        verify(userMapper).updateById(target);
+        verify(auditService).record("USER_PASSWORD_SET", "USER", 2L, "username=user2");
+    }
+
+    @Test
+    void setPasswordRejectsMissingUser() {
+        when(userMapper.selectById(99L)).thenReturn(null);
+
+        assertThrows(BusinessException.class, () -> service.setPassword(99L, "NewPass123"));
+        verify(userMapper, never()).updateById(any());
     }
 
     private SysUser user(Long id, String roles, int status) {

@@ -6,6 +6,7 @@ import com.english.ai.user.dto.admin.AdminUserDetailVO;
 import com.english.ai.user.dto.admin.AdminUserListItem;
 import com.english.ai.user.dto.admin.AdminUserQuery;
 import com.english.ai.user.dto.admin.ResetPasswordResponse;
+import com.english.ai.user.dto.admin.SetUserPasswordRequest;
 import com.english.ai.user.dto.admin.UpdateUserRoleRequest;
 import com.english.ai.user.dto.admin.UpdateUserStatusRequest;
 import com.english.ai.user.service.AdminUserService;
@@ -51,5 +52,12 @@ public class AdminUserController {
     @PostMapping("/{id}/reset-password")
     public Result<ResetPasswordResponse> resetPassword(@PathVariable Long id) {
         return Result.success(adminUserService.resetPassword(id));
+    }
+
+    @PutMapping("/{id}/password")
+    public Result<Void> setPassword(@PathVariable Long id,
+                                    @Valid @RequestBody SetUserPasswordRequest request) {
+        adminUserService.setPassword(id, request.getPassword());
+        return Result.success();
     }
 }

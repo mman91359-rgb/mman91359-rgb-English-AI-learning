@@ -12,6 +12,18 @@ const extra = {
   nav: {
     backToLearning: 'Back to Learning',
   },
+  users: {
+    actionSetPassword: 'Set new password',
+    setPasswordTitle: 'Set new password',
+    setPasswordTarget: 'Setting a new password for {name}.',
+    setPasswordField: 'New password',
+    setPasswordConfirmField: 'Confirm new password',
+    setPasswordImpact: 'The old password stops working immediately after saving. Share the new password through a secure channel.',
+    confirmSetPassword: 'Save new password',
+    setPasswordToast: 'User password updated',
+    passwordTooShort: 'Password must be at least 6 characters',
+    passwordMismatch: 'The two passwords do not match',
+  },
   detail: {
     fields: {
       eloScore: 'ELO',

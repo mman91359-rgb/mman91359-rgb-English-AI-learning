@@ -102,6 +102,11 @@
                   </Transition>
                 </button>
               </div>
+              <div class="flex justify-end">
+                <router-link to="/forgot-password" class="font-label-md text-label-md text-primary hover:underline">
+                  {{ $t('auth.forgotPassword') }}
+                </router-link>
+              </div>
               <div class="pt-2">
                 <button
                   :disabled="isLoading"

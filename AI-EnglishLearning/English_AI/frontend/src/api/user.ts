@@ -26,6 +26,12 @@ export interface RegisterRequest {
   cetLevel?: string
 }
 
+export interface ForgotPasswordRequest {
+  phone: string
+  code: string
+  newPassword: string
+}
+
 export interface AssessSubmitRequest {
   userId: number
   difficultyLevel: number
@@ -55,6 +61,11 @@ export const login = (data: LoginRequest): Promise<LoginResponse> => {
 
 export const register = (data: RegisterRequest): Promise<number> => {
   return post('/user/register', data)
+}
+
+/** 手机号找回密码（当前后端使用本地模拟验证码 123456） */
+export const resetPasswordByPhone = (data: ForgotPasswordRequest): Promise<boolean> => {
+  return post('/user/forgot-password/reset', data)
 }
 
 export const getUserByUsername = (username: string): Promise<any> => {

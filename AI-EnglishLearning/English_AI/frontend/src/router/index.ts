@@ -6,6 +6,7 @@ import StatsView from '../views/StatsView.vue'
 import ProfileView from '../views/ProfileView.vue'
 import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
+import ForgotPasswordView from '../views/ForgotPasswordView.vue'
 import SettingsView from '../views/SettingsView.vue'
 import FavoritesView from '../views/FavoritesView.vue'
 import ErrorBookView from '../views/ErrorBookView.vue'
@@ -43,6 +44,12 @@ const router = createRouter({
       path: '/register',
       name: 'register',
       component: RegisterView,
+      meta: { requiresAuth: false },
+    },
+    {
+      path: '/forgot-password',
+      name: 'forgot-password',
+      component: ForgotPasswordView,
       meta: { requiresAuth: false },
     },
     {

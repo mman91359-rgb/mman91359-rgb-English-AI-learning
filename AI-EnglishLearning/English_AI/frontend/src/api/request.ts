@@ -43,7 +43,7 @@ instance.interceptors.request.use(
 )
 
 function isAuthRequest(url: string = ''): boolean {
-  return url.includes('/user/login') || url.includes('/user/register')
+  return url.includes('/user/login') || url.includes('/user/register') || url.includes('/user/forgot-password')
 }
 
 function clearAuthAndRedirect(): void {

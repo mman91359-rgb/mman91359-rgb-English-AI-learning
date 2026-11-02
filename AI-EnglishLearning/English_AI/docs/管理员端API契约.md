@@ -87,6 +87,27 @@ Body：`{ "role": "ROLE_USER" | "ROLE_ADMIN" }`
 
 临时密码只在本次响应返回一次；服务端 BCrypt 入库；审计只记录“已重置”，不记录密码。
 
+### PUT `/admin/users/{id}/password`
+
+管理员直接设置指定用户的新密码（不要求旧密码）：
+
+```json
+{ "password": "NewPass123" }
+```
+
+规则：密码长度 6–72 位；服务端 BCrypt(work factor 12) 入库；审计动作 `USER_PASSWORD_SET`，只记录用户名，不记录密码。目标不存在返回 404。
+
+### 用户端：POST `/user/forgot-password/reset`（本地模拟）
+
+```json
+{ "phone": "13912345678", "code": "123456", "newPassword": "NewPass123" }
+```
+
+- 当前为本地模拟验证码：固定 `123456`；仅在非 `prod` profile 可用，生产 profile 返回 400。
+- 按手机号查找 `sys_user`，必须恰好匹配一个启用账号；0 条返回 400，多条返回 409。
+- 成功后用 BCrypt 更新密码；不返回密码。
+- 网关白名单包含 `/user/forgot-password`。
+
 ---
 
 ## 3. 通知管理

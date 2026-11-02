@@ -207,6 +207,11 @@ npm run build
   - `chore`：工程配置、依赖升级等杂项
 - 示例：`feat(exercise): 新增听力题目CRUD接口`、`fix(web): 修复路由守卫重定向死循环`
 
+## Git 提交约束
+- 严格遵守项目 `.gitignore` 规则，**禁止提交**：docx、pdf、excel、ppt 等文档、日志文件夹、听力音频资源、sql备份文件、外部独立项目目录（cet-word-keeper-main、wordhtml-main）、本地 .env 密钥文件。
+- 只提交业务源码、配置模板、说明文档，版权音频、本地素材、临时文档一律不纳入Git。
+- 做代码改动、准备commit前，先确认没有误选中被忽略的资源。
+
 ## AI 输出与协作约定
 
 1. 所有代码注释、说明文字统一使用中文
@@ -442,3 +447,53 @@ npm run build
 4. `vite.config.js` 由 `vue-tsc` 生成且被 git 跟踪，必须与 `vite.config.ts` 同步；建议后续把 `tsconfig.node` 的 `outDir` 移出根目录并清理生成物。
 5. `origin` remote URL 内嵌 GitHub PAT，建议改用凭据管理器/SSH 并轮换；本次未修改 remote。
 6. 远端 `refactor/reuse-baseline` 与本地分叉；本次推送到新分支 `feature/admin-writing-ui-20261101`，未覆盖旧分支。
+
+---
+
+## 变更记录（2026-11-02）
+
+### 本次修改文件
+
+**user-service**
+- `controller/AdminUserController.java`：新增 `PUT /admin/users/{id}/password`。
+- `dto/admin/SetUserPasswordRequest.java`（新增）。
+- `service/AdminUserService.java`、`impl/AdminUserServiceImpl.java`：新增 `setPassword`，BCrypt 入库，审计 `USER_PASSWORD_SET`。
+- `controller/ForgotPasswordController.java`（新增）：`POST /user/forgot-password/reset`。
+- `dto/ForgotPasswordRequest.java`（新增）。
+- `service/PasswordResetService.java`（新增）：固定模拟验证码 `123456`，prod profile 拒绝，按手机号唯一匹配并改密。
+- `src/test/.../AdminUserServiceImplTest.java`、`PasswordResetServiceTest.java`。
+
+**api-gateway**
+- `filter/JwtAuthFilter.java`：白名单增加 `/user/forgot-password`。
+
+**frontend**
+- `api/admin.ts`、`components/admin/UserActionDialog.vue`、`userActionTypes.ts`、`views/admin/AdminUsersView.vue`、`AdminUserDetailView.vue`：新增“设置新密码”入口与弹窗，保留随机重置。
+- `views/ForgotPasswordView.vue`（新增）、`router/index.ts`、`LoginView.vue`、`api/user.ts`、`api/request.ts`、`i18n/locales/zh-CN.ts`、`en-US.ts`：手机号找回密码页面与接口。
+- `i18n/locales/admin-console.zh-CN.ts`、`admin-console.en-US.ts`：管理员设密文案。
+
+**文档**
+- `docs/管理员端API契约.md`：补充管理员设密与找回密码接口。
+- `docs/2026-11-02-账号与找回密码说明.md`（新增）。
+
+### 实现功能
+
+1. 本地创建简单管理员 `admin / 123456`（通过注册 + 角色提升；不写 Flyway 弱口令种子）。
+2. 管理员可为用户直接设置指定新密码；原随机重置接口与 UI 保留。
+3. 登录页新增“忘记密码”：手机号 + 固定模拟验证码 `123456` + 新密码，真实更新后端密码；仅非 prod profile 可用。
+4. 网关白名单、前端 401 豁免、i18n 与 API 契约同步更新。
+
+### 验证结果
+
+- `mvn -pl user-service -am test`：59 个用例通过。
+- `mvn -pl user-service,api-gateway -am package -DskipTests`：BUILD SUCCESS。
+- `npm run type-check`、`npm run build`：通过。
+- API：`admin/123456` 登录返回 `ROLE_ADMIN`；管理员设密后新密码可登录；手机号 `13912345678` + `123456` 找回密码后新密码可登录。
+- 浏览器：管理员“设置新密码”弹窗、`/forgot-password` 发送验证码倒计时与提交跳转正常。
+
+### 遗留风险 / 待办
+
+1. `admin/123456` 与固定验证码 `123456` 均为本地弱凭据；生产 profile 已拒绝模拟找回，管理员账号不得写入 Flyway 或生产库。
+2. 手机号 `sys_user.phone` 非唯一；找回密码要求恰好一个启用账号，否则 400/409。
+3. 管理员设密不会使旧 JWT 立即失效；如需强制下线，需增加 token 版本/密码修改时间校验。
+4. 真实短信流程后续需新增验证码表/Redis、频率限制、单次消费与风控；当前不引入新依赖。
+5. 未新增前端单元测试；本轮依赖后端单测、type-check、build 与浏览器冒烟。

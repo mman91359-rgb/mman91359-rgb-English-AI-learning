@@ -5,7 +5,7 @@
 ## 项目概述
 Recall·睿考 —— 四六级英语学习系统，前后端分离架构。
 - 后端：Maven 多模块 Spring Boot 微服务，Spring Cloud Gateway 做静态路由
-- 前端：Vue 3 + Vite SPA，移动端优先，Material Design 3 设计语言
+- 前端：Vue 3 + Vite SPA，电脑端优先，Material Design 3 设计语言
 - 交互语言、代码注释、业务文案统一使用中文
 - 当前阶段：基础功能已跑通，正在开发听力/翻译/写作模块
 
@@ -399,7 +399,7 @@ npm run build
 5. `SubmitRequest.userAnswer` 已加 `@NotBlank`；若未来有允许空答案的题型，需要单独放宽。
 6. 两套遗忘曲线、两套 7 天统计口径仍并存；本轮未合并。
 7. `awardedGroupCache` 仍是 JVM 内存缓存，多实例/重启时依赖数据库唯一键兜底。
-8. 前端仍无单元测试框架；`BaseDialog` 的焦点陷阱、移动端交互需浏览器验收。
+8. 前端仍无单元测试框架；`BaseDialog` 的焦点陷阱、电脑端交互需浏览器验收。
 9. `QuestionGenerateService` 的 unchecked 编译警告为既有问题，本次未处理。
 
 ### 后续开发建议

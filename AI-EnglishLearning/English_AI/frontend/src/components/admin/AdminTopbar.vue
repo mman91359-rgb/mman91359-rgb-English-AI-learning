@@ -26,7 +26,7 @@
 
     <div class="flex items-center gap-3 border-l border-outline-variant/50 pl-4">
       <div class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-primary-container text-on-primary-container">
-        <img v-if="userStore.avatarUrl" :src="userStore.avatarUrl" alt="" class="h-full w-full object-cover" />
+        <img v-if="adminAvatarUrl" :src="adminAvatarUrl" alt="" class="h-full w-full object-cover" />
         <span v-else class="material-symbols-outlined text-icon-md">admin_panel_settings</span>
       </div>
       <div class="hidden flex-col sm:flex">
@@ -62,6 +62,13 @@ const userStore = useUserStore()
 const pageTitle = computed(() => {
   const key = route.meta.adminTitleKey
   return typeof key === 'string' ? t(key) : t('adminConsole.nav.overview')
+})
+
+// 头像为后端相对路径，需拼 /api 前缀走网关（与普通页面一致）
+const adminAvatarUrl = computed(() => {
+  const url = userStore.avatarUrl
+  if (!url) return ''
+  return url.startsWith('/api') ? url : `/api${url}`
 })
 
 const toggleLocale = () => {

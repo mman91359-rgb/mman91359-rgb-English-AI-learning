@@ -53,6 +53,9 @@ Thumbs.db
 *.swp
 *.swo
 
+# 前端构建产物
+*.tsbuildinfo
+
 # 外部独立项目目录
 cet-word-keeper-main/
 wordhtml-main/

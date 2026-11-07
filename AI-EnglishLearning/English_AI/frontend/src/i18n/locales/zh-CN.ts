@@ -96,6 +96,7 @@ export default {
     moduleVocabulary: '词汇',
     moduleGrammar: '语法',
     moduleTranslation: '翻译',
+    moduleReading: '阅读',
     moduleListening: '听力',
     moduleWriting: '写作',
     dailyWordPhonetic: '音标',

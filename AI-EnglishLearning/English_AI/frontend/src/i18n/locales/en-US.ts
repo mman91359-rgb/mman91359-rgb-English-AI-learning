@@ -96,6 +96,7 @@ export default {
     moduleVocabulary: 'Vocabulary',
     moduleGrammar: 'Grammar',
     moduleTranslation: 'Translation',
+    moduleReading: 'Reading',
     moduleListening: 'Listening',
     moduleWriting: 'Writing',
     dailyWordPhonetic: 'Phonetic',

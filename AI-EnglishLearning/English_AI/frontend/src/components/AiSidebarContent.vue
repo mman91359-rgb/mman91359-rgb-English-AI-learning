@@ -486,27 +486,27 @@ input {
   color: #6b7280;
 }
 
-.dark :deep(.ai-paragraph),
-.dark :deep(.ai-title-content),
-.dark :deep(.ai-ordered-list li),
-.dark :deep(.ai-unordered-list li) {
+:global(html.dark) :deep(.ai-paragraph),
+:global(html.dark) :deep(.ai-title-content),
+:global(html.dark) :deep(.ai-ordered-list li),
+:global(html.dark) :deep(.ai-unordered-list li) {
   color: #e5e7eb;
 }
 
-.dark :deep(.ai-subtitle) {
+:global(html.dark) :deep(.ai-subtitle) {
   color: #9ca3af;
 }
 
-.dark :deep(.ai-code) {
+:global(html.dark) :deep(.ai-code) {
   background-color: #374151;
   color: #f87171;
 }
 
-.dark :deep(strong) {
+:global(html.dark) :deep(strong) {
   color: #f3f4f6;
 }
 
-.dark :deep(em) {
+:global(html.dark) :deep(em) {
   color: #9ca3af;
 }
 </style>

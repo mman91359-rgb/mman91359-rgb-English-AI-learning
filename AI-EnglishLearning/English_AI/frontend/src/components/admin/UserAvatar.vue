@@ -1,5 +1,5 @@
 <template>
-  <img v-if="avatarUrl" :src="avatarUrl" alt="" :class="boxClass" class="shrink-0 rounded-full object-cover" />
+  <img v-if="resolvedAvatarUrl" :src="resolvedAvatarUrl" alt="" :class="boxClass" class="shrink-0 rounded-full object-cover" />
   <span
     v-else
     :class="boxClass"
@@ -23,4 +23,10 @@ const props = withDefaults(defineProps<{
 
 const boxClass = computed(() => (props.size === 'lg' ? 'h-16 w-16 font-headline-sm text-headline-sm' : 'h-9 w-9 font-label-md text-label-md'))
 const initial = computed(() => (props.name || 'U').charAt(0).toUpperCase())
+
+// 头像为后端相对路径（如 /user/avatar/xxx.jpg），需拼 /api 前缀走网关
+const resolvedAvatarUrl = computed(() => {
+  if (!props.avatarUrl) return ''
+  return props.avatarUrl.startsWith('/api') ? props.avatarUrl : `/api${props.avatarUrl}`
+})
 </script>

@@ -197,9 +197,9 @@
               <div class="w-10 h-10 rounded-full bg-tertiary-fixed-dim/20 flex items-center justify-center text-tertiary">
                 <span class="material-symbols-outlined">forum</span>
               </div>
-              <span class="font-body-lg text-body-lg text-on-surface">{{ $t('dashboard.moduleTranslation') }}</span>
+              <span class="font-body-lg text-body-lg text-on-surface">{{ $t('dashboard.moduleReading') }}</span>
             </div>
-            <span class="font-headline-md text-headline-md text-on-surface">{{ speakingScore }}</span>
+            <span class="font-headline-md text-headline-md text-on-surface">{{ readingScore }}</span>
           </div>
           <div class="flex items-center justify-between p-4 rounded-xl hover:bg-surface-container-low transition-colors group cursor-default">
             <div class="flex items-center gap-4">
@@ -393,7 +393,7 @@ const activeDays = computed(() => userStore.activeDays)
 const totalScore = ref(0)
 const vocabScore = ref(0)
 const grammarScore = ref(0)
-const speakingScore = ref(0)
+const readingScore = ref(0)
 const listeningScore = ref(0)
 
 // ========== 金币与签到 ==========
@@ -433,7 +433,7 @@ const loadProfileData = async () => {
       vocabScore.value = Math.round(radar.vocabularyScore || 0)
       grammarScore.value = Math.round(radar.grammarScore || 0)
       listeningScore.value = Math.round(radar.listeningScore || 0)
-      speakingScore.value = Math.round(radar.readingScore || 0)
+      readingScore.value = Math.round(radar.readingScore || 0)
       // {{ $t('profile.totalScore') }} = ELO分
       totalScore.value = radar.eloScore || 0
     }

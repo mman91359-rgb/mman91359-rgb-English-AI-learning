@@ -2,7 +2,7 @@
 
 **版本**：V1.0　|　**基线**：`mman91359-rgb-English-AI-learning` 最新提交　|　**用途**：把"还没做 + 待优化"的目标拆成**可直接执行的开发任务**，按优先级排期，可直接投喂给 AI 编程工具（或人工作为检查单）
 
-> **最近校准（2026-11-07）**：P0 安全债「读接口 IDOR」已完成修复（14 个接口统一加 `X-User-Id` 越权校验）。后续方向对齐为 P1 翻译模块闭环 → P2 写作模块闭环 + AI 复用组件（`WordToken`/`WordDetailCard`/`AiFeedbackPanel`/`AiActionBar`）→ P3 复习/统计口径合并。词条数据源采用「C1 现在 AI 实时查词（复用 `/ai/word-detail`）→ C3 终态本地词典优先 + AI 回退 + 缓存写回」，为后续大量导入单词数据预留统一查词入口 `api/word.ts`。
+> **最近校准（2026-11-07）**：P0 安全债「读接口 IDOR」已完成修复（14 个接口统一加 `X-User-Id` 越权校验）。**P1 翻译模块闭环已完成**：Flyway V1.0.5（correct_answer→TEXT）+ V1.0.6（10 条翻译题种子：短句 6 + 段落 4），`JudgmentEngine.judgeTranslation` 实现「本地归一化精确比对 + 短句 AI 语义兜底、段落仅本地比对」，前端 `TranslationPracticeView` 替换 Mock 接真实接口，`LearningView` 修复翻译入口跳转。后续方向：P2 写作模块闭环 + AI 复用组件（`WordToken`/`WordDetailCard`/`AiFeedbackPanel`/`AiActionBar`）→ P3 复习/统计口径合并。词条数据源采用「C1 现在 AI 实时查词（复用 `/ai/word-detail`）→ C3 终态本地词典优先 + AI 回退 + 缓存写回」，为后续大量导入单词数据预留统一查词入口 `api/word.ts`。
 
 > **上一校准（2026-10-31）**：按当前代码事实回写执行状态。T-001/T-002/T-005 已完成，T-003 部分完成，T-004 暂缓，T-006 待做；听力模块已按"复用题库 + 音频表"落地。module_type 契约统一为：1词汇 2语法 3翻译 4听力 5造句（保留）6写作。**写作不再使用 5，改为 6。**
 
@@ -104,13 +104,19 @@
 
 > **依据**：`question_info.question_type` 已含 `TRANSLATION/WRITING`；`/ai/score` 已支持 `scoreType=writing`（SSE 流式）；`recall-frontend-prompt.md` 设计了 `/writing` 与作文评分 UI。
 
-### T-201　翻译模块（中英互译练习）
+### T-201　翻译模块（中英互译练习）　✅ 已完成（2026-11-07）
 - **做什么**：
   - 数据：`sql/07-translation.sql` 新增翻译题（`question_type='TRANSLATION'`，`module_type=3`，题干含原文，答案含参考译文）。
   - 后端：`ExerciseController` 扩展按 `moduleType=3&questionType=TRANSLATION` 选题（现有智能选题 SQL 已按 module_type 过滤，仅需数据与前端）；提交时 **L1 精确比对 + L2.5 AI 语义判对**（复用 `/ai/judge-acceptable`）。
   - 前端：`views/TranslationView.vue`，路由 `/translation`：原文展示 → 输入译文 → 提交 → 显示参考译文 + AI 语义判对结果（"语义匹配/需改进"+ 建议）。
 - **验收**：翻译题可选题、作答、AI 判对，结果入库 `user_exercise_log`（module_type=3）。
 - **依赖**：Sprint 0。
+- **实际落地（2026-11-07）**：
+  - 仅做中译英（短句翻译 + 完整四六级段落翻译两种题型）。
+  - Flyway：`V1.0.5__alter_correct_answer_to_text.sql`（correct_answer varchar(500)→TEXT，支撑段落长参考译文）+ `V1.0.6__seed_translation.sql`（10 条种子：短句 6 + 段落 4，external_key 前缀 `translation-{level}-{short|passage}-NN`）。
+  - 判题：`JudgmentEngine#judgeTranslation`——L1 归一化精确比对（参考译文 + `accepted_answers` 可接受变体）；短句未命中走 AI `/ai/judge-acceptable` 语义兜底并自学习写回；段落（题干中文 >40 字）仅本地比对，不走 AI（整段语义判对效果差、成本高）。
+  - 提交复用现有 `POST /exercise/submit`（moduleType=3），落库 `user_exercise_log` + ELO + 雷达 reading_score 全链路不变。
+  - 前端：新增 `api/translation.ts`，重写 `TranslationPracticeView.vue`（替换 Mock），修复 `LearningView` 翻译入口跳转（`/translation` → `/translation/practice`），删除死代码 `mocks/translationPreview.ts`。
 
 ### T-202　写作模块（作文练习 + AI 评分）
 - **做什么**：

@@ -51,6 +51,19 @@ export FLYWAY_PASSWORD="${MYSQL_PASSWORD:?MYSQL_PASSWORD 未配置}"
 
 cd "$ROOT_DIR"
 if [ "$COMMAND" = "baseline" ]; then
+  # 空库保护：空库执行 baseline 会把 V1.0.0 记为“已应用”却不执行，
+  # 随后 migrate 从 V1.0.1 开始，在写业务表时必然报 Table doesn't exist。
+  INFO_OUT="$(mvn -q -pl "$MODULE" flyway:info \
+    -Dflyway.locations="filesystem:${MODULE}/src/main/resources/db/migration" 2>&1 || true)"
+  if printf '%s\n' "$INFO_OUT" | grep -qi "Empty Schema"; then
+    cat >&2 <<EOF
+错误：${DB} 是空库，不能执行 baseline。
+  baseline 只用于“已有表结构但没有 flyway_schema_history”的存量库。
+  空库请直接执行：scripts/flyway.sh ${MODULE} migrate
+EOF
+    exit 1
+  fi
+
   mvn -q -pl "$MODULE" flyway:baseline \
     -Dflyway.locations="filesystem:${MODULE}/src/main/resources/db/migration" \
     -Dflyway.baselineVersion=1.0.0 \

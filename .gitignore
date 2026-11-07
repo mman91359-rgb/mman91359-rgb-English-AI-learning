@@ -1,0 +1,15 @@
+# 仓库根级忽略规则
+# 说明：git 根为 D:\AI-EnglishLearning，主项目在 AI-EnglishLearning/English_AI。
+# 以下目录体积大或属于外部独立项目 / 交付素材，不纳入版本控制。
+
+# 素材与交付物
+英语资源/
+日志/
+设计方案/
+
+# 外部独立项目与临时目录
+init/
+wordtml-main/
+前端设计参考图/
+参考图片/
+.workbuddy/

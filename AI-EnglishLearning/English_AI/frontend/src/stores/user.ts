@@ -55,6 +55,8 @@ const user = ref<LoginResponse | null>(parsedUser)
 
   const activeDays = ref(0)
   const masteredWords = ref(0)
+  /** 学习统计是否已从后端加载（登录后改为后台拉取，首屏据此占位） */
+  const statsLoaded = ref(false)
 
   // 金币与签到
   const coinBalance = ref(0)
@@ -99,6 +101,7 @@ const user = ref<LoginResponse | null>(parsedUser)
         activeDays.value = stats.activeDays || 0
         masteredWords.value = stats.masteredWords || 0
       }
+      statsLoaded.value = true
     } catch (e) {
       console.warn('获取用户统计数据失败', e)
     }
@@ -195,8 +198,10 @@ const user = ref<LoginResponse | null>(parsedUser)
       user.value = response
       sessionStorage.setItem('token', response.token)
       sessionStorage.setItem('user', JSON.stringify(response))
-      // 登录成功后加载真实统计数据、金币与偏好
-      await Promise.all([loadUserStats(), loadUserExtras()])
+      // 登录成功后立即返回，统计数据/金币/偏好改为后台拉取，避免拖慢跳转
+      // 两个 loader 内部均有 try/catch，失败只打 warn，不影响登录态
+      void loadUserStats()
+      void loadUserExtras()
     } finally {
       isLoading.value = false
     }
@@ -228,6 +233,7 @@ const user = ref<LoginResponse | null>(parsedUser)
     vocabularyGoalsConfigured.value = false
     coinLoaded.value = false
     preferenceLoaded.value = false
+    statsLoaded.value = false
     sessionStorage.removeItem('token')
     sessionStorage.removeItem('user')
   }
@@ -274,6 +280,7 @@ const user = ref<LoginResponse | null>(parsedUser)
     isAdmin,
     activeDays,
     masteredWords,
+    statsLoaded,
     coinBalance,
     totalEarned,
     todayCheckedIn,

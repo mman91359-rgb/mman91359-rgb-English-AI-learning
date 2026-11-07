@@ -71,6 +71,12 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("用户名或密码错误");
         }
 
+        // 存量哈希强度与当前配置不一致时，借这次 updateById 一并重编码（仅首次登录触发一次）
+        if (PasswordUtil.needsRehash(user.getPassword())) {
+            user.setPassword(PasswordUtil.encode(request.getPassword()));
+            log.info("密码哈希已按当前强度重编码: userId={}", user.getId());
+        }
+
         String token = Roles.isAdmin(user.getRoles())
                 ? JwtUtil.generate(user.getId(), user.getUsername(), user.getRoles(), adminExpiration)
                 : JwtUtil.generate(user.getId(), user.getUsername(), user.getRoles());

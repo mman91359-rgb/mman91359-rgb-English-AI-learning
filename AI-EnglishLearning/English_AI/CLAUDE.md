@@ -17,7 +17,7 @@ Recall·睿考 —— 四六级英语学习系统，前后端分离架构。
 - Spring Cloud Gateway（WebFlux）
 - MyBatis-Plus 3.5.5
 - JJWT 0.12.3（HS256）
-- Spring Security Crypto（BCrypt，work factor 12）
+- Spring Security Crypto（BCrypt，work factor 10；存量 `$2b$12$` 在登录成功后自动重编码）
 - 服务间调用：RestTemplate 直连（无 OpenFeign）
 - 消息队列：RabbitMQ（默认关闭，`spring.rabbitmq.enabled=false`）
 - AI 接入：阿里云百炼 DashScope，原生 HTTP 调用（无官方SDK），兼容 OpenAI 格式

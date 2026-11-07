@@ -1,5 +1,5 @@
+import { get, post } from './request'
 import { WRITING_TOPICS } from '../mocks/writing'
-import { writingScoringService } from '../services/writingScoring'
 import { useUserStore } from '../stores/user'
 import type { WritingDraft, WritingScore, WritingSubmission, WritingTopic } from '../types/writing'
 
@@ -22,7 +22,7 @@ function userScope(): string {
   return String(userStore.userId ?? 'anonymous')
 }
 
-function keyOf(kind: 'drafts' | 'favorites' | 'submissions'): string {
+function keyOf(kind: 'drafts' | 'favorites'): string {
   return `recall:writing:${userScope()}:${kind}`
 }
 
@@ -43,16 +43,7 @@ function readDrafts(): DraftStore {
   return readJson<DraftStore>(keyOf('drafts'), {})
 }
 
-function readSubmissions(): WritingSubmission[] {
-  return readJson<WritingSubmission[]>(keyOf('submissions'), [])
-}
-
-function newId(): string {
-  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') return crypto.randomUUID()
-  return `${Date.now()}-${Math.random().toString(16).slice(2)}`
-}
-
-/** 题库为静态数据，暂不入库 */
+/** 题库为静态数据，暂不入库（Q1 决策） */
 export function fetchWritingTopics(): Promise<WritingTopic[]> {
   return Promise.resolve(TOPIC_CACHE)
 }
@@ -116,45 +107,106 @@ export interface SubmitEssayInput {
   durationSeconds: number
 }
 
-/** 预览模式提交：只写 localStorage，不调用任何后端接口 */
+/** 后端提交响应 */
+interface WritingSubmitResponseDTO {
+  essayId: number
+  topicKey: string
+  content: string
+  wordCount: number
+  aiScored: boolean
+  score: WritingScore | null
+  createdAt: string
+  message?: string
+}
+
+/** 构造降级（未评分）占位报告 */
+function degradedReport(createdAt: string, message?: string): WritingScore {
+  return {
+    scoreVersion: 'degraded',
+    provider: 'MOCK',
+    scoredAt: createdAt,
+    rawScore: 0,
+    maxRawScore: 15,
+    weightedScore: 0,
+    level: 'NEEDS_WORK',
+    dimensions: { content: 0, structure: 0, language: 0, vocabulary: 0, grammar: 0 },
+    strengths: [],
+    issues: [message || 'AI 评分暂不可用，可稍后重新评分'],
+    corrections: [],
+    highlights: [],
+    modelEssay: '',
+    rewriteSuggestions: [],
+  }
+}
+
+function toSubmission(resp: WritingSubmitResponseDTO, durationSeconds: number): WritingSubmission {
+  const report = resp.score ?? degradedReport(resp.createdAt, resp.message)
+  return {
+    id: String(resp.essayId),
+    topicId: resp.topicKey,
+    content: resp.content,
+    wordCount: resp.wordCount,
+    durationSeconds,
+    rawScore: report.rawScore,
+    weightedScore: report.weightedScore,
+    status: resp.aiScored ? 'SCORED' : 'FAILED',
+    createdAt: resp.createdAt,
+    report,
+  }
+}
+
+/**
+ * 提交作文：调后端先落库后评分（失败降级为 aiScored=false）。
+ * 返回与前端契约对齐的 WritingSubmission。
+ */
 export async function submitWritingEssay(input: SubmitEssayInput): Promise<WritingSubmission> {
   const topic = TOPIC_CACHE.find((item) => item.id === input.topicId)
   if (!topic) throw new Error('writing topic not found')
 
-  const wordCount = countWords(input.content)
-  const report: WritingScore = await writingScoringService.score({
-    topic,
+  const userStore = useUserStore()
+  if (!userStore.userId) throw new Error('请先登录')
+
+  const resp = await post<WritingSubmitResponseDTO>('/exercise/writing/submit', {
+    userId: userStore.userId,
+    topicKey: input.topicId,
+    topicTitle: topic.title,
     content: input.content,
-    wordCount,
+    wordCount: countWords(input.content),
     durationSeconds: input.durationSeconds,
   })
 
-  const submission: WritingSubmission = {
-    id: newId(),
-    topicId: input.topicId,
-    content: input.content,
-    wordCount,
-    durationSeconds: input.durationSeconds,
-    rawScore: report.rawScore,
-    weightedScore: report.weightedScore,
-    status: 'SCORED',
-    createdAt: new Date().toISOString(),
-    report,
-  }
-
-  const submissions = readSubmissions()
-  submissions.unshift(submission)
-  writeJson(keyOf('submissions'), submissions)
-  clearDraft(input.topicId)
-  return submission
+  return toSubmission(resp, input.durationSeconds)
 }
 
-export function fetchSubmission(submissionId: string): Promise<WritingSubmission | null> {
-  return Promise.resolve(readSubmissions().find((item) => item.id === submissionId) ?? null)
+export async function fetchSubmission(submissionId: string): Promise<WritingSubmission | null> {
+  const userStore = useUserStore()
+  if (!userStore.userId) return null
+  const resp = await get<WritingSubmitResponseDTO>(`/exercise/writing/submission/${submissionId}`, {
+    userId: userStore.userId,
+  })
+  if (!resp) return null
+  return toSubmission(resp, 0)
 }
 
-export function fetchSubmissions(): Promise<WritingSubmission[]> {
-  return Promise.resolve(readSubmissions())
+export async function fetchSubmissions(): Promise<WritingSubmission[]> {
+  const userStore = useUserStore()
+  if (!userStore.userId) return []
+  const list = await get<WritingSubmitResponseDTO[]>('/exercise/writing/submissions', {
+    userId: userStore.userId,
+  })
+  return list.map((resp) => toSubmission(resp, 0))
+}
+
+/** 重新评分：对未评分（降级）的作文触发后端重新评分 */
+export async function rescoreWriting(essayId: number): Promise<WritingSubmission | null> {
+  const userStore = useUserStore()
+  if (!userStore.userId) return null
+  const resp = await post<WritingSubmitResponseDTO>('/exercise/writing/rescore', {
+    userId: userStore.userId,
+    essayId,
+  })
+  if (!resp || !resp.score) return null
+  return toSubmission(resp, 0)
 }
 
 /** 仅供页面展示用：把提交记录转换成契约中的历史项 */

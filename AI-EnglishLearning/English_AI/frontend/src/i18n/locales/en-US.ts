@@ -682,6 +682,26 @@ export default {
     comingSoon: 'Coming soon',
     close: 'Close',
   },
+  ai: {
+    panel: {
+      title: 'AI Feedback',
+      loading: 'AI is analyzing…',
+    },
+    action: {
+      copy: 'Copy',
+      favorite: 'Favorite',
+      addError: 'Add to error book',
+      addVocab: 'Add to vocabulary',
+      mastered: 'Mark mastered',
+    },
+  },
+  word: {
+    speak: 'Pronounce',
+    favorite: 'Add to vocabulary',
+    loading: 'Looking up…',
+    collocation: 'Collocations',
+    example: 'Example',
+  },
   adminConsole,
   writing,
 }

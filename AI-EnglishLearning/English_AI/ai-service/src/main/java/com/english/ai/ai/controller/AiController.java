@@ -4,6 +4,7 @@ import com.english.ai.ai.dto.ChatRequest;
 import com.english.ai.ai.dto.JudgeAcceptableRequest;
 import com.english.ai.ai.dto.JudgeFeedbackRequest;
 import com.english.ai.ai.dto.WordDetailVO;
+import com.english.ai.ai.dto.WritingScoreVO;
 import com.english.ai.ai.service.AiService;
 import com.english.ai.common.Result;
 import lombok.RequiredArgsConstructor;
@@ -59,6 +60,26 @@ public class AiController {
         if (vo == null) {
             return Result.badRequest("单词不能为空");
         }
+        return Result.success(vo);
+    }
+
+    /**
+     * 作文结构化评分（同步，非流式）
+     * POST /ai/score-writing
+     * 由 exercise-service 写作模块调用，返回结构化 WritingScoreVO。
+     * AI 不可用时返回 Mock 兜底评分（provider=MOCK）。
+     */
+    @PostMapping("/score-writing")
+    public Result<WritingScoreVO> scoreWriting(@RequestBody Map<String, Object> request) {
+        String topicTitle = (String) request.getOrDefault("topicTitle", "");
+        String topic = (String) request.getOrDefault("topic", "");
+        String content = (String) request.getOrDefault("content", "");
+        int wordCount = request.get("wordCount") != null ? ((Number) request.get("wordCount")).intValue() : 0;
+        log.info("作文评分请求: topic={}, wordCount={}", topicTitle, wordCount);
+        if (content == null || content.isBlank()) {
+            return Result.badRequest("作文内容不能为空");
+        }
+        WritingScoreVO vo = aiService.scoreWriting(topicTitle, topic, content, wordCount);
         return Result.success(vo);
     }
 

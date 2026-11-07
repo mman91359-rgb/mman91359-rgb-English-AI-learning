@@ -682,6 +682,26 @@ export default {
     comingSoon: '功能开发中，敬请期待',
     close: '关闭',
   },
+  ai: {
+    panel: {
+      title: 'AI 反馈',
+      loading: 'AI 正在分析…',
+    },
+    action: {
+      copy: '复制',
+      favorite: '收藏',
+      addError: '加入错题本',
+      addVocab: '加入单词本',
+      mastered: '标记掌握',
+    },
+  },
+  word: {
+    speak: '发音',
+    favorite: '收藏到单词本',
+    loading: '正在查询单词…',
+    collocation: '常用搭配',
+    example: '例句',
+  },
   adminConsole,
   writing,
 }

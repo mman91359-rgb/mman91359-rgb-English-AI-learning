@@ -2,6 +2,7 @@ package com.english.ai.ai.service;
 
 import com.english.ai.ai.dto.ChatRequest;
 import com.english.ai.ai.dto.WordDetailVO;
+import com.english.ai.ai.dto.WritingScoreVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -90,6 +91,24 @@ public class AiService {
             "\"exampleTranslation\":\"例句中文翻译\",\"collocation\":\"常见搭配，多个用；分隔\"}\n" +
             "要求：音标使用国际音标；例句难度适合四六级；释义和例句要准确；JSON 字段名必须完全一致。"
         );
+        // 作文评分：要求模型严格输出结构化 JSON，字段对齐前端 WritingScore 契约
+        SYSTEM_PROMPTS.put("writing_score",
+            "你是一位英语写作考官。请根据学生的作文，按「5 维度各 3 分、满分 15 分」评分。" +
+            "必须严格返回如下 JSON 格式（不要包含任何额外文字、不要使用 markdown 代码块标记）：\n" +
+            "{\"rawScore\":13,\"maxRawScore\":15,\"weightedScore\":92.3,\"level\":\"EXCELLENT\"," +
+            "\"dimensions\":{\"content\":3,\"structure\":3,\"language\":3,\"vocabulary\":2,\"grammar\":2}," +
+            "\"strengths\":[\"优点1\",\"优点2\"],\"issues\":[\"问题1\",\"问题2\"]," +
+            "\"corrections\":[{\"original\":\"原句\",\"suggestion\":\"建议改法\",\"reason\":\"修改原因\",\"type\":\"GRAMMAR\"}]," +
+            "\"highlights\":[\"亮点句\"],\"modelEssay\":\"参考范文\"," +
+            "\"rewriteSuggestions\":[\"改写建议1\",\"改写建议2\"]}\n" +
+            "要求：\n" +
+            "1. rawScore 为 0~15 的整数；maxRawScore 恒为 15；weightedScore = rawScore/15*106.5（保留 1 位小数）。\n" +
+            "2. level 根据 rawScore 取：13~15 EXCELLENT、10~12 GOOD、7~9 PASS、4~6 NEEDS_WORK、0~3 POOR。\n" +
+            "3. dimensions 五个键 content/structure/language/vocabulary/grammar，值 0~3 整数。\n" +
+            "4. corrections 的 type 只能取 GRAMMAR/VOCABULARY/STRUCTURE/SPELLING/PUNCTUATION 之一。\n" +
+            "5. 所有中文内容用中文，范文和例句用英文。\n" +
+            "6. JSON 字段名必须与示例完全一致，不要遗漏任何字段。"
+        );
     }
 
     /**
@@ -163,6 +182,118 @@ public class AiService {
         vo.setExampleTranslation("");
         vo.setCollocation("");
         return vo;
+    }
+
+    /**
+     * 作文结构化评分（同步，非流式）。
+     * 调用 AI 按「5 维度各 3 分、满分 15」输出结构化 JSON，解析为 WritingScoreVO。
+     * AI 不可用或解析失败时返回 Mock 兜底评分。
+     *
+     * @param topicTitle 题目标题
+     * @param topic      题目要求
+     * @param content    学生作文原文
+     * @param wordCount  词数
+     * @return 结构化评分；异常时返回 Mock
+     */
+    public WritingScoreVO scoreWriting(String topicTitle, String topic, String content, int wordCount) {
+        // 未配置 API Key，走 Mock 兜底
+        if (apiKey == null || apiKey.isBlank()) {
+            log.warn("AI API Key 未配置，使用 Mock 作文评分");
+            return mockWritingScore(wordCount);
+        }
+
+        try {
+            List<Map<String, String>> messages = new ArrayList<>();
+            messages.add(Map.of("role", "system", "content", SYSTEM_PROMPTS.get("writing_score")));
+            messages.add(Map.of("role", "user", "content",
+                    "题目：" + topicTitle + "\n要求：" + topic + "\n学生作文（" + wordCount + "词）：\n" + content
+                            + "\n\n请严格按指定 JSON 格式输出评分结果。"));
+
+            String requestBody = buildRequestBodySync(messages);
+            HttpURLConnection conn = createConnectionSync(requestBody);
+            int code = conn.getResponseCode();
+            if (code != 200) {
+                String err = new String(conn.getErrorStream().readAllBytes(), StandardCharsets.UTF_8);
+                log.error("调用AI评分接口失败: {} {}，使用 Mock 兜底", code, err);
+                return mockWritingScore(wordCount);
+            }
+
+            String respBody;
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) sb.append(line);
+                respBody = sb.toString();
+            }
+            String contentJson = extractContentFromSync(respBody);
+            if (contentJson == null || contentJson.isBlank()) {
+                log.warn("AI 评分返回为空，使用 Mock 兜底");
+                return mockWritingScore(wordCount);
+            }
+            WritingScoreVO vo = parseWritingScoreJson(contentJson);
+            if (vo == null) {
+                log.warn("AI 评分解析失败，使用 Mock 兜底: {}", contentJson);
+                return mockWritingScore(wordCount);
+            }
+            vo.setProvider("LLM");
+            return vo;
+        } catch (Exception e) {
+            log.error("作文评分异常: {}", e.getMessage(), e);
+            return mockWritingScore(wordCount);
+        }
+    }
+
+    /**
+     * Mock 兜底评分：按词数给出确定性评分，保证无 Key/失败时闭环仍可用。
+     */
+    private WritingScoreVO mockWritingScore(int wordCount) {
+        WritingScoreVO vo = new WritingScoreVO();
+        vo.setScoreVersion("mock");
+        vo.setProvider("MOCK");
+        vo.setMaxRawScore(15);
+        // 词数越多（越接近要求）给分越高，模拟确定性评分
+        int content = wordCount >= 120 ? 3 : (wordCount >= 80 ? 2 : 1);
+        vo.setRawScore(9 + Math.min(4, wordCount / 60));
+        if (vo.getRawScore() > 15) vo.setRawScore(15);
+        vo.setWeightedScore(Math.round(vo.getRawScore() / 15.0 * 106.5 * 10) / 10.0);
+        vo.setLevel(vo.getRawScore() >= 13 ? "EXCELLENT" : vo.getRawScore() >= 10 ? "GOOD" : vo.getRawScore() >= 7 ? "PASS" : "NEEDS_WORK");
+        vo.setDimensions(new HashMap<>());
+        vo.getDimensions().put("content", content);
+        vo.getDimensions().put("structure", Math.max(1, content - 1));
+        vo.getDimensions().put("language", content);
+        vo.getDimensions().put("vocabulary", Math.max(1, content - 1));
+        vo.getDimensions().put("grammar", content);
+        vo.setStrengths(List.of("能够围绕题目展开论述"));
+        vo.setIssues(List.of("AI 评分暂不可用，此为预览评分，可稍后重新评分"));
+        vo.setCorrections(new ArrayList<>());
+        vo.setHighlights(new ArrayList<>());
+        vo.setModelEssay("");
+        vo.setRewriteSuggestions(List.of("AI 评分恢复后重新提交以获取详细批改"));
+        return vo;
+    }
+
+    /**
+     * 解析 AI 返回的 JSON 为 WritingScoreVO，兼容 ```json ``` 包裹或多余文字。
+     */
+    private WritingScoreVO parseWritingScoreJson(String content) {
+        if (content == null) return null;
+        String s = content.trim();
+        if (s.startsWith("```")) {
+            int start = s.indexOf('\n');
+            int end = s.lastIndexOf("```");
+            if (start > 0 && end > start) s = s.substring(start + 1, end).trim();
+        }
+        int li = s.indexOf('{');
+        int ri = s.lastIndexOf('}');
+        if (li < 0 || ri <= li) return null;
+        String json = s.substring(li, ri + 1);
+        try {
+            return new com.fasterxml.jackson.databind.ObjectMapper().readValue(json, WritingScoreVO.class);
+        } catch (Exception e) {
+            log.warn("解析作文评分 JSON 失败: {}", e.getMessage());
+            return null;
+        }
     }
 
     /**

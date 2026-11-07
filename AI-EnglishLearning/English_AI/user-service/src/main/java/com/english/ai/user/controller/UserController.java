@@ -81,7 +81,11 @@ public class UserController {
     // ========== 用户查询 ==========
 
     @GetMapping("/info/{userId}")
-    public Result<SysUser> info(@PathVariable Long userId) {
+    public Result<SysUser> info(@PathVariable Long userId,
+                                @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
+        }
         SysUser user = userService.getById(userId);
         if (user == null) {
             return Result.error(404, "用户不存在");
@@ -284,7 +288,11 @@ public class UserController {
      * GET /user/radar/{userId}
      */
     @GetMapping("/radar/{userId}")
-    public Result<Map<String, Object>> radar(@PathVariable Long userId) {
+    public Result<Map<String, Object>> radar(@PathVariable Long userId,
+                                             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
+        }
         Map<String, Object> data = radarService.getRadarData(userId);
         return Result.success(data);
     }

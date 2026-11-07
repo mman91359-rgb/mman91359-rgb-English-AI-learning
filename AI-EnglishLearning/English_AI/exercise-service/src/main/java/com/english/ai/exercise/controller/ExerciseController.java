@@ -36,7 +36,11 @@ public class ExerciseController {
     public Result<List<QuestionVO>> selectQuestions(
             @RequestParam Long userId,
             @RequestParam(defaultValue = "1") Integer moduleType,
-            @RequestParam(defaultValue = "10") Integer count) {
+            @RequestParam(defaultValue = "10") Integer count,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
+        }
         if (count > 50) count = 50;
         List<QuestionVO> questions = exerciseService.selectQuestions(userId, moduleType, count);
         log.info("智能选题: userId={}, moduleType={}, count={}, 实际返回{}题", userId, moduleType, count, questions.size());
@@ -109,7 +113,11 @@ public class ExerciseController {
      * GET /exercise/error-book/{userId}
      */
     @GetMapping("/error-book/{userId}")
-    public Result<List<QuestionVO>> errorBook(@PathVariable Long userId) {
+    public Result<List<QuestionVO>> errorBook(@PathVariable Long userId,
+                                              @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
+        }
         List<QuestionVO> errors = exerciseService.getErrorBook(userId);
         return Result.success(errors);
     }
@@ -140,7 +148,11 @@ public class ExerciseController {
      * GET /exercise/stats/{userId}
      */
     @GetMapping("/stats/{userId}")
-    public Result<UserExerciseStats> getUserStats(@PathVariable Long userId) {
+    public Result<UserExerciseStats> getUserStats(@PathVariable Long userId,
+                                                  @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
+        }
         UserExerciseStats stats = exerciseService.getUserStats(userId);
         log.info("用户答题统计: userId={}, 总答题={}, 正确={}, 活跃天数={}",
                 userId, stats.getTotalAnswered(), stats.getCorrectCount(), stats.getActiveDays());
@@ -166,7 +178,11 @@ public class ExerciseController {
 
     /** GET /exercise/favorites/{userId} */
     @GetMapping("/favorites/{userId}")
-    public Result<List<FavoriteVO>> getFavorites(@PathVariable Long userId) {
+    public Result<List<FavoriteVO>> getFavorites(@PathVariable Long userId,
+                                                 @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
+        }
         return Result.success(exerciseService.getFavorites(userId));
     }
 
@@ -228,7 +244,11 @@ public class ExerciseController {
 
     /** GET /exercise/vocabulary/{userId} */
     @GetMapping("/vocabulary/{userId}")
-    public Result<List<VocabularyVO>> getVocabulary(@PathVariable Long userId) {
+    public Result<List<VocabularyVO>> getVocabulary(@PathVariable Long userId,
+                                                    @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
+        }
         return Result.success(exerciseService.getVocabulary(userId));
     }
 
@@ -239,7 +259,11 @@ public class ExerciseController {
     @GetMapping("/vocabulary/new-questions")
     public Result<List<QuestionVO>> selectNewVocabularyQuestions(
             @RequestParam Long userId,
-            @RequestParam(defaultValue = "10") Integer count) {
+            @RequestParam(defaultValue = "10") Integer count,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
+        }
         int safeCount = Math.max(1, Math.min(50, count));
         List<QuestionVO> questions = exerciseService.selectNewVocabularyQuestions(userId, safeCount);
         log.info("新词选题: userId={}, 需求{}题, 返回{}题", userId, safeCount, questions.size());
@@ -277,7 +301,11 @@ public class ExerciseController {
      * GET /exercise/vocabulary/review/{userId}
      */
     @GetMapping("/vocabulary/review/{userId}")
-    public Result<List<VocabularyVO>> getReviewList(@PathVariable Long userId) {
+    public Result<List<VocabularyVO>> getReviewList(@PathVariable Long userId,
+                                                    @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
+        }
         List<VocabularyVO> list = exerciseService.getReviewList(userId);
         log.info("今日待复习: userId={}, 数量={}", userId, list.size());
         return Result.success(list);
@@ -317,7 +345,11 @@ public class ExerciseController {
             @RequestParam(defaultValue = "20") Integer size,
             @RequestParam(required = false) Integer moduleType,
             @RequestParam(required = false) Integer isCorrect,
-            @RequestParam(required = false) String startTime) {
+            @RequestParam(required = false) String startTime,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
+        }
         List<ExerciseHistoryVO> list = exerciseService.getExerciseHistory(userId, page, size, moduleType, isCorrect, startTime);
         long total = exerciseService.getExerciseHistoryCount(userId, moduleType, isCorrect, startTime);
         Map<String, Object> result = new java.util.HashMap<>();
@@ -336,7 +368,11 @@ public class ExerciseController {
      * 统计用户所有未解决错题中每个知识点的出现次数，按次数降序返回前10个
      */
     @GetMapping("/weak-points/{userId}")
-    public Result<List<WeakKnowledgePoint>> getWeakPoints(@PathVariable Long userId) {
+    public Result<List<WeakKnowledgePoint>> getWeakPoints(@PathVariable Long userId,
+                                                          @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
+        }
         log.info("获取薄弱知识点: userId={}", userId);
         List<WeakKnowledgePoint> points = exerciseService.getWeakKnowledgePoints(userId);
         return Result.success(points);
@@ -349,7 +385,8 @@ public class ExerciseController {
      * 优先取正式题库中同知识点题目，不足部分由 AI 生成
      */
     @PostMapping("/generate-similar")
-    public Result<List<QuestionVO>> generateSimilar(@RequestBody Map<String, Object> request) {
+    public Result<List<QuestionVO>> generateSimilar(@RequestBody Map<String, Object> request,
+                                                    @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
         Long userId = request.get("userId") != null
                 ? ((Number) request.get("userId")).longValue()
                 : null;
@@ -362,6 +399,9 @@ public class ExerciseController {
 
         if (userId == null || questionId == null) {
             return Result.badRequest("userId和questionId不能为空");
+        }
+        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
         }
         if (count > 20) count = 20;
 

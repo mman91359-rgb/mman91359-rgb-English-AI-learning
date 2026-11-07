@@ -41,7 +41,11 @@ public class ListeningController {
     @GetMapping("/questions")
     public Result<List<QuestionVO>> questions(@RequestParam Long userId,
                                               @RequestParam(defaultValue = "5") Integer count,
-                                              @RequestParam(required = false) String listeningType) {
+                                              @RequestParam(required = false) String listeningType,
+                                              @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
+        }
         if (count > 20) {
             count = 20;
         }
@@ -83,7 +87,11 @@ public class ListeningController {
      * GET /exercise/listening/stats/{userId}
      */
     @GetMapping("/stats/{userId}")
-    public Result<ListeningStats> stats(@PathVariable Long userId) {
+    public Result<ListeningStats> stats(@PathVariable Long userId,
+                                        @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
+        }
         return Result.success(listeningService.getListeningStats(userId));
     }
 }

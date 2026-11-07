@@ -2,7 +2,7 @@
 
 **版本**：V1.0　|　**基线**：`mman91359-rgb-English-AI-learning` 最新提交　|　**用途**：把"还没做 + 待优化"的目标拆成**可直接执行的开发任务**，按优先级排期，可直接投喂给 AI 编程工具（或人工作为检查单）
 
-> **最近校准（2026-11-07）**：P0 安全债「读接口 IDOR」已完成修复（14 个接口统一加 `X-User-Id` 越权校验）。**P1 翻译模块闭环已完成**：Flyway V1.0.5（correct_answer→TEXT）+ V1.0.6（10 条翻译题种子：短句 6 + 段落 4），`JudgmentEngine.judgeTranslation` 实现「本地归一化精确比对 + 短句 AI 语义兜底、段落仅本地比对」，前端 `TranslationPracticeView` 替换 Mock 接真实接口，`LearningView` 修复翻译入口跳转。后续方向：P2 写作模块闭环 + AI 复用组件（`WordToken`/`WordDetailCard`/`AiFeedbackPanel`/`AiActionBar`）→ P3 复习/统计口径合并。词条数据源采用「C1 现在 AI 实时查词（复用 `/ai/word-detail`）→ C3 终态本地词典优先 + AI 回退 + 缓存写回」，为后续大量导入单词数据预留统一查词入口 `api/word.ts`。
+> **最近校准（2026-11-07）**：P0 安全债「读接口 IDOR」已完成修复（14 个接口统一加 `X-User-Id` 越权校验）。**P1 翻译模块闭环已完成**：Flyway V1.0.5（correct_answer→TEXT）+ V1.0.6（10 条翻译题种子：短句 6 + 段落 4），`JudgmentEngine.judgeTranslation` 实现「本地归一化精确比对 + 短句 AI 语义兜底、段落仅本地比对」，前端 `TranslationPracticeView` 替换 Mock 接真实接口，`LearningView` 修复翻译入口跳转。**P2 写作模块闭环 + AI 复用组件已完成**：Flyway V1.0.7 新增 `writing_essay` 表（作文先落库后评分，失败降级可重评）；ai-service 新增 `/ai/score-writing` 同步结构化评分接口（5 维度/满分 15，Mock 兜底）；exercise-service 新增写作提交/重评/历史/详情接口；前端原子层 `WordToken`+`WordDetailCard`+`api/word.ts`+`useSpeech`（英美发音）、容器层 `AiFeedbackPanel`+`AiActionBar`+`templates/`，`api/writing.ts` 从 localStorage 换真实 HTTP。后续方向：P3 复习/统计口径合并。词条数据源采用「C1 现在 AI 实时查词（复用 `/ai/word-detail`）→ C3 终态本地词典优先 + AI 回退 + 缓存写回」，为后续大量导入单词数据预留统一查词入口 `api/word.ts`。
 
 > **上一校准（2026-10-31）**：按当前代码事实回写执行状态。T-001/T-002/T-005 已完成，T-003 部分完成，T-004 暂缓，T-006 待做；听力模块已按"复用题库 + 音频表"落地。module_type 契约统一为：1词汇 2语法 3翻译 4听力 5造句（保留）6写作。**写作不再使用 5，改为 6。**
 
@@ -118,12 +118,14 @@
   - 提交复用现有 `POST /exercise/submit`（moduleType=3），落库 `user_exercise_log` + ELO + 雷达 reading_score 全链路不变。
   - 前端：新增 `api/translation.ts`，重写 `TranslationPracticeView.vue`（替换 Mock），修复 `LearningView` 翻译入口跳转（`/translation` → `/translation/practice`），删除死代码 `mocks/translationPreview.ts`。
 
-### T-202　写作模块（作文练习 + AI 评分）
-- **做什么**：
-  - 数据：新增写作题库（`question_type='WRITING'`，**module_type=6**，与 5=造句 隔离——需同步 `frontend/src/config/modules.ts` 与 i18n 增加 `6:'写作'`）。写作暂无独立雷达列，提交只更新 ELO/日志；若需要写作维度，另加 `writing_score` 增量 SQL。
-  - 后端：`POST /exercise/writing/submit` 提交作文 → 调 `/ai/score`（scoreType=writing, SSE）→ 落库 `user_exercise_log` + 错题本；`GET /exercise/writing/history/{userId}` 历史作文与得分。
-  - 前端：`views/WritingView.vue`，路由 `/writing`：题目展示 → 文本编辑器（计时器 TimerCountdown 参照 recall prompt）→ 提交 → SSE 流式显示分项得分（内容/结构/语言）+ AI 建议。
-- **验收**：作文可提交、AI 评分流式输出、历史可回看；错题本/统计同步。
+### T-202　写作模块（作文练习 + AI 评分）　✅ 已完成（2026-11-07）
+- **实际落地**（与原始设计有调整）：
+  - 数据：写作题目复用前端静态题库 `mocks/writing.ts`（10 套题，不入库），作文落库用**独立表 `writing_essay`**（Flyway V1.0.7），而非 `user_exercise_log`——因作文原文超 varchar(500) 且需存评分快照。
+  - 评分模型：统一为前端已有的「5 维度各 3 分、满分 15」契约（content/structure/language/vocabulary/grammar），ai-service 新增同步结构化接口 `POST /ai/score-writing`（返回 JSON，非 SSE，便于落库），Mock 兜底保证无 Key 可跑。
+  - 降级：作文**先落库后评分**，AI 失败标记 `ai_scored=0`，支持 `POST /exercise/writing/rescore` 重新评分，不阻塞作文保存。
+  - 前端：复用已有 `WritingPracticeView`/`WritingReportView` 等页面，仅把 `api/writing.ts` 的 localStorage 实现替换为真实 HTTP，页面组件零改动。
+  - AI 复用组件：原子层 `WordToken`（可点词）+ `WordDetailCard`（查词卡片，含英美发音/收藏）+ `api/word.ts`（统一查词入口，为 C3 预留）+ `useSpeech`（Web Speech API）；容器层 `AiFeedbackPanel`（外壳）+ `AiActionBar`（操作条）+ `templates/`（写作/翻译/听力模板）。
+- **验收**：作文可提交、AI 评分、失败降级重评、历史回看；逐词点查 + 发音 + 收藏可用。
 - **依赖**：T-003/T-004；AiSidebar SSE 渲染复用。
 
 ---

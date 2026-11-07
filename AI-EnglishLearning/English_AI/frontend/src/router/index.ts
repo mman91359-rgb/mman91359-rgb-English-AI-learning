@@ -1,35 +1,37 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useUserStore } from '@/stores/user'
-import HomeView from '../views/HomeView.vue'
-import LearningView from '../views/LearningView.vue'
-import StatsView from '../views/StatsView.vue'
-import ProfileView from '../views/ProfileView.vue'
-import LoginView from '../views/LoginView.vue'
-import RegisterView from '../views/RegisterView.vue'
-import ForgotPasswordView from '../views/ForgotPasswordView.vue'
-import SettingsView from '../views/SettingsView.vue'
-import FavoritesView from '../views/FavoritesView.vue'
-import ErrorBookView from '../views/ErrorBookView.vue'
-import HistoryView from '../views/HistoryView.vue'
-import VocabularyView from '../views/VocabularyView.vue'
-import PracticeView from '../views/PracticeView.vue'
-import VocabQuizView from '../views/VocabQuizView.vue'
-import GrammarQuizView from '../views/GrammarQuizView.vue'
-import AssessView from '../views/AssessView.vue'
-import AdminLayout from '../views/admin/AdminLayout.vue'
-import AdminOverviewView from '../views/admin/AdminOverviewView.vue'
-import AdminUsersView from '../views/admin/AdminUsersView.vue'
-import AdminUserDetailView from '../views/admin/AdminUserDetailView.vue'
-import AdminQuestionsView from '../views/admin/AdminQuestionsView.vue'
-import AdminNoticesView from '../views/admin/AdminNoticesView.vue'
-import AdminActivitiesView from '../views/admin/AdminActivitiesView.vue'
-import AdminOperationLogsView from '../views/admin/AdminOperationLogsView.vue'
-import ForbiddenView from '../views/ForbiddenView.vue'
-import ListeningQuizView from '../views/ListeningQuizView.vue'
-import TranslationPracticeView from '../views/TranslationPracticeView.vue'
-import WritingPracticeView from '../views/writing/WritingPracticeView.vue'
-import WritingReportView from '../views/writing/WritingReportView.vue'
-import WritingHistoryView from '../views/writing/WritingHistoryView.vue'
+
+// 全部路由懒加载：按页面拆包，避免单一巨型 chunk
+const HomeView = () => import('../views/HomeView.vue')
+const LearningView = () => import('../views/LearningView.vue')
+const StatsView = () => import('../views/StatsView.vue')
+const ProfileView = () => import('../views/ProfileView.vue')
+const LoginView = () => import('../views/LoginView.vue')
+const RegisterView = () => import('../views/RegisterView.vue')
+const ForgotPasswordView = () => import('../views/ForgotPasswordView.vue')
+const SettingsView = () => import('../views/SettingsView.vue')
+const FavoritesView = () => import('../views/FavoritesView.vue')
+const ErrorBookView = () => import('../views/ErrorBookView.vue')
+const HistoryView = () => import('../views/HistoryView.vue')
+const VocabularyView = () => import('../views/VocabularyView.vue')
+const PracticeView = () => import('../views/PracticeView.vue')
+const VocabQuizView = () => import('../views/VocabQuizView.vue')
+const GrammarQuizView = () => import('../views/GrammarQuizView.vue')
+const AssessView = () => import('../views/AssessView.vue')
+const AdminLayout = () => import('../views/admin/AdminLayout.vue')
+const AdminOverviewView = () => import('../views/admin/AdminOverviewView.vue')
+const AdminUsersView = () => import('../views/admin/AdminUsersView.vue')
+const AdminUserDetailView = () => import('../views/admin/AdminUserDetailView.vue')
+const AdminQuestionsView = () => import('../views/admin/AdminQuestionsView.vue')
+const AdminNoticesView = () => import('../views/admin/AdminNoticesView.vue')
+const AdminActivitiesView = () => import('../views/admin/AdminActivitiesView.vue')
+const AdminOperationLogsView = () => import('../views/admin/AdminOperationLogsView.vue')
+const ForbiddenView = () => import('../views/ForbiddenView.vue')
+const ListeningQuizView = () => import('../views/ListeningQuizView.vue')
+const TranslationPracticeView = () => import('../views/TranslationPracticeView.vue')
+const WritingPracticeView = () => import('../views/writing/WritingPracticeView.vue')
+const WritingReportView = () => import('../views/writing/WritingReportView.vue')
+const WritingHistoryView = () => import('../views/writing/WritingHistoryView.vue')
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),

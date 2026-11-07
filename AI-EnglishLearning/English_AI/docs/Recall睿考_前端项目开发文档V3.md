@@ -1,6 +1,8 @@
 # Recall·睿考 前端项目开发文档（V3）
 
-**版本**：V3.1（2026-10-31 按代码事实校准）　|　**基线**：`mman91359-rgb-English-AI-learning` 仓库 `AI-EnglishLearning/English_AI/frontend/` 最新提交代码事实　|　**适用阶段**：听力 MVP 已完成，翻译/写作未开始
+**版本**：V3.2（2026-11-07 按代码事实二次校准）　|　**基线**：`refactor/reuse-baseline` 分支 `AI-EnglishLearning/English_AI/frontend/` 最新提交代码事实　|　**适用阶段**：听力/翻译/写作模块均已完成，管理员端 7 页已实装
+
+> **V3.2 校准摘要**：路由已全部改为 `() => import()` 懒加载，主入口 chunk 约 218 kB（原单一 chunk 约 2,997 kB）；Element Plus 依赖保留但**不再全局注册**（与 §2 决策一致）；ECharts 改为 `echarts/core` 按需注册，仅统计页分包加载；AI 侧栏渲染已先转义再白名单格式化、词汇题干改为模板插值（消除 v-html 注入）；写作模块已接真实后端（`POST /exercise/writing/submit` 先落库后评分，失败降级 `aiScored=false`）。翻译/写作、管理员端细节以 `docs/` 下专项契约为准。
 
 > **V3.1 校准摘要**：暗色主题已完整实现（`darkMode: "class"` + `stores/app.ts` 持久化）；StatsView 没有雷达图，雷达数据在 ProfileView 以列表展示；原型资源为仓库根 `页面/` 的 15 个亮色 + 6 个黑夜版；已新增 `/listening` 路由、`ListeningView.vue`、`AudioPlayer.vue`。
 
@@ -273,7 +275,7 @@ frontend/
 | P0 | 翻译/写作页面未开发 | 按 Backlog Sprint 2 落地 `/translation /writing` |
 | P1 | Element Plus 依赖已装未用 | 保持禁用，避免两套风格混用 |
 | P1 | SSE 断线重连 | AiSidebar 增加重试与 loading 态 |
-| P1 | 路由懒加载未实现 | 当前全静态 import，主包约 2.7MB；按 Backlog T-302 分包 |
+| ✅ | 路由懒加载 | 已完成（2026-11-07）：全部路由 `() => import()` 分包，主入口 chunk 约 218 kB |
 | P2 | 图表组件未抽公共封装 | ChartRadar/ChartBar/ChartHeatmap |
 
 ---

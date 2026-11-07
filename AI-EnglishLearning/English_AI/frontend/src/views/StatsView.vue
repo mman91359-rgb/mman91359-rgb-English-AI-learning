@@ -160,7 +160,14 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
-import * as echarts from 'echarts'
+import * as echarts from 'echarts/core'
+import { BarChart } from 'echarts/charts'
+import { GridComponent, TooltipComponent } from 'echarts/components'
+import { CanvasRenderer } from 'echarts/renderers'
+import type { ECharts } from 'echarts/core'
+
+// ECharts 按需注册：只打包柱状图 + 网格/提示框 + Canvas 渲染器
+echarts.use([BarChart, GridComponent, TooltipComponent, CanvasRenderer])
 import AppLayout from '../components/AppLayout.vue'
 import { useUserStore } from '@/stores/user'
 import { useAppStore } from '@/stores/app'
@@ -287,7 +294,7 @@ const heatmapGrid = {
 
 // ========== 学习时间曲线 (ECharts) ==========
 const chartRef = ref<HTMLDivElement | null>(null)
-let chartInstance: echarts.ECharts | null = null
+let chartInstance: ECharts | null = null
 const weeklyAvgMinutes = ref(0)
 const weeklyMinutes = ref<number[]>(new Array(7).fill(0))
 const weeklyLabels = ref<string[]>([])

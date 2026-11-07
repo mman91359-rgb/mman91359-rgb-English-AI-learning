@@ -165,7 +165,8 @@ public class ExerciseServiceImpl implements ExerciseService {
             levelCandidates = new String[]{cetLevel, "CET4", "CET6"};
         }
 
-        // 题型由共享契约统一决定：1词汇→FILL_BLANK、2语法/5造句→SENTENCE_MAKING、3翻译→TRANSLATION、4听力→CHOICE、6写作→WRITING
+        // 题型由共享契约统一决定：1词汇→FILL_BLANK、2语法/5造句→SENTENCE_MAKING、3翻译→TRANSLATION、
+        // 4听力→CHOICE、6写作→WRITING；7阅读返回 null，表示不按题型过滤（含 CHOICE 与 FILL_BLANK 两种）
         String questionType = ModuleType.defaultQuestionType(moduleType);
 
         List<QuestionInfo> candidates = new ArrayList<>();
@@ -178,7 +179,7 @@ public class ExerciseServiceImpl implements ExerciseService {
             LambdaQueryWrapper<QuestionInfo> wrapper = new LambdaQueryWrapper<>();
             wrapper.eq(QuestionInfo::getTargetLevel, level)
                     .eq(QuestionInfo::getModuleType, moduleType)
-                    .eq(QuestionInfo::getQuestionType, questionType)
+                    .eq(questionType != null, QuestionInfo::getQuestionType, questionType)
                     .between(QuestionInfo::getDifficultyLevel, loDifficulty, hiDifficulty)
                     .eq(QuestionInfo::getIsDeleted, 0);
             if (allowedQuestionIds != null) {
@@ -200,7 +201,7 @@ public class ExerciseServiceImpl implements ExerciseService {
                 LambdaQueryWrapper<QuestionInfo> wrapper = new LambdaQueryWrapper<>();
                 wrapper.eq(QuestionInfo::getTargetLevel, level)
                         .eq(QuestionInfo::getModuleType, moduleType)
-                        .eq(QuestionInfo::getQuestionType, questionType)
+                        .eq(questionType != null, QuestionInfo::getQuestionType, questionType)
                         .eq(QuestionInfo::getIsDeleted, 0);
                 if (allowedQuestionIds != null) {
                     wrapper.in(QuestionInfo::getId, allowedQuestionIds);
@@ -215,7 +216,7 @@ public class ExerciseServiceImpl implements ExerciseService {
         if (candidates.size() < count) {
             LambdaQueryWrapper<QuestionInfo> wrapper = new LambdaQueryWrapper<>();
             wrapper.eq(QuestionInfo::getModuleType, moduleType)
-                    .eq(QuestionInfo::getQuestionType, questionType)
+                    .eq(questionType != null, QuestionInfo::getQuestionType, questionType)
                     .eq(QuestionInfo::getIsDeleted, 0);
             if (allowedQuestionIds != null) {
                 wrapper.in(QuestionInfo::getId, allowedQuestionIds);
@@ -383,13 +384,16 @@ public class ExerciseServiceImpl implements ExerciseService {
             } else {
                 judgmentResult = judgmentEngine.judge(request, judgeCorrectAnswer, judgeContext);
             }
-        } else if (moduleType == 4) {
-            // 听力选择题只做本地确定性比对，不走 AI 语义判对/兜底，避免无 Key 时误判或 AI 放水
+        } else if (moduleType == 4 || (moduleType == 7 && "CHOICE".equals(info.getQuestionType()))) {
+            // 选择题（听力、阅读仔细阅读/信息匹配）只做本地确定性比对，不走 AI 语义判对/兜底，避免无 Key 时误判或 AI 放水
             boolean choiceCorrect = ChoiceAnswerUtil.isCorrect(
                     request.getUserAnswer(), content.getCorrectAnswer(), content.getOptions());
+            String wrongHint = moduleType == 4
+                    ? "再听一遍录音，注意关键信息。"
+                    : "回到原文，定位题干关键词所在的句子。";
             judgmentResult = JudgmentResult.builder()
                     .isCorrect(choiceCorrect)
-                    .heuristicHint(choiceCorrect ? "回答正确！" : "再听一遍录音，注意关键信息。")
+                    .heuristicHint(choiceCorrect ? "回答正确！" : wrongHint)
                     .matchedLevel(1)
                     .suggestions(List.of())
                     .isSemanticMatch(false)

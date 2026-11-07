@@ -2,6 +2,33 @@
 # CLAUDE.md
 > 本文档是 Claude Code 操作本仓库的唯一事实基线，所有代码修改、方案输出均以本文档为准，禁止自行脑补未提及的架构与依赖。
 
+## ⚠️ 本文件是仓库唯一指令基线
+
+- **唯一路径**：`AI-EnglishLearning/English_AI/CLAUDE.md`（git 根为 `D:\AI-EnglishLearning`，主项目在 `AI-EnglishLearning/English_AI`）
+- 禁止在仓库根、子模块、`docs/`、`frontend/` 下新建 `CLAUDE.md` / `AGENTS.md` / `.cursorrules` / `.windsurfrules` 等平行指令文件
+- 需要补充说明时：追加到本文件对应章节；长文档写入 `docs/`，并在"仓库文件地图"登记
+- 发现其他位置的平行指令文件，视为噪声，直接删除并在本文件记录
+- 从仓库根启动的工具，请在启动参数里指定 `AI-EnglishLearning/English_AI` 为项目目录，不要为此在根目录再生成一份 CLAUDE.md
+
+## 🔴 联网 Search / Fetch 成本约束（DeepSeek API 计费，最高优先级）
+> 背景：DeepSeek Search/Fetch 网页搜索、抓取接口独立计费：**每1000次成功请求 5 元**，自北京时间 2026-11-01 00:00 起收费；本项目使用 DeepSeek 作为 Claude Code 后端，**自动联网会产生额外扣费**。
+> 核心原则：**默认禁止自动联网，优先复用本地仓库、文档、历史上下文，非必要绝不调用 Search / Fetch**
+
+1. ✅ 仅允许联网的场景（同时满足下面两条才可以发起搜索/抓取）
+    - 场景：查阅官方原版文档（SpringBoot / Vue3 / MySQL / Flyway / M3 等）、时效性极强的官方变更公告、用户**明确主动要求检索网页**（如：帮我打开这个url、搜索最新版本特性）
+    - 前置自检：先检索本仓库全部代码、docs文档、上下文记录，确认本地没有可用信息
+2. ❌ 绝对禁止自动联网的场景（高频踩坑点）
+    - 基础语法、Java/Vue 通用常识、简单单词释义、通用编程知识点
+    - 方案构思、重构思路、学习资料整理、作文模板、考点梳理、非阻塞性质的讨论
+    - 为了“答案更完美”、补充参考资料而主动搜索
+    - 批量、连续多次抓取网页，单次任务联网请求尽量控制 ≤2次
+3. 联网前置确认流程（强制）
+    确认本地无信息后，必须先向用户提示：
+    > 需要调用 DeepSeek Search/Fetch 联网查询，会产生额外接口计费，是否确认执行？
+    用户回复【确认】，才执行联网；用户拒绝，停止联网，基于已有信息输出，并标注：`【信息未联网核验，如需最新官方内容，请手动发起检索】`
+4. 兜底规则
+    不影响开发主流程、非阻塞的需求，一律放弃联网；不编造信息，主动标注信息局限。
+
 ## 项目概述
 Recall·睿考 —— 四六级英语学习系统，前后端分离架构。
 - 后端：Maven 多模块 Spring Boot 微服务，Spring Cloud Gateway 做静态路由
@@ -92,6 +119,57 @@ frontend/
 └── i18n/                        # 国际化
 
 ```
+
+## 仓库文件地图（给 AI 的快速索引）
+
+> 按"要改什么 → 先读什么"排序。找不到入口时先看本表，不要靠猜或重新生成文档。
+
+### 后端模块与关键类
+
+| 模块 | 职责 | 改之前先看 |
+|---|---|---|
+| `common/` | 公共契约 | `ModuleType.java`（module_type/question_type/雷达维度唯一事实来源）、`RadarDimension.java`、`PasswordUtil.java`、`JwtUtil.java`、`Result.java`、`ErrorCode.java` |
+| `user-service/` | 账户、金币、签到、偏好、ELO、雷达 | `service/impl/UserServiceImpl.java`（注册/登录）、`UserAbilityRadarServiceImpl.java`（ELO 与维度更新）、`config/AdminAuthInterceptor.java`、`config/InternalAuthInterceptor.java` |
+| `exercise-service/` | 题库、选题、判题、错题本、词库 | `service/impl/ExerciseServiceImpl.java`（`selectQuestions` 选题 / `submitAnswer` 判题 / `getDailyWord` 每日一词）、`judgment/`（三级判题）、`util/ChoiceAnswerUtil.java` |
+| `learning-engine-service/` | 遗忘曲线、每日复习 | `service/`（`update-curve` 消费）、`db/migration/V1.0.0__init_learning_db.sql` |
+| `ai-service/` | 大模型调用（唯一出口） | `service/AiService.java`、`controller/AiController.java`；业务模块禁止直连大模型 |
+| `api-gateway/` | 统一入口、JWT 校验、路由 | `filter/JwtAuthFilter.java`（白名单与 `X-User-Id` 透传）、`application.yml`（路由与 CORS） |
+
+### `docs/` 文档清单
+
+| 文件 | 内容 |
+|---|---|
+| `数据库迁移规范.md` | Flyway 命名/执行/回滚规范 + 历次迁移记录（改库前必读） |
+| `2026-11-07-数据库结构与真题导入基线.md` | 三库实际结构、题库/词库现状、导入方案、登录性能诊断 |
+| `听力资源导入规范.md` | `scripts/import-listening.mjs` 的 manifest 与目录约定 |
+| `作文模块UI设计契约.md` / `作文模块UI生成提示词.md` | 写作模块页面契约 |
+| `管理员端API契约.md` / `管理员端UI设计契约.md` / `管理员端UI设计契约V2.md` | 管理端接口与视觉契约 |
+| `Recall睿考_后端项目开发文档V3.md` / `Recall睿考_前端项目开发文档V3.md` | 整体架构与模块说明 |
+| `后续开发任务书（Backlog）.md` | 待办优先级 |
+| `2026-11-01-新增功能报告.md` / `2026-11-02-账号与找回密码说明.md` | 历史变更说明 |
+| `pending-migrations/` | 导入脚本生成的待审迁移 SQL（README 说明流程） |
+| `Workbuddy/` / `frontend-handoff/` | 外部协作产物，未纳入版本库约定 |
+
+### `scripts/`
+
+| 脚本 | 用途 |
+|---|---|
+| `flyway.sh` | **唯一迁移入口**：`<module> <baseline\|migrate\|info\|validate\|repair>`；空库会拒绝 baseline |
+| `backup-schema.sh` | 迁移前结构备份（输出到 `sql/backup/`，已 gitignore） |
+| `with-env.sh` | 注入 `.env` 后启动服务；**user-service 与 api-gateway 必须用它启动**，否则 JWT_SECRET 不一致会全站 401 |
+| `import-listening.mjs` | 听力导入范式：`check` / `build` → 生成 Flyway SQL 到 `docs/pending-migrations/` |
+
+### 前端关键目录
+
+`api/`（唯一数据出口）→ `stores/`（Pinia）→ `views/`（页面）→ `components/`（公共组件）；`config/modules.ts` 是 module_type 的前端映射，必须与 `common/ModuleType.java` 同步；`i18n/locales/` 管文案。
+
+### 数据库入口
+
+三库归属见"数据库约定"；**结构变更唯一入口是各模块 `src/main/resources/db/migration/`**。`sql/` 下历史脚本仅参考，`sql/init/` 已废弃。
+
+### 仓库外素材（已 gitignore，不入库）
+
+`英语资源/`（词库 dump、真题 PDF、听力音频）、`日志/`（开发日志 docx）、`设计方案/`、`页面/`（静态原型）、`参考图片/`、`init/`、`wordtml-main/`、`.workbuddy/`。
 
 ## 启动与构建命令
 ### 后端（仓库根目录执行）
@@ -195,6 +273,7 @@ npm run build
 5. 禁止擅自修改 ELO 算法、遗忘曲线、判题引擎等核心业务逻辑
 6. 禁止在配置文件中硬编码 API Key、密钥等敏感信息，必须使用环境变量
 7. 禁止绕过 Flyway 用 Navicat/手工 SQL 改共享库结构；禁止 `flyway clean`、`DROP TABLE`、清空数据；每次迁移必须先预览并获批准
+8. 禁止在仓库其他位置生成 CLAUDE.md / AGENTS.md / .cursorrules / .windsurfrules 等平行指令文件（详见文首"唯一指令基线"）
 
 ## Git 提交规范
 

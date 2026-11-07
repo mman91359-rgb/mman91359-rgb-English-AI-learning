@@ -20,6 +20,8 @@ class ModuleTypeTest {
         assertEquals("CHOICE", ModuleType.defaultQuestionType(4));
         assertEquals("SENTENCE_MAKING", ModuleType.defaultQuestionType(5));
         assertEquals("WRITING", ModuleType.defaultQuestionType(6));
+        // 阅读不强制题型：null 表示选题时不按 question_type 过滤
+        assertNull(ModuleType.defaultQuestionType(7));
         assertEquals("FILL_BLANK", ModuleType.defaultQuestionType(null));
         assertEquals("FILL_BLANK", ModuleType.defaultQuestionType(99));
     }
@@ -32,6 +34,7 @@ class ModuleTypeTest {
         assertEquals(RadarDimension.LISTENING, ModuleType.radarDimensionOf(4));
         assertEquals(RadarDimension.GRAMMAR, ModuleType.radarDimensionOf(5));
         assertNull(ModuleType.radarDimensionOf(6));
+        assertEquals(RadarDimension.READING, ModuleType.radarDimensionOf(7));
         assertNull(ModuleType.radarDimensionOf(null));
         assertNull(ModuleType.radarDimensionOf(99));
     }

@@ -28,6 +28,7 @@
       </div>
       <div class="flex flex-wrap gap-2">
         <button
+          v-if="data.user.id !== currentUserId"
           type="button"
           class="flex items-center gap-2 rounded-full px-4 py-2 font-label-lg text-label-lg text-on-primary"
           :class="data.user.status === 1 ? 'bg-error' : 'bg-primary'"
@@ -44,7 +45,12 @@
           <span class="material-symbols-outlined text-icon-sm">key</span>
           {{ $t('adminConsole.users.actionSetPassword') }}
         </button>
-        <button type="button" class="flex items-center gap-2 rounded-full border border-outline-variant px-4 py-2 font-label-lg text-label-lg text-on-surface-variant" @click="action = { kind: 'role', user: data.user }">
+        <button
+          v-if="data.user.id !== currentUserId"
+          type="button"
+          class="flex items-center gap-2 rounded-full border border-outline-variant px-4 py-2 font-label-lg text-label-lg text-on-surface-variant"
+          @click="action = { kind: 'role', user: data.user }"
+        >
           <span class="material-symbols-outlined text-icon-sm">manage_accounts</span>
           {{ $t('adminConsole.users.actionRole') }}
         </button>
@@ -105,12 +111,17 @@ import UserActionDialog from '../../components/admin/UserActionDialog.vue'
 import DetailRecordCard from './components/DetailRecordCard.vue'
 import type { UserAction } from '../../components/admin/userActionTypes'
 import { useAsyncData } from '../../composables/useAsyncData'
+import { useUserStore } from '../../stores/user'
 import { getAdminUser, type UserRole, type UserStatus } from '../../api/admin'
 import { USER_ROLE_META, USER_STATUS_META } from '../../utils/adminEnums'
 import { displayOrDash, formatAdminDateTime, formatNumber } from '../../utils/format'
 
 const route = useRoute()
 const { t, locale } = useI18n()
+const userStore = useUserStore()
+
+/** 不能对自己禁用或调整角色，直接隐藏入口 */
+const currentUserId = computed(() => userStore.userId)
 
 const statusTone = (value: UserStatus) => USER_STATUS_META[value].tone
 const statusLabel = (value: UserStatus) => t(USER_STATUS_META[value].labelKey)

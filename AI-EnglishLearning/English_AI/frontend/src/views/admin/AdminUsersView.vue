@@ -102,7 +102,7 @@
               <button type="button" class="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant transition-all hover:scale-110 hover:bg-primary-container/30 hover:text-primary" :aria-label="$t('adminConsole.users.actionView')" :title="$t('adminConsole.users.actionView')" @click="router.push(`/admin/users/${row.id}`)">
                 <span class="material-symbols-outlined text-icon-md">visibility</span>
               </button>
-              <button type="button" class="flex h-8 w-8 items-center justify-center rounded-full transition-all hover:scale-110" :class="row.status === 1 ? 'text-error hover:bg-error-container' : 'text-on-surface-variant hover:bg-primary-container/30 hover:text-primary'" :aria-label="row.status === 1 ? $t('adminConsole.users.actionDisable') : $t('adminConsole.users.actionEnable')" :title="row.status === 1 ? $t('adminConsole.users.actionDisable') : $t('adminConsole.users.actionEnable')" @click="action = { kind: 'status', user: row }">
+              <button v-if="row.id !== currentUserId" type="button" class="flex h-8 w-8 items-center justify-center rounded-full transition-all hover:scale-110" :class="row.status === 1 ? 'text-error hover:bg-error-container' : 'text-on-surface-variant hover:bg-primary-container/30 hover:text-primary'" :aria-label="row.status === 1 ? $t('adminConsole.users.actionDisable') : $t('adminConsole.users.actionEnable')" :title="row.status === 1 ? $t('adminConsole.users.actionDisable') : $t('adminConsole.users.actionEnable')" @click="action = { kind: 'status', user: row }">
                 <span class="material-symbols-outlined text-icon-md">{{ row.status === 1 ? 'block' : 'check_circle' }}</span>
               </button>
               <button type="button" class="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant transition-all hover:scale-110 hover:bg-primary-container/30 hover:text-primary" :aria-label="$t('adminConsole.users.actionReset')" :title="$t('adminConsole.users.actionReset')" @click="action = { kind: 'reset', user: row }">
@@ -111,7 +111,7 @@
               <button type="button" class="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant transition-all hover:scale-110 hover:bg-primary-container/30 hover:text-primary" :aria-label="$t('adminConsole.users.actionSetPassword')" :title="$t('adminConsole.users.actionSetPassword')" @click="action = { kind: 'setPassword', user: row }">
                 <span class="material-symbols-outlined text-icon-md">key</span>
               </button>
-              <button type="button" class="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant transition-all hover:scale-110 hover:bg-primary-container/30 hover:text-primary" :aria-label="$t('adminConsole.users.actionRole')" :title="$t('adminConsole.users.actionRole')" @click="action = { kind: 'role', user: row }">
+              <button v-if="row.id !== currentUserId" type="button" class="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant transition-all hover:scale-110 hover:bg-primary-container/30 hover:text-primary" :aria-label="$t('adminConsole.users.actionRole')" :title="$t('adminConsole.users.actionRole')" @click="action = { kind: 'role', user: row }">
                 <span class="material-symbols-outlined text-icon-md">manage_accounts</span>
               </button>
             </div>
@@ -155,6 +155,7 @@ import { inputClass } from '../../components/admin/formStyles'
 import type { TableColumn } from '../../components/admin/tableTypes'
 import type { UserAction } from '../../components/admin/userActionTypes'
 import { useAsyncData } from '../../composables/useAsyncData'
+import { useUserStore } from '../../stores/user'
 import { getAdminUsers, type CetLevel, type UserListQuery, type UserRole, type UserStatus } from '../../api/admin'
 import { USER_ROLE_META, USER_STATUS_META } from '../../utils/adminEnums'
 import { displayOrDash, formatAdminDateTime, formatNumber } from '../../utils/format'
@@ -163,6 +164,10 @@ import { compactQuery, readEnum, readNumberEnum, readPage, readSize, readString 
 const route = useRoute()
 const router = useRouter()
 const { t, locale } = useI18n()
+const userStore = useUserStore()
+
+/** 当前登录管理员 id：不能对自己禁用/改角色（后端也会 409，前端直接隐藏入口） */
+const currentUserId = computed(() => userStore.userId)
 
 const ROLES: readonly UserRole[] = ['ROLE_USER', 'ROLE_ADMIN']
 const STATUSES: readonly UserStatus[] = [1, 0]

@@ -60,8 +60,8 @@
       <AdminStatCard
         icon="pending_actions"
         :label="$t('adminConsole.overview.pendingReview')"
-        :value="formatNumber(data.exercise.pendingReview, locale)"
-        :hint="$t('adminConsole.overview.questionTotal', { count: data.exercise.questionTotal })"
+        :value="data.exerciseDegraded ? $t('adminConsole.common.unavailable') : formatNumber(data.exercise.pendingReview, locale)"
+        :hint="data.exerciseDegraded ? undefined : $t('adminConsole.overview.questionTotal', { count: data.exercise.questionTotal })"
         tone="warning"
       />
       <AdminStatCard
@@ -100,7 +100,7 @@
       <AdminChartCard
         :title="$t('adminConsole.overview.questionStatusTitle')"
         :description="$t('adminConsole.overview.questionStatusDesc')"
-        :data="[
+        :data="data.exerciseDegraded ? [] : [
           { label: $t('adminConsole.enum.reviewPending'), value: data.exercise.pendingReview },
           { label: $t('adminConsole.enum.reviewApproved'), value: data.exercise.approvedTotal },
           { label: $t('adminConsole.enum.reviewRejected'), value: data.exercise.rejectedTotal },

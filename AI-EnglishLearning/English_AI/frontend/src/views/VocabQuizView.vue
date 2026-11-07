@@ -115,11 +115,14 @@
             </div>
 
             <div class="mt-8 space-y-12">
-              <!-- 中文题干（来自 analysis 字段，括号高亮） -->
+              <!-- 中文题干（来自 analysis 字段，括号高亮；分段插值，杜绝 v-html 注入） -->
               <div
                 class="font-headline-md text-headline-md text-on-surface leading-relaxed text-center"
               >
-                <span v-html="chineseDisplay"></span>
+                <template v-for="(segment, segIdx) in chineseSegments" :key="segIdx">
+                  <span v-if="segment.highlight" class="px-1 font-bold text-tertiary">{{ segment.text }}</span>
+                  <template v-else>{{ segment.text }}</template>
+                </template>
               </div>
 
               <!-- 英文题干 + 填空输入框 -->
@@ -516,16 +519,29 @@ const progressPercent = computed(() => totalCount.value > 0 ? (masteredCount.val
 const currentDifficulty = computed(() => currentQuestion.value?.difficultyLevel || 1)
 
 /**
- * 中文题干：来自后端 analysis 字段，格式 "公司于2005年（成立），此后迅速发展壮大。"
- * 紫色高亮括号内的目标词
+ * 中文题干分段：来自后端 analysis 字段，格式 "公司于2005年（成立），此后迅速发展壮大。"
+ * 括号内的目标词作为高亮段返回，模板中以纯插值渲染，不使用 v-html
  */
-const chineseDisplay = computed(() => {
+interface ChineseSegment { text: string; highlight: boolean }
+const chineseSegments = computed<ChineseSegment[]>(() => {
   const q = currentQuestion.value
-  if (!q) return ''
+  if (!q) return []
   const text = q.analysis || ''
-  // 把所有 (xxx) 替换为高亮 span
-  return text.replace(/[（(]([^）)]+)[）)]/g,
-    '<span class="text-tertiary-container font-bold px-1">$1</span>')
+  const segments: ChineseSegment[] = []
+  const pattern = /[（(]([^）)]+)[）)]/g
+  let lastIndex = 0
+  let match: RegExpExecArray | null
+  while ((match = pattern.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      segments.push({ text: text.slice(lastIndex, match.index), highlight: false })
+    }
+    segments.push({ text: match[1], highlight: true })
+    lastIndex = pattern.lastIndex
+  }
+  if (lastIndex < text.length) {
+    segments.push({ text: text.slice(lastIndex), highlight: false })
+  }
+  return segments
 })
 
 interface EnglishPart { text: string; isBlank: boolean }

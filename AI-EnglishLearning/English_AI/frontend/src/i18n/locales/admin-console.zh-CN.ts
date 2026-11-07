@@ -22,7 +22,12 @@ const extra = {
     confirmSetPassword: '保存新密码',
     setPasswordToast: '用户密码已更新',
     passwordTooShort: '新密码不能少于 6 位',
+    passwordTooLong: '新密码不能超过 72 位',
     passwordMismatch: '两次输入的新密码不一致',
+    roleConfirmTitle: '确认调整角色？',
+  },
+  notice: {
+    publishNoExpire: '永不过期',
   },
   detail: {
     fields: {

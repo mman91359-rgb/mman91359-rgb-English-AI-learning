@@ -76,6 +76,7 @@
           v-model="newPassword"
           type="password"
           autocomplete="new-password"
+          maxlength="72"
           :class="inputClass"
         />
       </FormField>
@@ -144,12 +145,26 @@
         type="button"
         class="rounded-full bg-primary px-5 py-2.5 font-label-lg text-label-lg text-on-primary disabled:opacity-60"
         :disabled="submitting || role === currentRole"
-        @click="runRole"
+        @click="roleConfirmOpen = true"
       >
         {{ submitting ? $t('adminConsole.common.loading') : $t('adminConsole.common.save') }}
       </button>
     </template>
   </BaseDialog>
+
+  <!-- 调整角色属于危险操作：保存前再弹一次确认 -->
+  <ConfirmDialog
+    v-if="kind === 'role' && roleConfirmOpen"
+    :open="true"
+    :danger="role === 'ROLE_USER' && currentRole === 'ROLE_ADMIN'"
+    :title="$t('adminConsole.users.roleConfirmTitle')"
+    :target-name="targetName"
+    :impact="$t('adminConsole.users.roleImpact')"
+    :confirm-label="$t('adminConsole.common.save')"
+    :loading="submitting"
+    @cancel="roleConfirmOpen = false"
+    @confirm="runRole"
+  />
 </template>
 
 <script setup lang="ts">
@@ -182,6 +197,8 @@ const tempPassword = ref<string | null>(null)
 const newPassword = ref('')
 const confirmPassword = ref('')
 const passwordError = ref('')
+/** 调整角色需二次确认 */
+const roleConfirmOpen = ref(false)
 
 const user = computed(() => props.action.user)
 const kind = computed(() => props.action.kind)
@@ -194,6 +211,7 @@ const role = ref<UserRole>(currentRole.value)
 const close = () => emit('close', changed.value)
 
 const runAction = async (task: () => Promise<unknown>, successMessage: string) => {
+  if (submitting.value) return
   submitting.value = true
   try {
     await task()
@@ -215,6 +233,7 @@ const runStatus = () =>
 const runRole = () => runAction(() => updateUserRole(user.value.id, role.value), t('adminConsole.users.roleToast'))
 
 const runReset = async () => {
+  if (submitting.value) return
   submitting.value = true
   try {
     const result = await resetUserPassword(user.value.id)
@@ -233,10 +252,15 @@ const runSetPassword = async () => {
     passwordError.value = t('adminConsole.users.passwordTooShort')
     return
   }
+  if (newPassword.value.length > 72) {
+    passwordError.value = t('adminConsole.users.passwordTooLong')
+    return
+  }
   if (newPassword.value !== confirmPassword.value) {
     passwordError.value = t('adminConsole.users.passwordMismatch')
     return
   }
+  if (submitting.value) return
   submitting.value = true
   try {
     await setUserPassword(user.value.id, newPassword.value)

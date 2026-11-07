@@ -1,15 +1,15 @@
 <template>
-  <div class="flex flex-col h-full bg-[#f8f9fc] dark:bg-[#1a1b26]">
+  <div class="flex h-full flex-col bg-background dark:bg-surface-container-lowest">
     <!-- 头部 -->
-    <div class="flex items-center justify-between px-6 py-4 border-b border-outline-variant/30">
+    <div class="flex items-center justify-between border-b border-outline-variant/30 px-6 py-4">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#7c6fae] to-[#a594d4] flex items-center justify-center">
-          <span class="material-symbols-outlined text-white text-xl">psychology</span>
+        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-container">
+          <span class="material-symbols-outlined text-icon-lg text-on-primary">psychology</span>
         </div>
         <div>
-          <div class="font-label-lg text-label-lg text-on-surface font-semibold">AI 学习助手</div>
-          <div class="flex items-center gap-1.5 mt-0.5">
-            <span class="w-2 h-2 rounded-full bg-green-500"></span>
+          <div class="font-label-lg text-label-lg font-semibold text-on-surface">{{ $t('ai.title') }}</div>
+          <div class="mt-0.5 flex items-center gap-1.5">
+            <span class="h-2 w-2 rounded-full bg-tertiary"></span>
             <span class="font-body-xs text-body-xs text-on-surface-variant">{{ contextLabel }}</span>
           </div>
         </div>
@@ -17,14 +17,18 @@
       <div class="flex items-center gap-2">
         <button
           v-if="aiStore.messages.length > 0"
-          class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors"
-          title="清空对话"
+          type="button"
+          class="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-surface-container-high"
+          :title="$t('ai.clearChat')"
+          :aria-label="$t('ai.clearChat')"
           @click="aiStore.clearMessages()"
         >
-          <span class="material-symbols-outlined text-on-surface-variant text-lg">delete_outline</span>
+          <span class="material-symbols-outlined text-icon-md text-on-surface-variant">delete_outline</span>
         </button>
         <button
-          class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors"
+          type="button"
+          class="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-surface-container-high"
+          :aria-label="$t('ai.close')"
           @click="$emit('close')"
         >
           <span class="material-symbols-outlined text-on-surface-variant">close</span>
@@ -34,52 +38,51 @@
 
     <!-- 消息列表 -->
     <div ref="msgContainer" class="flex-1 overflow-y-auto px-5 py-4">
-      <!-- 空状态：欢迎页（图三样式） -->
-      <div v-if="aiStore.messages.length === 0" class="flex flex-col items-center text-center pt-8">
-        <!-- 头像光晕 -->
+      <!-- 空状态：欢迎页 -->
+      <div v-if="aiStore.messages.length === 0" class="flex flex-col items-center pt-8 text-center">
         <div class="relative mb-6">
-          <div class="absolute inset-0 bg-gradient-to-br from-[#7c6fae]/20 to-[#a594d4]/10 rounded-full blur-2xl scale-150"></div>
-          <div class="relative w-20 h-20 rounded-2xl bg-white dark:bg-surface shadow-lg flex items-center justify-center border border-outline-variant/20">
-            <span class="material-symbols-outlined text-4xl text-[#7c6fae]" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+          <div class="absolute inset-0 scale-150 rounded-full bg-gradient-to-br from-primary/20 to-primary-container/10 blur-2xl"></div>
+          <div class="relative flex h-20 w-20 items-center justify-center rounded-2xl border border-outline-variant/20 bg-surface-container-lowest shadow-lg dark:bg-surface">
+            <span class="material-symbols-outlined fill text-icon-xl text-primary">auto_awesome</span>
           </div>
         </div>
-        <h3 class="font-headline-md text-headline-md text-on-surface mb-2 font-bold">我是你的专属 AI 导师</h3>
-        <p class="font-body-md text-body-md text-on-surface-variant max-w-[260px] leading-relaxed">
-          遇到不懂的词汇、语法或长难句？<br/>随时问我，帮你深入理解。
+        <h3 class="mb-2 font-headline-md text-headline-md font-bold text-on-surface">{{ $t('ai.subtitle') }}</h3>
+        <p class="max-w-[260px] font-body-md text-body-md leading-relaxed text-on-surface-variant">
+          {{ $t('ai.welcomeDesc') }}
         </p>
 
         <!-- 功能入口卡片 -->
-        <div class="w-full mt-8 space-y-3">
+        <div class="mt-8 w-full space-y-3">
           <button
-            class="w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl bg-white dark:bg-surface hover:shadow-md transition-all border border-outline-variant/20 text-left group"
+            type="button"
+            class="group flex w-full items-center gap-4 rounded-2xl border border-outline-variant/20 bg-surface-container-lowest px-4 py-3.5 text-left transition-all hover:shadow-md dark:bg-surface"
             @click="sendQuickAction('vocab')"
           >
-            <div class="w-10 h-10 rounded-xl bg-[#ede7f6] dark:bg-[#7c6fae]/20 flex items-center justify-center shrink-0">
-              <span class="material-symbols-outlined text-[#7c6fae]">menu_book</span>
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-fixed dark:bg-primary-container/20">
+              <span class="material-symbols-outlined text-primary">menu_book</span>
             </div>
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2">
-                <span class="text-xs text-[#ff8a3d]">✨</span>
-                <span class="font-body-md text-body-md font-medium text-on-surface">核心词汇精解</span>
+                <span class="font-body-md text-body-md font-medium text-on-surface">{{ $t('ai.quickVocab') }}</span>
               </div>
             </div>
-            <span class="material-symbols-outlined text-outline text-lg group-hover:text-primary transition-colors">chevron_right</span>
+            <span class="material-symbols-outlined text-icon-md text-outline transition-colors group-hover:text-primary">chevron_right</span>
           </button>
 
           <button
-            class="w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl bg-white dark:bg-surface hover:shadow-md transition-all border border-outline-variant/20 text-left group"
+            type="button"
+            class="group flex w-full items-center gap-4 rounded-2xl border border-outline-variant/20 bg-surface-container-lowest px-4 py-3.5 text-left transition-all hover:shadow-md dark:bg-surface"
             @click="sendQuickAction('grammar')"
           >
-            <div class="w-10 h-10 rounded-xl bg-[#e0f7fa] dark:bg-cyan-900/30 flex items-center justify-center shrink-0">
-              <span class="material-symbols-outlined text-cyan-600 dark:text-cyan-400">schema</span>
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary-fixed dark:bg-secondary-container/30">
+              <span class="material-symbols-outlined text-secondary">schema</span>
             </div>
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2">
-                <span class="text-xs text-[#ff8a3d]">✨</span>
-                <span class="font-body-md text-body-md font-medium text-on-surface">分析句子语法树</span>
+                <span class="font-body-md text-body-md font-medium text-on-surface">{{ $t('ai.quickGrammar') }}</span>
               </div>
             </div>
-            <span class="material-symbols-outlined text-outline text-lg group-hover:text-primary transition-colors">chevron_right</span>
+            <span class="material-symbols-outlined text-icon-md text-outline transition-colors group-hover:text-primary">chevron_right</span>
           </button>
         </div>
       </div>
@@ -95,28 +98,33 @@
           <div
             class="max-w-[85%] rounded-2xl px-4 py-3"
             :class="msg.role === 'user'
-              ? 'bg-primary text-on-primary rounded-br-md'
-              : 'bg-white dark:bg-surface text-on-surface rounded-bl-md select-text border border-outline-variant/10 shadow-sm'"
+              ? 'rounded-br-md bg-primary text-on-primary'
+              : 'select-text rounded-bl-md border border-outline-variant/10 bg-surface-container-lowest text-on-surface shadow-sm dark:bg-surface'"
           >
-            <div v-if="msg.role === 'ai'" class="flex items-center justify-between mb-1.5">
+            <div v-if="msg.role === 'ai'" class="mb-1.5 flex items-center justify-between">
               <div class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-primary text-sm">smart_toy</span>
-                <span class="font-label-sm text-label-sm text-primary">AI助手</span>
+                <span class="material-symbols-outlined text-icon-sm text-primary">smart_toy</span>
+                <span class="font-label-sm text-label-sm text-primary">{{ $t('ai.badge') }}</span>
               </div>
               <button
                 v-if="msg.content && !msg.isStreaming"
-                class="text-on-surface-variant hover:text-primary transition-colors p-1 rounded-md hover:bg-surface-container-high"
-                title="复制"
+                type="button"
+                class="rounded-md p-1 text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-primary"
+                :title="$t('ai.copy')"
+                :aria-label="$t('ai.copy')"
                 @click="copyMessage(msg.content)"
               >
-                <span class="material-symbols-outlined text-[16px]">content_copy</span>
+                <span class="material-symbols-outlined text-icon-md">content_copy</span>
               </button>
             </div>
-            <div class="font-body-sm text-body-sm break-words select-text leading-relaxed">
-              <span v-html="msg.role === 'ai' ? formatAiContent(msg.content) : msg.content"></span>
+            <div class="select-text font-body-sm text-body-sm leading-relaxed break-words">
+              <!-- AI 内容：formatAiContent 先转义再做白名单格式化，禁止注入 -->
+              <span v-if="msg.role === 'ai'" v-html="formatAiContent(msg.content)"></span>
+              <!-- 用户内容：纯插值，永不进入 v-html -->
+              <span v-else>{{ msg.content }}</span>
               <span
                 v-if="msg.isStreaming"
-                class="inline-block w-1.5 h-4 bg-primary ml-0.5 animate-pulse align-text-bottom"
+                class="ml-0.5 inline-block h-4 w-1.5 animate-pulse bg-primary align-text-bottom"
               ></span>
             </div>
           </div>
@@ -124,11 +132,11 @@
 
         <!-- loading 占位 -->
         <div v-if="aiStore.isLoading && aiStore.messages.length === 0" class="flex justify-start">
-          <div class="bg-white dark:bg-surface rounded-2xl px-4 py-3 border border-outline-variant/10 shadow-sm">
+          <div class="rounded-2xl border border-outline-variant/10 bg-surface-container-lowest px-4 py-3 shadow-sm dark:bg-surface">
             <div class="flex gap-1.5">
-              <span class="w-2.5 h-2.5 bg-on-surface-variant/30 rounded-full animate-bounce" style="animation-delay:0s"></span>
-              <span class="w-2.5 h-2.5 bg-on-surface-variant/30 rounded-full animate-bounce" style="animation-delay:0.15s"></span>
-              <span class="w-2.5 h-2.5 bg-on-surface-variant/30 rounded-full animate-bounce" style="animation-delay:0.3s"></span>
+              <span class="h-2.5 w-2.5 animate-bounce rounded-full bg-on-surface-variant/30" style="animation-delay:0s"></span>
+              <span class="h-2.5 w-2.5 animate-bounce rounded-full bg-on-surface-variant/30" style="animation-delay:0.15s"></span>
+              <span class="h-2.5 w-2.5 animate-bounce rounded-full bg-on-surface-variant/30" style="animation-delay:0.3s"></span>
             </div>
           </div>
         </div>
@@ -136,30 +144,30 @@
     </div>
 
     <!-- 输入区 -->
-    <div class="px-5 py-4 border-t border-outline-variant/30">
-      <div class="flex items-center gap-2 bg-white dark:bg-surface rounded-full px-4 py-2.5 shadow-sm border border-outline-variant/20 focus-within:border-primary/50 transition-colors">
-        <span class="material-symbols-outlined text-outline text-xl">add</span>
+    <div class="border-t border-outline-variant/30 px-5 py-4">
+      <div class="flex items-center gap-2 rounded-full border border-outline-variant/20 bg-surface-container-lowest px-4 py-2.5 shadow-sm transition-colors focus-within:border-primary/50 dark:bg-surface">
+        <span class="material-symbols-outlined text-icon-md text-outline">add</span>
         <input
-          ref="inputRef"
           v-model="inputText"
-          class="flex-1 bg-transparent outline-none font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/50"
+          class="flex-1 bg-transparent font-body-md text-body-md text-on-surface outline-none placeholder:text-on-surface-variant/50"
           :placeholder="inputPlaceholder"
           maxlength="500"
           :disabled="aiStore.isLoading"
           @keydown.enter.prevent="handleSend"
         />
         <button
-          class="w-9 h-9 rounded-full bg-gradient-to-br from-[#7c6fae] to-[#a594d4] text-white flex items-center justify-center shrink-0 disabled:opacity-40 transition-opacity hover:shadow-lg disabled:hover:shadow-none"
+          type="button"
+          class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-container text-on-primary transition-opacity hover:shadow-lg disabled:opacity-40 disabled:hover:shadow-none"
           :disabled="!inputText.trim() || aiStore.isLoading"
           @click="handleSend"
         >
-          <span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">arrow_upward</span>
+          <span class="material-symbols-outlined fill text-icon-md">arrow_upward</span>
         </button>
       </div>
       <!-- 底部提示 -->
-      <div v-if="aiStore.messages.length === 0" class="text-center mt-3">
+      <div v-if="aiStore.messages.length === 0" class="mt-3 text-center">
         <p class="font-body-xs text-body-xs text-on-surface-variant/50">
-          <span class="text-[#ff8a3d]">✨</span> AI 生成内容可能存在误差，请以实际为准
+          {{ $t('ai.disclaimer') }}
         </p>
       </div>
     </div>
@@ -168,12 +176,28 @@
 
 <script setup lang="ts">
 import { ref, watch, nextTick, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useAiStore } from '@/stores/ai'
+import { useToast } from '@/composables/useToast'
+
+const { t } = useI18n()
+const { show: toast } = useToast()
+
+/** HTML 转义：所有进入 v-html 的内容必须先经过它，杜绝注入 */
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+}
 
 function formatAiContent(text: string): string {
   if (!text) return ''
 
-  let result = text
+  // 先整体转义，再做白名单格式化；插入的标签全部来自本函数
+  let result = escapeHtml(text)
 
   // 规范化 ## 标题：确保每个 ## 在新行开始
   result = result.replace(/([^\n])##\s*/g, '$1\n## ')
@@ -208,10 +232,9 @@ function formatAiContent(text: string): string {
       }
     }
 
-    // 渲染标题（保留 emoji 和 **加粗**）
+    // 渲染标题（加粗为白名单标签）
     if (title) {
-      const renderedTitle = title
-        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      const renderedTitle = title.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
       formattedSections.push(`<h3 class="ai-title">${renderedTitle}</h3>`)
     }
     if (content) {
@@ -238,6 +261,7 @@ function formatSection(content: string): string {
     }
   }
 
+  /** 行内白名单格式：加粗 / 斜体 / 行内代码 / 音标，输入已转义 */
   function inlineFormat(s: string): string {
     return s
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
@@ -297,19 +321,16 @@ const inputText = ref('')
 const msgContainer = ref<HTMLDivElement>()
 
 const contextLabel = computed(() => {
-  const map: Record<string, string> = {
-    vocab: '词汇练习中',
-    grammar: '语法练习中',
-    general: '随时为你解答',
-  }
-  return map[aiStore.contextType] || '随时为你解答'
+  if (aiStore.contextType === 'vocab') return t('ai.contextVocab')
+  if (aiStore.contextType === 'grammar') return t('ai.contextGrammar')
+  return t('ai.contextGeneral')
 })
 
 const inputPlaceholder = computed(() => {
-  if (aiStore.isLoading) return 'AI正在回复...'
-  if (aiStore.contextType === 'vocab') return '问这个单词的用法...'
-  if (aiStore.contextType === 'grammar') return '问这个语法点...'
-  return '问点什么...'
+  if (aiStore.isLoading) return t('ai.inputLoading')
+  if (aiStore.contextType === 'vocab') return t('ai.inputVocab')
+  if (aiStore.contextType === 'grammar') return t('ai.inputGrammar')
+  return t('ai.inputGeneral')
 })
 
 function handleSend() {
@@ -322,37 +343,36 @@ function handleSend() {
 function sendQuickAction(type: 'vocab' | 'grammar') {
   if (type === 'vocab') {
     if (aiStore.questionContent) {
-      aiStore.sendMessage(`请详细解释一下这道题中的核心词汇：${aiStore.questionContent}`)
+      aiStore.sendMessage(t('ai.askVocab', { content: aiStore.questionContent }))
     } else {
-      aiStore.sendMessage('请帮我精解核心词汇的用法和搭配')
+      aiStore.sendMessage(t('ai.fallbackVocab'))
     }
   } else {
     if (aiStore.questionContent) {
-      aiStore.sendMessage(`请分析一下这个句子的语法结构：${aiStore.questionContent}`)
+      aiStore.sendMessage(t('ai.askGrammar', { content: aiStore.questionContent }))
     } else {
-      aiStore.sendMessage('请帮我分析句子语法结构')
+      aiStore.sendMessage(t('ai.fallbackGrammar'))
     }
   }
 }
 
-function copyMessage(text: string) {
+async function copyMessage(text: string) {
   if (!text) return
-  navigator.clipboard.writeText(text).then(() => {
-    const btn = document.createElement('div')
-    btn.textContent = '已复制'
-    btn.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.8);color:#fff;padding:8px 16px;border-radius:8px;font-size:14px;z-index:9999;'
-    document.body.appendChild(btn)
-    setTimeout(() => btn.remove(), 1500)
-  }).catch(() => {
+  try {
+    await navigator.clipboard.writeText(text)
+    toast(t('ai.copied'), 'success')
+  } catch {
+    // 非安全上下文回退：临时 textarea + execCommand
     const ta = document.createElement('textarea')
     ta.value = text
     ta.style.position = 'fixed'
     ta.style.opacity = '0'
     document.body.appendChild(ta)
     ta.select()
-    try { document.execCommand('copy') } catch {}
+    try { document.execCommand('copy') } catch { /* 忽略回退失败 */ }
     document.body.removeChild(ta)
-  })
+    toast(t('ai.copied'), 'success')
+  }
 }
 
 // 新消息自动滚动到底部
@@ -390,6 +410,7 @@ input {
   min-height: 24px;
 }
 
+/* 深度渲染内容字号对齐 body-md/label 令牌（AI 富文本无法套用 Tailwind 类） */
 :deep(.ai-section-gap) {
   height: 16px;
 }
@@ -397,17 +418,17 @@ input {
 :deep(.ai-title) {
   font-size: 15px;
   font-weight: 600;
-  color: #7c6fae;
+  color: rgb(var(--color-primary));
   margin: 0 0 12px 0;
   padding-left: 10px;
-  border-left: 4px solid #7c6fae;
+  border-left: 4px solid rgb(var(--color-primary));
   line-height: 1.4;
 }
 
 :deep(.ai-subtitle) {
   font-size: 14px;
   font-weight: 600;
-  color: #6b7280;
+  color: rgb(var(--color-on-surface-variant));
   margin: 12px 0 8px 0;
   line-height: 1.4;
 }
@@ -417,14 +438,14 @@ input {
 }
 
 :deep(.ai-phonetic) {
-  color: #7c6fae;
+  color: rgb(var(--color-primary));
   font-style: italic;
   font-family: 'Noto Serif SC', serif;
 }
 
 :deep(.ai-paragraph) {
   font-size: 13px;
-  color: #374151;
+  color: rgb(var(--color-on-surface));
   line-height: 1.8;
   margin: 0 0 10px 0;
   padding-left: 10px;
@@ -437,7 +458,7 @@ input {
 
 :deep(.ai-ordered-list li) {
   font-size: 13px;
-  color: #374151;
+  color: rgb(var(--color-on-surface));
   line-height: 1.8;
   margin: 6px 0;
   padding-left: 10px;
@@ -451,7 +472,7 @@ input {
 
 :deep(.ai-unordered-list li) {
   font-size: 13px;
-  color: #374151;
+  color: rgb(var(--color-on-surface));
   line-height: 1.8;
   margin: 6px 0;
   padding-left: 18px;
@@ -462,51 +483,27 @@ input {
   content: '•';
   position: absolute;
   left: 4px;
-  color: #7c6fae;
+  color: rgb(var(--color-primary));
   font-weight: bold;
 }
 
 :deep(.ai-code) {
-  background-color: #f3f4f6;
+  background-color: rgb(var(--color-surface-container-high));
   padding: 2px 6px;
   border-radius: 4px;
   font-family: 'Consolas', monospace;
   font-size: 12px;
-  color: #ef4444;
+  color: rgb(var(--color-error));
 }
 
 :deep(strong) {
   font-weight: 600;
-  color: #1f2937;
+  color: rgb(var(--color-on-surface));
   margin-right: 6px;
 }
 
 :deep(em) {
   font-style: italic;
-  color: #6b7280;
-}
-
-:global(html.dark) :deep(.ai-paragraph),
-:global(html.dark) :deep(.ai-title-content),
-:global(html.dark) :deep(.ai-ordered-list li),
-:global(html.dark) :deep(.ai-unordered-list li) {
-  color: #e5e7eb;
-}
-
-:global(html.dark) :deep(.ai-subtitle) {
-  color: #9ca3af;
-}
-
-:global(html.dark) :deep(.ai-code) {
-  background-color: #374151;
-  color: #f87171;
-}
-
-:global(html.dark) :deep(strong) {
-  color: #f3f4f6;
-}
-
-:global(html.dark) :deep(em) {
-  color: #9ca3af;
+  color: rgb(var(--color-on-surface-variant));
 }
 </style>

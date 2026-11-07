@@ -224,7 +224,7 @@ const operationImpact = computed(() => {
     return t('adminConsole.notice.publishImpact', {
       audience: t(AUDIENCE_META[notice.targetAudience].labelKey),
       publishAt: notice.publishAt ? formatAdminDateTime(notice.publishAt) : t('adminConsole.notice.publishNow'),
-      expireAt: notice.expireAt ? formatAdminDateTime(notice.expireAt) : t('adminConsole.notice.publishNow'),
+      expireAt: notice.expireAt ? formatAdminDateTime(notice.expireAt) : t('adminConsole.notice.publishNoExpire'),
     })
   }
   return t(`adminConsole.notice.${kind}Impact`)

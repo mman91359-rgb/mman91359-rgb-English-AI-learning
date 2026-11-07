@@ -22,7 +22,12 @@ const extra = {
     confirmSetPassword: 'Save new password',
     setPasswordToast: 'User password updated',
     passwordTooShort: 'Password must be at least 6 characters',
+    passwordTooLong: 'Password must be at most 72 characters',
     passwordMismatch: 'The two passwords do not match',
+    roleConfirmTitle: 'Confirm role change?',
+  },
+  notice: {
+    publishNoExpire: 'Never expires',
   },
   detail: {
     fields: {

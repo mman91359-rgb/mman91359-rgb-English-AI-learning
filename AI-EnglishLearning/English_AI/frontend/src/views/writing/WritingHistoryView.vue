@@ -135,6 +135,7 @@ import type { BadgeTone } from '../../components/admin/tableTypes'
 import { fetchDrafts, fetchFavoriteIds, fetchSubmissions, fetchWritingTopics, setFavorite } from '../../api/writing'
 import type { WritingHistoryItem, WritingSubmissionStatus, WritingTopic, WritingTopicType } from '../../types/writing'
 import { formatAdminDateTime } from '../../utils/format'
+import { useToast } from '../../composables/useToast'
 import { compactQuery, readEnum, readString } from '../../utils/query'
 import {
   PASS_SCORE,
@@ -152,6 +153,7 @@ interface HistoryRow extends WritingHistoryItem {
 const route = useRoute()
 const router = useRouter()
 const { t } = useI18n()
+const { show: toast } = useToast()
 
 const loading = ref(true)
 const error = ref('')
@@ -300,6 +302,7 @@ const toggleFavorite = async (topicId: string) => {
     await setFavorite(topicId, next)
   } catch {
     favoriteIds.value = previous
+    toast(t('writing.library.favoriteFailed'), 'error')
   }
 }
 

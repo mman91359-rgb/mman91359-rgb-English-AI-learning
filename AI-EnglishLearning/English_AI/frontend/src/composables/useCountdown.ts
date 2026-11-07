@@ -1,13 +1,15 @@
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 
 /**
- * 倒计时：默认立即开始；归零时只触发一次 onExpire。
+ * 倒计时：以时间戳为基准，后台标签页定时器被节流时剩余时间仍然准确。
+ * 默认立即开始；归零时只触发一次 onExpire。
  * 剩余不足 5 分钟时 danger=true，供页面切换为错误色。
  */
 export function useCountdown(totalSeconds: number, onExpire?: () => void, autoStart = true) {
   const remaining = ref(Math.max(0, totalSeconds))
   const running = ref(false)
   let timer: ReturnType<typeof setInterval> | null = null
+  let endsAt = 0
   let expired = false
 
   const stop = () => {
@@ -18,12 +20,18 @@ export function useCountdown(totalSeconds: number, onExpire?: () => void, autoSt
     running.value = false
   }
 
+  const tick = () => {
+    const next = Math.max(0, Math.round((endsAt - Date.now()) / 1000))
+    remaining.value = next
+    if (next <= 0) stop()
+  }
+
   const start = () => {
     if (running.value || remaining.value <= 0) return
+    // 时间戳基准：切后台再回来，按真实流逝时间扣减
+    endsAt = Date.now() + remaining.value * 1000
     running.value = true
-    timer = setInterval(() => {
-      remaining.value = Math.max(0, remaining.value - 1)
-    }, 1000)
+    timer = setInterval(tick, 1000)
   }
 
   const reset = (seconds: number = totalSeconds) => {

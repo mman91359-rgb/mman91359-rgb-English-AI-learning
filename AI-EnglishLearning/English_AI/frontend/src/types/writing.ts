@@ -30,6 +30,8 @@ export interface WritingDraft {
   content: string
   wordCount: number
   updatedAt: string
+  /** 已写作秒数：恢复草稿后倒计时按剩余时间继续，而不是重置满 30 分钟 */
+  elapsedSeconds?: number
 }
 
 export interface WritingCorrection {

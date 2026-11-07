@@ -109,6 +109,7 @@ import ErrorState from '../../components/ui/ErrorState.vue'
 import LoadingState from '../../components/ui/LoadingState.vue'
 import WritingCorrectionList from '../../components/writing/WritingCorrectionList.vue'
 import WritingDimensionBar from '../../components/writing/WritingDimensionBar.vue'
+import { useToast } from '../../composables/useToast'
 import { fetchFavoriteIds, fetchSubmission, fetchSubmissions, setFavorite } from '../../api/writing'
 import type { WritingSubmission } from '../../types/writing'
 import {
@@ -123,6 +124,7 @@ import FeedbackList from './components/FeedbackList.vue'
 const route = useRoute()
 const router = useRouter()
 const { t } = useI18n()
+const { show: toast } = useToast()
 
 const loading = ref(true)
 const error = ref('')
@@ -138,16 +140,17 @@ const load = async () => {
   error.value = ''
   try {
     const id = typeof route.query.submission === 'string' ? route.query.submission : ''
-    const [loadedSubmission, favorites, submissions] = await Promise.all([
+    const [loadedSubmission, favorites] = await Promise.all([
       id ? fetchSubmission(id) : Promise.resolve(null),
       fetchFavoriteIds(),
-      fetchSubmissions(),
     ])
     favoriteIds.value = favorites
+    // 仅在未指定 id 时才回退到最近一条；显式 id 无效应显示 notFound
     if (loadedSubmission) {
       submission.value = loadedSubmission
-    } else if (submissions.length > 0) {
-      submission.value = submissions[0]
+    } else if (!id) {
+      const submissions = await fetchSubmissions()
+      submission.value = submissions[0] ?? null
     } else {
       submission.value = null
     }
@@ -168,6 +171,7 @@ const toggleFavorite = async () => {
     await setFavorite(topicId, next)
   } catch {
     favoriteIds.value = previous
+    toast(t('writing.library.favoriteFailed'), 'error')
   }
 }
 

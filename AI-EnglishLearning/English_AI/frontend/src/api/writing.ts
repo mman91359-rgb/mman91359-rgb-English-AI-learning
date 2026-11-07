@@ -6,6 +6,8 @@ import type { WritingDraft, WritingScore, WritingSubmission, WritingTopic } from
 interface DraftRecord {
   content: string
   updatedAt: string
+  /** 已写作秒数，随草稿一起持久化 */
+  elapsedSeconds?: number
 }
 
 type DraftStore = Record<string, DraftRecord>
@@ -56,15 +58,21 @@ export function fetchDraft(topicId: string): Promise<WritingDraft | null> {
     content: record.content,
     wordCount: countWords(record.content),
     updatedAt: record.updatedAt,
+    elapsedSeconds: record.elapsedSeconds ?? 0,
   })
 }
 
-export function saveDraft(topicId: string, content: string): Promise<WritingDraft> {
+export function saveDraft(topicId: string, content: string, elapsedSeconds = 0): Promise<WritingDraft> {
   const drafts = readDrafts()
   const updatedAt = new Date().toISOString()
-  drafts[topicId] = { content, updatedAt }
-  writeJson(keyOf('drafts'), drafts)
-  return Promise.resolve({ topicId, content, wordCount: countWords(content), updatedAt })
+  drafts[topicId] = { content, updatedAt, elapsedSeconds: Math.max(0, Math.floor(elapsedSeconds)) }
+  try {
+    writeJson(keyOf('drafts'), drafts)
+  } catch {
+    // 存储配额异常向上抛，由调用方区分“保存失败”与“评分失败”
+    return Promise.reject(new Error('draft storage failed'))
+  }
+  return Promise.resolve({ topicId, content, wordCount: countWords(content), updatedAt, elapsedSeconds })
 }
 
 export function clearDraft(topicId: string): void {
@@ -82,6 +90,7 @@ export function fetchDrafts(): Promise<WritingDraft[]> {
       content: record.content,
       wordCount: countWords(record.content),
       updatedAt: record.updatedAt,
+      elapsedSeconds: record.elapsedSeconds ?? 0,
     })),
   )
 }

@@ -12,7 +12,7 @@
             <span class="material-symbols-outlined">arrow_back_ios_new</span>
           </button>
           <QuizProgressBar :answered="submittedCount" :total="topicCount || 1" />
-          <span class="hidden rounded-full bg-warning-container px-3 py-1 font-label-md text-label-md text-on-warning-container sm:inline-flex">
+          <span class="inline-flex rounded-full bg-warning-container px-3 py-1 font-label-md text-label-md text-on-warning-container">
             {{ $t('writing.preview.badge') }}
           </span>
         </div>
@@ -176,6 +176,11 @@ let autoSubmitTimer: ReturnType<typeof setTimeout> | null = null
 
 const { formatted, danger, reset, stop } = useCountdown(1800, handleTimeUp, false)
 
+const remainingSeconds = computed(() => {
+  const [minutes, seconds] = formatted.value.split(':').map(Number)
+  return minutes * 60 + seconds
+})
+
 const wordCount = computed(() => countWords(content.value))
 const disabled = computed(() => phase.value === 'scoring' || timeUp.value)
 const avatarText = computed(() => (userStore.username || 'U').slice(0, 1).toUpperCase())
@@ -192,6 +197,8 @@ const {
 } = useWritingDraft(
   () => topic.value?.id ?? '',
   content,
+  // 已写作秒数随草稿持久化，恢复后继续按剩余时间倒计时
+  () => (topic.value ? Math.max(0, topic.value.timeLimitSeconds - remainingSeconds.value) : 0),
 )
 
 const saveStatusText = computed(() => {
@@ -219,9 +226,17 @@ const resolveTopic = (topics: WritingTopic[]) => {
     ?? topics[0]
 }
 
-const startCountdown = () => {
+const startCountdown = (elapsedSeconds = 0) => {
   if (!topic.value) return
-  reset(topic.value.timeLimitSeconds)
+  const total = topic.value.timeLimitSeconds
+  const remain = Math.max(0, total - Math.floor(elapsedSeconds))
+  if (remain <= 0) {
+    // 草稿已写满时限：直接按到时处理（会自动提交已有内容）
+    reset(0)
+    handleTimeUp()
+    return
+  }
+  reset(remain)
 }
 
 const load = async () => {
@@ -252,12 +267,14 @@ const load = async () => {
 }
 
 const restoreDraft = () => {
+  const elapsed = draftCandidate.value?.elapsedSeconds ?? 0
   if (draftCandidate.value) {
     content.value = draftCandidate.value.content
     markSaved(draftCandidate.value.content, draftCandidate.value.updatedAt)
   }
   draftDialog.value = false
-  startCountdown()
+  // 按剩余时间续计，而不是重置为满时长
+  startCountdown(elapsed)
 }
 
 const discardDraft = () => {
@@ -322,11 +339,6 @@ const submit = async (auto = false) => {
     }
   }
 }
-
-const remainingSeconds = computed(() => {
-  const [minutes, seconds] = formatted.value.split(':').map(Number)
-  return minutes * 60 + seconds
-})
 
 const viewReport = () => {
   if (latestSubmissionId.value) {

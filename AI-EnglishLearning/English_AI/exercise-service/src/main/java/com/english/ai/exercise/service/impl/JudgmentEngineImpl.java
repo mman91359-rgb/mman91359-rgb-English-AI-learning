@@ -380,4 +380,133 @@ public class JudgmentEngineImpl implements JudgmentEngine {
             log.warn("保存BuggyPath失败: {}", e.getMessage());
         }
     }
+
+    // ====== 翻译题专属判题（moduleType=3） ======
+
+    @Override
+    public JudgmentResult judgeTranslation(SubmitRequest request, String correctAnswer,
+                                           String context, String acceptedAnswersJson, boolean isPassage) {
+        String userAnswer = request.getUserAnswer() != null ? request.getUserAnswer().trim() : "";
+        if (userAnswer.isEmpty()) {
+            return JudgmentResult.builder()
+                    .isCorrect(false)
+                    .heuristicHint("请输入译文")
+                    .errorType("EMPTY")
+                    .matchedLevel(1)
+                    .suggestions(List.of())
+                    .build();
+        }
+
+        // 归一化：去标点、去多余空格、统一小写（用于整句翻译对比）
+        String normUser = normalizeForTranslation(userAnswer);
+        String normCorrect = normalizeForTranslation(correctAnswer);
+
+        // L1 精确比对：参考译文
+        if (normUser.equals(normCorrect)) {
+            return JudgmentResult.builder()
+                    .isCorrect(true)
+                    .heuristicHint("翻译正确！")
+                    .matchedLevel(1)
+                    .suggestions(List.of())
+                    .build();
+        }
+
+        // L1 扩展：accepted_answers 可接受译文变体
+        if (acceptedAnswersJson != null && !acceptedAnswersJson.isBlank()) {
+            try {
+                List<String> acceptedList = objectMapper.readValue(
+                        acceptedAnswersJson, new TypeReference<List<String>>() {});
+                for (String alt : acceptedList) {
+                    if (alt != null && normalizeForTranslation(alt).equals(normUser)) {
+                        log.info("翻译判题命中可接受译文变体: questionId={}", request.getQuestionId());
+                        return JudgmentResult.builder()
+                                .isCorrect(true)
+                                .heuristicHint("译文语义正确，表达地道。")
+                                .matchedLevel(2)
+                                .suggestions(List.of("同义表达，语义可接受"))
+                                .isSemanticMatch(true)
+                                .build();
+                    }
+                }
+            } catch (Exception e) {
+                log.warn("解析翻译 accepted_answers JSON 失败: questionId={}", request.getQuestionId());
+            }
+        }
+
+        // 段落翻译：仅本地归一化比对，不走 AI 兜底
+        if (isPassage) {
+            return JudgmentResult.builder()
+                    .isCorrect(false)
+                    .heuristicHint("译文与参考译文不一致，请对照参考译文检查表达。")
+                    .errorType("MISMATCH")
+                    .matchedLevel(2)
+                    .suggestions(List.of("对照参考译文，检查关键短语与句式表达。"))
+                    .build();
+        }
+
+        // 短句翻译：未命中本地比对，调 AI 语义判对兜底
+        boolean aiAcceptable = false;
+        String aiReason = "";
+        String aiAltAnswer = "";
+        try {
+            String url = aiServiceUrl + "/ai/judge-acceptable";
+            Map<String, Object> body = new HashMap<>();
+            body.put("userAnswer", userAnswer);
+            body.put("correctAnswer", correctAnswer);
+            body.put("context", context);
+            body.put("questionId", request.getQuestionId());
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+
+            ResponseEntity<Map> resp = restTemplate.postForEntity(url, entity, Map.class);
+            if (resp.getBody() != null) {
+                Object acceptableObj = resp.getBody().get("acceptable");
+                Object reasonObj = resp.getBody().get("reason");
+                Object altObj = resp.getBody().get("altAnswer");
+
+                if (acceptableObj instanceof Boolean) {
+                    aiAcceptable = (Boolean) acceptableObj;
+                }
+                if (reasonObj != null) aiReason = reasonObj.toString();
+                if (altObj != null) aiAltAnswer = altObj.toString();
+            }
+        } catch (Exception e) {
+            log.warn("翻译调用 AI 语义判对失败，降级为本地结果: {}", e.getMessage());
+        }
+
+        if (aiAcceptable) {
+            saveAcceptedAnswer(request.getQuestionId(), userAnswer, aiAltAnswer);
+            return JudgmentResult.builder()
+                    .isCorrect(true)
+                    .heuristicHint("译文语义正确。" + (aiReason.isEmpty() ? "" : "（" + aiReason + "）"))
+                    .errorType(null)
+                    .matchedLevel(2)
+                    .suggestions(List.of("同义表达，语义可接受"))
+                    .isSemanticMatch(true)
+                    .build();
+        }
+
+        // AI 不可接受或失败：判错，展示参考译文
+        return JudgmentResult.builder()
+                .isCorrect(false)
+                .heuristicHint("译文与参考译文存在偏差，请对照参考译文修改。")
+                .errorType("MISMATCH")
+                .matchedLevel(3)
+                .suggestions(List.of("对照参考译文，检查关键短语、时态与句式。"))
+                .build();
+    }
+
+    /**
+     * 翻译归一化：去除标点（含中英文标点）、去多余空格、统一小写。
+     * 与词汇题 normalizeSentence 逻辑一致，但保留用于翻译判题的独立实现。
+     */
+    private String normalizeForTranslation(String s) {
+        if (s == null) return "";
+        return s.toLowerCase()
+                .replaceAll("[\\p{Punct}。？！，；：、\u201c\u201d\u2018\u2019（）【】《》…—]", "")
+                .replaceAll("\\s+", " ")
+                .trim();
+    }
 }

@@ -509,7 +509,7 @@ const startPractice = () => {
   } else if (currentModuleType.value === 2) {
     router.push('/grammar-quiz')
   } else if (currentModuleType.value === 3) {
-    router.push('/translation')
+    router.push('/translation/practice')
   } else if (currentModuleType.value === 4) {
     router.push('/listening')
   } else {

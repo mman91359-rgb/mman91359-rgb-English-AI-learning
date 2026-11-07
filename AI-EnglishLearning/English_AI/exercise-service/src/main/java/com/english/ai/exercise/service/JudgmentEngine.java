@@ -28,4 +28,20 @@ public interface JudgmentEngine {
      * @return 判题结果
      */
     JudgmentResult judge(SubmitRequest request, String correctAnswer, String context);
+
+    /**
+     * 翻译题专属判题（moduleType=3）：
+     * <p>L1 归一化精确比对（参考译文 + accepted_answers 可接受变体）；
+     * 短句翻译未命中时调 AI /ai/judge-acceptable 语义判对兜底；
+     * 段落翻译（passage，题干较长）仅做本地归一化比对，不走 AI 兜底。</p>
+     *
+     * @param request      提交请求
+     * @param correctAnswer 参考译文
+     * @param context       中文题干
+     * @param acceptedAnswersJson question_info.accepted_answers（JSON 数组，可空）
+     * @param isPassage     是否段落翻译（true 则不做 AI 兜底）
+     * @return 判题结果
+     */
+    JudgmentResult judgeTranslation(SubmitRequest request, String correctAnswer,
+                                    String context, String acceptedAnswersJson, boolean isPassage);
 }

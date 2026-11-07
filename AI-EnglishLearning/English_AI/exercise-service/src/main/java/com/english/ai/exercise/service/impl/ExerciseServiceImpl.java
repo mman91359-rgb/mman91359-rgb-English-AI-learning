@@ -394,6 +394,14 @@ public class ExerciseServiceImpl implements ExerciseService {
                     .suggestions(List.of())
                     .isSemanticMatch(false)
                     .build();
+        } else if (moduleType == 3) {
+            // 翻译题：本地归一化精确比对 + 短句走 AI 语义兜底，段落仅本地比对
+            // 题干中文长度 > 40 判定为段落翻译（passage），不走 AI 兜底
+            String stem = content.getStem() != null ? content.getStem() : "";
+            boolean isPassage = stem.length() > 40;
+            judgmentResult = judgmentEngine.judgeTranslation(
+                    request, judgeCorrectAnswer, judgeContext,
+                    info.getAcceptedAnswers(), isPassage);
         } else {
             judgmentResult = judgmentEngine.judge(request, judgeCorrectAnswer, judgeContext);
         }

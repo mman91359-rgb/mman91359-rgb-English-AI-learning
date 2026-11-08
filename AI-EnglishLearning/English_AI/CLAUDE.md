@@ -744,3 +744,57 @@ npm run build
 
 4. **端到端联调未做**：本轮只做了编译 + 迁移验证，未起服务做注册/登录/管理员邮箱登录的完整浏览器冒烟（user-service 需重启后验证）。
 5. `.claude/worktrees/frontend-devtiny-fix` 是嵌套 git 仓库（位于仓库外），提交时勿 `git add -A` 误收。
+
+---
+
+## 变更记录（2026-11-08 · 第三轮）
+
+> 主题：**词汇填空题批量生成器补丁 + 全量导入 exercise_db**。
+> 从 `word_dictionary`（5805 词）批量生成 FILL_BLANK 题型，经 Flyway V1.0.13~V1.0.21 导入正式题库。
+
+### 一、核心数据
+
+| 项 | 值 |
+|---|---|
+| 词条总数 | 5805 |
+| 生成题数 | **4465**（CET4 3451 / CET6 1014） |
+| 跳过 | 1340（含 blocklist 1 条：`vocab-auto-10765-1`） |
+| 正式库 question_info | 132 → **4597** |
+| question_content | 4597（孤儿 0、空题 0） |
+| Flyway | V1.0.13~V1.0.21 共 9 片全 success=1；V1.0.22 已移入 `docs/pending-migrations/_stale/`（不重新生成） |
+| 难度回填 | 5805/5805（分布 668/753/899/1056/1173/1256） |
+
+### 二、生成器补丁（`scripts/generate-vocab-questions.mjs`）
+
+1. **blocklist 敏感过滤（两层）**：`POLITICAL_PATTERNS`（事件/人物）对整句匹配，命中即跳过；`CONTENT_PATTERNS`（暴力/色情/歧视）先剥离目标词所在片段再匹配，放行 `massacre` 这类词条本身作答案。另有 `EXACT_BLOCKED_KEYS` 精确键兜底。命中统一记 `blocklist` 跳过；报告新增 `## 3.2 敏感过滤`（只列 external_key，不含原句）。
+2. **不可数名词**：21 词常量集合（hardware/software/furniture/equipment/information/advice/news/luggage/machinery/merchandise/baggage/homework/knowledge/research/evidence/traffic/weather/clothing/jewelry/scenery/poetry）+ `ware$` 启发式，命中时不生成规则复数，仍保留 -ware 类词的 match-only 匹配。
+3. **IRREGULAR 拆分**：拆为动词/名词/形容词三类；只有 `IRREGULAR_NOUNS` 里的词接受不规则复数（criterion→criteria、child→children 等），不再给不规则名词生成规则复数（criterions 类）。
+4. **CVC 双写白名单**：`DOUBLING_WHITELIST`（begin/occur/refer/prefer/infer/admit/commit/permit/regret/forget/control/patrol/compel/expel/rebel/transfer/upset/omit/submit/equip/recur/confer/deter/forbid）；单音节或白名单多音节动词接受双写形（stopping/occurring），非双写只 match-only；非白名单多音节（abandon）接受非双写形，双写只 match-only。
+5. **报告自检**：新增 `## 5.2 accepted 一致性自检`（不可数规则复数 0、不规则规则复数 0、伪形态 0）。
+
+### 三、幂等验证方式
+
+- verify 库 `flyway_verify_exercise_db2`：从 V1.0.2 重建到 V1.0.21，得完整基线。
+- 用 mysql 客户端直连把 V1.0.13 的 SQL 执行两次，question_info/question_content/vocab-auto 计数与重复键全程不变 → NOT EXISTS 双层幂等生效。
+- **不走 `flyway repair` 或删 history 行**，不破坏历史表。
+
+### 四、文件清单
+
+- `scripts/generate-vocab-questions.mjs`（补丁）
+- `exercise-service/src/main/resources/db/migration/V1.0.13__seed_vocab_auto_part01.sql` ~ `V1.0.21__seed_vocab_auto_part09.sql`（新增，9 片）
+- `docs/pending-migrations/vocab-auto-report.md` / `vocab-auto-manifest.json` / `vocab-auto-sample.json`（生成物）
+- `docs/pending-migrations/V1.0.22__seed_vocab_auto_part10.sql` → 移入 `_stale/`（废弃，不执行）
+
+### 五、验证结果
+
+- `JAVA_HOME=jdk-21 mvn -pl exercise-service -am test`：44 tests，BUILD SUCCESS。
+- `npm run type-check` / `npm run build`：通过。
+- Flyway `migrate` / `validate`：V1.0.12~V1.0.21 全 success=1。
+
+### 六、遗留风险 / 待办
+
+1. **blocklist 覆盖有限**：正则只拦关键词字面命中，语义变体（谐音、转述、隐晦表达）拦不住；上线前需人工过 `sample.json` 20 条 + 抽查各分片。
+2. **被拦词条已核对（2026-11-08，结案）**：`vocab-auto-10765-1` → `word_dictionary.id=10765` 为 `massacre`（CET6，n./vt. 大屠杀）。只读 SQL 取出该条后与规则逐项比对：整句命中 `POLITICAL_PATTERNS`（第一层"整句政治敏感"检查先于第二层"剥离目标词"），同时目标词本身命中 `CONTENT_PATTERNS`。判定**应拦、非误杀**，`EXACT_BLOCKED_KEYS` 保留，原句按规则不复述。
+3. **accepted_answers 偏宽松**：收录全部规则变形，填错词形也可能判对——这是"答案取表面词形"方案的既定取舍，不改。
+4. **8082 实例已重启验证（2026-11-08 20:34）**：进程 24208 启动晚于类文件编译时间，接口实测题目 510（`vocab-auto-2-1`）——`showAnswer=false` 时 `analysis` 只返回释义，`showAnswer=true` 返回「释义 ｜ 原句：…」，截断逻辑已生效。
+5. `docs/pending-migrations/_stale/V1.0.22__seed_vocab_auto_part10.sql` 确认无用后可物理删除。

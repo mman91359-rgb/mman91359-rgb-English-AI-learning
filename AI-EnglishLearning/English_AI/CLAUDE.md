@@ -576,3 +576,98 @@ npm run build
 3. 管理员设密不会使旧 JWT 立即失效；如需强制下线，需增加 token 版本/密码修改时间校验。
 4. 真实短信流程后续需新增验证码表/Redis、频率限制、单次消费与风控；当前不引入新依赖。
 5. 未新增前端单元测试；本轮依赖后端单测、type-check、build 与浏览器冒烟。
+
+---
+
+## 变更记录（2026-11-08）
+
+> 主题：**登录标识改造 —— 手机号/邮箱登录，username 降级为可空昵称**。
+> 本变更改动了鉴权链路与 `sys_user` 表结构，属「核心功能」，已与用户逐项确认后落地。后续 AI/开发者务必先读本节，避免误以为「用户名仍是登录标识」。
+
+### 一、核心契约变化（最重要，先记住）
+
+| 项 | 旧（改造前） | 新（改造后） |
+|---|---|---|
+| 登录标识 | `username`（唯一，NOT NULL） | `phone` **或** `email`（至少一个非空，各自唯一） |
+| `username` 字段 | 登录账号，唯一 | **降级为昵称**：可空、可重复、限 20 字符，空时自动生成 `用户{4位随机}` |
+| JWT `username` claim | 存登录账号 | **存昵称**（仅展示），身份唯一靠 `sub`(userId) |
+| 网关透传 `X-Username` | 登录账号 | 昵称（仅展示），鉴权仍以 `X-User-Id` 为准 |
+| 管理员登录 | `username=admin` | 占位邮箱 `admin@recall.local`（见下方「管理员登录说明」） |
+
+### 二、本次修改文件
+
+**Flyway（已执行，见「迁移执行结果」）**
+- `user-service/src/main/resources/db/migration/V1.0.3__add_email_phone_login.sql`（新增）
+
+**user-service**
+- `entity/SysUser.java`：新增 `email` 字段；`username` 注释改为昵称语义
+- `dto/LoginRequest.java`：`username` → `account`（手机号/邮箱）
+- `dto/RegisterRequest.java`：新增 `email`、`nickname`（可空）
+- `dto/LoginResponse.java`：新增 `email`
+- `service/UserService.java`、`impl/UserServiceImpl.java`：新增 `getByAccount`；`register`/`login` 重写；新增昵称自动生成
+- `controller/UserController.java`：注册/登录校验重写（手机号+邮箱至少一个非空、昵称限长 20）
+- `config/AdminBootstrapRunner.java`：管理员引导改占位邮箱 `admin@recall.local`
+- `config/AdminAuthInterceptor.java`：审计 operatorName 优先昵称
+- `service/impl/AdminUserServiceImpl.java`：列表搜索 keyword 增加 email 维度
+
+**frontend**
+- `views/LoginView.vue`：登录标识改「手机号/邮箱」
+- `views/RegisterView.vue`：新增邮箱、用户名改可选昵称
+- `api/user.ts`：`LoginRequest.account`、`RegisterRequest.email/nickname`、`LoginResponse.email`
+- `i18n/locales/zh-CN.ts`、`en-US.ts`：新增 `accountPlaceholder`/`accountEmpty`/`email`/`nicknamePlaceholder`
+
+### 三、迁移执行结果（V1.0.3）
+
+- 执行顺序：`backup-schema.sh`（三库 schema 备份至 `sql/backup/20261108_181018_*`）→ 存量检查（`phone` 无重复、`email` 字段不存在）→ `flyway.sh user-service migrate` → `validate`。
+- `flyway_schema_history`：installed_rank=4，version=1.0.3，type=SQL，success=1。
+- 表结构最终态（已验证）：`email varchar(255) NULL UNI`；`username varchar(50) NULL`（`uk_username` 已删）；`uk_phone`/`uk_email` 唯一索引已建。
+
+### 四、关键配置与注意事项
+
+1. **登录接口契约**：`POST /user/login` body 由 `{username, password}` 改为 `{account, password}`；`account` 填手机号或邮箱。前端与后端已同步，**任何旧调用方（脚本/其他客户端）需同步更新**。
+2. **注册接口契约**：`POST /user/register` 的 `username` 字段已废弃，改为 `nickname`（可空）+ `phone`/`email`（至少一个非空）。旧「用户名注册」逻辑不存在了。
+3. **JWT 语义**：`JwtUtil.generate(userId, nickname, roles)` 第二参现在传昵称而非账号；网关 `JwtAuthFilter` 透传的 `X-Username` 是昵称，**鉴权/身份判断一律以 `sub`(userId) 为准，不得用 username 做身份匹配**。
+4. **本机编译**：JAVA_HOME 默认指向 JRE 1.8（`C:\Program Files\Java\jre1.8.0_152`），编译需显式覆盖为 JDK：`JAVA_HOME="C:/Program Files/Java/jdk-21"`（或 `C:\jdk-17`）。
+5. **服务重启**：user-service 需重启才加载新代码；重启走 `scripts/with-env.sh`，并先 `unset SERVER__PORT SERVER__HOST SERVER_PORT`（宿主编注入会劫持端口）。
+
+### 五、管理员端登录说明（必读）
+
+- **登录入口**：与普通用户相同的登录页 `/login`，输入「手机号或邮箱」。
+- **账号凭据来源**：管理员账号由 `AdminBootstrapRunner` 在启动时引导创建（仅当配置了 `ADMIN_BOOTSTRAP_PASSWORD` 且系统无启用管理员时）。登录标识为**占位邮箱**：`admin@recall.local`（由 `app.admin.bootstrap.username` 默认值 `admin` 拼上 `@recall.local`）。
+- **验证步骤**：
+  1. 在 `.env` 或环境变量设置 `ADMIN_BOOTSTRAP_PASSWORD`（≥12 位，且不能等于 `admin`）。
+  2. 启动 user-service，观察日志出现「管理员引导完成: username=admin, email=admin@recall.local」。
+  3. 打开 `/login`，登录标识填 `admin@recall.local`，密码填引导密码。
+  4. 登录成功后按角色跳转 `/admin/overview`。
+- **注意**：旧方式 `admin/123456` 是历史本地弱凭据，**改造后已无法用 `admin` 作登录标识登录**，必须用 `admin@recall.local`。若你已有存量管理员（无 email），需按下方「无手机号/邮箱账户」方案补 email。
+
+### 六、无手机号账户的处理方案（重要，涉及存量数据）
+
+改造后登录标识改为 `phone`/`email`，**存量用户若既无手机号也无 email，将无法登录**。三套方案对比如下：
+
+| 方案 | 做法 | 适用场景 | 取舍 |
+|---|---|---|---|
+| **A. 数据回填真实信息** | 通过后台/脚本把存量用户的真实手机号或邮箱写入 `phone`/`email` | 有真实联系方式、且用户会继续使用的正式环境 | 最正规，但需要收集/核对真实联系方式，成本最高；且要保证唯一 |
+| **B. 生成占位标识** | 按规则生成唯一占位（如 `user{id}@recall.local`），用户下次登录后自行改绑 | 开发/测试环境、或存量用户量少、联系不上的情况 | 成本低、立即可用；占位邮箱无法真正收信，用户需后续绑定真实手机号/邮箱；需配合「绑定/更新手机号」接口（`POST /user/phone/update` 已有） |
+| **C. 强制重置/重新注册** | 放弃存量账号，让用户用手机号/邮箱重新注册 | 无真实数据价值、纯测试数据 | 最省事，但丢失用户学习记录、ELO、金币等数据，不可逆 |
+
+**推荐**：
+- **正式环境** 用 **方案 A**（回填真实信息），保证唯一后回填。
+- **开发/测试环境** 用 **方案 B**（生成占位邮箱），推荐规则 `{userId}@recall.local` 或复用 `nickname` 兜底，避免唯一冲突；用户登录后通过现有 `POST /user/phone/update` 或未来邮箱绑定接口换成真实标识。
+
+> 回填/生成占位同样属于数据变更，建议走一条**独立的 Flyway 迁移**（如 `V1.0.4__backfill_login_identifier.sql`）或明确的数据脚本，先备份、先展示 SQL 获批再执行；不要用 Navicat 手改共享库。
+
+### 七、验证结果
+
+- 后端 `mvn -pl user-service -am compile`（JDK 21）通过。
+- 前端 `npm run type-check` 通过。
+- Flyway `migrate`/`validate` 通过；`flyway_schema_history` 已记录 1.0.3 success=1。
+- 已确认存量 `phone` 无重复、`email` 字段不存在（迁移前置检查通过）。
+
+### 八、遗留风险 / 待办
+
+1. **存量用户登录态**：改造前用 `username` 登录、且未绑手机号/邮箱的用户，改造后无法登录（见「六」处理方案，尚未回填）。
+2. **旧 JWT 兼容**：改造前签发的 token 其 `username` claim 存的是旧账号，改造后仅作展示，不影响 `sub`(userId) 鉴权，但前端展示的昵称可能短暂显示旧账号值，重新登录后恢复正常。
+3. **找回密码仍走手机号**：`ForgotPasswordView` 与 `PasswordResetService` 目前仍按手机号匹配，尚未支持邮箱找回；若后续要邮箱找回，需单独扩展。
+4. **端到端联调未做**：本轮只做了编译 + 迁移验证，未起服务做注册/登录/管理员邮箱登录的完整浏览器冒烟（user-service 需重启后验证）。
+5. `.claude/worktrees/frontend-devtiny-fix` 是嵌套 git 仓库（位于仓库外），提交时勿 `git add -A` 误收。

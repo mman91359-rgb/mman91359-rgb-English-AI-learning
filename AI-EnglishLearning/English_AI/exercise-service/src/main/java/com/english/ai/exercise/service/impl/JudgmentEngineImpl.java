@@ -1,5 +1,6 @@
 package com.english.ai.exercise.service.impl;
 
+import com.english.ai.common.util.AnswerNormalizer;
 import com.english.ai.exercise.dto.JudgmentResult;
 import com.english.ai.exercise.dto.SubmitRequest;
 import com.english.ai.exercise.entity.QuestionBuggyPath;
@@ -21,6 +22,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @Slf4j
@@ -38,19 +40,26 @@ public class JudgmentEngineImpl implements JudgmentEngine {
 
     @Override
     public JudgmentResult judge(SubmitRequest request, String correctAnswer, String context) {
-        String userAnswer = request.getUserAnswer() != null ? request.getUserAnswer().trim().toLowerCase() : "";
-        String normCorrect = correctAnswer != null ? correctAnswer.trim().toLowerCase() : "";
-
-        if (userAnswer.isEmpty()) {
-            return JudgmentResult.builder()
-                    .isCorrect(false)
-                    .heuristicHint("请输入答案")
-                    .errorType("EMPTY")
-                    .matchedLevel(1)
-                    .suggestions(List.of())
-                    .build();
+        String rawUser = request.getUserAnswer() != null ? request.getUserAnswer().trim() : "";
+        if (rawUser.isEmpty()) {
+            return emptyAnswerResult();
         }
 
+        // 题目元数据只查一次：判断是否填空类题型 + 取 accepted_answers
+        QuestionInfo info = questionInfoMapper.selectById(request.getQuestionId());
+        boolean isFillBlank = info != null && "FILL_BLANK".equals(info.getQuestionType());
+
+        // 仅填空类题型做归一化（全角/标点/大小写），其余保持原有 trim + 小写
+        String userAnswer = isFillBlank
+                ? AnswerNormalizer.normalize(rawUser)
+                : rawUser.toLowerCase(Locale.ROOT);
+        if (userAnswer.isEmpty()) {
+            return emptyAnswerResult();
+        }
+        String normCorrect = correctAnswer != null ? correctAnswer.trim().toLowerCase(Locale.ROOT) : "";
+        List<String> acceptedList = parseAcceptedAnswers(info);
+
+        // ====== 第 1 层：正确答案 / accepted_answers 精确匹配（最高优先级，命中即短路） ======
         if (userAnswer.equals(normCorrect)) {
             return JudgmentResult.builder()
                     .isCorrect(true)
@@ -59,22 +68,53 @@ public class JudgmentEngineImpl implements JudgmentEngine {
                     .suggestions(List.of())
                     .build();
         }
+        if (containsAccepted(acceptedList, userAnswer)) {
+            log.info("判题引擎：accepted_answers 命中, traceId={}, answer={}",
+                    request.getUserId() + "-" + request.getQuestionId(), userAnswer);
+            return JudgmentResult.builder()
+                    .isCorrect(true)
+                    .heuristicHint("你的答案 \"" + userAnswer + "\" 也可以用在这里，但最适合这道题的词是 \"" + correctAnswer + "\"。")
+                    .errorType(null)
+                    .matchedLevel(2)
+                    .suggestions(List.of("近义词替换，语义可接受"))
+                    .isSemanticMatch(true)
+                    .build();
+        }
 
+        // ====== 第 2 层：常见错误路径拦截（教研沉淀，命中即短路） ======
+        JudgmentResult buggyResult = buggyPathIntercept(
+                request.getQuestionId(), userAnswer, rawUser.toLowerCase(Locale.ROOT));
+        if (buggyResult != null) {
+            log.debug("判题引擎：命中错误路径, traceId={}",
+                    request.getUserId() + "-" + request.getQuestionId());
+            return buggyResult;
+        }
+
+        // ====== 第 3 层：L1 规则算法（拼写 / 语法 / 介词 / 时态） ======
         JudgmentResult level1Result = level1RuleEngine(userAnswer, normCorrect, context);
         if (level1Result != null) {
-            log.debug("判题引擎：层级1规则算法层匹配成功, traceId={}", 
+            log.debug("判题引擎：层级1规则算法层匹配成功, traceId={}",
                     request.getUserId() + "-" + request.getQuestionId());
             return level1Result;
         }
 
-        JudgmentResult level2Result = level2KnowledgeBase(request.getQuestionId(), userAnswer, normCorrect);
-        if (level2Result != null) {
-            log.debug("判题引擎：层级2结构化题库层匹配成功, traceId={}", 
+        // ====== 第 4 层：L2 相似度模糊匹配 ======
+        JudgmentResult fuzzyResult = fuzzySimilarity(userAnswer, normCorrect);
+        if (fuzzyResult != null) {
+            log.debug("判题引擎：层级2相似度模糊匹配命中, traceId={}",
                     request.getUserId() + "-" + request.getQuestionId());
-            return level2Result;
+            return fuzzyResult;
         }
 
-        // ====== Level 2.5：语义可接受性判对（仅词汇题生效） ======
+        // ====== 第 5 层：accepted_answers 非空时到此为止，禁止调用 AI ======
+        // 题目已经人工维护了可接受答案集合，说明判题口径是确定的；再让 AI 判对等于放水。
+        if (!acceptedList.isEmpty()) {
+            log.debug("判题引擎：accepted_answers 非空且未命中，短路返回, traceId={}",
+                    request.getUserId() + "-" + request.getQuestionId());
+            return mismatchResult();
+        }
+
+        // ====== 第 6 层：accepted_answers 为空，保留原有 AI 兜底路径 ======
         // 语法连词成句题（moduleType=2）不经过语义判对，避免 AI 放水
         if (request.getModuleType() == null || request.getModuleType() != 2) {
             JudgmentResult semanticResult = level2_5SemanticAccept(
@@ -87,9 +127,59 @@ public class JudgmentEngineImpl implements JudgmentEngine {
         }
 
         JudgmentResult level3Result = level3AiFallback(request.getQuestionId(), userAnswer, normCorrect, context);
-        log.debug("判题引擎：层级3AI兜底层执行完成, traceId={}", 
+        log.debug("判题引擎：层级3AI兜底层执行完成, traceId={}",
                 request.getUserId() + "-" + request.getQuestionId());
         return level3Result;
+    }
+
+    private JudgmentResult emptyAnswerResult() {
+        return JudgmentResult.builder()
+                .isCorrect(false)
+                .heuristicHint("请输入答案")
+                .errorType("EMPTY")
+                .matchedLevel(1)
+                .suggestions(List.of())
+                .build();
+    }
+
+    /** accepted_answers 非空但全部未命中时的确定性结果：不调 AI、不写错因表 */
+    private JudgmentResult mismatchResult() {
+        String hint = "你的答案不在本题的可接受答案范围内，请再检查一下拼写或用词。";
+        return JudgmentResult.builder()
+                .isCorrect(false)
+                .heuristicHint(hint)
+                .errorType("MISMATCH")
+                .matchedLevel(2)
+                .suggestions(List.of(hint))
+                .build();
+    }
+
+    /** 解析并归一化 accepted_answers；解析失败按空集合处理 */
+    private List<String> parseAcceptedAnswers(QuestionInfo info) {
+        if (info == null) return List.of();
+        String json = info.getAcceptedAnswers();
+        if (json == null || json.isBlank()) return List.of();
+        try {
+            List<String> raw = objectMapper.readValue(json, new TypeReference<List<String>>() {});
+            List<String> normalized = new ArrayList<>(raw.size());
+            for (String item : raw) {
+                if (item == null) continue;
+                String value = AnswerNormalizer.normalize(item);
+                if (!value.isEmpty()) normalized.add(value);
+            }
+            return normalized;
+        } catch (Exception e) {
+            log.warn("解析 accepted_answers JSON 失败: json={}", json);
+            return List.of();
+        }
+    }
+
+    private boolean containsAccepted(List<String> acceptedList, String userAnswer) {
+        if (acceptedList.isEmpty()) return false;
+        for (String item : acceptedList) {
+            if (item.equals(userAnswer)) return true;
+        }
+        return false;
     }
 
     private JudgmentResult level1RuleEngine(String userAnswer, String correctAnswer, String context) {
@@ -149,25 +239,37 @@ public class JudgmentEngineImpl implements JudgmentEngine {
         return null;
     }
 
-    private JudgmentResult level2KnowledgeBase(Long questionId, String userAnswer, String correctAnswer) {
-        QuestionBuggyPath buggyPath = buggyPathMapper.findByQuestionAndAnswer(questionId, userAnswer);
-        
-        if (buggyPath != null) {
-            buggyPath.setOccurrenceCount(buggyPath.getOccurrenceCount() + 1);
-            buggyPathMapper.updateById(buggyPath);
-            
-            List<String> suggestions = new ArrayList<>();
-            suggestions.add(buggyPath.getHeuristicHint());
-            
-            return JudgmentResult.builder()
-                    .isCorrect(false)
-                    .heuristicHint(buggyPath.getHeuristicHint())
-                    .errorType(buggyPath.getErrorType())
-                    .matchedLevel(2)
-                    .suggestions(suggestions)
-                    .build();
+    /**
+     * 常见错误路径拦截。
+     * 历史记录以「trim + 小写」写入，归一化后（去标点/全角）可能查不到，
+     * 因此归一化值查不到时再用原值兜一次。
+     */
+    private JudgmentResult buggyPathIntercept(Long questionId, String normalizedAnswer, String legacyAnswer) {
+        QuestionBuggyPath buggyPath = buggyPathMapper.findByQuestionAndAnswer(questionId, normalizedAnswer);
+        if (buggyPath == null && !legacyAnswer.equals(normalizedAnswer)) {
+            buggyPath = buggyPathMapper.findByQuestionAndAnswer(questionId, legacyAnswer);
+        }
+        if (buggyPath == null) {
+            return null;
         }
 
+        buggyPath.setOccurrenceCount(buggyPath.getOccurrenceCount() + 1);
+        buggyPathMapper.updateById(buggyPath);
+
+        List<String> suggestions = new ArrayList<>();
+        suggestions.add(buggyPath.getHeuristicHint());
+
+        return JudgmentResult.builder()
+                .isCorrect(false)
+                .heuristicHint(buggyPath.getHeuristicHint())
+                .errorType(buggyPath.getErrorType())
+                .matchedLevel(2)
+                .suggestions(suggestions)
+                .build();
+    }
+
+    /** L2 相似度模糊匹配：与正确答案接近但不等同时给出针对性提示 */
+    private JudgmentResult fuzzySimilarity(String userAnswer, String correctAnswer) {
         double similarity = LevenshteinUtil.calculateSimilarity(userAnswer, correctAnswer);
         if (similarity >= 0.8) {
             String hint = "你的答案与正确答案非常接近！再仔细检查一下拼写或语法细节。";
@@ -179,7 +281,6 @@ public class JudgmentEngineImpl implements JudgmentEngine {
                     .suggestions(List.of(hint))
                     .build();
         }
-
         return null;
     }
 
@@ -194,34 +295,10 @@ public class JudgmentEngineImpl implements JudgmentEngine {
      *
      * @return null 表示语义不可接受（交给 Level 3 继续处理），非 null 表示判对结果
      */
-    private JudgmentResult level2_5SemanticAccept(Long questionId, String userAnswer, 
+    private JudgmentResult level2_5SemanticAccept(Long questionId, String userAnswer,
                                                    String correctAnswer, String context) {
-        // 1. 查题目的 accepted_answers 缓存
-        QuestionInfo info = questionInfoMapper.selectById(questionId);
-        if (info == null) return null;
-
-        String acceptedAnswersJson = info.getAcceptedAnswers();
-        if (acceptedAnswersJson != null && !acceptedAnswersJson.isBlank()) {
-            try {
-                List<String> acceptedList = objectMapper.readValue(
-                        acceptedAnswersJson, new TypeReference<List<String>>() {});
-                if (acceptedList.contains(userAnswer)) {
-                    log.info("语义判对缓存命中: questionId={}, answer={}", questionId, userAnswer);
-                    return JudgmentResult.builder()
-                            .isCorrect(true)
-                            .heuristicHint("你的答案 \"" + userAnswer + "\" 也可以用在这里，但最适合这道题的词是 \"" + correctAnswer + "\"。")
-                            .errorType(null)
-                            .matchedLevel(2)
-                            .suggestions(List.of("近义词替换，语义可接受"))
-                            .isSemanticMatch(true)
-                            .build();
-                }
-            } catch (Exception e) {
-                log.warn("解析 accepted_answers JSON 失败: questionId={}, json={}", questionId, acceptedAnswersJson);
-            }
-        }
-
-        // 2. 缓存未命中，调 AI 服务进行语义判对
+        // accepted_answers 的缓存命中已在 judge() 第 1 层处理；走到这里说明集合为空，
+        // 直接调用 AI 服务进行语义判对
         boolean aiAcceptable = false;
         String aiReason = "";
         String aiAltAnswer = "";

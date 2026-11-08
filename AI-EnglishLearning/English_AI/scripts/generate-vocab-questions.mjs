@@ -169,29 +169,34 @@ const IRREGULAR_ADJS = new Set(['good', 'bad', 'far', 'little', 'many', 'much'])
 /** 精确屏蔽的 external_key（例句涉及敏感政治事件，报告中不复述原句） */
 const EXACT_BLOCKED_KEYS = new Set(['vocab-auto-10765-1'])
 
-/** 敏感内容关键词：只过滤题目，不改词库 */
-const SENSITIVE_PATTERNS = [
-  // 政治敏感事件 / 人物
+/**
+ * 政治敏感事件 / 人物：与目标词无关，整句命中即跳过。
+ */
+const POLITICAL_PATTERNS = [
   /tiananmen/i,
   /falun/i,
   /dalai\s+lama/i,
   /tibet\w*\s+\w*\s*independen/i,
   /taiwan\w*\s+\w*\s*independen/i,
   /xinjiang\w*\s+\w*\s*independen/i,
-  // 暴力血腥
+]
+
+/**
+ * 暴力 / 色情 / 歧视：允许目标词本身作为答案出现，只拦"句中其它位置"的敏感情节。
+ * 判定前会先把目标词所在片段删掉（见 classify），这样 massacre 这类词条仍可出题。
+ */
+const CONTENT_PATTERNS = [
   /massacre/i,
   /genocide/i,
   /bloodbath/i,
   /behead/i,
   /decapitat/i,
   /dismember/i,
-  // 色情
   /porn/i,
   /prostitut/i,
   /brothel/i,
   /\brape\b/i,
   /sexual\s+intercourse/i,
-  // 歧视
   /nigger/i,
   /\bchink\b/i,
   /faggot/i,
@@ -200,8 +205,12 @@ const SENSITIVE_PATTERNS = [
   /\bwhore\b/i,
 ]
 
-function isSensitive(text) {
-  return SENSITIVE_PATTERNS.some((re) => re.test(text))
+function isPoliticalSensitive(text) {
+  return POLITICAL_PATTERNS.some((re) => re.test(text))
+}
+
+function isContentSensitive(text) {
+  return CONTENT_PATTERNS.some((re) => re.test(text))
 }
 
 const isVowel = (c) => 'aeiou'.includes(c)
@@ -538,10 +547,10 @@ function classify(row, opts) {
   if (!row.translation) return { skip: 'no-translation' }
   if (!row.difficulty) return { skip: 'missing-difficulty' }
 
-  // 敏感内容过滤：精确键 + 关键词。命中只记录 key，报告里不复述原句
+  // 敏感内容过滤（第一层）：精确键 + 政治事件。命中只记录 key，报告里不复述原句
   const externalKey = `vocab-auto-${row.id}-1`
   if (EXACT_BLOCKED_KEYS.has(externalKey)) return { skip: 'blocklist', externalKey }
-  if (isSensitive(`${example} ${row.translation}`)) return { skip: 'blocklist', externalKey }
+  if (isPoliticalSensitive(`${example} ${row.translation}`)) return { skip: 'blocklist', externalKey }
 
   const { matchForms, acceptedForms, category } = buildForms(word, row.pos)
   const hits = findMatches(example, matchForms)
@@ -551,6 +560,13 @@ function classify(row, opts) {
   const hit = hits[0]
   const surface = hit.text.toLowerCase()
   const lemma = word.toLowerCase()
+
+  // 敏感内容过滤（第二层）：先把目标词所在片段删掉再匹配，
+  // 这样 massacre 这类词条本身可以作答案，只有句子里出现"别的"敏感情节才拦
+  const withoutTarget = `${example.slice(0, hit.start)} ${example.slice(hit.end)}`
+  if (isContentSensitive(`${withoutTarget} ${row.translation}`)) {
+    return { skip: 'blocklist', externalKey }
+  }
 
   // c. 功能词/固定搭配：介词、连词、代词、数词、冠词、助动词不出词汇题
   if (category === 'other') return { skip: 'fixed-phrase' }

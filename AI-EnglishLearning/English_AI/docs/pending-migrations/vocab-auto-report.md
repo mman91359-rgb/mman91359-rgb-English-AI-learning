@@ -1,7 +1,7 @@
 # 词汇填空题生成报告
 
-- 生成时间：2026-11-08T12:18:51.978Z
-- 模式：write（已生成分片 SQL）
+- 生成时间：2026-11-08T12:36:00.099Z
+- 模式：dry-run（未写 SQL）
 - 词条范围：ALL
 - 例句长度区间：20~160
 
@@ -99,17 +99,7 @@
 
 ## 7. 分片
 
-| 文件 | 题数 | 首键 | 尾键 |
-|---|---|---|---|
-| V1.0.13__seed_vocab_auto_part01.sql | 500 | vocab-auto-2-1 | vocab-auto-6362-1 |
-| V1.0.14__seed_vocab_auto_part02.sql | 500 | vocab-auto-6364-1 | vocab-auto-6897-1 |
-| V1.0.15__seed_vocab_auto_part03.sql | 500 | vocab-auto-6898-1 | vocab-auto-7455-1 |
-| V1.0.16__seed_vocab_auto_part04.sql | 500 | vocab-auto-7457-1 | vocab-auto-8001-1 |
-| V1.0.17__seed_vocab_auto_part05.sql | 500 | vocab-auto-8002-1 | vocab-auto-8568-1 |
-| V1.0.18__seed_vocab_auto_part06.sql | 500 | vocab-auto-8569-1 | vocab-auto-9148-1 |
-| V1.0.19__seed_vocab_auto_part07.sql | 500 | vocab-auto-9149-1 | vocab-auto-9757-1 |
-| V1.0.20__seed_vocab_auto_part08.sql | 500 | vocab-auto-9758-1 | vocab-auto-10712-1 |
-| V1.0.21__seed_vocab_auto_part09.sql | 465 | vocab-auto-10714-1 | vocab-auto-11637-1 |
+_dry-run 模式未生成 SQL 分片_
 
 ### 7.1 遗留分片
 

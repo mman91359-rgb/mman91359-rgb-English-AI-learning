@@ -7,21 +7,16 @@
       <h2 class="font-headline-lg text-headline-lg text-on-surface">{{ $t('app.title') }} - {{ $t('learning.myErrorBook') }}</h2>
     </div>
 
-    <div v-if="loading" class="flex justify-center py-20">
-      <span class="material-symbols-outlined text-icon-2xl text-primary animate-spin">progress_activity</span>
-    </div>
+    <LoadingState v-if="loading" />
 
-    <div v-else-if="errors.length === 0" class="text-center py-20">
-      <span class="material-symbols-outlined text-icon-3xl text-outline">check_circle</span>
-      <p class="mt-4 text-on-surface-variant font-body-lg text-body-lg">{{ $t('learning.noErrorsFound') }}</p>
-      <p class="mt-2 text-on-surface-variant/60 font-body-md text-body-md">{{ $t('learning.keepItUp') }}</p>
-      <router-link
-        to="/learning"
-        class="inline-block mt-6 px-6 py-3 bg-primary text-on-primary rounded-xl font-label-md text-label-md hover:bg-primary/90 transition-colors"
-      >
-        {{ $t('learning.continuePractice') }}
-      </router-link>
-    </div>
+    <EmptyState
+      v-else-if="errors.length === 0"
+      icon="check_circle"
+      :title="$t('learning.noErrorsFound')"
+      :description="$t('learning.keepItUp')"
+      :action-label="$t('learning.continuePractice')"
+      @action="$router.push('/learning')"
+    />
 
     <div v-else>
       <!-- 薄弱知识点卡片 -->
@@ -434,6 +429,8 @@ import { useModalBehavior } from '@/composables/useModalBehavior'
 import { moduleName } from '@/config/modules'
 import { shuffle } from '@/utils/array'
 import { btnIcon } from '@/components/ui/buttonStyles'
+import LoadingState from '@/components/ui/LoadingState.vue'
+import EmptyState from '@/components/ui/EmptyState.vue'
 
 const { t } = useI18n()
 const userStore = useUserStore()

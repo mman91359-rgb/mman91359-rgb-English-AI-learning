@@ -7,7 +7,7 @@
     <button
       v-if="actionLabel"
       type="button"
-      class="mt-4 rounded-full border border-outline-variant px-5 py-2 font-label-sm text-label-sm text-on-surface-variant transition-colors hover:bg-surface-variant active:bg-surface-container focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+      :class="['mt-4', btnSecondarySm]"
       @click="$emit('action')"
     >
       {{ actionLabel }}
@@ -16,6 +16,8 @@
 </template>
 
 <script setup lang="ts">
+import { btnSecondarySm } from './buttonStyles'
+
 withDefaults(defineProps<{
   icon?: string
   title: string

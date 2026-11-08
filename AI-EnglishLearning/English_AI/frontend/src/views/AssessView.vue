@@ -16,10 +16,7 @@
         </button>
       </div>
 
-      <div v-if="loading" class="bg-surface rounded-2xl p-12 text-center shadow-soft-glow">
-        <span class="material-symbols-outlined text-icon-2xl text-primary animate-spin">progress_activity</span>
-        <p class="mt-4 text-on-surface-variant">{{ $t('common.loading') }}</p>
-      </div>
+      <LoadingState v-if="loading" :message="$t('common.loading')" />
 
       <div v-else-if="finished" class="bg-surface rounded-2xl p-8 shadow-soft-glow text-center">
         <div class="w-20 h-20 mx-auto rounded-full bg-primary-container/20 flex items-center justify-center mb-4">
@@ -98,13 +95,14 @@
         </div>
       </div>
 
-      <div v-else class="bg-surface rounded-2xl p-12 text-center shadow-soft-glow">
-        <span class="material-symbols-outlined text-icon-3xl text-outline">inbox</span>
-        <p class="mt-4 text-on-surface-variant">暂无测评题，请稍后重试</p>
-        <button class="mt-5 px-6 py-3 bg-primary text-on-primary rounded-xl" @click="router.push('/dashboard')">
-          返回首页
-        </button>
-      </div>
+      <EmptyState
+        v-else
+        icon="inbox"
+        :title="$t('assess.emptyTitle')"
+        :description="$t('assess.emptyDescription')"
+        :action-label="$t('assess.backToHome')"
+        @action="router.push('/dashboard')"
+      />
     </div>
   </AppLayout>
 </template>
@@ -113,6 +111,8 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppLayout from '@/components/AppLayout.vue'
+import LoadingState from '@/components/ui/LoadingState.vue'
+import EmptyState from '@/components/ui/EmptyState.vue'
 import { getAssessQuestions, getQuestionById, type QuestionVO } from '@/api/exercise'
 import { submitAssessAnswer } from '@/api/user'
 import { useUserStore } from '@/stores/user'

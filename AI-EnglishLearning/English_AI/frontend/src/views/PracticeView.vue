@@ -30,10 +30,7 @@
 
     <!-- ===== 答题模式 ===== -->
     <template v-if="!showResults">
-      <div v-if="loading" class="flex justify-center py-20">
-        <span class="material-symbols-outlined text-icon-2xl text-primary animate-spin">progress_activity</span>
-        <p class="mt-4 text-on-surface-variant font-body-md text-body-md">{{ $t('common.loading') }}</p>
-      </div>
+      <LoadingState v-if="loading" :message="$t('common.loading')" />
 
       <div v-else-if="currentQuestion" class="max-w-3xl mx-auto">
         <!-- 题干 -->
@@ -145,13 +142,13 @@
         </div>
       </div>
 
-      <div v-else class="text-center py-20">
-        <span class="material-symbols-outlined text-icon-2xl text-outline">inbox</span>
-        <p class="mt-4 text-on-surface-variant">{{ $t('learning.noQuestions') }}</p>
-        <button :class="['mt-4', btnPrimary]" @click="$router.back()">
-          {{ $t('learning.backToHub') }}
-        </button>
-      </div>
+      <EmptyState
+        v-else
+        icon="inbox"
+        :title="$t('learning.noQuestions')"
+        :action-label="$t('learning.backToHub')"
+        @action="$router.back()"
+      />
     </template>
 
     <!-- ===== 结果回顾页 ===== -->
@@ -234,7 +231,9 @@ import { useUserStore } from '@/stores/user'
 import { moduleName as moduleLabel } from '@/config/modules'
 import { selectQuestions, submitAnswer, addFavorite } from '@/api/exercise'
 import type { QuestionVO, SubmitResponse } from '@/api/exercise'
-import { btnIcon, btnPrimary } from '@/components/ui/buttonStyles'
+import { btnIcon } from '@/components/ui/buttonStyles'
+import LoadingState from '@/components/ui/LoadingState.vue'
+import EmptyState from '@/components/ui/EmptyState.vue'
 
 const route = useRoute()
 const router = useRouter()

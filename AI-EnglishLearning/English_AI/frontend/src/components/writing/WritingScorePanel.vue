@@ -21,8 +21,8 @@
     </template>
 
     <template v-else-if="phase === 'scoring'">
-      <div class="flex flex-col items-center gap-3 py-4">
-        <span class="material-symbols-outlined animate-spin text-icon-2xl text-primary">progress_activity</span>
+      <div class="flex flex-col items-center gap-3 py-4" role="status" aria-live="polite">
+        <span class="material-symbols-outlined animate-spin text-icon-2xl text-primary motion-reduce:animate-none" aria-hidden="true">progress_activity</span>
         <p class="font-body-sm text-body-sm text-on-surface-variant">{{ $t('writing.practice.scoring') }}</p>
       </div>
       <ol class="flex flex-col gap-3">

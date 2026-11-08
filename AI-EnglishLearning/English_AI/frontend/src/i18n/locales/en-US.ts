@@ -435,6 +435,8 @@ export default {
     moduleType: 'Type',
     moduleVocabulary: 'Vocabulary',
     moduleGrammar: 'Grammar',
+    emptyTitle: 'No assessment questions yet',
+    emptyDescription: 'Question generation can take a few seconds — please try again shortly.',
   },
   notification: {
     welcomeTitle: 'Welcome to Recall',

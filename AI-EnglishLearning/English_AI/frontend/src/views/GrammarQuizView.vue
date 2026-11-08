@@ -71,10 +71,7 @@
       <!-- 题目画布 -->
       <div class="flex-1 p-gutter flex flex-col items-center max-w-container-max mx-auto w-full">
         <!-- 加载态 -->
-        <div v-if="loading" class="flex-1 flex flex-col items-center justify-center py-20">
-          <span class="material-symbols-outlined text-icon-2xl text-primary animate-spin">progress_activity</span>
-          <p class="mt-4 text-on-surface-variant font-body-md text-body-md">{{ $t('common.loading') }}</p>
-        </div>
+        <LoadingState v-if="loading" class="flex-1" :message="$t('common.loading')" />
 
         <!-- 答题中 -->
         <template v-else-if="!showResults && currentQuestion">
@@ -312,11 +309,14 @@
         </template>
 
         <!-- 无题 -->
-        <div v-else class="flex-1 flex flex-col items-center justify-center py-20">
-          <span class="material-symbols-outlined text-icon-2xl text-outline">inbox</span>
-          <p class="mt-4 text-on-surface-variant font-body-md text-body-md">{{ $t('learning.noGrammarQuestions') }}</p>
-          <button :class="['mt-4', btnPrimary]" @click="goBack">{{ $t('common.back') }}</button>
-        </div>
+        <EmptyState
+          v-else
+          class="flex-1"
+          icon="inbox"
+          :title="$t('learning.noGrammarQuestions')"
+          :action-label="$t('common.back')"
+          @action="goBack"
+        />
       </div>
     </main>
 
@@ -346,7 +346,9 @@ import { useSpeechRecognition } from '@/composables/useSpeechRecognition'
 import { useAiStore } from '@/stores/ai'
 import { shuffle } from '@/utils/array'
 import type { QuestionVO, SubmitResponse } from '@/api/exercise'
-import { btnIcon, btnPrimary } from '@/components/ui/buttonStyles'
+import { btnIcon } from '@/components/ui/buttonStyles'
+import LoadingState from '@/components/ui/LoadingState.vue'
+import EmptyState from '@/components/ui/EmptyState.vue'
 
 const { t } = useI18n()
 const router = useRouter()

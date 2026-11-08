@@ -435,6 +435,8 @@ export default {
     moduleType: '题型',
     moduleVocabulary: '词汇',
     moduleGrammar: '语法',
+    emptyTitle: '暂无测评题',
+    emptyDescription: '题目生成可能需要几秒，请稍后重试。',
   },
   notification: {
     welcomeTitle: '欢迎使用 Recall 睿考',

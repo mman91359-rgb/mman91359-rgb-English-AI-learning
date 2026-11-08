@@ -6,7 +6,7 @@
     <button
       v-if="actionLabel"
       type="button"
-      class="mt-4 rounded-full bg-primary px-5 py-2 font-label-sm text-label-sm text-on-primary transition-colors hover:bg-primary/90 active:bg-primary/80 focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+      :class="['mt-4', btnPrimarySm]"
       @click="$emit('retry')"
     >
       {{ actionLabel }}
@@ -15,6 +15,8 @@
 </template>
 
 <script setup lang="ts">
+import { btnPrimarySm } from './buttonStyles'
+
 withDefaults(defineProps<{
   message?: string
   title?: string

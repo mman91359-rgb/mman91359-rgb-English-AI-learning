@@ -4,19 +4,21 @@ import com.english.ai.exercise.dto.JudgmentResult;
 import com.english.ai.exercise.dto.SubmitRequest;
 
 /**
- * 三级分层路由判题引擎接口
- * 
- * 层级 1：规则算法层（优先执行，零 AI 开销）
- *   - 拼写错误：莱文斯坦编辑距离
- *   - 固定语法硬规则：正则 + 词性标注 + 名词可数/不可数、冠词搭配、时态固定约束等规则库
- * 
- * 层级 2：结构化题库知识图谱层（系统核心，教研沉淀）
- *   - Buggy Paths 常见错误路径表
- *   - 知识点标签映射表
- * 
- * 层级 3：LLM / 预训练语义模型兜底层（处理未知、未收录作答）
- *   - 语义相似度计算
- *   - LLM 动态生成启发反馈
+ * 分层路由判题引擎接口。
+ *
+ * <p>执行顺序（前置层级命中即短路返回，不再进入后续计算）：</p>
+ * <ol>
+ *   <li>accepted_answers 精确匹配（含正确答案本身；用户答案先经 {@code AnswerNormalizer} 归一化）</li>
+ *   <li>question_buggy_path 常见错误路径拦截（教研沉淀）</li>
+ *   <li>L1 规则算法：拼写（莱文斯坦）、语法硬规则（冠词/介词/时态）</li>
+ *   <li>L2 相似度模糊匹配（与正确答案相似但不等同）</li>
+ *   <li>L2.5 AI 语义判对：仅当 accepted_answers 为空时才执行</li>
+ *   <li>L3 AI 启发反馈：仅当 accepted_answers 为空时才执行</li>
+ * </ol>
+ *
+ * <p><b>AI 调用控制</b>：题目 accepted_answers 非空时，判题口径已由教研确定，
+ * 缓存未命中直接返回 {@code MISMATCH}，不调用任何 AI 接口；
+ * accepted_answers 为空时保留原有 AI 语义判对 + AI 启发反馈路径。</p>
  */
 public interface JudgmentEngine {
 

@@ -159,6 +159,18 @@ class JudgmentEngineImplTest {
     }
 
     @Test
+    void correctAnswerWithTrailingPunctuationStillMatches() {
+        // 归一化不对称回归：correct_answer 带尾部标点时，用户填正确答案不能落到 L2 SIMILAR
+        when(questionInfoMapper.selectById(QID)).thenReturn(question("FILL_BLANK", null));
+
+        JudgmentResult result = engine.judge(request("abandon"), "abandon.", "He ____ his plan.");
+
+        assertTrue(result.getIsCorrect());
+        assertEquals(1, result.getMatchedLevel());
+        verifyNoInteractions(restTemplate);
+    }
+
+    @Test
     void emptyAnswerReturnsEmptyError() {
         JudgmentResult result = engine.judge(request("   "), "abandon", "He ____ his plan to travel.");
 

@@ -56,7 +56,13 @@ public class JudgmentEngineImpl implements JudgmentEngine {
         if (userAnswer.isEmpty()) {
             return emptyAnswerResult();
         }
-        String normCorrect = correctAnswer != null ? correctAnswer.trim().toLowerCase(Locale.ROOT) : "";
+        // 归一化口径必须与用户答案一致：填空类同样处理全角/首尾标点，
+        // 否则 correct_answer 带尾部标点时，正确答案会被 L2 相似度误判为「拼写接近」
+        String normCorrect = correctAnswer == null
+                ? ""
+                : (isFillBlank
+                        ? AnswerNormalizer.normalize(correctAnswer)
+                        : correctAnswer.trim().toLowerCase(Locale.ROOT));
         List<String> acceptedList = parseAcceptedAnswers(info);
 
         // ====== 第 1 层：正确答案 / accepted_answers 精确匹配（最高优先级，命中即短路） ======
@@ -439,6 +445,12 @@ public class JudgmentEngineImpl implements JudgmentEngine {
                 .build();
     }
 
+    /**
+     * 保存错误路径。
+     * <p>写入的 {@code wrongAnswer} 来自判题入口：填空类已归一化（全角/首尾标点）、其余为 trim+小写，
+     * 与 {@link #buggyPathIntercept} 的首选查询口径一致。
+     * 历史行可能仍是旧格式，故查询侧保留了"原值兜底"的第二次查询。</p>
+     */
     private void saveBuggyPath(Long questionId, String wrongAnswer, String hint, String errorType) {
         try {
             QuestionBuggyPath exist = buggyPathMapper.findByQuestionAndAnswer(questionId, wrongAnswer);

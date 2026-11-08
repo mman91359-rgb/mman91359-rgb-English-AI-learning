@@ -175,14 +175,22 @@ frontend/
 ### 后端（仓库根目录执行）
 ```bash
 # 安装公共依赖并全量构建（跳过测试）
-mvn -DskipTests install
+scripts/mvn.sh -DskipTests install
 
 # 构建单个模块及其依赖
-mvn -pl exercise-service -am clean package -DskipTests
+scripts/mvn.sh -pl exercise-service -am clean package -DskipTests
+
+# 跑单测
+scripts/mvn.sh -pl exercise-service -am test
 
 # 启动单个服务（必须通过 with-env 注入 .env）
-scripts/with-env.sh mvn -pl user-service spring-boot:run
+scripts/with-env.sh scripts/mvn.sh -pl user-service spring-boot:run
 ```
+
+> **JAVA_HOME 必须指向 JDK 17+**：本机默认 `JAVA_HOME` 是 JRE 8（`C:\Program Files\Java\jre1.8.0_152`），
+> 直接跑 `mvn` 会报 `class file version 61.0 … up to 52.0`。
+> `scripts/mvn.sh` 会自动挑选可用的 JDK（优先当前 `JAVA_HOME`，其次 jdk-21 / jdk-17），
+> 新开终端统一使用它。IDE 的 Run/Debug 配置需自行把 Project SDK 与 Maven Runner JRE 设为 JDK 17+。
 
 - 本地开发启动顺序：`user-service(8081)` → `exercise-service(8082)` → `learning-engine-service(8083)` → `ai-service(8084)` → `api-gateway(8086)`
 - **user-service 与 api-gateway 必须都通过 `scripts/with-env.sh` 启动**：前者签发 JWT，后者校验 JWT。两者 `JWT_SECRET` 不一致时，登录接口会成功，但所有受保护接口返回 401，前端会立即清登录态跳回 `/login`。不要混用 IDEA 直接 Run 与脚本启动。

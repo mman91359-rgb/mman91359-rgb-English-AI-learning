@@ -1,6 +1,6 @@
 # 词汇填空题生成报告
 
-- 生成时间：2026-11-08T13:37:35.635Z
+- 生成时间：2026-11-08T13:49:03.217Z
 - 模式：dry-run（未写 SQL）
 - 词条范围：ALL
 - 例句长度区间：20~160
@@ -29,10 +29,10 @@
 | `length` | 178 |
 | `no-form-match` | 47 |
 | `fixed-phrase` | 37 |
-| `sense-mismatch` | 29 |
+| `sense-mismatch` | 27 |
 | `multi-occurrence` | 26 |
 | `not-single-word` | 3 |
-| `blocklist` | 1 |
+| `blocklist` | 3 |
 
 ### 3.1 跳过样本（每类最多 10 个，便于核对判定是否过严）
 
@@ -40,33 +40,35 @@
 - **length**：add、adverb、advice、ambulance、amplify、angel、auto、bachelor、badly、balcony
 - **no-form-match**：boast、coordinate、distress、dive、drain、drip、elect、elimination、erect、flare
 - **fixed-phrase**：against、although、amongst、anyone、beneath、besides、beyond、billion、concerning、eighteen
-- **sense-mismatch**：breed、discharge、drawing、exclude、feeling、follow、found、handwriting、heading、king
+- **sense-mismatch**：discharge、drawing、exclude、feeling、follow、found、handwriting、heading、landing、opening
 - **multi-occurrence**：activity、atom、connect、conquest、doubt、happiness、ice-cream、lantern、living、medal
 - **not-single-word**：B.C.、i.e.、P.M.
 - **blocklist**：
 
 ### 3.2 敏感内容过滤（只列 external_key，不复述原句）
 
-- 命中数量：**1**
+- 命中数量：**3**
+  - `vocab-auto-7576-1`
   - `vocab-auto-10765-1`
+  - `vocab-auto-11034-1`
 
 ## 4. 等级分布
 
 | 等级 | 生成题数 |
 |---|---|
-| CET4 | 3461 |
-| CET6 | 1014 |
+| CET4 | 3462 |
+| CET6 | 1013 |
 
 ## 5. 难度分布
 
 | 难度 | 题数 |
 |---|---|
 | 2 | 627 |
-| 3 | 697 |
-| 4 | 787 |
+| 3 | 698 |
+| 4 | 788 |
 | 5 | 831 |
-| 6 | 816 |
-| 7 | 717 |
+| 6 | 815 |
+| 7 | 716 |
 
 ## 5.1 accepted 伪形态自检（名词/形容词/副词出现 -ed/-ing，目标 0）
 
@@ -89,7 +91,7 @@
 | `hollow` 不含 `hollows` | PASS | PASS |
 | `steer`（答案 steering）不含原形 | PASS | PASS |
 | 动词 accepted 缺 -ing/-ed（仅统计） | 0 | — |
-| 名词 accepted 仅有原形（仅统计） | 272 | — |
+| 名词 accepted 仅有原形（仅统计） | 273 | — |
 
 
 
@@ -99,7 +101,7 @@
 |---|---|
 | external_key 总数 | 4475 |
 | 去重后数量 | 4475 |
-| 集合 SHA-256（前 12 位） | `65af164f4347` |
+| 集合 SHA-256（前 12 位） | `3f96e7268c8b` |
 
 > 同一份输入重复 dry-run，上表三项必须完全一致。
 

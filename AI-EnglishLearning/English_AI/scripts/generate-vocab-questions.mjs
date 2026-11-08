@@ -158,7 +158,7 @@ const UNCOUNTABLE = new Set([
   'hardware', 'software', 'furniture', 'equipment', 'information', 'advice', 'news',
   'luggage', 'machinery', 'merchandise', 'baggage', 'homework', 'knowledge', 'research',
   'evidence', 'traffic', 'weather', 'clothing', 'jewelry', 'scenery', 'poetry',
-  'welfare', 'mankind',
+  'welfare', 'mankind', 'plenty',
 ])
 
 /** 以 -man 结尾但不做 -men 变化（或本身已是单数形式）的豁免词 */
@@ -190,6 +190,13 @@ const IRREGULAR_ADJS = new Set(['good', 'bad', 'far', 'little', 'many', 'much'])
 const EXACT_BLOCKED_KEYS = new Set(['vocab-auto-10765-1'])
 
 /**
+ * 同形异义导致不可修的 external_key：句中表面形其实是另一个词的变形，
+ * 词形规则无法区分（rose 词条是名词"玫瑰"，例句里却是 rise 的过去式）。
+ * 这类只做精确屏蔽，不按词性规则猜，待导入 exchange 列后再放开。
+ */
+const HOMOGRAPH_BLOCKED_KEYS = new Set(['vocab-auto-8727-1'])
+
+/**
  * 政治敏感事件 / 人物：与目标词无关，整句命中即跳过。
  */
 const POLITICAL_PATTERNS = [
@@ -217,6 +224,7 @@ const CONTENT_PATTERNS = [
   /brothel/i,
   /\brape\b/i,
   /sexual\s+intercourse/i,
+  /\bejaculat/i,
   /nigger/i,
   /\bchink\b/i,
   /faggot/i,
@@ -231,6 +239,21 @@ function isPoliticalSensitive(text) {
 
 function isContentSensitive(text) {
   return CONTENT_PATTERNS.some((re) => re.test(text))
+}
+
+/**
+ * 从释义里读出声明的词性。pos 列往往只有主词性单标签（permit 记作 n，
+ * 但释义里有 vt./vi.），句中用法与主词性冲突时靠它判断能否改按句中词性生成。
+ * 只认 ASCII 词性标记，避免中文释义误命中。
+ */
+function declaredCategories(translation) {
+  const t = String(translation || '').toLowerCase()
+  const cats = new Set()
+  if (/\b(vt|vi|v)\./.test(t)) cats.add('verb')
+  if (/\bn\./.test(t)) cats.add('noun')
+  if (/\b(adj|a)\./.test(t)) cats.add('adj')
+  if (/\b(adv|ad)\./.test(t)) cats.add('adv')
+  return cats
 }
 
 const isVowel = (c) => 'aeiou'.includes(c)
@@ -584,6 +607,18 @@ function impliedUsage(sentence, start, surface) {
   ) {
     return 'verb'
   }
+  // 情态动词 + 非变形词 → 动词用法（Will you permit me to go there?）。
+  // 只收纯情态助动词：do/does/did 同时是实义动词，"have to do laundry" 会被误判。
+  // 情态动词与空位之间只允许主语代词或副词；出现别的实义动词就说明那个动词才是谓语
+  // （can cause ____ / will spur ____ 里的空位仍是名词），不能判动词语法。
+  if (
+    !inflected &&
+    /\b(will|would|can|could|may|might|must|shall|should)(\s+(?:i|you|he|she|it|we|they|not|never|also|still|just|always|usually|often|sometimes|certainly|probably|really|even|only|ever|already)\b){0,2}\s*$/.test(
+      before,
+    )
+  ) {
+    return 'verb'
+  }
   // 冠词/物主紧邻 → 名词用法（注意 "a brilliant mind" 里冠词修饰的是形容词，冲突判定见调用处）
   if (/\b(a|an|the|my|your|his|her|its|our|their|this|that|these|those)\s+$/.test(before)) return 'noun'
   // 系动词 + 非变形词 → 形容词用法（is content with / life is hollow）
@@ -613,6 +648,7 @@ function classify(row, opts) {
   // 敏感内容过滤（第一层）：精确键 + 政治事件。命中只记录 key，报告里不复述原句
   const externalKey = `vocab-auto-${row.id}-1`
   if (EXACT_BLOCKED_KEYS.has(externalKey)) return { skip: 'blocklist', externalKey }
+  if (HOMOGRAPH_BLOCKED_KEYS.has(externalKey)) return { skip: 'sense-mismatch', externalKey }
   if (isPoliticalSensitive(`${example} ${row.translation}`)) return { skip: 'blocklist', externalKey }
 
   const { matchForms, acceptedForms, category } = buildForms(word, row.pos)
@@ -643,17 +679,23 @@ function classify(row, opts) {
   const usage = impliedUsage(example, hit.start, surface)
   // 助动词 + -ing/-ed 却登记为名词 → 典型的 "Where are you heading?"（heading 词条是名词）
   // 只对名词生效：sophisticated / ashamed 这类以 -ed 结尾的形容词不应被误判
-  if (usage === 'verb' && category === 'noun') return { skip: 'sense-mismatch' }
+  let effectiveCategory = category
+  let effectiveAccepted = acceptedForms
+  if (usage === 'verb' && category === 'noun') {
+    // 释义里没有动词词性 → 例句用的是别的词义，跳过；
+    // 有动词词性（permit 的 vt./vi. 允许）→ 按动词重建变形，避免 "Will you permits" 判对
+    if (!declaredCategories(row.translation).has('verb')) return { skip: 'sense-mismatch' }
+    effectiveCategory = 'verb'
+    effectiveAccepted = buildForms(word, row.pos, 'verb').acceptedForms
+  }
   // 冠词后接动词/功能词 → 该位置应是名词
-  if (usage === 'noun' && (category === 'verb' || category === 'other')) return { skip: 'sense-mismatch' }
+  else if (usage === 'noun' && (category === 'verb' || category === 'other')) return { skip: 'sense-mismatch' }
   // very/too 后接动词 → 该位置应是形容词（名词见下方"按句中词性裁剪"）
-  if (usage === 'adj' && category === 'verb') return { skip: 'sense-mismatch' }
+  else if (usage === 'adj' && category === 'verb') return { skip: 'sense-mismatch' }
 
   // 句中作形容词、但词典主词性是名词（content / hollow）：不跳过，
   // 改用形容词重建变形，避免把名词复数收进答案集
-  let effectiveCategory = category
-  let effectiveAccepted = acceptedForms
-  if (usage === 'adj' && category === 'noun') {
+  else if (usage === 'adj' && category === 'noun') {
     effectiveCategory = 'adj'
     effectiveAccepted = buildForms(word, row.pos, 'adj').acceptedForms
   }

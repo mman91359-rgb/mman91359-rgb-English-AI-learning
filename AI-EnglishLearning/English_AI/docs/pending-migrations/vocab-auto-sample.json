@@ -1,32 +1,33 @@
 [
   {
-    "externalKey": "vocab-auto-6858-1",
+    "externalKey": "vocab-auto-6857-1",
     "moduleType": 1,
     "questionType": "FILL_BLANK",
     "targetLevel": "CET4",
     "difficultyLevel": 5,
-    "answerWord": "drill",
-    "stem": "We had a fire ____ yesterday.",
-    "correctAnswer": "drill",
+    "answerWord": "drift",
+    "stem": "Many people ____ through life without a purpose.",
+    "correctAnswer": "drift",
     "acceptedAnswers": [
-      "drill",
-      "drills"
+      "drift",
+      "drifts"
     ],
-    "analysis": "n. 钻孔机, 钻子, 播种机, 粗斜纹布 v. 训练, 钻孔 ｜ 原句：We had a fire drill yesterday."
+    "analysis": "n. 漂流物, 漂流, 动向 v. (使)漂流 ｜ 原句：Many people drift through life without a purpose."
   },
   {
-    "externalKey": "vocab-auto-8018-1",
+    "externalKey": "vocab-auto-8017-1",
     "moduleType": 1,
     "questionType": "FILL_BLANK",
     "targetLevel": "CET4",
-    "difficultyLevel": 3,
-    "answerWord": "nervous",
-    "stem": "With so many people around he naturally became a bit ____.",
-    "correctAnswer": "nervous",
+    "difficultyLevel": 4,
+    "answerWord": "nerve",
+    "stem": "She had the ____ to speak out.",
+    "correctAnswer": "nerve",
     "acceptedAnswers": [
-      "nervous"
+      "nerve",
+      "nerves"
     ],
-    "analysis": "a. 神经紧张的, 不安的, 神经的 [医] 神经的; 神经质的, 神经过敏的 ｜ 原句：With so many people around he naturally became a bit nervous."
+    "analysis": "n. 精神, 勇气, 叶脉, 神经 vt. 鼓起勇气 ｜ 原句：She had the nerve to speak out."
   },
   {
     "externalKey": "vocab-auto-7595-1",
@@ -44,169 +45,168 @@
     "analysis": "n. 实习生, 被拘留者 vi. 作实习医师(教师、实习生) vt. 拘留, 扣留 ｜ 原句：Tom is just an intern."
   },
   {
-    "externalKey": "vocab-auto-9320-1",
+    "externalKey": "vocab-auto-9319-1",
     "moduleType": 1,
     "questionType": "FILL_BLANK",
     "targetLevel": "CET4",
     "difficultyLevel": 4,
-    "answerWord": "tissue",
-    "stem": "I think I'm gonna sneeze. Give me a ____.",
-    "correctAnswer": "tissue",
+    "answerWord": "tire",
+    "stem": "My bicycle has a flat ____.",
+    "correctAnswer": "tire",
     "acceptedAnswers": [
-      "tissue",
-      "tissues"
+      "tire",
+      "tires"
     ],
-    "analysis": "n. 薄的织物, 薄纱, 棉纸, 组织, 一套 [化] 组织 ｜ 原句：I think I'm gonna sneeze. Give me a tissue."
+    "analysis": "n. 轮胎, 头饰 vt. 使疲倦, 使厌烦, 打扮 vi. 疲劳, 厌倦 ｜ 原句：My bicycle has a flat tire."
   },
   {
-    "externalKey": "vocab-auto-8239-1",
+    "externalKey": "vocab-auto-8238-1",
     "moduleType": 1,
     "questionType": "FILL_BLANK",
     "targetLevel": "CET4",
-    "difficultyLevel": 3,
-    "answerWord": "permit",
-    "stem": "Will you ____ me to go there?",
-    "correctAnswer": "permit",
+    "difficultyLevel": 4,
+    "answerWord": "permission",
+    "stem": "You ought to ask for your teacher's ____.",
+    "correctAnswer": "permission",
     "acceptedAnswers": [
-      "permit",
-      "permits"
+      "permission",
+      "permissions"
     ],
-    "analysis": "n. 许可证, 许可, 执照, 通行证 vt. 允许, 容许, 可能, 使放手做 vi. 容许, 给以机会, 提供可能 ｜ 原句：Will you permit me to go there?"
+    "analysis": "n. 许可, 允许 [计] 许可, 认可 ｜ 原句：You ought to ask for your teacher's permission."
   },
   {
-    "externalKey": "vocab-auto-8226-1",
-    "moduleType": 1,
-    "questionType": "FILL_BLANK",
-    "targetLevel": "CET4",
-    "difficultyLevel": 3,
-    "answerWord": "pepper",
-    "stem": "I seasoned the fish with salt and ____.",
-    "correctAnswer": "pepper",
-    "acceptedAnswers": [
-      "pepper",
-      "peppers"
-    ],
-    "analysis": "n. 胡椒粉, 胡椒, 辣椒 [化] 胡椒; 辣椒; 花椒 ｜ 原句：I seasoned the fish with salt and pepper."
-  },
-  {
-    "externalKey": "vocab-auto-6625-1",
-    "moduleType": 1,
-    "questionType": "FILL_BLANK",
-    "targetLevel": "CET4",
-    "difficultyLevel": 2,
-    "answerWord": "critical",
-    "stem": "Your mother is in ____ condition.",
-    "correctAnswer": "critical",
-    "acceptedAnswers": [
-      "critical"
-    ],
-    "analysis": "a. 批评的, 决定性的, 危险的, 临界的 [医] 危象的; 临界的, 极期的 ｜ 原句：Your mother is in critical condition."
-  },
-  {
-    "externalKey": "vocab-auto-8291-1",
-    "moduleType": 1,
-    "questionType": "FILL_BLANK",
-    "targetLevel": "CET4",
-    "difficultyLevel": 3,
-    "answerWord": "plenty",
-    "stem": "I have ____ of money with me.",
-    "correctAnswer": "plenty",
-    "acceptedAnswers": [
-      "plenty",
-      "plenties"
-    ],
-    "analysis": "n. 充分, 很多, 丰富 a. 很多的, 足够的, 丰富的 ｜ 原句：I have plenty of money with me."
-  },
-  {
-    "externalKey": "vocab-auto-9298-1",
+    "externalKey": "vocab-auto-8225-1",
     "moduleType": 1,
     "questionType": "FILL_BLANK",
     "targetLevel": "CET4",
     "difficultyLevel": 5,
-    "answerWord": "thrive",
-    "stem": "He that will ____ must ask leave of his wife.",
-    "correctAnswer": "thrive",
+    "answerWord": "pension",
+    "stem": "People over 65 can receive a ____ from the government.",
+    "correctAnswer": "pension",
     "acceptedAnswers": [
-      "thrive",
-      "thrives",
-      "thrived",
-      "thriving"
+      "pension",
+      "pensions"
     ],
-    "analysis": "vi. 繁荣, 兴旺, 茁壮成长 [经] 兴旺, 繁荣, 旺盛 ｜ 原句：He that will thrive must ask leave of his wife."
+    "analysis": "n. 养老金, 退休金, 津贴, 年金, 抚恤金, 膳宿学校, 膳宿费 vt. 发给退休金, 用津贴拉拢 ｜ 原句：People over 65 can receive a pension from the government."
   },
   {
-    "externalKey": "vocab-auto-10419-1",
+    "externalKey": "vocab-auto-6624-1",
+    "moduleType": 1,
+    "questionType": "FILL_BLANK",
+    "targetLevel": "CET4",
+    "difficultyLevel": 2,
+    "answerWord": "critic",
+    "stem": "This famous mountain climber is a ____ of mass tourism.",
+    "correctAnswer": "critic",
+    "acceptedAnswers": [
+      "critic",
+      "critics"
+    ],
+    "analysis": "n. 批评家, 鉴定家 ｜ 原句：This famous mountain climber is a critic of mass tourism."
+  },
+  {
+    "externalKey": "vocab-auto-8290-1",
+    "moduleType": 1,
+    "questionType": "FILL_BLANK",
+    "targetLevel": "CET4",
+    "difficultyLevel": 7,
+    "answerWord": "plentiful",
+    "stem": "She shed ____ tears when her beloved dog was killed in an accident.",
+    "correctAnswer": "plentiful",
+    "acceptedAnswers": [
+      "plentiful"
+    ],
+    "analysis": "a. 许多的, 丰富的, 丰饶的 ｜ 原句：She shed plentiful tears when her beloved dog was killed in an accident."
+  },
+  {
+    "externalKey": "vocab-auto-9296-1",
+    "moduleType": 1,
+    "questionType": "FILL_BLANK",
+    "targetLevel": "CET4",
+    "difficultyLevel": 2,
+    "answerWord": "threaten",
+    "stem": "Did Tom ever ____ you?",
+    "correctAnswer": "threaten",
+    "acceptedAnswers": [
+      "threaten",
+      "threatens",
+      "threatened",
+      "threatening"
+    ],
+    "analysis": "vt. 恐吓, 威胁, 预示...的凶兆 vi. 威胁, 恫吓, 可能来临 ｜ 原句：Did Tom ever threaten you?"
+  },
+  {
+    "externalKey": "vocab-auto-10417-1",
     "moduleType": 1,
     "questionType": "FILL_BLANK",
     "targetLevel": "CET6",
     "difficultyLevel": 6,
-    "answerWord": "generosity",
-    "stem": "I had great admiration for his ____.",
-    "correctAnswer": "generosity",
+    "answerWord": "generalization",
+    "stem": "You can’t make ____ about what men and women are like.",
+    "correctAnswer": "generalizations",
     "acceptedAnswers": [
-      "generosity"
+      "generalizations"
     ],
-    "analysis": "n. 慷慨, 宽大 ｜ 原句：I had great admiration for his generosity."
+    "analysis": "n. 一般化, 普遍化, 概括 [化] 推广; 普适化 ｜ 原句：You can’t make generalizations about what men and women are like."
   },
   {
-    "externalKey": "vocab-auto-6616-1",
+    "externalKey": "vocab-auto-6615-1",
     "moduleType": 1,
     "questionType": "FILL_BLANK",
     "targetLevel": "CET4",
     "difficultyLevel": 3,
-    "answerWord": "creature",
-    "stem": "A mouse is a timid ____.",
-    "correctAnswer": "creature",
+    "answerWord": "creative",
+    "stem": "I don't know how long I'll have to wait before my ____ ability improves.",
+    "correctAnswer": "creative",
     "acceptedAnswers": [
-      "creature",
-      "creatures"
+      "creative"
     ],
-    "analysis": "n. 人, 动物, 创造物, 生物 ｜ 原句：A mouse is a timid creature."
+    "analysis": "a. 有创造力的, 创作的, 产生的 ｜ 原句：I don't know how long I'll have to wait before my creative ability improves."
   },
   {
-    "externalKey": "vocab-auto-8727-1",
-    "moduleType": 1,
-    "questionType": "FILL_BLANK",
-    "targetLevel": "CET4",
-    "difficultyLevel": 7,
-    "answerWord": "rose",
-    "stem": "The sun ____ from the sea.",
-    "correctAnswer": "rose",
-    "acceptedAnswers": [
-      "rose",
-      "roses"
-    ],
-    "analysis": "n. 玫瑰, 蔷薇, 玫瑰色 a. 玫瑰色的, 玫瑰花的 vt. 使成玫瑰色 rise的过去式 ｜ 原句：The sun rose from the sea."
-  },
-  {
-    "externalKey": "vocab-auto-8512-1",
+    "externalKey": "vocab-auto-8726-1",
     "moduleType": 1,
     "questionType": "FILL_BLANK",
     "targetLevel": "CET4",
     "difficultyLevel": 4,
-    "answerWord": "rail",
-    "stem": "The UK must improve the problems with its ____ network.",
-    "correctAnswer": "rail",
+    "answerWord": "rope",
+    "stem": "Stand back from the ____.",
+    "correctAnswer": "rope",
     "acceptedAnswers": [
-      "rail",
-      "rails"
+      "rope",
+      "ropes"
     ],
-    "analysis": "n. 横杆, 围栏, 栏杆, 铁轨, 扶手, 秧鸡 vt. 以横木围栏, 给...铺铁轨 vi. 责骂, 抱怨 ｜ 原句：The UK must improve the problems with its rail network."
+    "analysis": "n. 绳, 索, 粗绳, 绞索, 决窍 vt. 捆, 缚, 绑, 圈起, 以绳将...系住 vi. 拧成绳状 ｜ 原句：Stand back from the rope."
   },
   {
-    "externalKey": "vocab-auto-9932-1",
+    "externalKey": "vocab-auto-8510-1",
+    "moduleType": 1,
+    "questionType": "FILL_BLANK",
+    "targetLevel": "CET4",
+    "difficultyLevel": 5,
+    "answerWord": "rage",
+    "stem": "He is boiling with ____.",
+    "correctAnswer": "rage",
+    "acceptedAnswers": [
+      "rage",
+      "rages"
+    ],
+    "analysis": "n. 愤怒, 情绪激动, 狂暴 vi. 大怒, 狂吹, 流行 ｜ 原句：He is boiling with rage."
+  },
+  {
+    "externalKey": "vocab-auto-9931-1",
     "moduleType": 1,
     "questionType": "FILL_BLANK",
     "targetLevel": "CET6",
-    "difficultyLevel": 7,
-    "answerWord": "climax",
-    "stem": "I am reaching the ____.",
-    "correctAnswer": "climax",
+    "difficultyLevel": 2,
+    "answerWord": "client",
+    "stem": "The lawyer warned his ____ against testifying, but he did it anyway.",
+    "correctAnswer": "client",
     "acceptedAnswers": [
-      "climax",
-      "climaxes"
+      "client",
+      "clients"
     ],
-    "analysis": "n. 高潮, 极点, 层进法 v. (使)达到顶点, (使)达到高潮 ｜ 原句：I am reaching the climax."
+    "analysis": "n. 客户, 顾客, 委托人 [计] 客户, 客户机, 客户机程序 ｜ 原句：The lawyer warned his client against testifying, but he did it anyway."
   },
   {
     "externalKey": "vocab-auto-6200-1",
@@ -224,18 +224,18 @@
     "analysis": "n. 老板, 上司, 岩瘤, 浮雕, 母牛 vt. 指挥, 控制, 浮雕 ｜ 原句：The boss has a good opinion of your work."
   },
   {
-    "externalKey": "vocab-auto-11034-1",
+    "externalKey": "vocab-auto-11033-1",
     "moduleType": 1,
     "questionType": "FILL_BLANK",
     "targetLevel": "CET6",
-    "difficultyLevel": 6,
-    "answerWord": "premature",
-    "stem": "There is no greater insult to life than ____ ejaculation.",
-    "correctAnswer": "premature",
+    "difficultyLevel": 3,
+    "answerWord": "pregnant",
+    "stem": "I am four months ____.",
+    "correctAnswer": "pregnant",
     "acceptedAnswers": [
-      "premature"
+      "pregnant"
     ],
-    "analysis": "a. 早产的, 过早的, 不成熟的 n. 早产儿, 过早发生的事物 ｜ 原句：There is no greater insult to life than premature ejaculation."
+    "analysis": "a. 怀孕的, 充满的, 思想丰富的, 成果丰硕的 [医] 妊娠的, 有孕的 ｜ 原句：I am four months pregnant."
   },
   {
     "externalKey": "vocab-auto-9079-1",
@@ -270,32 +270,33 @@
     "analysis": "vi. 注视, 凝视, 瞪视, 显眼 vt. 盯 n. 凝视 ｜ 原句：It is rude to stare at strangers."
   },
   {
-    "externalKey": "vocab-auto-8223-1",
+    "externalKey": "vocab-auto-8220-1",
     "moduleType": 1,
     "questionType": "FILL_BLANK",
     "targetLevel": "CET4",
-    "difficultyLevel": 7,
-    "answerWord": "peninsula",
-    "stem": "Have you ever been to the Korean ____?",
-    "correctAnswer": "peninsula",
+    "difficultyLevel": 5,
+    "answerWord": "peel",
+    "stem": "I'll ____ an orange for you.",
+    "correctAnswer": "peel",
     "acceptedAnswers": [
-      "peninsula",
-      "peninsulas"
+      "peel",
+      "peels"
     ],
-    "analysis": "n. 半岛, 突出的地方, 伊比利亚半岛 ｜ 原句：Have you ever been to the Korean Peninsula?"
+    "analysis": "n. 皮, 外壳 vt. 削...皮, 剥去...的壳 vi. 蜕皮, 剥落, 脱皮, 脱去衣服 ｜ 原句：I'll peel an orange for you."
   },
   {
-    "externalKey": "vocab-auto-10716-1",
+    "externalKey": "vocab-auto-10715-1",
     "moduleType": 1,
     "questionType": "FILL_BLANK",
     "targetLevel": "CET6",
-    "difficultyLevel": 6,
-    "answerWord": "literal",
-    "stem": "He explained the ____ meaning of the sentences.",
-    "correctAnswer": "literal",
+    "difficultyLevel": 5,
+    "answerWord": "literacy",
+    "stem": "a campaign to promote adult ____",
+    "correctAnswer": "literacy",
     "acceptedAnswers": [
-      "literal"
+      "literacy",
+      "literacies"
     ],
-    "analysis": "a. 逐字的, 字面上的, 文字的, 字母的 n. 印刷错误 [计] 文字; 直接量; 字面量; 句节 ｜ 原句：He explained the literal meaning of the sentences."
+    "analysis": "n. 读写能力, 识字, 精通文学 ｜ 原句：a campaign to promote adult literacy"
   }
 ]

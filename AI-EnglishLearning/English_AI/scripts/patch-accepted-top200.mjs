@@ -5,6 +5,8 @@
  * 用法：
  *   node scripts/patch-accepted-top200.mjs --out exercise-service/src/main/resources/db/migration/V1.0.24__patch_top200_accepted_answers.sql
  *   node scripts/patch-accepted-top200.mjs --dry-run      # 只出报告，不写 SQL
+ *   node scripts/patch-accepted-top200.mjs --only-keys k1,k2 --out ...
+ *   node scripts/patch-accepted-top200.mjs --keys-file docs/pending-migrations/accepted-gaps.json --out ...
  *
  * 数据边界：
  *   - 只处理 question_type='FILL_BLANK' 且未删除的题
@@ -24,8 +26,14 @@ import { buildForms } from './generate-vocab-questions.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.resolve(__dirname, '..')
-const DB = 'exercise_db'
+let DB = 'exercise_db'
 const TOP_N = 200
+
+/** 切换目标库（供巡检脚本对 verify 库复核使用） */
+export function setDatabase(name) {
+  if (name) DB = String(name)
+  return DB
+}
 
 // ---------------------------------------------------------------- 归一化（与 AnswerNormalizer 对齐）
 
@@ -254,7 +262,7 @@ function parseRows(out) {
 
 function buildSql(rows, version) {
   const lines = [
-    `-- ${version}：Top200 高频填空题 accepted_answers 追加合法变体（由 scripts/patch-accepted-top200.mjs 生成，请勿手改）`,
+    `-- ${version}：填空题 accepted_answers 追加合法变体（范围由 --top / --only-keys / --keys-file 决定；由 scripts/patch-accepted-top200.mjs 生成，请勿手改）`,
     '-- 目标库：exercise_db',
     '-- 风险：低（纯 UPDATE，只改 accepted_answers；新集合 = 现有 ∪ 新增，不删除历史值）',
     '-- 回滚：accepted_answers 为 JSON 数组，可用导入前备份恢复；本脚本不新增行、不改其他字段',
@@ -290,6 +298,7 @@ function parseArgs(argv) {
     topN: TOP_N,
     sample: 20,
     onlyKeys: [],
+    keysFile: '',
   }
   for (let i = 0; i < argv.length; i += 1) {
     const a = argv[i]
@@ -298,8 +307,26 @@ function parseArgs(argv) {
     else if (a === '--top') opts.topN = Number(argv[++i]) || TOP_N
     else if (a === '--sample') opts.sample = Number(argv[++i]) || 20
     else if (a === '--only-keys') opts.onlyKeys = String(argv[++i] || '').split(',').filter(Boolean)
+    else if (a === '--keys-file') opts.keysFile = argv[++i]
   }
   return opts
+}
+
+/**
+ * 从巡检产物读取 external_key 列表。
+ * 支持两种格式：JSON（{gaps:[{externalKey|key}]} 或纯数组）与纯文本文本（每行一个 key）。
+ */
+function loadKeysFromFile(file) {
+  if (!file) return []
+  const abs = path.isAbsolute(file) ? file : path.resolve(ROOT, file)
+  const raw = fs.readFileSync(abs, 'utf8').trim()
+  if (!raw) return []
+  if (raw.startsWith('{') || raw.startsWith('[')) {
+    const parsed = JSON.parse(raw)
+    const list = Array.isArray(parsed) ? parsed : parsed.gaps || []
+    return list.map((x) => (typeof x === 'string' ? x : x.externalKey || x.key)).filter(Boolean)
+  }
+  return raw.split(/\r?\n/).map((s) => s.trim()).filter(Boolean)
 }
 
 function main() {
@@ -320,9 +347,14 @@ function main() {
   const dictionary = loadDictionary(mysqlBin, conn)
   console.log(`[info] 词库 ${dictionary.size} 条`)
 
+  const keys = opts.onlyKeys.length ? opts.onlyKeys : loadKeysFromFile(opts.keysFile)
+  if (opts.keysFile && !keys.length) {
+    throw new Error(`--keys-file 未解析出任何 external_key：${opts.keysFile}`)
+  }
+
   console.log('[info] 选取 Top N 填空题 ...')
-  const rows = opts.onlyKeys.length
-    ? loadByKeys(mysqlBin, conn, opts.onlyKeys)
+  const rows = keys.length
+    ? loadByKeys(mysqlBin, conn, keys)
     : loadTop200(mysqlBin, conn).slice(0, opts.topN)
   console.log(`[info] 选中 ${rows.length} 道（其中有作答记录 ${rows.filter((r) => r.logCount > 0).length} 道）`)
 
@@ -361,9 +393,17 @@ function main() {
     // 正确答案本身必须始终可接受
     candidates.add(normalize(row.correctAnswer))
     if (lemma) {
+      const lemmaNorm = normalize(lemma)
+      // 与生成器/巡检同一口径：句中需要变形时（正确答案 ≠ 原形）不收原形
       const { acceptedForms } = buildForms(lemma, pos)
-      acceptedForms.forEach((f) => candidates.add(normalize(f)))
-      britishAmericanForms(lemma).forEach((f) => candidates.add(normalize(f)))
+      acceptedForms.forEach((f) => {
+        const v = normalize(f)
+        if (v !== lemmaNorm) candidates.add(v)
+      })
+      britishAmericanForms(lemma).forEach((f) => {
+        const v = normalize(f)
+        if (v !== lemmaNorm) candidates.add(v)
+      })
     }
 
     // 归一化稳定性校验：归一化后再归一化必须不变，且不能变成空串

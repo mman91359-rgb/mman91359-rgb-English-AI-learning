@@ -1,0 +1,791 @@
+{
+  "generatedAt": "2026-11-08T15:48:11.013Z",
+  "database": "exercise_db",
+  "summary": {
+    "total": 4537,
+    "empty": 0,
+    "ok": 4426,
+    "incomplete": 111,
+    "totalMissing": 112
+  },
+  "gaps": [
+    {
+      "externalKey": "vocab-auto-10345-1",
+      "lemma": "fiber",
+      "missing": [
+        "fibers",
+        "fibre"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-5965-1",
+      "lemma": "analyze",
+      "missing": [
+        "analyse"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-5986-1",
+      "lemma": "apologize",
+      "missing": [
+        "apologise"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-6146-1",
+      "lemma": "behavior",
+      "missing": [
+        "behaviour"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-6181-1",
+      "lemma": "blind",
+      "missing": [
+        "blinds"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-6204-1",
+      "lemma": "bound",
+      "missing": [
+        "bounds"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-6310-1",
+      "lemma": "catalog",
+      "missing": [
+        "catalogue"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-6326-1",
+      "lemma": "centre",
+      "missing": [
+        "center"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-6350-1",
+      "lemma": "characterize",
+      "missing": [
+        "characterise"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-6393-1",
+      "lemma": "civilization",
+      "missing": [
+        "civilisation"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-6394-1",
+      "lemma": "civilize",
+      "missing": [
+        "civilise"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-6441-1",
+      "lemma": "color",
+      "missing": [
+        "colour"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-6555-1",
+      "lemma": "content",
+      "missing": [
+        "contents"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-6627-1",
+      "lemma": "criticize",
+      "missing": [
+        "criticise"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-6696-1",
+      "lemma": "defence",
+      "missing": [
+        "defense"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-6734-1",
+      "lemma": "desert",
+      "missing": [
+        "deserts"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-6760-1",
+      "lemma": "dialog",
+      "missing": [
+        "dialogue"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-6867-1",
+      "lemma": "due",
+      "missing": [
+        "dues"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-6935-1",
+      "lemma": "emphasize",
+      "missing": [
+        "emphasise"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-7099-1",
+      "lemma": "favor",
+      "missing": [
+        "favour"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-7102-1",
+      "lemma": "favour",
+      "missing": [
+        "favor"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-7125-1",
+      "lemma": "fibre",
+      "missing": [
+        "fiber"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-7148-1",
+      "lemma": "flavour",
+      "missing": [
+        "flavor"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-7222-1",
+      "lemma": "fundamental",
+      "missing": [
+        "fundamentals"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-7225-1",
+      "lemma": "fur",
+      "missing": [
+        "furs"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-7325-1",
+      "lemma": "grey",
+      "missing": [
+        "greys"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-7367-1",
+      "lemma": "harbour",
+      "missing": [
+        "harbor"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-7391-1",
+      "lemma": "headmaster",
+      "missing": [
+        "headmasters"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-7425-1",
+      "lemma": "hollow",
+      "missing": [
+        "hollows"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-7431-1",
+      "lemma": "honour",
+      "missing": [
+        "honor"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-7434-1",
+      "lemma": "hopeful",
+      "missing": [
+        "hopefuls"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-7437-1",
+      "lemma": "horizontal",
+      "missing": [
+        "horizontals"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-7449-1",
+      "lemma": "human",
+      "missing": [
+        "humans"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-7452-1",
+      "lemma": "humor",
+      "missing": [
+        "humour"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-7454-1",
+      "lemma": "humour",
+      "missing": [
+        "humor"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-7462-1",
+      "lemma": "ideal",
+      "missing": [
+        "ideals"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-7521-1",
+      "lemma": "indispensable",
+      "missing": [
+        "indispensables"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-7526-1",
+      "lemma": "industrialize",
+      "missing": [
+        "industrialise"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-7654-1",
+      "lemma": "junior",
+      "missing": [
+        "juniors"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-7672-1",
+      "lemma": "knee",
+      "missing": [
+        "knees"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-7681-1",
+      "lemma": "labour",
+      "missing": [
+        "labor"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-7746-1",
+      "lemma": "licence",
+      "missing": [
+        "license"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-7747-1",
+      "lemma": "license",
+      "missing": [
+        "licence"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-7774-1",
+      "lemma": "liter",
+      "missing": [
+        "litre"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-7831-1",
+      "lemma": "male",
+      "missing": [
+        "males"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-7860-1",
+      "lemma": "material",
+      "missing": [
+        "materials"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-7890-1",
+      "lemma": "mercury",
+      "missing": [
+        "mercuries"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-7901-1",
+      "lemma": "metre",
+      "missing": [
+        "meter"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-7952-1",
+      "lemma": "mortal",
+      "missing": [
+        "mortals"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-8014-1",
+      "lemma": "neighbour",
+      "missing": [
+        "neighbor"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-8080-1",
+      "lemma": "official",
+      "missing": [
+        "officials"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-8113-1",
+      "lemma": "organization",
+      "missing": [
+        "organisation"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-8114-1",
+      "lemma": "organize",
+      "missing": [
+        "organise"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-8181-1",
+      "lemma": "parallel",
+      "missing": [
+        "parallels"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-8217-1",
+      "lemma": "peasant",
+      "missing": [
+        "peasants"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-8252-1",
+      "lemma": "philosophy",
+      "missing": [
+        "philosophies"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-8353-1",
+      "lemma": "practise",
+      "missing": [
+        "practice"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-8404-1",
+      "lemma": "prize",
+      "missing": [
+        "prise"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-8474-1",
+      "lemma": "purple",
+      "missing": [
+        "purples"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-8539-1",
+      "lemma": "realize",
+      "missing": [
+        "realise"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-8553-1",
+      "lemma": "recognize",
+      "missing": [
+        "recognise"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-8737-1",
+      "lemma": "routine",
+      "missing": [
+        "routines"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-8748-1",
+      "lemma": "rumour",
+      "missing": [
+        "rumor"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-8829-1",
+      "lemma": "seize",
+      "missing": [
+        "seise"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-8847-1",
+      "lemma": "separate",
+      "missing": [
+        "separates"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-8906-1",
+      "lemma": "shy",
+      "missing": [
+        "shies"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-8920-1",
+      "lemma": "silver",
+      "missing": [
+        "silvers"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-8994-1",
+      "lemma": "somewhat",
+      "missing": [
+        "somewhats"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-9021-1",
+      "lemma": "specialize",
+      "missing": [
+        "specialise"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-9080-1",
+      "lemma": "static",
+      "missing": [
+        "statics"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-9173-1",
+      "lemma": "summarize",
+      "missing": [
+        "summarise"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-9182-1",
+      "lemma": "superior",
+      "missing": [
+        "superiors"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-9223-1",
+      "lemma": "sympathize",
+      "missing": [
+        "sympathise"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-9278-1",
+      "lemma": "theatre",
+      "missing": [
+        "theater"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-9340-1",
+      "lemma": "torture",
+      "missing": [
+        "tortures"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-9401-1",
+      "lemma": "trust",
+      "missing": [
+        "trusts"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-9493-1",
+      "lemma": "utilize",
+      "missing": [
+        "utilise"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-9545-1",
+      "lemma": "violet",
+      "missing": [
+        "violets"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-9583-1",
+      "lemma": "waterproof",
+      "missing": [
+        "waterproofs"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-9657-1",
+      "lemma": "worse",
+      "missing": [
+        "worses"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-9662-1",
+      "lemma": "worthy",
+      "missing": [
+        "worthies"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-9703-1",
+      "lemma": "admiration",
+      "missing": [
+        "admirations"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-9960-1",
+      "lemma": "commonplace",
+      "missing": [
+        "commonplaces"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-10224-1",
+      "lemma": "eccentric",
+      "missing": [
+        "eccentrics"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-10307-1",
+      "lemma": "exempt",
+      "missing": [
+        "exempts"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-10417-1",
+      "lemma": "generalization",
+      "missing": [
+        "generalisation"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-10467-1",
+      "lemma": "harbor",
+      "missing": [
+        "harbour"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-10542-1",
+      "lemma": "immortal",
+      "missing": [
+        "immortals"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-10548-1",
+      "lemma": "imperative",
+      "missing": [
+        "imperatives"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-10648-1",
+      "lemma": "invalid",
+      "missing": [
+        "invalids"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-10668-1",
+      "lemma": "jeopardize",
+      "missing": [
+        "jeopardise"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-10695-1",
+      "lemma": "layman",
+      "missing": [
+        "laymen"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-10937-1",
+      "lemma": "paralyze",
+      "missing": [
+        "paralyse"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-11063-1",
+      "lemma": "proficient",
+      "missing": [
+        "proficients"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-11295-1",
+      "lemma": "slack",
+      "missing": [
+        "slacks"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-11342-1",
+      "lemma": "spiral",
+      "missing": [
+        "spirals"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-11347-1",
+      "lemma": "stabilize",
+      "missing": [
+        "stabilise"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-11354-1",
+      "lemma": "standardize",
+      "missing": [
+        "standardise"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-11550-1",
+      "lemma": "utilization",
+      "missing": [
+        "utilisation"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-11580-1",
+      "lemma": "visualize",
+      "missing": [
+        "visualise"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-6271-1",
+      "lemma": "calm",
+      "missing": [
+        "calms"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-6358-1",
+      "lemma": "cheer",
+      "missing": [
+        "cheers"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-7373-1",
+      "lemma": "harm",
+      "missing": [
+        "harms"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-7512-1",
+      "lemma": "independent",
+      "missing": [
+        "independents"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-7943-1",
+      "lemma": "moisture",
+      "missing": [
+        "moistures"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-7989-1",
+      "lemma": "narrow",
+      "missing": [
+        "narrows"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-8203-1",
+      "lemma": "patient",
+      "missing": [
+        "patients"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-8503-1",
+      "lemma": "radical",
+      "missing": [
+        "radicals"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-8710-1",
+      "lemma": "roast",
+      "missing": [
+        "roasts"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-8767-1",
+      "lemma": "salad",
+      "missing": [
+        "salads"
+      ]
+    },
+    {
+      "externalKey": "vocab-auto-9216-1",
+      "lemma": "swift",
+      "missing": [
+        "swifts"
+      ]
+    }
+  ]
+}

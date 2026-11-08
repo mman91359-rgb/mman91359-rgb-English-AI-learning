@@ -6,6 +6,8 @@
  *   node scripts/audit-accepted-coverage.mjs
  *   node scripts/audit-accepted-coverage.mjs --out docs/accepted-coverage-report.md
  *   node scripts/audit-accepted-coverage.mjs --top 50        # 只展示缺失最多的前 N 题
+ *   node scripts/audit-accepted-coverage.mjs --json-out docs/pending-migrations/accepted-gaps.json
+ *   node scripts/audit-accepted-coverage.mjs --db flyway_verify_exercise_db2   # 对 verify 库复核
  *
  * 判定口径与判题入口一致：
  *   - 期望集合 = 正确答案 + 词干规则变形 + 英美拼写变体，全部经 normalize 处理
@@ -29,23 +31,27 @@ import {
   runQuery,
   unescapeTsv,
   loadDictionary,
+  setDatabase,
 } from './patch-accepted-top200.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.resolve(__dirname, '..')
-const DB = 'exercise_db'
+const DEFAULT_DB = 'exercise_db'
 
 function parseArgs(argv) {
-  const opts = { out: '', top: 30 }
+  const opts = { out: '', jsonOut: '', top: 30, db: DEFAULT_DB }
   for (let i = 0; i < argv.length; i += 1) {
     if (argv[i] === '--out') opts.out = argv[++i]
+    else if (argv[i] === '--json-out') opts.jsonOut = argv[++i]
     else if (argv[i] === '--top') opts.top = Number(argv[++i]) || 30
+    else if (argv[i] === '--db') opts.db = argv[++i] || DEFAULT_DB
   }
   return opts
 }
 
 function main() {
   const opts = parseArgs(process.argv.slice(2))
+  const DB = setDatabase(opts.db)
   const env = readEnv(path.join(ROOT, '.env'))
   const mysqlBin = resolveMysql()
   const conn = {
@@ -144,7 +150,7 @@ function main() {
   lines.push('# 填空题 accepted_answers 覆盖度巡检报告')
   lines.push('')
   lines.push(`- 生成时间：${new Date().toISOString()}`)
-  lines.push('- 数据来源：`exercise_db.question_info` + `question_content`（只读）')
+  lines.push(`- 数据来源：\`${DB}.question_info\` + \`question_content\`（只读）`)
   lines.push('')
   lines.push('## 汇总')
   lines.push('')
@@ -179,6 +185,19 @@ function main() {
     fs.mkdirSync(path.dirname(opts.out), { recursive: true })
     fs.writeFileSync(opts.out, report, 'utf8')
     console.log(`[ok] 报告已写入 ${opts.out}`)
+  }
+
+  // 机器可读产物：供 --keys-file 定点补丁使用（全量 gaps，不受 --top 截断）
+  if (opts.jsonOut) {
+    const payload = {
+      generatedAt: new Date().toISOString(),
+      database: DB,
+      summary: { total, empty, ok, incomplete, totalMissing },
+      gaps: gaps.map((g) => ({ externalKey: g.key, lemma: g.lemma, missing: g.missing })),
+    }
+    fs.mkdirSync(path.dirname(opts.jsonOut), { recursive: true })
+    fs.writeFileSync(opts.jsonOut, JSON.stringify(payload, null, 2) + '\n', 'utf8')
+    console.log(`[ok] JSON 已写入 ${opts.jsonOut}（${gaps.length} 条）`)
   }
 
   console.log('')

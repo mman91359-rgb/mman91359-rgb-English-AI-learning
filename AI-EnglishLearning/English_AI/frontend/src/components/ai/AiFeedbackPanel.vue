@@ -8,15 +8,16 @@
     </header>
 
     <div class="px-6 py-4">
-      <div v-if="loading" class="flex flex-col gap-3 py-6" aria-busy="true" aria-label="AI 正在分析">
-        <div class="animate-shimmer h-3 w-1/3 rounded-full bg-gradient-to-r from-surface-container-low via-surface-container to-surface-container-low bg-[length:200%_100%]"></div>
-        <div class="animate-shimmer h-4 w-full rounded-full bg-gradient-to-r from-surface-container-low via-surface-container to-surface-container-low bg-[length:200%_100%]"></div>
-        <div class="animate-shimmer h-4 w-5/6 rounded-full bg-gradient-to-r from-surface-container-low via-surface-container to-surface-container-low bg-[length:200%_100%]"></div>
-        <div class="animate-shimmer h-4 w-2/3 rounded-full bg-gradient-to-r from-surface-container-low via-surface-container to-surface-container-low bg-[length:200%_100%]"></div>
+      <div v-if="loading" class="flex flex-col gap-3 py-6" role="status" aria-busy="true">
+        <span class="sr-only">{{ $t('ai.panel.loading') }}</span>
+        <div class="animate-shimmer h-3 w-1/3 rounded-full bg-gradient-to-r from-surface-container-low via-surface-container to-surface-container-low bg-[length:200%_100%] motion-reduce:animate-none" aria-hidden="true"></div>
+        <div class="animate-shimmer h-4 w-full rounded-full bg-gradient-to-r from-surface-container-low via-surface-container to-surface-container-low bg-[length:200%_100%] motion-reduce:animate-none" aria-hidden="true"></div>
+        <div class="animate-shimmer h-4 w-5/6 rounded-full bg-gradient-to-r from-surface-container-low via-surface-container to-surface-container-low bg-[length:200%_100%] motion-reduce:animate-none" aria-hidden="true"></div>
+        <div class="animate-shimmer h-4 w-2/3 rounded-full bg-gradient-to-r from-surface-container-low via-surface-container to-surface-container-low bg-[length:200%_100%] motion-reduce:animate-none" aria-hidden="true"></div>
       </div>
 
       <div v-else-if="error" class="flex flex-col items-center gap-3 py-6 text-center">
-        <span class="material-symbols-outlined text-4xl text-error">error</span>
+        <span class="material-symbols-outlined text-icon-2xl text-error" aria-hidden="true">error</span>
         <p class="font-body-md text-body-md text-on-surface-variant">{{ error }}</p>
       </div>
 

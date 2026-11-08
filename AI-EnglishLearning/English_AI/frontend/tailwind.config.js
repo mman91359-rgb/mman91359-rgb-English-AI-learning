@@ -122,6 +122,8 @@ export default {
         "icon-md": ["20px", { lineHeight: "20px" }],
         "icon-lg": ["24px", { lineHeight: "24px" }],
         "icon-xl": ["32px", { lineHeight: "32px" }],
+        "icon-2xl": ["36px", { lineHeight: "36px" }],
+        "icon-3xl": ["48px", { lineHeight: "48px" }],
         "display-lg": ["48px", { lineHeight: "56px", fontWeight: "700" }],
       },
       boxShadow: {

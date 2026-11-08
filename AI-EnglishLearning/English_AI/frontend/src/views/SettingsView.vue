@@ -133,97 +133,75 @@
     </button>
 
     <!-- 修改密码弹窗 -->
-    <div
-      v-if="passwordDialogVisible"
-      class="fixed inset-0 bg-black/40 flex items-center justify-center z-[100]"
-      @click.self="closePasswordDialog"
+    <BaseDialog
+      :visible="passwordDialogVisible"
+      :title="$t('profile.changePassword')"
+      max-width="max-w-md"
+      @close="closePasswordDialog"
     >
-      <div class="bg-surface rounded-[24px] p-8 w-full max-w-md mx-4 soft-shadow">
-        <div class="flex items-center justify-between mb-6">
-          <h3 class="font-headline-md text-headline-md text-on-surface">{{ $t('profile.changePassword') }}</h3>
-          <button class="p-1 text-on-surface-variant hover:text-on-surface rounded-full transition-colors" @click="closePasswordDialog">
-            <span class="material-symbols-outlined">close</span>
-          </button>
-        </div>
-        <div class="space-y-4">
-          <input
-            ref="oldPwdInputRef"
-            v-model="oldPassword"
-            type="password"
-            :placeholder="$t('settings.oldPassword')"
-            :class="inputClassLg"
-          />
-          <input
-            v-model="newPassword"
-            type="password"
-            :placeholder="$t('settings.newPassword')"
-            :class="inputClassLg"
-          />
-          <input
-            v-model="confirmPassword"
-            type="password"
-            :placeholder="$t('settings.confirmPassword')"
-            :class="inputClassLg"
-            @keyup.enter="submitPassword"
-          />
-        </div>
-        <div class="flex gap-3 mt-6">
-          <button
-            class="flex-1 py-3 rounded-full font-label-lg text-label-lg bg-surface-container-low text-on-surface hover:bg-surface-container-high transition-colors"
-            @click="closePasswordDialog"
-          >
+      <div class="space-y-4">
+        <input
+          ref="oldPwdInputRef"
+          v-model="oldPassword"
+          type="password"
+          data-autofocus
+          :placeholder="$t('settings.oldPassword')"
+          :class="inputClassLg"
+        />
+        <input
+          v-model="newPassword"
+          type="password"
+          :placeholder="$t('settings.newPassword')"
+          :class="inputClassLg"
+        />
+        <input
+          v-model="confirmPassword"
+          type="password"
+          :placeholder="$t('settings.confirmPassword')"
+          :class="inputClassLg"
+          @keyup.enter="submitPassword"
+        />
+      </div>
+      <template #footer>
+        <div class="flex w-full gap-3">
+          <button type="button" :class="dialogSecondaryButton" @click="closePasswordDialog">
             {{ $t('profile.cancel') }}
           </button>
-          <button
-            :disabled="passwordSubmitting"
-            class="flex-1 py-3 rounded-full font-label-lg text-label-lg bg-primary text-on-primary hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            @click="submitPassword"
-          >
+          <button type="button" :disabled="passwordSubmitting" :class="dialogPrimaryButton" @click="submitPassword">
             {{ passwordSubmitting ? $t('settings.saving') : $t('profile.confirm') }}
           </button>
         </div>
-      </div>
-    </div>
+      </template>
+    </BaseDialog>
 
     <!-- 绑定手机号弹窗 -->
-    <div
-      v-if="phoneDialogVisible"
-      class="fixed inset-0 bg-black/40 flex items-center justify-center z-[100]"
-      @click.self="closePhoneDialog"
+    <BaseDialog
+      :visible="phoneDialogVisible"
+      :title="$t('settings.bindPhone')"
+      max-width="max-w-md"
+      @close="closePhoneDialog"
     >
-      <div class="bg-surface rounded-[24px] p-8 w-full max-w-md mx-4 soft-shadow">
-        <div class="flex items-center justify-between mb-6">
-          <h3 class="font-headline-md text-headline-md text-on-surface">{{ $t('settings.bindPhone') }}</h3>
-          <button class="p-1 text-on-surface-variant hover:text-on-surface rounded-full transition-colors" @click="closePhoneDialog">
-            <span class="material-symbols-outlined">close</span>
-          </button>
-        </div>
-        <input
-          ref="phoneInputRef"
-          v-model="phoneInput"
-          type="tel"
-          maxlength="11"
-          :placeholder="$t('settings.phonePlaceholder')"
-          :class="[inputClassLg, 'mb-4']"
-          @keyup.enter="submitPhone"
-        />
-        <div class="flex gap-3">
-          <button
-            class="flex-1 py-3 rounded-full font-label-lg text-label-lg bg-surface-container-low text-on-surface hover:bg-surface-container-high transition-colors"
-            @click="closePhoneDialog"
-          >
+      <input
+        ref="phoneInputRef"
+        v-model="phoneInput"
+        type="tel"
+        maxlength="11"
+        data-autofocus
+        :placeholder="$t('settings.phonePlaceholder')"
+        :class="inputClassLg"
+        @keyup.enter="submitPhone"
+      />
+      <template #footer>
+        <div class="flex w-full gap-3">
+          <button type="button" :class="dialogSecondaryButton" @click="closePhoneDialog">
             {{ $t('profile.cancel') }}
           </button>
-          <button
-            :disabled="phoneSubmitting"
-            class="flex-1 py-3 rounded-full font-label-lg text-label-lg bg-primary text-on-primary hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            @click="submitPhone"
-          >
+          <button type="button" :disabled="phoneSubmitting" :class="dialogPrimaryButton" @click="submitPhone">
             {{ phoneSubmitting ? $t('settings.saving') : $t('profile.confirm') }}
           </button>
         </div>
-      </div>
-    </div>
+      </template>
+    </BaseDialog>
   </AppLayout>
 </template>
 
@@ -237,6 +215,12 @@ import { useUserStore } from '@/stores/user'
 import { useToast } from '@/composables/useToast'
 import { updatePassword, updatePhone } from '@/api/user'
 import { inputClassLg } from '@/components/ui/formStyles'
+import BaseDialog from '@/components/ui/BaseDialog.vue'
+
+const dialogSecondaryButton =
+  'flex-1 rounded-full bg-surface-container-low py-3 font-label-lg text-label-lg text-on-surface transition-colors hover:bg-surface-container-high active:bg-surface-container focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
+const dialogPrimaryButton =
+  'flex-1 rounded-full bg-primary py-3 font-label-lg text-label-lg text-on-primary transition-colors hover:bg-primary/90 active:bg-primary/80 focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-50'
 
 const router = useRouter()
 const { t } = useI18n()

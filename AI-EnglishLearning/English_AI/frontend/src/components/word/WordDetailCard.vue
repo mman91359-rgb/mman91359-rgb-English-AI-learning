@@ -3,14 +3,16 @@
     <Transition name="modal-fade">
       <div
         v-if="open"
-        class="fixed inset-0 z-[130] flex items-end justify-center bg-black/45 backdrop-blur-md sm:items-center"
+        class="fixed inset-0 z-[130] flex items-end justify-center bg-scrim/45 backdrop-blur-md sm:items-center"
         role="dialog"
         aria-modal="true"
         aria-labelledby="word-detail-title"
         @click.self="emit('close')"
       >
         <div
-          class="flex max-h-[85vh] w-full max-w-md animate-sheet-up flex-col overflow-hidden rounded-t-[28px] bg-surface soft-shadow motion-reduce:animate-none sm:rounded-[28px]"
+          ref="panelRef"
+          tabindex="-1"
+          class="flex max-h-[85dvh] w-full max-w-md animate-sheet-up flex-col overflow-hidden rounded-t-[28px] bg-surface soft-shadow focus:outline-none motion-reduce:animate-none sm:rounded-[28px]"
           @click.stop
         >
           <header class="bg-on-primary-container px-4 pb-3 pt-2 dark:bg-primary-container">
@@ -175,6 +177,7 @@ import type { Accent } from '../../composables/useSpeech'
 import { addVocabularySmart } from '../../api/exercise'
 import { useSpeech } from '../../composables/useSpeech'
 import { useToast } from '../../composables/useToast'
+import { useModalBehavior } from '../../composables/useModalBehavior'
 import { useUserStore } from '../../stores/user'
 
 /**
@@ -194,6 +197,14 @@ const emit = defineEmits<{
   (e: 'close'): void
   (e: 'favorite', word: string): void
 }>()
+
+const panelRef = ref<HTMLElement | null>(null)
+
+useModalBehavior({
+  isOpen: () => props.open,
+  container: panelRef,
+  onEscape: () => emit('close'),
+})
 
 const { show: toast } = useToast()
 const userStore = useUserStore()

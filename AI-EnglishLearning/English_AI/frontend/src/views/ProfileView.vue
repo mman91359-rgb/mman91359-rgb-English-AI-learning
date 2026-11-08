@@ -38,47 +38,42 @@
         <p class="font-body-md text-body-md text-on-surface-variant mt-2">{{ userLevel }}</p>
 
         <!-- 修改昵称弹窗 -->
-        <div
-          v-if="nicknameDialogVisible"
-          class="fixed inset-0 bg-black/40 flex items-center justify-center z-[100]"
-          @click.self="closeNicknameDialog"
+        <BaseDialog
+          :visible="nicknameDialogVisible"
+          :title="$t('profile.editNickname')"
+          max-width="max-w-md"
+          @close="closeNicknameDialog"
         >
-          <div class="bg-surface rounded-[24px] p-8 w-full max-w-md mx-4 soft-shadow">
-            <div class="flex items-center justify-between mb-6">
-              <h3 class="font-headline-md text-headline-md text-on-surface">修改昵称</h3>
+          <input
+            ref="nicknameInputRef"
+            v-model="nicknameInput"
+            type="text"
+            maxlength="20"
+            data-autofocus
+            :placeholder="$t('profile.nicknamePlaceholder')"
+            :class="inputClassLg"
+            @keyup.enter="submitNickname"
+          />
+          <template #footer>
+            <div class="flex w-full gap-3">
               <button
-                class="p-1 text-on-surface-variant hover:text-on-surface rounded-full transition-colors"
+                type="button"
+                class="flex-1 rounded-full bg-surface-container-low py-3 font-label-lg text-label-lg text-on-surface transition-colors hover:bg-surface-container-high active:bg-surface-container focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                 @click="closeNicknameDialog"
               >
-                <span class="material-symbols-outlined">close</span>
-              </button>
-            </div>
-            <input
-              ref="nicknameInputRef"
-              v-model="nicknameInput"
-              type="text"
-              maxlength="20"
-              placeholder="请输入新昵称（最多20个字符）"
-              class="w-full py-3 px-4 bg-background border border-outline-variant rounded-[16px] text-on-surface placeholder-outline font-body-md text-body-md focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all mb-4"
-              @keyup.enter="submitNickname"
-            />
-            <div class="flex gap-3">
-              <button
-                class="flex-1 py-3 rounded-full font-label-lg text-label-lg bg-surface-container-low text-on-surface hover:bg-surface-container-high transition-colors"
-                @click="closeNicknameDialog"
-              >
-                取消
+                {{ $t('profile.cancel') }}
               </button>
               <button
+                type="button"
                 :disabled="nicknameSubmitting || !nicknameInput.trim()"
-                class="flex-1 py-3 rounded-full font-label-lg text-label-lg bg-primary text-on-primary hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                class="flex-1 rounded-full bg-primary py-3 font-label-lg text-label-lg text-on-primary transition-colors hover:bg-primary/90 active:bg-primary/80 focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-50"
                 @click="submitNickname"
               >
-                {{ nicknameSubmitting ? '保存中...' : '保存' }}
+                {{ nicknameSubmitting ? $t('profile.saving') : $t('profile.save') }}
               </button>
             </div>
-          </div>
-        </div>
+          </template>
+        </BaseDialog>
         <div class="grid grid-cols-3 gap-8 mt-12 w-full max-w-2xl mx-auto border-t border-outline-variant/20 pt-8">
           <div class="flex flex-col items-center">
             <span class="material-symbols-outlined text-secondary-fixed-dim mb-2 text-3xl fill">schedule</span>
@@ -304,6 +299,8 @@ import { getExerciseStats } from '@/api/exercise'
 import { uploadAvatar, updateNickname } from '@/api/user'
 import { useToast } from '@/composables/useToast'
 import AbilityRadarChart from '@/components/profile/AbilityRadarChart.vue'
+import BaseDialog from '@/components/ui/BaseDialog.vue'
+import { inputClassLg } from '@/components/ui/formStyles'
 import type { AbilityDimensionKey, AbilityRadar } from '@/api/stats'
 
 const { t } = useI18n()

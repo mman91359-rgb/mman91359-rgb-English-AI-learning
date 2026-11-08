@@ -283,19 +283,28 @@
     <Teleport to="body">
       <div
         v-if="similarModalVisible"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+        class="fixed inset-0 z-[120] flex items-center justify-center bg-scrim/40 p-4"
         @click.self="closeSimilarModal"
       >
-        <div class="bg-surface rounded-2xl w-[90vw] max-w-2xl max-h-[85vh] overflow-y-auto shadow-2xl p-6">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="font-headline-md text-headline-md text-on-surface">
+        <div
+          ref="similarPanelRef"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="similar-dialog-title"
+          tabindex="-1"
+          class="max-h-[85dvh] w-[90vw] max-w-2xl overflow-y-auto rounded-2xl bg-surface p-6 shadow-2xl focus:outline-none"
+        >
+          <div class="mb-4 flex items-center justify-between">
+            <h3 id="similar-dialog-title" class="font-headline-md text-headline-md text-on-surface">
               同类强化练习
               <span class="font-label-sm text-label-sm text-on-surface-variant ml-2">
                 {{ currentSimilarIndex + 1 }} / {{ similarQuestions.length }}
               </span>
             </h3>
             <button
-              class="p-2 hover:bg-surface-variant rounded-full transition-colors"
+              type="button"
+              class="rounded-full p-2 transition-colors hover:bg-surface-variant focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              :aria-label="$t('common.close')"
               @click="closeSimilarModal"
             >
               <span class="material-symbols-outlined text-on-surface">close</span>
@@ -421,6 +430,7 @@ import AppLayout from '../components/AppLayout.vue'
 import { useUserStore } from '@/stores/user'
 import { getErrorBook, submitAnswer, getWeakPoints, generateSimilar, type QuestionVO, type SubmitResponse, type WeakKnowledgePoint } from '@/api/exercise'
 import { useToast } from '@/composables/useToast'
+import { useModalBehavior } from '@/composables/useModalBehavior'
 import { moduleName } from '@/config/modules'
 import { shuffle } from '@/utils/array'
 
@@ -452,6 +462,7 @@ const weakPoints = ref<WeakKnowledgePoint[]>([])
 // ========== 同类题生成 ==========
 const generating = ref<Record<number, boolean>>({})
 const similarModalVisible = ref(false)
+const similarPanelRef = ref<HTMLElement | null>(null)
 const similarQuestions = ref<QuestionVO[]>([])
 const currentSimilarIndex = ref(0)
 const similarSelectedAnswers = ref<Record<number, string>>({})
@@ -870,4 +881,10 @@ const closeSimilarModal = () => {
   similarShowAnswer.value = {}
   similarSubmitted.value = {}
 }
+
+useModalBehavior({
+  isOpen: () => similarModalVisible.value,
+  container: similarPanelRef,
+  onEscape: closeSimilarModal,
+})
 </script>

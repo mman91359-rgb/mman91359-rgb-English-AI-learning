@@ -162,17 +162,29 @@
     <!-- ============ 复习模式弹窗 ============ -->
     <div
       v-if="reviewMode"
-      class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+      class="fixed inset-0 z-[120] flex items-center justify-center bg-scrim/50 p-4"
       @click.self="exitReview"
     >
-      <div class="bg-surface-container-lowest rounded-[24px] p-6 shadow-soft-glow w-full max-w-lg">
-        <div class="flex items-center justify-between mb-4">
+      <div
+        ref="reviewPanelRef"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="review-dialog-title"
+        tabindex="-1"
+        class="w-full max-w-lg rounded-3xl bg-surface-container-lowest p-6 shadow-soft-glow focus:outline-none"
+      >
+        <div class="mb-4 flex items-center justify-between">
           <div class="flex items-center gap-2">
-            <span class="material-symbols-outlined text-primary">school</span>
-            <span class="font-headline-md text-headline-md text-on-surface">复习模式</span>
+            <span class="material-symbols-outlined text-primary" aria-hidden="true">school</span>
+            <span id="review-dialog-title" class="font-headline-md text-headline-md text-on-surface">复习模式</span>
           </div>
-          <button class="p-2 hover:bg-surface-variant rounded-full" @click="exitReview">
-            <span class="material-symbols-outlined text-on-surface">close</span>
+          <button
+            type="button"
+            class="rounded-full p-2 transition-colors hover:bg-surface-variant focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            :aria-label="$t('common.close')"
+            @click="exitReview"
+          >
+            <span class="material-symbols-outlined text-on-surface" aria-hidden="true">close</span>
           </button>
         </div>
 
@@ -269,6 +281,7 @@ import LoadingState from '@/components/ui/LoadingState.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import { useUserStore } from '@/stores/user'
+import { useModalBehavior } from '@/composables/useModalBehavior'
 import {
   getVocabulary,
   addVocabularySmart,
@@ -394,6 +407,7 @@ const formatReviewDate = (dateStr: string) => {
 
 // ===== 复习模式 =====
 const reviewMode = ref(false)
+const reviewPanelRef = ref<HTMLElement | null>(null)
 const reviewQueue = ref<VocabularyVO[]>([])
 const reviewIndex = ref(0)
 const flipped = ref(false)
@@ -459,6 +473,12 @@ const exitReview = () => {
   reviewMode.value = false
   flipped.value = false
 }
+
+useModalBehavior({
+  isOpen: () => reviewMode.value,
+  container: reviewPanelRef,
+  onEscape: exitReview,
+})
 
 onMounted(load)
 </script>

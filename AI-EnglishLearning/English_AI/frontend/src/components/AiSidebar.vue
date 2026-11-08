@@ -12,7 +12,7 @@
         <Transition name="fade">
           <div
             v-if="aiStore.isOpen"
-            class="fixed inset-0 bg-black/20 z-40 md:hidden"
+            class="fixed inset-0 z-40 bg-scrim/20 md:hidden"
             @click="aiStore.close()"
           ></div>
         </Transition>

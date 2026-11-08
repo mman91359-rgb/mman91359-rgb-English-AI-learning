@@ -142,6 +142,68 @@ const IRREGULAR = {
   much: ['more', 'most'],
 }
 
+/** 不可数名词：不加规则复数（仍可用于句中命中） */
+const UNCOUNTABLE = new Set([
+  'hardware', 'software', 'furniture', 'equipment', 'information', 'advice', 'news',
+  'luggage', 'machinery', 'merchandise', 'baggage', 'homework', 'knowledge', 'research',
+  'evidence', 'traffic', 'weather', 'clothing', 'jewelry', 'scenery', 'poetry',
+])
+
+/** CVC 结尾且需要双写的动词白名单（多音节也会双写） */
+const DOUBLING_WHITELIST = new Set([
+  'begin', 'occur', 'refer', 'prefer', 'infer', 'admit', 'commit', 'permit',
+  'regret', 'forget', 'control', 'patrol', 'compel', 'expel', 'rebel', 'transfer',
+  'upset', 'omit', 'submit', 'equip', 'recur', 'confer', 'deter', 'forbid',
+])
+
+/** IRREGULAR 里属于"不规则复数"的词；其余条目是动词/形容词的不规则变形 */
+const IRREGULAR_NOUNS = new Set([
+  'child', 'man', 'woman', 'foot', 'tooth', 'mouse', 'goose', 'criterion',
+  'phenomenon', 'datum', 'analysis', 'basis', 'crisis', 'thesis', 'index',
+  'leaf', 'life', 'wife', 'knife', 'half', 'shelf', 'thief', 'wolf',
+])
+
+/** IRREGULAR 里属于"不规则比较级"的形容词 */
+const IRREGULAR_ADJS = new Set(['good', 'bad', 'far', 'little', 'many', 'much'])
+
+/** 精确屏蔽的 external_key（例句涉及敏感政治事件，报告中不复述原句） */
+const EXACT_BLOCKED_KEYS = new Set(['vocab-auto-10765-1'])
+
+/** 敏感内容关键词：只过滤题目，不改词库 */
+const SENSITIVE_PATTERNS = [
+  // 政治敏感事件 / 人物
+  /tiananmen/i,
+  /falun/i,
+  /dalai\s+lama/i,
+  /tibet\w*\s+\w*\s*independen/i,
+  /taiwan\w*\s+\w*\s*independen/i,
+  /xinjiang\w*\s+\w*\s*independen/i,
+  // 暴力血腥
+  /massacre/i,
+  /genocide/i,
+  /bloodbath/i,
+  /behead/i,
+  /decapitat/i,
+  /dismember/i,
+  // 色情
+  /porn/i,
+  /prostitut/i,
+  /brothel/i,
+  /\brape\b/i,
+  /sexual\s+intercourse/i,
+  // 歧视
+  /nigger/i,
+  /\bchink\b/i,
+  /faggot/i,
+  /\bretard/i,
+  /\bslut\b/i,
+  /\bwhore\b/i,
+]
+
+function isSensitive(text) {
+  return SENSITIVE_PATTERNS.some((re) => re.test(text))
+}
+
 const isVowel = (c) => 'aeiou'.includes(c)
 
 /**
@@ -178,7 +240,7 @@ function isGradable(base) {
  * - accepted：可以进入 accepted_answers 的合法变形
  * - matchOnly：只用于"句中命中"、但不预先接受的形态（未知词性、CVC 双写与非双写并存等）
  */
-function inflect(base, cat) {
+function inflect(base, cat, opts = {}) {
   const accepted = new Set()
   const matchOnly = new Set()
 
@@ -208,14 +270,17 @@ function inflect(base, cat) {
   const wantsPlural = cat === 'noun' || cat === 'verb' || cat === 'unknown'
   const wantsVerb = cat === 'verb' || cat === 'unknown'
 
-  if (wantsPlural) {
+  // 名词复数：不可数名词与不规则名词都不加规则复数
+  const skipRegularPlural = cat === 'noun' && (opts.uncountable || opts.hasIrregular)
+
+  if (wantsPlural && !skipRegularPlural) {
     let plural = null
     if (/(s|x|z|ch|sh)$/.test(base)) plural = base + 'es'
     else if (/[^aeiou]y$/.test(base)) plural = base.slice(0, -1) + 'ies'
     else plural = base + 's'
 
     if (plural !== base) {
-      // 抽象/不可数名词不加复数；已是复数的 s 结尾词（goods/news/means）不再加 -es
+      // 抽象名词不加复数；已是复数的 s 结尾词（goods/news/means）不再加 -es
       const abstractNoun = cat === 'noun' && /(ment|ness|ship|ism|hood|ity)$/.test(base)
       const alreadyPlural = cat === 'noun' && /s$/.test(base) && !/(ss|us|is)$/.test(base)
       if (abstractNoun || alreadyPlural) addMatch(plural)
@@ -223,20 +288,33 @@ function inflect(base, cat) {
     }
   }
 
+  // CVC 动词：单音节或白名单词双写，其余（多音节如 abandon）接受非双写形态
+  const syllables = (base.match(/[aeiouy]+/g) || []).length
+  const doublingAccepted = DOUBLING_WHITELIST.has(base) || syllables <= 1
+
   if (wantsVerb) {
     if (last === 'e') add(base + 'd')
     else if (/[^aeiou]y$/.test(base)) add(base.slice(0, -1) + 'ied')
     else if (cvc) {
-      // 双写与非双写都可能出现（inferred / visited），只用于命中；真正命中什么，表面形会计入 accepted
-      addMatch(base + last + 'ed')
-      addMatch(base + 'ed')
+      if (doublingAccepted) {
+        add(base + last + 'ed')
+        addMatch(base + 'ed')
+      } else {
+        add(base + 'ed')
+        addMatch(base + last + 'ed')
+      }
     } else add(base + 'ed')
 
     if (/ie$/.test(base)) add(base.slice(0, -2) + 'ying')
     else if (last === 'e' && !/ee$/.test(base)) add(base.slice(0, -1) + 'ing')
     else if (cvc) {
-      addMatch(base + last + 'ing')
-      addMatch(base + 'ing')
+      if (doublingAccepted) {
+        add(base + last + 'ing')
+        addMatch(base + 'ing')
+      } else {
+        add(base + 'ing')
+        addMatch(base + last + 'ing')
+      }
     } else add(base + 'ing')
   }
 
@@ -268,9 +346,11 @@ function buildForms(word, pos) {
 
   const match = new Set([w])
   const accepted = new Set([w])
+  const uncountable = UNCOUNTABLE.has(w) || /ware$/.test(w)
+  const hasIrregular = Object.prototype.hasOwnProperty.call(IRREGULAR, w)
 
   for (const base of bases) {
-    const { accepted: ok, matchOnly } = inflect(base, cat)
+    const { accepted: ok, matchOnly } = inflect(base, cat, { uncountable, hasIrregular })
     ok.forEach((f) => {
       match.add(f)
       accepted.add(f)
@@ -278,12 +358,15 @@ function buildForms(word, pos) {
     matchOnly.forEach((f) => match.add(f))
   }
 
+  // 不规则表同时含动词、名词、形容词条目，按词性决定能否预先接受
+  const acceptIrregular =
+    cat === 'verb' ||
+    (cat === 'noun' && IRREGULAR_NOUNS.has(w)) ||
+    (cat === 'adj' && IRREGULAR_ADJS.has(w))
+
   for (const f of IRREGULAR[w] || []) {
-    // 名词/形容词不接收 -ing/-ed 形态（避免 bite(noun) → biting 这类伪形态）
-    if ((cat === 'noun' || cat === 'adj' || cat === 'adv') && /(ing|ed)$/.test(f)) continue
     match.add(f)
-    // 未知词性只用于命中，不写入 accepted
-    if (cat !== 'unknown') accepted.add(f)
+    if (acceptIrregular) accepted.add(f)
   }
 
   return { matchForms: [...match], acceptedForms: [...accepted], category: cat }
@@ -454,6 +537,11 @@ function classify(row, opts) {
   if (example.length < opts.minLen || example.length > opts.maxLen) return { skip: 'length' }
   if (!row.translation) return { skip: 'no-translation' }
   if (!row.difficulty) return { skip: 'missing-difficulty' }
+
+  // 敏感内容过滤：精确键 + 关键词。命中只记录 key，报告里不复述原句
+  const externalKey = `vocab-auto-${row.id}-1`
+  if (EXACT_BLOCKED_KEYS.has(externalKey)) return { skip: 'blocklist', externalKey }
+  if (isSensitive(`${example} ${row.translation}`)) return { skip: 'blocklist', externalKey }
 
   const { matchForms, acceptedForms, category } = buildForms(word, row.pos)
   const hits = findMatches(example, matchForms)
@@ -674,6 +762,7 @@ function main() {
 
   const generated = []
   const skipSamples = {}
+  const blockedKeys = []
   const branch = { 'exact-form': 0, inflected: 0 }
 
   for (const row of rows) {
@@ -681,8 +770,9 @@ function main() {
     const result = classify({ ...row, difficulty }, opts)
     if (result.skip) {
       skips[result.skip] = (skips[result.skip] || 0) + 1
+      if (result.skip === 'blocklist') blockedKeys.push(result.externalKey)
       const bucket = (skipSamples[result.skip] = skipSamples[result.skip] || [])
-      if (bucket.length < 10) bucket.push((row.word || '').trim())
+      if (bucket.length < 10 && result.skip !== 'blocklist') bucket.push((row.word || '').trim())
       continue
     }
     branch[result.branch] += 1
@@ -700,6 +790,53 @@ function main() {
     if (!['noun', 'adj', 'adv'].includes(q.category)) continue
     const bad = q.accepted.filter((f) => f !== q.lemma && /(ed|ing)$/.test(f))
     if (bad.length) pseudoForms.push(`${q.lemma}(${q.category}): ${bad.join('/')}`)
+  }
+
+  // accepted 一致性：不可数/不规则名词不应出现规则复数
+  const rulePluralOf = (w) => {
+    if (/(s|x|z|ch|sh)$/.test(w)) return `${w}es`
+    if (/[^aeiou]y$/.test(w)) return `${w.slice(0, -1)}ies`
+    return `${w}s`
+  }
+  const pluralErrors = { uncountable: [], irregular: [] }
+  const formGaps = { verbs: 0, nouns: 0 }
+  for (const q of generated) {
+    if (q.category === 'noun') {
+      const plural = rulePluralOf(q.lemma)
+      if (q.accepted.includes(plural)) {
+        if (UNCOUNTABLE.has(q.lemma) || /ware$/.test(q.lemma)) {
+          pluralErrors.uncountable.push(`${q.lemma} → ${plural}`)
+        } else if (
+          Object.prototype.hasOwnProperty.call(IRREGULAR, q.lemma) &&
+          // index→indexes 这类本身就在不规则表里的合法复数不算错误
+          !(IRREGULAR[q.lemma] || []).includes(plural)
+        ) {
+          pluralErrors.irregular.push(`${q.lemma} → ${plural}`)
+        }
+      }
+      if (q.accepted.length === 1) formGaps.nouns += 1
+    }
+    if (q.category === 'verb' && !q.accepted.some((f) => f !== q.lemma && /(ed|ing)$/.test(f))) {
+      formGaps.verbs += 1
+    }
+  }
+  const byLemma = new Map(generated.map((q) => [q.lemma, q]))
+  const assertions = {
+    abandonIng: !byLemma.has('abandon')
+      ? 'N/A'
+      : byLemma.get('abandon').accepted.includes('abandoning')
+        ? 'PASS'
+        : 'FAIL',
+    hardwareNoS: !byLemma.has('hardware')
+      ? 'N/A'
+      : byLemma.get('hardware').accepted.includes('hardwares')
+        ? 'FAIL'
+        : 'PASS',
+    criterionNoS: !byLemma.has('criterion')
+      ? 'N/A'
+      : byLemma.get('criterion').accepted.includes('criterions')
+        ? 'FAIL'
+        : 'PASS',
   }
 
   const byLevel = {}
@@ -798,6 +935,11 @@ ${Object.entries(skipSamples)
   .map(([reason, words]) => `- **${reason}**：${words.join('、')}`)
   .join('\n')}
 
+### 3.2 敏感内容过滤（只列 external_key，不复述原句）
+
+- 命中数量：**${blockedKeys.length}**
+${blockedKeys.map((k) => `  - \`${k}\``).join('\n')}
+
 ## 4. 等级分布
 
 | 等级 | 生成题数 |
@@ -820,6 +962,20 @@ ${Object.entries(byDifficulty)
 
 - 命中条数：**${pseudoForms.length}**
 ${pseudoForms.slice(0, 20).map((x) => `  - ${x}`).join('\n')}
+
+## 5.2 accepted 一致性自检
+
+| 检查 | 结果 | 目标 |
+|---|---|---|
+| 不可数名词出现规则复数 | ${pluralErrors.uncountable.length} | 0 |
+| 不规则名词出现规则复数 | ${pluralErrors.irregular.length} | 0 |
+| \`abandon\` accepted 含 \`abandoning\` | ${assertions.abandonIng} | PASS |
+| \`hardware\` 不含 \`hardwares\` | ${assertions.hardwareNoS} | PASS |
+| \`criterion\` 不含 \`criterions\` | ${assertions.criterionNoS} | PASS |
+| 动词 accepted 缺 -ing/-ed（仅统计） | ${formGaps.verbs} | — |
+| 名词 accepted 仅有原形（仅统计） | ${formGaps.nouns} | — |
+
+${pluralErrors.uncountable.concat(pluralErrors.irregular).length ? `命中明细：\n\n${pluralErrors.uncountable.concat(pluralErrors.irregular).slice(0, 20).map((x) => `  - ${x}`).join('\n')}` : ''}
 
 ## 6. 幂等校验
 

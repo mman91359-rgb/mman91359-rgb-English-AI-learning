@@ -1461,7 +1461,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-8071-1', 1, 'CET4', 2, 'FILL_BLANK',
-       'IMPORT', 'occur', JSON_ARRAY('occur', 'occurs'), 0, 0, 0,
+       'IMPORT', 'occur', JSON_ARRAY('occur', 'occurs', 'occurred', 'occurring'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-8071-1');
 
@@ -1714,7 +1714,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-8083-1', 1, 'CET4', 6, 'FILL_BLANK',
-       'IMPORT', 'omit', JSON_ARRAY('omit', 'omits'), 0, 0, 0,
+       'IMPORT', 'omit', JSON_ARRAY('omit', 'omits', 'omitted', 'omitting'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-8083-1');
 
@@ -6107,7 +6107,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-8302-1', 1, 'CET4', 4, 'FILL_BLANK',
-       'IMPORT', 'poetry', JSON_ARRAY('poetry', 'poetries'), 0, 0, 0,
+       'IMPORT', 'poetry', JSON_ARRAY('poetry'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-8302-1');
 
@@ -7326,7 +7326,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-8364-1', 1, 'CET4', 3, 'FILL_BLANK',
-       'IMPORT', 'prefer', JSON_ARRAY('prefer', 'prefers'), 0, 0, 0,
+       'IMPORT', 'prefer', JSON_ARRAY('prefer', 'prefers', 'preferred', 'preferring'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-8364-1');
 
@@ -8683,7 +8683,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-8425-1', 1, 'CET4', 5, 'FILL_BLANK',
-       'IMPORT', 'prohibit', JSON_ARRAY('prohibit', 'prohibited', 'prohibits'), 0, 0, 0,
+       'IMPORT', 'prohibit', JSON_ARRAY('prohibit', 'prohibited', 'prohibits', 'prohibiting'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-8425-1');
 
@@ -9971,7 +9971,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-8489-1', 1, 'CET4', 7, 'FILL_BLANK',
-       'IMPORT', 'quicken', JSON_ARRAY('quicken', 'quickened', 'quickens'), 0, 0, 0,
+       'IMPORT', 'quicken', JSON_ARRAY('quicken', 'quickened', 'quickens', 'quickening'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-8489-1');
 
@@ -11328,7 +11328,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-8559-1', 1, 'CET4', 3, 'FILL_BLANK',
-       'IMPORT', 'recover', JSON_ARRAY('recover', 'recovers'), 0, 0, 0,
+       'IMPORT', 'recover', JSON_ARRAY('recover', 'recovers', 'recovered', 'recovering'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-8559-1');
 
@@ -11466,7 +11466,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-8567-1', 1, 'CET4', 2, 'FILL_BLANK',
-       'IMPORT', 'refer', JSON_ARRAY('refer', 'refers'), 0, 0, 0,
+       'IMPORT', 'refer', JSON_ARRAY('refer', 'refers', 'referred', 'referring'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-8567-1');
 

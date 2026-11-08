@@ -1162,7 +1162,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-6417-1', 1, 'CET4', 4, 'FILL_BLANK',
-       'IMPORT', 'clothing', JSON_ARRAY('clothing', 'clothings'), 0, 0, 0,
+       'IMPORT', 'clothing', JSON_ARRAY('clothing'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-6417-1');
 
@@ -2036,7 +2036,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-6455-1', 1, 'CET4', 2, 'FILL_BLANK',
-       'IMPORT', 'commit', JSON_ARRAY('commit', 'commits'), 0, 0, 0,
+       'IMPORT', 'commit', JSON_ARRAY('commit', 'commits', 'committed', 'committing'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-6455-1');
 
@@ -2381,7 +2381,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-6472-1', 1, 'CET4', 5, 'FILL_BLANK',
-       'IMPORT', 'compel', JSON_ARRAY('compel', 'compels'), 0, 0, 0,
+       'IMPORT', 'compel', JSON_ARRAY('compel', 'compels', 'compelled', 'compelling'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-6472-1');
 
@@ -3784,7 +3784,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-6536-1', 1, 'CET4', 2, 'FILL_BLANK',
-       'IMPORT', 'consider', JSON_ARRAY('consider', 'considers'), 0, 0, 0,
+       'IMPORT', 'consider', JSON_ARRAY('consider', 'considers', 'considered', 'considering'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-6536-1');
 
@@ -5762,7 +5762,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-6623-1', 1, 'CET4', 2, 'FILL_BLANK',
-       'IMPORT', 'crisis', JSON_ARRAY('crisis', 'crisises', 'crises'), 0, 0, 0,
+       'IMPORT', 'crisis', JSON_ARRAY('crisis', 'crises'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-6623-1');
 
@@ -7096,7 +7096,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-6692-1', 1, 'CET4', 6, 'FILL_BLANK',
-       'IMPORT', 'deepen', JSON_ARRAY('deepen', 'deepens'), 0, 0, 0,
+       'IMPORT', 'deepen', JSON_ARRAY('deepen', 'deepens', 'deepened', 'deepening'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-6692-1');
 
@@ -7533,7 +7533,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-6712-1', 1, 'CET4', 2, 'FILL_BLANK',
-       'IMPORT', 'deliver', JSON_ARRAY('deliver', 'delivers'), 0, 0, 0,
+       'IMPORT', 'deliver', JSON_ARRAY('deliver', 'delivers', 'delivered', 'delivering'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-6712-1');
 
@@ -8798,7 +8798,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-6767-1', 1, 'CET4', 4, 'FILL_BLANK',
-       'IMPORT', 'differ', JSON_ARRAY('differ', 'differs'), 0, 0, 0,
+       'IMPORT', 'differ', JSON_ARRAY('differ', 'differs', 'differed', 'differing'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-6767-1');
 
@@ -8959,7 +8959,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-6774-1', 1, 'CET4', 5, 'FILL_BLANK',
-       'IMPORT', 'dip', JSON_ARRAY('dip', 'dips'), 0, 0, 0,
+       'IMPORT', 'dip', JSON_ARRAY('dip', 'dips', 'dipped', 'dipping'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-6774-1');
 
@@ -9327,7 +9327,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-6793-1', 1, 'CET4', 2, 'FILL_BLANK',
-       'IMPORT', 'discover', JSON_ARRAY('discover', 'discovers'), 0, 0, 0,
+       'IMPORT', 'discover', JSON_ARRAY('discover', 'discovers', 'discovered', 'discovering'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-6793-1');
 

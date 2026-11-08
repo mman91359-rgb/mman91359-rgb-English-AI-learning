@@ -1,6 +1,6 @@
 # 词汇填空题生成报告
 
-- 生成时间：2026-11-08T11:55:40.984Z
+- 生成时间：2026-11-08T12:18:51.978Z
 - 模式：write（已生成分片 SQL）
 - 词条范围：ALL
 - 例句长度区间：20~160
@@ -10,15 +10,15 @@
 | 指标 | 数值 |
 |---|---|
 | 词条总数 | 5805 |
-| 生成题数 | **4466** |
-| 跳过数 | 1339 |
+| 生成题数 | **4465** |
+| 跳过数 | 1340 |
 | 生成率 | 76.9% |
 
 ## 2. 命中分支
 
 | 分支 | 数量 |
 |---|---|
-| exact-form（例句用原形） | 4291 |
+| exact-form（例句用原形） | 4290 |
 | inflected（例句用变形） | 175 |
 
 ## 3. 跳过原因分布
@@ -32,6 +32,7 @@
 | `fixed-phrase` | 37 |
 | `multi-occurrence` | 25 |
 | `not-single-word` | 3 |
+| `blocklist` | 1 |
 
 ### 3.1 跳过样本（每类最多 10 个，便于核对判定是否过严）
 
@@ -42,13 +43,19 @@
 - **fixed-phrase**：against、although、amongst、anyone、beneath、besides、beyond、billion、concerning、eighteen
 - **multi-occurrence**：activity、atom、connect、conquest、doubt、happiness、ice-cream、lantern、living、medal
 - **not-single-word**：B.C.、i.e.、P.M.
+- **blocklist**：
+
+### 3.2 敏感内容过滤（只列 external_key，不复述原句）
+
+- 命中数量：**1**
+  - `vocab-auto-10765-1`
 
 ## 4. 等级分布
 
 | 等级 | 生成题数 |
 |---|---|
 | CET4 | 3451 |
-| CET6 | 1015 |
+| CET6 | 1014 |
 
 ## 5. 难度分布
 
@@ -57,7 +64,7 @@
 | 2 | 626 |
 | 3 | 695 |
 | 4 | 786 |
-| 5 | 829 |
+| 5 | 828 |
 | 6 | 814 |
 | 7 | 716 |
 
@@ -66,13 +73,27 @@
 - 命中条数：**0**
 
 
+## 5.2 accepted 一致性自检
+
+| 检查 | 结果 | 目标 |
+|---|---|---|
+| 不可数名词出现规则复数 | 0 | 0 |
+| 不规则名词出现规则复数 | 0 | 0 |
+| `abandon` accepted 含 `abandoning` | PASS | PASS |
+| `hardware` 不含 `hardwares` | PASS | PASS |
+| `criterion` 不含 `criterions` | PASS | PASS |
+| 动词 accepted 缺 -ing/-ed（仅统计） | 0 | — |
+| 名词 accepted 仅有原形（仅统计） | 201 | — |
+
+
+
 ## 6. 幂等校验
 
 | 项 | 值 |
 |---|---|
-| external_key 总数 | 4466 |
-| 去重后数量 | 4466 |
-| 集合 SHA-256（前 12 位） | `7fc1e4cef17a` |
+| external_key 总数 | 4465 |
+| 去重后数量 | 4465 |
+| 集合 SHA-256（前 12 位） | `9d1d7643a480` |
 
 > 同一份输入重复 dry-run，上表三项必须完全一致。
 
@@ -88,12 +109,11 @@
 | V1.0.18__seed_vocab_auto_part06.sql | 500 | vocab-auto-8569-1 | vocab-auto-9148-1 |
 | V1.0.19__seed_vocab_auto_part07.sql | 500 | vocab-auto-9149-1 | vocab-auto-9757-1 |
 | V1.0.20__seed_vocab_auto_part08.sql | 500 | vocab-auto-9758-1 | vocab-auto-10712-1 |
-| V1.0.21__seed_vocab_auto_part09.sql | 466 | vocab-auto-10714-1 | vocab-auto-11637-1 |
+| V1.0.21__seed_vocab_auto_part09.sql | 465 | vocab-auto-10714-1 | vocab-auto-11637-1 |
 
-### 7.1 遗留分片（本次未覆盖、**不要导入**）
+### 7.1 遗留分片
 
-- `V1.0.22__seed_vocab_auto_part10.sql`：上一轮生成物，内容已过期，建议导入前删除
-
+无。
 
 ## 8. 抽样
 

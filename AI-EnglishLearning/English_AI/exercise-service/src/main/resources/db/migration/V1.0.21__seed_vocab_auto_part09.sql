@@ -1,4 +1,4 @@
--- V1.0.21：词汇填空题自动生成（第 09 批，466 题）
+-- V1.0.21：词汇填空题自动生成（第 09 批，465 题）
 -- 目标库：exercise_db
 -- 来源：word_dictionary 例句挖空；生成脚本 scripts/generate-vocab-questions.mjs
 -- 风险：低（纯 DML，NOT EXISTS 双重幂等：external_key + question_content）
@@ -807,29 +807,6 @@ SELECT @qid,
        JSON_ARRAY(),
        'masculinity',
        'n. 男子气, 刚毅, 大丈夫气概 [医] 男子本性, 男性 ｜ 原句：This film attempts to break stereotypes and redefine what true masculinity is.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.21 · massacre (CET6, 难度 5)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-10765-1', 1, 'CET6', 5, 'FILL_BLANK',
-       'IMPORT', 'massacre', JSON_ARRAY('massacre', 'massacres'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10765-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10765-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'The Chinese government controlled the internet to prevent the people from knowing the truth of the Tiananmen Square ____.',
-       JSON_ARRAY(),
-       'massacre',
-       'n. 大屠杀 vt. 大屠杀, 残杀 ｜ 原句：The Chinese government controlled the internet to prevent the people from knowing the truth of the Tiananmen Square Massacre.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3462,7 +3439,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-11009-1', 1, 'CET6', 5, 'FILL_BLANK',
-       'IMPORT', 'ponder', JSON_ARRAY('ponder', 'ponders'), 0, 0, 0,
+       'IMPORT', 'ponder', JSON_ARRAY('ponder', 'ponders', 'pondered', 'pondering'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-11009-1');
 
@@ -5026,7 +5003,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-11136-1', 1, 'CET6', 6, 'FILL_BLANK',
-       'IMPORT', 'reckon', JSON_ARRAY('reckon', 'reckons'), 0, 0, 0,
+       'IMPORT', 'reckon', JSON_ARRAY('reckon', 'reckons', 'reckoned', 'reckoning'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-11136-1');
 
@@ -6360,7 +6337,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-11268-1', 1, 'CET6', 6, 'FILL_BLANK',
-       'IMPORT', 'shorten', JSON_ARRAY('shorten', 'shortens'), 0, 0, 0,
+       'IMPORT', 'shorten', JSON_ARRAY('shorten', 'shortens', 'shortened', 'shortening'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-11268-1');
 
@@ -7648,7 +7625,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-11366-1', 1, 'CET6', 4, 'FILL_BLANK',
-       'IMPORT', 'straighten', JSON_ARRAY('straighten', 'straightens'), 0, 0, 0,
+       'IMPORT', 'straighten', JSON_ARRAY('straighten', 'straightens', 'straightened', 'straightening'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-11366-1');
 
@@ -8085,7 +8062,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-11399-1', 1, 'CET6', 5, 'FILL_BLANK',
-       'IMPORT', 'summon', JSON_ARRAY('summon', 'summons'), 0, 0, 0,
+       'IMPORT', 'summon', JSON_ARRAY('summon', 'summons', 'summoned', 'summoning'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-11399-1');
 
@@ -8637,7 +8614,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-11457-1', 1, 'CET6', 5, 'FILL_BLANK',
-       'IMPORT', 'thesis', JSON_ARRAY('thesis', 'thesises', 'theses'), 0, 0, 0,
+       'IMPORT', 'thesis', JSON_ARRAY('thesis', 'theses'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-11457-1');
 
@@ -8660,7 +8637,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-11458-1', 1, 'CET6', 6, 'FILL_BLANK',
-       'IMPORT', 'thicken', JSON_ARRAY('thicken', 'thickens'), 0, 0, 0,
+       'IMPORT', 'thicken', JSON_ARRAY('thicken', 'thickens', 'thickened', 'thickening'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-11458-1');
 
@@ -8752,7 +8729,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-11467-1', 1, 'CET6', 4, 'FILL_BLANK',
-       'IMPORT', 'tighten', JSON_ARRAY('tighten', 'tightens'), 0, 0, 0,
+       'IMPORT', 'tighten', JSON_ARRAY('tighten', 'tightens', 'tightened', 'tightening'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-11467-1');
 
@@ -10569,7 +10546,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-11622-1', 1, 'CET6', 7, 'FILL_BLANK',
-       'IMPORT', 'wither', JSON_ARRAY('wither', 'withers'), 0, 0, 0,
+       'IMPORT', 'wither', JSON_ARRAY('wither', 'withers', 'withered', 'withering'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-11622-1');
 

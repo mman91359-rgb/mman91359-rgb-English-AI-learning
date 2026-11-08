@@ -1,307 +1,306 @@
 [
   {
-    "externalKey": "vocab-auto-8486-1",
+    "externalKey": "vocab-auto-6546-1",
     "moduleType": 1,
     "questionType": "FILL_BLANK",
     "targetLevel": "CET4",
-    "difficultyLevel": 7,
-    "answerWord": "queen",
-    "stem": "____ Elizabeth I passed away in 1603.",
-    "correctAnswer": "queen",
+    "difficultyLevel": 5,
+    "answerWord": "consult",
+    "stem": "You'd better ____ the doctor.",
+    "correctAnswer": "consult",
     "acceptedAnswers": [
-      "queen",
-      "queens"
+      "consult",
+      "consults",
+      "consulted",
+      "consulting"
     ],
-    "analysis": "n. 王后, 女王 vt. 立为女王 vi. 做女王 ｜ 原句：Queen Elizabeth I passed away in 1603."
+    "analysis": "vi. 商讨, 商量, 协商, 会诊 vt. 向...请教, 查阅, 考虑 ｜ 原句：You'd better consult the doctor."
   },
   {
-    "externalKey": "vocab-auto-7270-1",
+    "externalKey": "vocab-auto-8049-1",
     "moduleType": 1,
     "questionType": "FILL_BLANK",
     "targetLevel": "CET4",
-    "difficultyLevel": 4,
-    "answerWord": "glance",
-    "stem": "At first ____, the question seemed easy.",
-    "correctAnswer": "glance",
-    "acceptedAnswers": [
-      "glance",
-      "glances"
-    ],
-    "analysis": "n. 一瞥, 闪光, 掠过, 辉矿类 vi. 扫视, 闪光, 掠过, 提到, 略说 vt. 扫视, 反射, 使掠过 ｜ 原句：At first glance, the question seemed easy."
-  },
-  {
-    "externalKey": "vocab-auto-11419-1",
-    "moduleType": 1,
-    "questionType": "FILL_BLANK",
-    "targetLevel": "CET6",
     "difficultyLevel": 3,
-    "answerWord": "symptom",
-    "stem": "One of the most common ____ of schizophrenia is hearing imaginary voices.",
-    "correctAnswer": "symptoms",
+    "answerWord": "numerous",
+    "stem": "Richard Roberts is the author of ____ books.",
+    "correctAnswer": "numerous",
     "acceptedAnswers": [
-      "symptom",
-      "symptoms"
+      "numerous"
     ],
-    "analysis": "n. 症状, 征候, 征兆 [医] 症状 ｜ 原句：One of the most common symptoms of schizophrenia is hearing imaginary voices."
+    "analysis": "a. 很多的, 数目众多的, 多数的 [机] 多数的, 甚多的 ｜ 原句：Richard Roberts is the author of numerous books."
   },
   {
-    "externalKey": "vocab-auto-10062-1",
-    "moduleType": 1,
-    "questionType": "FILL_BLANK",
-    "targetLevel": "CET6",
-    "difficultyLevel": 2,
-    "answerWord": "criterion",
-    "stem": "Americans are said to regard the amount of money a man makes as a ____ of his ability.",
-    "correctAnswer": "criterion",
-    "acceptedAnswers": [
-      "criterion",
-      "criterions",
-      "criteria"
-    ],
-    "analysis": "n. 标准, 准则, 规范 [化] 判据 ｜ 原句：Americans are said to regard the amount of money a man makes as a criterion of his ability."
-  },
-  {
-    "externalKey": "vocab-auto-7371-1",
-    "moduleType": 1,
-    "questionType": "FILL_BLANK",
-    "targetLevel": "CET4",
-    "difficultyLevel": 5,
-    "answerWord": "hardware",
-    "stem": "A user should have freedom with respect to both ____ and software. An operating system should be open, not closed.",
-    "correctAnswer": "hardware",
-    "acceptedAnswers": [
-      "hardware",
-      "hardwares"
-    ],
-    "analysis": "n. 硬件, 五金器具, 零件 [计] 硬件 ｜ 原句：A user should have freedom with respect to both hardware and software. An operating system should be open, not closed."
-  },
-  {
-    "externalKey": "vocab-auto-9921-1",
-    "moduleType": 1,
-    "questionType": "FILL_BLANK",
-    "targetLevel": "CET6",
-    "difficultyLevel": 5,
-    "answerWord": "cigar",
-    "stem": "I watched a ring of smoke that floated from his ____ into the air.",
-    "correctAnswer": "cigar",
-    "acceptedAnswers": [
-      "cigar",
-      "cigars"
-    ],
-    "analysis": "n. 雪茄 ｜ 原句：I watched a ring of smoke that floated from his cigar into the air."
-  },
-  {
-    "externalKey": "vocab-auto-10452-1",
-    "moduleType": 1,
-    "questionType": "FILL_BLANK",
-    "targetLevel": "CET6",
-    "difficultyLevel": 6,
-    "answerWord": "grove",
-    "stem": "In spring, the bamboo ____ outside Hsinchu City is especially green.",
-    "correctAnswer": "grove",
-    "acceptedAnswers": [
-      "grove",
-      "groves"
-    ],
-    "analysis": "n. 小树林 ｜ 原句：In spring, the bamboo grove outside Hsinchu City is especially green."
-  },
-  {
-    "externalKey": "vocab-auto-6389-1",
-    "moduleType": 1,
-    "questionType": "FILL_BLANK",
-    "targetLevel": "CET4",
-    "difficultyLevel": 7,
-    "answerWord": "circumference",
-    "stem": "Is it possible to determine the diameter from the ____?",
-    "correctAnswer": "circumference",
-    "acceptedAnswers": [
-      "circumference",
-      "circumferences"
-    ],
-    "analysis": "n. 圆周, 周缘, 胸围 [医] 周缘, 环状面 ｜ 原句：Is it possible to determine the diameter from the circumference?"
-  },
-  {
-    "externalKey": "vocab-auto-9058-1",
+    "externalKey": "vocab-auto-8770-1",
     "moduleType": 1,
     "questionType": "FILL_BLANK",
     "targetLevel": "CET4",
     "difficultyLevel": 6,
-    "answerWord": "squirrel",
-    "stem": "The ____ advanced against the strong wind.",
-    "correctAnswer": "squirrel",
+    "answerWord": "salesman",
+    "stem": "I was mistaken for a ____.",
+    "correctAnswer": "salesman",
     "acceptedAnswers": [
-      "squirrel",
-      "squirrels"
+      "salesman",
+      "salesmans"
     ],
-    "analysis": "n. 松鼠, 松鼠毛皮 vt. 贮藏 ｜ 原句：The squirrel advanced against the strong wind."
+    "analysis": "n. 售货员, 推销员 [经] 售货员, 店员, 推销员 ｜ 原句：I was mistaken for a salesman."
   },
   {
-    "externalKey": "vocab-auto-8458-1",
-    "moduleType": 1,
-    "questionType": "FILL_BLANK",
-    "targetLevel": "CET4",
-    "difficultyLevel": 4,
-    "answerWord": "publication",
-    "stem": "____ of the article was timed to coincide with the professor's birthday.",
-    "correctAnswer": "publication",
-    "acceptedAnswers": [
-      "publication",
-      "publications"
-    ],
-    "analysis": "n. 出版物, 出版, 公布 [经] 发布 ｜ 原句：Publication of the article was timed to coincide with the professor's birthday."
-  },
-  {
-    "externalKey": "vocab-auto-8174-1",
-    "moduleType": 1,
-    "questionType": "FILL_BLANK",
-    "targetLevel": "CET4",
-    "difficultyLevel": 7,
-    "answerWord": "pane",
-    "stem": "Tom broke the window ____.",
-    "correctAnswer": "pane",
-    "acceptedAnswers": [
-      "pane",
-      "panes"
-    ],
-    "analysis": "n. 窗玻璃, 方框, 方格, 窗格 vt. 嵌窗玻璃于 [计] 窗格 ｜ 原句：Tom broke the window pane."
-  },
-  {
-    "externalKey": "vocab-auto-6556-1",
-    "moduleType": 1,
-    "questionType": "FILL_BLANK",
-    "targetLevel": "CET4",
-    "difficultyLevel": 4,
-    "answerWord": "contest",
-    "stem": "I would often take part in an English speech ____ in my school days.",
-    "correctAnswer": "contest",
-    "acceptedAnswers": [
-      "contest",
-      "contests"
-    ],
-    "analysis": "n. 竞赛, 争论 vt. 竞争, 争取, 争辩 vi. 竞争 ｜ 原句：I would often take part in an English speech contest in my school days."
-  },
-  {
-    "externalKey": "vocab-auto-9627-1",
-    "moduleType": 1,
-    "questionType": "FILL_BLANK",
-    "targetLevel": "CET4",
-    "difficultyLevel": 5,
-    "answerWord": "widow",
-    "stem": "The ____ mourned for her husband for a long time.",
-    "correctAnswer": "widow",
-    "acceptedAnswers": [
-      "widow",
-      "widows"
-    ],
-    "analysis": "n. 寡妇, 孀妇 vt. 使成寡妇 ｜ 原句：The widow mourned for her husband for a long time."
-  },
-  {
-    "externalKey": "vocab-auto-9843-1",
-    "moduleType": 1,
-    "questionType": "FILL_BLANK",
-    "targetLevel": "CET6",
-    "difficultyLevel": 6,
-    "answerWord": "bitterness",
-    "stem": "She said good-bye with a smile, but there was a good deal of ____ in her heart.",
-    "correctAnswer": "bitterness",
-    "acceptedAnswers": [
-      "bitterness"
-    ],
-    "analysis": "n. 苦味, 悲痛, 怨恨 ｜ 原句：She said good-bye with a smile, but there was a good deal of bitterness in her heart."
-  },
-  {
-    "externalKey": "vocab-auto-8480-1",
-    "moduleType": 1,
-    "questionType": "FILL_BLANK",
-    "targetLevel": "CET4",
-    "difficultyLevel": 4,
-    "answerWord": "qualify",
-    "stem": "Free school lunches are given to children who ____.",
-    "correctAnswer": "qualify",
-    "acceptedAnswers": [
-      "qualify",
-      "qualifies",
-      "qualified",
-      "qualifying"
-    ],
-    "analysis": "vi. 取得资格, 有资格 vt. 使有资格, 使合格, 限定, 限制, 准予 ｜ 原句：Free school lunches are given to children who qualify."
-  },
-  {
-    "externalKey": "vocab-auto-10555-1",
-    "moduleType": 1,
-    "questionType": "FILL_BLANK",
-    "targetLevel": "CET6",
-    "difficultyLevel": 4,
-    "answerWord": "impulse",
-    "stem": "I felt an ____ to cry out loud.",
-    "correctAnswer": "impulse",
-    "acceptedAnswers": [
-      "impulse",
-      "impulses"
-    ],
-    "analysis": "n. 冲动, 驱使, 刺激, 推动, 冲力, 建议, 脉冲 vt. 推动 ｜ 原句：I felt an impulse to cry out loud."
-  },
-  {
-    "externalKey": "vocab-auto-6350-1",
-    "moduleType": 1,
-    "questionType": "FILL_BLANK",
-    "targetLevel": "CET4",
-    "difficultyLevel": 4,
-    "answerWord": "characterize",
-    "stem": "Bright colours ____ his paintings.",
-    "correctAnswer": "characterize",
-    "acceptedAnswers": [
-      "characterize",
-      "characterizes",
-      "characterized",
-      "characterizing",
-      "characterises",
-      "characterised",
-      "characterising"
-    ],
-    "analysis": "vt. 描绘...的特性, 刻划...的性格 ｜ 原句：Bright colours characterize his paintings."
-  },
-  {
-    "externalKey": "vocab-auto-10573-1",
-    "moduleType": 1,
-    "questionType": "FILL_BLANK",
-    "targetLevel": "CET6",
-    "difficultyLevel": 3,
-    "answerWord": "incredible",
-    "stem": "It's ____ that your mother speaks six languages!",
-    "correctAnswer": "incredible",
-    "acceptedAnswers": [
-      "incredible"
-    ],
-    "analysis": "a. 难以置信的 ｜ 原句：It's incredible that your mother speaks six languages!"
-  },
-  {
-    "externalKey": "vocab-auto-8548-1",
+    "externalKey": "vocab-auto-8668-1",
     "moduleType": 1,
     "questionType": "FILL_BLANK",
     "targetLevel": "CET4",
     "difficultyLevel": 2,
-    "answerWord": "recent",
-    "stem": "Is it a ____ picture?",
-    "correctAnswer": "recent",
+    "answerWord": "responsibility",
+    "stem": "In Thailand, bringing up the children isn't the father's ____; it's entirely up to the mother.",
+    "correctAnswer": "responsibility",
     "acceptedAnswers": [
-      "recent"
+      "responsibility"
     ],
-    "analysis": "a. 最近的, 近代的, 最新的 [经] 最近的, 新进的 ｜ 原句：Is it a recent picture?"
+    "analysis": "n. 责任, 职责, 负担, 可靠性 [化] 职责 ｜ 原句：In Thailand, bringing up the children isn't the father's responsibility; it's entirely up to the mother."
   },
   {
-    "externalKey": "vocab-auto-7218-1",
+    "externalKey": "vocab-auto-8055-1",
+    "moduleType": 1,
+    "questionType": "FILL_BLANK",
+    "targetLevel": "CET4",
+    "difficultyLevel": 5,
+    "answerWord": "objection",
+    "stem": "I have no ____ to your plan.",
+    "correctAnswer": "objection",
+    "acceptedAnswers": [
+      "objection",
+      "objections"
+    ],
+    "analysis": "n. 异议, 反对, 不喜欢, 缺点, 缺陷, 妨碍, 拒绝之理由 [法] 异议, 反对, 抗议 ｜ 原句：I have no objection to your plan."
+  },
+  {
+    "externalKey": "vocab-auto-9306-1",
+    "moduleType": 1,
+    "questionType": "FILL_BLANK",
+    "targetLevel": "CET4",
+    "difficultyLevel": 2,
+    "answerWord": "thus",
+    "stem": "Am I correct in thinking ____?",
+    "correctAnswer": "thus",
+    "acceptedAnswers": [
+      "thus",
+      "thuser",
+      "thusest"
+    ],
+    "analysis": "adv. 如此, 因此, 到如此程度 [医] 乳香 ｜ 原句：Am I correct in thinking thus?"
+  },
+  {
+    "externalKey": "vocab-auto-7128-1",
+    "moduleType": 1,
+    "questionType": "FILL_BLANK",
+    "targetLevel": "CET4",
+    "difficultyLevel": 2,
+    "answerWord": "fight",
+    "stem": "The argument ended in a ____.",
+    "correctAnswer": "fight",
+    "acceptedAnswers": [
+      "fight"
+    ],
+    "analysis": "n. 打架, 争吵, 斗志 v. 对抗, 打架 ｜ 原句：The argument ended in a fight."
+  },
+  {
+    "externalKey": "vocab-auto-8630-1",
+    "moduleType": 1,
+    "questionType": "FILL_BLANK",
+    "targetLevel": "CET4",
+    "difficultyLevel": 6,
+    "answerWord": "repetition",
+    "stem": "____ is the mother of memory.",
+    "correctAnswer": "repetition",
+    "acceptedAnswers": [
+      "repetition",
+      "repetitions"
+    ],
+    "analysis": "n. 重复, 背诵, 循环, 复制品, 副本 [机] 重复, 反复 ｜ 原句：Repetition is the mother of memory."
+  },
+  {
+    "externalKey": "vocab-auto-9602-1",
     "moduleType": 1,
     "questionType": "FILL_BLANK",
     "targetLevel": "CET4",
     "difficultyLevel": 3,
-    "answerWord": "fuel",
-    "stem": "There was a shortage of ____.",
-    "correctAnswer": "fuel",
+    "answerWord": "welfare",
+    "stem": "He works at the ____ office.",
+    "correctAnswer": "welfare",
     "acceptedAnswers": [
-      "fuel",
-      "fuels"
+      "welfare",
+      "welfares"
     ],
-    "analysis": "n. 燃料, 木炭 vt. 加燃料, 供燃料 vi. 得到燃料 ｜ 原句：There was a shortage of fuel."
+    "analysis": "n. 福利, 安宁, 幸福, 福利事业 a. 福利的 ｜ 原句：He works at the welfare office."
+  },
+  {
+    "externalKey": "vocab-auto-8376-1",
+    "moduleType": 1,
+    "questionType": "FILL_BLANK",
+    "targetLevel": "CET4",
+    "difficultyLevel": 3,
+    "answerWord": "preserve",
+    "stem": "Salt helps to ____ food from decay.",
+    "correctAnswer": "preserve",
+    "acceptedAnswers": [
+      "preserve",
+      "preserves",
+      "preserved",
+      "preserving"
+    ],
+    "analysis": "vt. 保护, 保持, 保存, 维持, 腌, 禁猎 vi. 加工食品, 禁猎 n. 加工成的食品, 禁猎地, 保护区, 防护物 ｜ 原句：Salt helps to preserve food from decay."
+  },
+  {
+    "externalKey": "vocab-auto-6932-1",
+    "moduleType": 1,
+    "questionType": "FILL_BLANK",
+    "targetLevel": "CET4",
+    "difficultyLevel": 3,
+    "answerWord": "emotional",
+    "stem": "It is not good for a scientist to get ____.",
+    "correctAnswer": "emotional",
+    "acceptedAnswers": [
+      "emotional"
+    ],
+    "analysis": "a. 情绪的, 情感的 [医] 情绪的 ｜ 原句：It is not good for a scientist to get emotional."
+  },
+  {
+    "externalKey": "vocab-auto-6555-1",
+    "moduleType": 1,
+    "questionType": "FILL_BLANK",
+    "targetLevel": "CET4",
+    "difficultyLevel": 3,
+    "answerWord": "content",
+    "stem": "Robert is ____ with his present position.",
+    "correctAnswer": "content",
+    "acceptedAnswers": [
+      "content",
+      "contents"
+    ],
+    "analysis": "n. 内容, 满足, 意义, 要旨 a. 满足的, 满意的 vt. 使...满足, 使...安心 [计] 内容 ｜ 原句：Robert is content with his present position."
+  },
+  {
+    "externalKey": "vocab-auto-7425-1",
+    "moduleType": 1,
+    "questionType": "FILL_BLANK",
+    "targetLevel": "CET4",
+    "difficultyLevel": 7,
+    "answerWord": "hollow",
+    "stem": "My life is ____ without him.",
+    "correctAnswer": "hollow",
+    "acceptedAnswers": [
+      "hollow",
+      "hollows"
+    ],
+    "analysis": "n. 洞, 窟窿, 山谷 a. 空的, 虚伪的, 空腹的, 凹的 vi. 形成空洞 vt. 挖空 ｜ 原句：My life is hollow without him."
+  },
+  {
+    "externalKey": "vocab-auto-9093-1",
+    "moduleType": 1,
+    "questionType": "FILL_BLANK",
+    "targetLevel": "CET4",
+    "difficultyLevel": 5,
+    "answerWord": "steer",
+    "stem": "He was ____ with only one hand.",
+    "correctAnswer": "steering",
+    "acceptedAnswers": [
+      "steer",
+      "steering",
+      "steers",
+      "steered"
+    ],
+    "analysis": "vt. 引导, 驾驶, 航行, 控制 vi. 驾驶, 掌舵, 行驶 n. 驾驶指示, 劝告 ｜ 原句：He was steering with only one hand."
+  },
+  {
+    "externalKey": "vocab-auto-8781-1",
+    "moduleType": 1,
+    "questionType": "FILL_BLANK",
+    "targetLevel": "CET4",
+    "difficultyLevel": 3,
+    "answerWord": "sauce",
+    "stem": "Hunger is the best ____.",
+    "correctAnswer": "sauce",
+    "acceptedAnswers": [
+      "sauce",
+      "sauces"
+    ],
+    "analysis": "n. 酱油, 调味汁, 酱 vt. 给...调味, 使增加趣味 ｜ 原句：Hunger is the best sauce."
+  },
+  {
+    "externalKey": "vocab-auto-10204-1",
+    "moduleType": 1,
+    "questionType": "FILL_BLANK",
+    "targetLevel": "CET6",
+    "difficultyLevel": 4,
+    "answerWord": "donate",
+    "stem": "Whenever I get a large sum of money, I ____ some of it to charity.",
+    "correctAnswer": "donate",
+    "acceptedAnswers": [
+      "donate",
+      "donates",
+      "donated",
+      "donating"
+    ],
+    "analysis": "v. 捐赠 ｜ 原句：Whenever I get a large sum of money, I donate some of it to charity."
+  },
+  {
+    "externalKey": "vocab-auto-6838-1",
+    "moduleType": 1,
+    "questionType": "FILL_BLANK",
+    "targetLevel": "CET4",
+    "difficultyLevel": 7,
+    "answerWord": "dormitory",
+    "stem": "I left the notes in the ____. I'll go back and get them now.",
+    "correctAnswer": "dormitory",
+    "acceptedAnswers": [
+      "dormitory",
+      "dormitories"
+    ],
+    "analysis": "n. 宿舍 ｜ 原句：I left the notes in the dormitory. I'll go back and get them now."
+  },
+  {
+    "externalKey": "vocab-auto-8917-1",
+    "moduleType": 1,
+    "questionType": "FILL_BLANK",
+    "targetLevel": "CET4",
+    "difficultyLevel": 3,
+    "answerWord": "silence",
+    "stem": "____ gives consent.",
+    "correctAnswer": "silence",
+    "acceptedAnswers": [
+      "silence",
+      "silences"
+    ],
+    "analysis": "n. 沉默, 无声, 静寂, 湮没, 无声息 vt. 使缄默 interj. 安静 ｜ 原句：Silence gives consent."
+  },
+  {
+    "externalKey": "vocab-auto-9320-1",
+    "moduleType": 1,
+    "questionType": "FILL_BLANK",
+    "targetLevel": "CET4",
+    "difficultyLevel": 4,
+    "answerWord": "tissue",
+    "stem": "I think I'm gonna sneeze. Give me a ____.",
+    "correctAnswer": "tissue",
+    "acceptedAnswers": [
+      "tissue",
+      "tissues"
+    ],
+    "analysis": "n. 薄的织物, 薄纱, 棉纸, 组织, 一套 [化] 组织 ｜ 原句：I think I'm gonna sneeze. Give me a tissue."
+  },
+  {
+    "externalKey": "vocab-auto-8338-1",
+    "moduleType": 1,
+    "questionType": "FILL_BLANK",
+    "targetLevel": "CET4",
+    "difficultyLevel": 3,
+    "answerWord": "possibly",
+    "stem": "____ the factory will be closed down next week.",
+    "correctAnswer": "possibly",
+    "acceptedAnswers": [
+      "possibly"
+    ],
+    "analysis": "adv. 可能, 也许 ｜ 原句：Possibly the factory will be closed down next week."
   }
 ]

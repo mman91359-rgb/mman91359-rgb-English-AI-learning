@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-11-08T11:55:40.986Z",
-  "total": 4466,
-  "digest": "7fc1e4cef17a",
+  "generatedAt": "2026-11-08T12:18:51.980Z",
+  "total": 4465,
+  "digest": "9d1d7643a480",
   "parts": [
     {
       "file": "V1.0.13__seed_vocab_auto_part01.sql",
@@ -62,14 +62,12 @@
     {
       "file": "V1.0.21__seed_vocab_auto_part09.sql",
       "version": "V1.0.21",
-      "count": 466,
+      "count": 465,
       "firstKey": "vocab-auto-10714-1",
       "lastKey": "vocab-auto-11637-1"
     }
   ],
-  "leftovers": [
-    "V1.0.22__seed_vocab_auto_part10.sql"
-  ],
+  "leftovers": [],
   "skips": {
     "no-example": 1009,
     "multi-occurrence": 25,
@@ -77,17 +75,18 @@
     "fixed-phrase": 37,
     "not-single-word": 3,
     "no-form-match": 48,
-    "sense-mismatch": 39
+    "sense-mismatch": 39,
+    "blocklist": 1
   },
   "byLevel": {
     "CET4": 3451,
-    "CET6": 1015
+    "CET6": 1014
   },
   "byDifficulty": {
     "2": 626,
     "3": 695,
     "4": 786,
-    "5": 829,
+    "5": 828,
     "6": 814,
     "7": 716
   }

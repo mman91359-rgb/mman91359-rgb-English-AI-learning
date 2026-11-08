@@ -31,7 +31,7 @@
     <!-- 智能添加单词 -->
     <form class="bg-surface-container-lowest rounded-[20px] p-5 shadow-soft-glow mb-6" @submit.prevent="handleAdd">
       <div class="flex items-center gap-2 mb-3">
-        <span class="material-symbols-outlined text-primary text-xl">auto_awesome</span>
+        <span class="material-symbols-outlined text-primary text-xl">library_add</span>
         <span class="font-label-lg text-label-lg text-on-surface">智能添加单词</span>
       </div>
       <div class="flex flex-col sm:flex-row gap-3">

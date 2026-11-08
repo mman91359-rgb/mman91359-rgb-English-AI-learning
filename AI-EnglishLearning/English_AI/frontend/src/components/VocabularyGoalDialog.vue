@@ -136,7 +136,7 @@
 
           <!-- 汇总 + 错误 -->
           <div class="mt-5 flex items-center gap-2 rounded-2xl bg-surface-container-low px-4 py-3">
-            <span class="material-symbols-outlined text-primary text-xl">auto_awesome</span>
+            <span class="material-symbols-outlined text-primary text-xl">summarize</span>
             <span class="font-body-md text-body-md text-on-surface">
               {{ $t('vocabGoal.summary', { newWords: newInput, reviewWords: reviewInput }) }}
             </span>

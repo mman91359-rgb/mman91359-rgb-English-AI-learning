@@ -4,7 +4,7 @@
     <div class="flex items-center justify-between border-b border-outline-variant/30 px-6 py-4">
       <div class="flex items-center gap-3">
         <div class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-container">
-          <span class="material-symbols-outlined text-icon-lg text-on-primary">psychology</span>
+          <span class="material-symbols-outlined text-icon-lg text-on-primary">forum</span>
         </div>
         <div>
           <div class="font-label-lg text-label-lg font-semibold text-on-surface">{{ $t('ai.title') }}</div>
@@ -43,7 +43,7 @@
         <div class="relative mb-6">
           <div class="absolute inset-0 scale-150 rounded-full bg-gradient-to-br from-primary/20 to-primary-container/10 blur-2xl"></div>
           <div class="relative flex h-20 w-20 items-center justify-center rounded-2xl border border-outline-variant/20 bg-surface-container-lowest shadow-lg dark:bg-surface">
-            <span class="material-symbols-outlined fill text-icon-xl text-primary">auto_awesome</span>
+            <span class="material-symbols-outlined fill text-icon-xl text-primary">support_agent</span>
           </div>
         </div>
         <h3 class="mb-2 font-headline-md text-headline-md font-bold text-on-surface">{{ $t('ai.subtitle') }}</h3>
@@ -103,7 +103,7 @@
           >
             <div v-if="msg.role === 'ai'" class="mb-1.5 flex items-center justify-between">
               <div class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-icon-sm text-primary">smart_toy</span>
+                <span class="material-symbols-outlined text-icon-sm text-primary">forum</span>
                 <span class="font-label-sm text-label-sm text-primary">{{ $t('ai.badge') }}</span>
               </div>
               <button

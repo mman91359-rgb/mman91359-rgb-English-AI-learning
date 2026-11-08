@@ -131,7 +131,7 @@
         >
           <div class="flex items-center gap-4">
             <div class="flex h-10 w-10 items-center justify-center rounded-full bg-secondary-container/30">
-              <span class="material-symbols-outlined text-secondary">psychology</span>
+              <span class="material-symbols-outlined text-secondary">forum</span>
             </div>
             <div class="flex flex-col gap-0.5">
               <span class="font-body-lg text-body-lg text-on-surface">{{ $t('learning.aiQA') }}</span>
@@ -253,7 +253,7 @@
         <div class="col-span-1 md:col-span-4 bg-surface-container-lowest rounded-[24px] p-6 shadow-soft-glow flex items-center justify-between cursor-pointer hover:bg-surface-container-lowest/80 transition-colors" @click="openAiChat">
           <div class="flex items-center gap-4">
             <div class="w-10 h-10 rounded-full bg-secondary-container/30 flex items-center justify-center">
-              <span class="material-symbols-outlined text-secondary">psychology</span>
+              <span class="material-symbols-outlined text-secondary">forum</span>
             </div>
             <div>
               <span class="font-body-lg text-body-lg text-on-surface block">{{ $t('learning.aiQA') }}</span>

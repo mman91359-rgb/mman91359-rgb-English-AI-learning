@@ -282,7 +282,7 @@
                 @click="askAi"
               >
                 <div class="w-12 h-12 rounded-full bg-primary-container/20 flex items-center justify-center group-hover:bg-primary-container/30 transition-colors">
-                  <span class="material-symbols-outlined text-[28px]">smart_toy</span>
+                  <span class="material-symbols-outlined text-[28px]">help</span>
                 </div>
                 <span class="font-label-md text-label-md font-bold">{{ $t('learning.askAi') }}</span>
               </button>

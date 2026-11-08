@@ -1,8 +1,8 @@
 <template>
   <aside class="flex flex-col gap-5 rounded-[24px] border border-outline-variant/40 bg-surface-container-lowest p-6 shadow-soft-glow">
     <header class="flex items-center gap-2">
-      <span class="flex h-9 w-9 items-center justify-center rounded-full bg-primary-container/40 text-primary">
-        <span class="material-symbols-outlined text-icon-md">auto_awesome</span>
+      <span class="flex h-9 w-9 items-center justify-center rounded-full bg-tertiary-container/40 text-tertiary">
+        <span class="material-symbols-outlined text-icon-md">rate_review</span>
       </span>
       <h2 class="font-headline-sm text-headline-sm text-on-surface">{{ $t('writing.score.dimensionTitle') }}</h2>
     </header>

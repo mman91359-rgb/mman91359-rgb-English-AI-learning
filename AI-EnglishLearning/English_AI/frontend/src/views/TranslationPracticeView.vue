@@ -120,7 +120,7 @@
 
         <aside class="w-full min-w-0 flex flex-col gap-4">
           <div class="flex items-center gap-2 mb-2">
-            <span class="material-symbols-outlined text-primary">auto_awesome</span>
+            <span class="material-symbols-outlined text-tertiary">spellcheck</span>
             <h3 class="font-headline-md text-headline-md text-on-surface">{{ $t('translation.aiFeedback') }}</h3>
           </div>
 

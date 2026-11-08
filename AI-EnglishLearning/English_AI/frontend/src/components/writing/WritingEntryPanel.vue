@@ -128,7 +128,7 @@
     <button type="button" class="flex items-center justify-between rounded-[24px] bg-surface-container-lowest p-6 text-left shadow-soft-glow transition-colors hover:bg-surface-container-lowest/80 md:col-span-4" @click="toast($t('writing.entry.aiComingSoon'), 'info')">
       <span class="flex items-center gap-4">
         <span class="flex h-10 w-10 items-center justify-center rounded-full bg-secondary-container/30">
-          <span class="material-symbols-outlined text-secondary">psychology</span>
+          <span class="material-symbols-outlined text-secondary">edit_note</span>
         </span>
         <span class="flex flex-col gap-0.5">
           <span class="font-body-lg text-body-lg text-on-surface">{{ $t('writing.entry.ai') }}</span>

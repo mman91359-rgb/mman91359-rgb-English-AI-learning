@@ -58,7 +58,7 @@
           </div>
           <div class="flex-1 text-center md:text-left">
             <div class="flex items-center gap-2 justify-center md:justify-start mb-2">
-              <span class="material-symbols-outlined text-primary text-xl">auto_awesome</span>
+              <span class="material-symbols-outlined text-primary text-xl">flag</span>
               <span class="font-label-lg text-label-lg text-primary uppercase tracking-wider">{{ $t('dashboard.dailyVocabularyGoal') }}</span>
             </div>
             <div class="flex items-center gap-2 justify-center md:justify-start mb-2">

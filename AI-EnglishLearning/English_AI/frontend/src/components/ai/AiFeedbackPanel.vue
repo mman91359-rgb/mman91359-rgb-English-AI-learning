@@ -1,16 +1,18 @@
 <template>
   <div class="flex flex-col rounded-[24px] border border-outline-variant/40 bg-surface-container-lowest shadow-soft-glow">
     <header class="flex items-center gap-2 px-6 pt-5">
-      <span class="flex h-9 w-9 items-center justify-center rounded-full bg-primary-container/40 text-primary">
-        <span class="material-symbols-outlined text-icon-md">auto_awesome</span>
+      <span class="flex h-9 w-9 items-center justify-center rounded-full bg-tertiary-container/40 text-tertiary">
+        <span class="material-symbols-outlined text-icon-md">rate_review</span>
       </span>
       <h2 class="font-headline-sm text-headline-sm text-on-surface">{{ $t('ai.panel.title') }}</h2>
     </header>
 
     <div class="px-6 py-4">
-      <div v-if="loading" class="flex items-center gap-2 py-6 text-on-surface-variant">
-        <span class="material-symbols-outlined animate-spin text-icon-md">progress_activity</span>
-        <span class="font-body-md text-body-md">{{ $t('ai.panel.loading') }}</span>
+      <div v-if="loading" class="flex flex-col gap-3 py-6" aria-busy="true" aria-label="AI 正在分析">
+        <div class="animate-shimmer h-3 w-1/3 rounded-full bg-gradient-to-r from-surface-container-low via-surface-container to-surface-container-low bg-[length:200%_100%]"></div>
+        <div class="animate-shimmer h-4 w-full rounded-full bg-gradient-to-r from-surface-container-low via-surface-container to-surface-container-low bg-[length:200%_100%]"></div>
+        <div class="animate-shimmer h-4 w-5/6 rounded-full bg-gradient-to-r from-surface-container-low via-surface-container to-surface-container-low bg-[length:200%_100%]"></div>
+        <div class="animate-shimmer h-4 w-2/3 rounded-full bg-gradient-to-r from-surface-container-low via-surface-container to-surface-container-low bg-[length:200%_100%]"></div>
       </div>
 
       <div v-else-if="error" class="flex flex-col items-center gap-3 py-6 text-center">

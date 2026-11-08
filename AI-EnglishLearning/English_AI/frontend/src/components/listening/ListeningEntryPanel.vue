@@ -64,7 +64,7 @@
     <button type="button" class="md:col-span-4 bg-surface-container-lowest rounded-[24px] p-6 shadow-soft-glow flex items-center justify-between hover:bg-surface-container-lowest/80 transition-colors text-left" @click="showAiComingSoon">
       <div class="flex items-center gap-4">
         <div class="w-10 h-10 rounded-full bg-secondary-container/30 flex items-center justify-center">
-          <span class="material-symbols-outlined text-secondary">psychology</span>
+          <span class="material-symbols-outlined text-secondary">headphones</span>
         </div>
         <span class="font-body-lg text-body-lg text-on-surface">{{ $t('listening.entryAi') }}</span>
       </div>

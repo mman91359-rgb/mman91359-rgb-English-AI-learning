@@ -61,7 +61,7 @@ const label = computed(() => {
 const icon = computed(() => {
   if (props.status === 'correct') return 'check'
   if (props.status === 'incorrect') return 'close'
-  return 'auto_awesome'
+  return 'hourglass_empty'
 })
 
 const cardClass = computed(() => {
@@ -73,19 +73,19 @@ const cardClass = computed(() => {
 const iconCircleClass = computed(() => {
   if (props.status === 'correct') return 'bg-tertiary/15'
   if (props.status === 'incorrect') return 'bg-error/20'
-  return 'bg-primary-container/20'
+  return 'bg-tertiary/15'
 })
 
 const iconClass = computed(() => {
   if (props.status === 'correct') return 'text-tertiary'
   if (props.status === 'incorrect') return 'text-error'
-  return 'text-primary'
+  return 'text-tertiary'
 })
 
 const labelClass = computed(() => {
   if (props.status === 'correct') return 'text-tertiary'
   if (props.status === 'incorrect') return 'text-error'
-  return 'text-primary'
+  return 'text-tertiary'
 })
 
 const messageClass = computed(() => {

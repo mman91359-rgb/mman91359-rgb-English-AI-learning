@@ -254,7 +254,7 @@
               @click="askAi"
               :aria-label="$t('learning.askAi')"
             >
-              <span class="material-symbols-outlined text-xl">smart_toy</span>
+              <span class="material-symbols-outlined text-xl">help</span>
             </button>
             <!-- 确认/下一题大按钮 -->
             <button

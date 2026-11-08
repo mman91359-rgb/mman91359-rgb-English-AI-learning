@@ -136,11 +136,11 @@
           </div>
           <div class="bg-surface-container-low rounded-full p-1 flex">
             <button
-              :class="['px-4 py-1.5 rounded-full font-label-md text-label-md transition-all', studyPeriod === 'week' ? 'bg-white shadow-sm text-on-surface' : 'text-on-surface-variant hover:text-on-surface']"
+              :class="['px-4 py-1.5 rounded-full font-label-md text-label-md transition-all', studyPeriod === 'week' ? 'bg-surface-container-lowest dark:bg-surface-container-high shadow-sm text-on-surface' : 'text-on-surface-variant hover:text-on-surface']"
               @click="studyPeriod = 'week'"
             >{{ $t('dashboard.week') }}</button>
             <button
-              :class="['px-4 py-1.5 rounded-full font-label-md text-label-md transition-all', studyPeriod === 'month' ? 'bg-white shadow-sm text-on-surface' : 'text-on-surface-variant hover:text-on-surface']"
+              :class="['px-4 py-1.5 rounded-full font-label-md text-label-md transition-all', studyPeriod === 'month' ? 'bg-surface-container-lowest dark:bg-surface-container-high shadow-sm text-on-surface' : 'text-on-surface-variant hover:text-on-surface']"
               @click="studyPeriod = 'month'"
             >{{ $t('dashboard.month') }}</button>
           </div>
@@ -549,8 +549,8 @@ watch(() => route.path, (newPath) => {
   top: -32px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(30, 30, 40, 0.88);
-  color: #fff;
+  background: rgb(var(--color-inverse-surface) / 0.92);
+  color: rgb(var(--color-inverse-on-surface));
   padding: 4px 10px;
   border-radius: 8px;
   white-space: nowrap;

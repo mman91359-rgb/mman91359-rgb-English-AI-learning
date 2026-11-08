@@ -11,7 +11,7 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div class="bg-surface-container-lowest rounded-xl p-6 card-shadow">
             <div class="flex items-center text-on-surface-variant mb-2">
-              <span class="material-symbols-outlined mr-2 text-primary text-[20px]">schedule</span>
+              <span class="material-symbols-outlined mr-2 text-primary text-icon-md">schedule</span>
               <span class="font-label-md text-label-md">{{ $t('stats.todayHours') }}</span>
             </div>
             <div class="text-headline-lg font-headline-lg text-on-surface">
@@ -21,7 +21,7 @@
           </div>
           <div class="bg-surface-container-lowest rounded-xl p-6 card-shadow">
             <div class="flex items-center text-on-surface-variant mb-2">
-              <span class="material-symbols-outlined mr-2 text-secondary text-[20px]" :class="{ 'opacity-30': userStore.checkInStreak < 3 }">local_fire_department</span>
+              <span class="material-symbols-outlined mr-2 text-secondary text-icon-md" :class="{ 'opacity-30': userStore.checkInStreak < 3 }">local_fire_department</span>
               <span class="font-label-md text-label-md">{{ $t('stats.streakDays') }}</span>
             </div>
             <div class="text-headline-lg font-headline-lg text-on-surface">
@@ -30,7 +30,7 @@
           </div>
           <div class="bg-surface-container-lowest rounded-xl p-6 card-shadow">
             <div class="flex items-center text-on-surface-variant mb-2">
-              <span class="material-symbols-outlined mr-2 text-tertiary text-[20px]">calendar_month</span>
+              <span class="material-symbols-outlined mr-2 text-tertiary text-icon-md">calendar_month</span>
               <span class="font-label-md text-label-md">{{ $t('stats.activeDays') }}</span>
             </div>
             <div class="text-headline-lg font-headline-lg text-on-surface">
@@ -123,7 +123,7 @@
           <div class="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
           <div class="relative z-10 text-center mb-6">
             <div class="inline-flex items-center justify-center w-20 h-20 bg-surface-container-lowest rounded-full shadow-sm mb-4">
-              <span class="material-symbols-outlined text-icon-2xl text-[#FFC107] fill">trophy</span>
+              <span class="material-symbols-outlined text-icon-2xl text-warning fill">trophy</span>
             </div>
             <h3 class="font-headline-md text-headline-md text-on-surface">{{ $t('stats.myVocabulary') }}</h3>
             <p class="text-label-md font-label-md text-on-surface-variant mt-1">{{ $t('stats.testedAt') }} {{ vocabTestDate }}</p>
@@ -132,21 +132,21 @@
             <div class="bg-surface-container-lowest/60 backdrop-blur-sm rounded-xl p-4 text-center border border-surface-container-lowest">
               <p class="text-label-md font-label-md text-on-surface-variant mb-1">{{ $t('stats.masteredWords') }}</p>
               <div class="text-headline-lg font-headline-lg text-primary flex items-center justify-center">
-                <span class="material-symbols-outlined mr-2 text-primary text-[20px]">auto_stories</span>
+                <span class="material-symbols-outlined mr-2 text-primary text-icon-md">auto_stories</span>
                 {{ formatNumber(masteredWords) }}
               </div>
             </div>
             <div class="bg-surface-container-lowest/60 backdrop-blur-sm rounded-xl p-4 text-center border border-surface-container-lowest">
               <p class="text-label-md font-label-md text-on-surface-variant mb-1">{{ $t('stats.vocabularyRate') }}</p>
               <div class="text-headline-lg font-headline-lg text-primary flex items-center justify-center">
-                <span class="material-symbols-outlined mr-2 text-primary text-[20px]">check_circle</span>
+                <span class="material-symbols-outlined mr-2 text-primary text-icon-md">check_circle</span>
                 {{ vocabularyRate }}%
               </div>
             </div>
             <div class="bg-surface-container-lowest/60 backdrop-blur-sm rounded-xl p-4 text-center border border-surface-container-lowest">
               <p class="text-label-md font-label-md text-on-surface-variant mb-1">{{ $t('stats.nationalRank') }}</p>
               <div class="text-headline-lg font-headline-lg text-primary flex items-center justify-center">
-                <span class="material-symbols-outlined mr-2 text-primary text-[20px]">trending_up</span>
+                <span class="material-symbols-outlined mr-2 text-primary text-icon-md">trending_up</span>
                 {{ $t('stats.top') }} {{ nationalRank }}%
               </div>
             </div>
@@ -172,6 +172,7 @@ import AppLayout from '../components/AppLayout.vue'
 import { useUserStore } from '@/stores/user'
 import { useAppStore } from '@/stores/app'
 import { formatNumber } from '@/utils/format'
+import { cssColor } from '@/utils/themeTokens'
 import { getExerciseStats } from '@/api/exercise'
 
 const { tm } = useI18n()
@@ -208,18 +209,21 @@ const minutesToLevel = (minutes: number): number => {
 // 各等级对应的时长范围 tooltip
 const levelMinuteLabels = ['0分钟', '1~10分钟', '11~30分钟', '31~60分钟', '61~120分钟', '>120分钟']
 
-// 热力图颜色映射（基于学习时长等级）
-const heatmapColor = (level: number): string => {
-  const colors = [
-    '#e5e7eb',        // 0: 无记录 — 浅灰（通过 CSS class 覆盖，此处保底）
-    '#e9d5ff',        // 1: 1~10分钟 浅紫
-    '#d8b4fe',        // 2: 11~30分钟 淡紫
-    '#c084fc',        // 3: 31~60分钟 中紫
-    '#a855f7',        // 4: 61~120分钟 深紫
-    '#9333ea'         // 5: >120分钟 最深紫
+// 热力图颜色映射（基于学习时长等级）：颜色取自主题令牌，随亮暗切换重算
+const heatmapPalette = computed<string[]>(() => {
+  // 显式依赖主题状态，切换主题时触发重算
+  void appStore.isDark
+  return [
+    cssColor('surface-container-highest'), // 0: 无记录
+    cssColor('primary', 0.12),             // 1: 1~10分钟
+    cssColor('primary', 0.26),             // 2: 11~30分钟
+    cssColor('primary', 0.45),             // 3: 31~60分钟
+    cssColor('primary', 0.68),             // 4: 61~120分钟
+    cssColor('primary')                    // 5: >120分钟
   ]
-  return colors[level] || colors[0]
-}
+})
+
+const heatmapColor = (level: number): string => heatmapPalette.value[level] ?? heatmapPalette.value[0]
 
 // 用空单元格补齐，使第一列对应正确的星期
 interface PaddedCell {
@@ -324,9 +328,9 @@ const renderChart = () => {
   chartInstance.setOption({
     tooltip: {
       trigger: 'axis',
-      backgroundColor: 'rgba(255,255,255,0.95)',
-      borderColor: 'rgba(0,0,0,0.08)',
-      textStyle: { color: '#1A1D26', fontSize: 13 },
+      backgroundColor: cssColor('surface-container-highest', 0.95),
+      borderColor: cssColor('outline-variant', 0.6),
+      textStyle: { color: cssColor('on-surface'), fontSize: 13 },
       formatter: (params: any) => {
         const p = Array.isArray(params) ? params[0] : params
         return `${p.name}<br/>学习时长: <b>${p.value} 分钟</b>`
@@ -342,10 +346,10 @@ const renderChart = () => {
     xAxis: {
       type: 'category',
       data: labels,
-      axisLine: { lineStyle: { color: 'rgba(0,0,0,0.08)' } },
+      axisLine: { lineStyle: { color: cssColor('outline-variant', 0.5) } },
       axisTick: { show: false },
       axisLabel: {
-        color: '#9CA3AF',
+        color: cssColor('outline'),
         fontSize: 11,
         interval: 0
       },
@@ -354,11 +358,11 @@ const renderChart = () => {
     yAxis: {
       type: 'value',
       name: '分钟',
-      nameTextStyle: { color: '#9CA3AF', fontSize: 11 },
+      nameTextStyle: { color: cssColor('outline'), fontSize: 11 },
       axisLine: { show: false },
       axisTick: { show: false },
-      splitLine: { lineStyle: { color: 'rgba(0,0,0,0.05)', type: 'dashed' } },
-      axisLabel: { color: '#9CA3AF', fontSize: 11 }
+      splitLine: { lineStyle: { color: cssColor('outline-variant', 0.4), type: 'dashed' } },
+      axisLabel: { color: cssColor('outline'), fontSize: 11 }
     },
     series: [{
       type: 'bar',
@@ -367,20 +371,25 @@ const renderChart = () => {
       label: {
         show: true,
         position: 'top',
-        color: '#6B7280',
+        color: cssColor('on-surface-variant'),
         fontSize: 11,
         formatter: '{c}'
       },
       itemStyle: {
         color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-          { offset: 0, color: '#a855f7' },
-          { offset: 1, color: '#c084fc' }
+          { offset: 0, color: cssColor('primary') },
+          { offset: 1, color: cssColor('primary-fixed') }
         ]),
         borderRadius: [4, 4, 0, 0]
       }
     }]
   })
 }
+
+// 主题切换后画布颜色不会自动更新，需重绘
+watch(() => appStore.isDark, () => {
+  renderChart()
+}, { flush: 'post' })
 
 // 窗口大小变化时重绘
 const handleResize = () => {

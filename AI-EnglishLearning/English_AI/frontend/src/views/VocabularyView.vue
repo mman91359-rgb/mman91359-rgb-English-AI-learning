@@ -14,7 +14,7 @@
         <p class="font-label-md text-label-md text-on-surface-variant mt-1">单词总数</p>
       </div>
       <div class="bg-surface-container-lowest rounded-[16px] p-4 shadow-soft-glow text-center">
-        <p class="font-headline-lg text-headline-lg text-green-600">{{ stats.mastered }}</p>
+        <p class="font-headline-lg text-headline-lg text-tertiary">{{ stats.mastered }}</p>
         <p class="font-label-md text-label-md text-on-surface-variant mt-1">已掌握</p>
       </div>
       <div
@@ -98,7 +98,7 @@
           <!-- 掌握度圆圈 -->
           <button
             class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-colors"
-            :class="w.isMastered ? 'bg-green-100 text-green-600' : 'bg-outline-variant/20 text-outline'"
+            :class="w.isMastered ? 'bg-tertiary-container/40 text-on-tertiary-container' : 'bg-outline-variant/20 text-outline'"
             @click="handleToggle(w)"
             :title="`掌握度 ${w.masteryLevel ?? 0}/5`"
           >
@@ -245,7 +245,7 @@
               没记住
             </button>
             <button
-              class="py-3 bg-green-100 text-green-700 rounded-xl font-label-md text-label-md hover:bg-green-200 transition-colors flex items-center justify-center gap-1"
+              class="py-3 bg-tertiary-container/40 text-on-tertiary-container rounded-xl font-label-md text-label-md hover:bg-tertiary-container/60 transition-colors flex items-center justify-center gap-1"
               :disabled="!flipped || reviewing"
               @click="handleReview(true)"
             >

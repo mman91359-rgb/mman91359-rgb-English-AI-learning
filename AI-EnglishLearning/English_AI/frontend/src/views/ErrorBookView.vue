@@ -108,7 +108,7 @@
           <template v-if="q.moduleType === 2">
             <div class="mb-4 space-y-2">
               <div class="flex items-start gap-2">
-                <span class="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-2.5 py-0.5 rounded-lg font-label-sm text-label-sm whitespace-nowrap mt-0.5">
+                <span class="bg-info-container/50 text-on-info-container px-2.5 py-0.5 rounded-lg font-label-sm text-label-sm whitespace-nowrap mt-0.5">
                   {{ $t('learning.knowledgePoint') }}
                 </span>
                 <p class="font-body-sm text-body-sm text-on-surface leading-relaxed flex-1">
@@ -145,7 +145,7 @@
             <!-- 已选单词区 -->
             <div
               class="bg-surface-container-low rounded-2xl p-4 min-h-[100px] flex flex-wrap gap-2 content-start mb-3"
-              :class="showAnswer[q.id] && !submitted[q.id]?.isCorrect ? 'ring-2 ring-red-300' : ''"
+              :class="showAnswer[q.id] && !submitted[q.id]?.isCorrect ? 'ring-2 ring-error/40' : ''"
             >
               <template v-if="getSelectedWords(q.id).length > 0">
                 <button
@@ -209,8 +209,8 @@
               class="w-full text-center py-3 px-4 rounded-xl border-2 font-body-md text-body-md outline-none transition-colors bg-surface-container-low text-on-surface placeholder-on-surface-variant"
               :class="showAnswer[q.id]
                 ? (submitted[q.id]?.isCorrect
-                    ? 'border-green-500 bg-green-50/40'
-                    : 'border-red-400 bg-red-50/40')
+                    ? 'border-tertiary bg-tertiary-container/25'
+                    : 'border-error bg-error-container/25')
                 : 'border-outline-variant/30 focus:border-primary'"
               :disabled="showAnswer[q.id]"
               :placeholder="$t('learning.inputAnswer')"
@@ -222,9 +222,9 @@
           <div v-if="showAnswer[q.id]" class="space-y-2">
             <div
               v-if="submitted[q.id]?.isCorrect"
-              class="bg-green-50/40 rounded-xl p-4 text-center space-y-3 border border-green-200/50"
+              class="bg-tertiary-container/25 rounded-xl p-4 text-center space-y-3 border border-tertiary/25"
             >
-              <p class="font-label-lg text-label-lg text-green-700">{{ $t('learning.congratsRemoved') }}</p>
+              <p class="font-label-lg text-label-lg text-on-tertiary-container">{{ $t('learning.congratsRemoved') }}</p>
               <router-link
                 to="/learning"
                 class="inline-flex items-center gap-1 text-primary font-label-md underline underline-offset-4 hover:text-primary/80 transition-colors"
@@ -363,8 +363,8 @@
                   class="w-full text-center py-3 px-4 rounded-xl border-2 font-body-md text-body-md outline-none transition-colors bg-surface-container-low text-on-surface placeholder-on-surface-variant"
                   :class="similarShowAnswer[currentSimilarIndex]
                     ? (similarSubmitted[currentSimilarIndex]?.isCorrect
-                        ? 'border-green-500 bg-green-50/40'
-                        : 'border-red-400 bg-red-50/40')
+                        ? 'border-tertiary bg-tertiary-container/25'
+                        : 'border-error bg-error-container/25')
                     : 'border-outline-variant/30 focus:border-primary'"
                   :disabled="similarShowAnswer[currentSimilarIndex]"
                   :placeholder="$t('learning.inputAnswer')"
@@ -376,9 +376,9 @@
               <div v-if="similarShowAnswer[currentSimilarIndex]" class="space-y-2">
                 <div
                   v-if="similarSubmitted[currentSimilarIndex]?.isCorrect"
-                  class="bg-green-50/40 rounded-xl p-3 text-center"
+                  class="bg-tertiary-container/25 rounded-xl p-3 text-center"
                 >
-                  <p class="font-label-md text-label-md text-green-700">回答正确！</p>
+                  <p class="font-label-md text-label-md text-on-tertiary-container">回答正确！</p>
                 </div>
                 <div v-else class="bg-surface-container rounded-xl p-3 space-y-1">
                   <p class="font-label-sm text-label-sm text-on-surface-variant">

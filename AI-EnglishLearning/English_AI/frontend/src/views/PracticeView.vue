@@ -15,7 +15,7 @@
           {{ $t('learning.questionProgress', { current: currentQuestionIndex + 1, total: questions.length }) }}
         </p>
       </div>
-      <span v-if="correctCount > 0 && !showResults" class="font-body-lg text-body-lg text-green-600">
+      <span v-if="correctCount > 0 && !showResults" class="font-body-lg text-body-lg text-tertiary">
         {{ $t('learning.correctCount', { count: correctCount }) }}
       </span>
     </div>
@@ -49,9 +49,9 @@
             :class="[
               'w-full text-left p-4 md:p-5 rounded-xl border-2 transition-all font-body-md text-body-md',
               showResult && submitResult?.correctAnswerKey === opt.key
-                ? 'border-green-500 bg-green-50 dark:bg-green-900/30 text-green-800 dark:text-green-300'
+                ? 'border-tertiary bg-tertiary-container/30 text-on-tertiary-container'
                 : showResult && selectedAnswer === opt.key && !submitResult?.isCorrect
-                  ? 'border-red-400 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                  ? 'border-error bg-error-container/30 text-on-error-container'
                   : selectedAnswer === opt.key
                     ? 'border-primary bg-primary-container/20 text-primary'
                     : 'border-outline-variant/30 hover:border-primary/50 text-on-surface'
@@ -64,9 +64,9 @@
                 :class="[
                   'w-8 h-8 rounded-full flex items-center justify-center font-label-lg text-label-lg shrink-0',
                   showResult && submitResult?.correctAnswerKey === opt.key
-                    ? 'bg-green-500 text-white'
+                    ? 'bg-tertiary text-on-tertiary'
                     : showResult && selectedAnswer === opt.key && !submitResult?.isCorrect
-                      ? 'bg-red-400 text-white'
+                      ? 'bg-error text-on-error'
                       : selectedAnswer === opt.key
                         ? 'bg-primary text-on-primary'
                         : 'bg-surface-variant text-on-surface-variant'
@@ -89,8 +89,8 @@
               class="w-full max-w-md text-center py-4 px-6 rounded-xl border-2 text-xl font-semibold outline-none transition-colors bg-surface-container-low dark:bg-surface-container-high text-on-surface placeholder-on-surface-variant"
               :class="showResult
                 ? (submitResult?.isCorrect
-                    ? 'border-green-500 bg-green-50 dark:bg-green-900/30'
-                    : 'border-red-400 bg-red-50 dark:bg-red-900/30')
+                    ? 'border-tertiary bg-tertiary-container/30'
+                    : 'border-error bg-error-container/30')
                 : 'border-outline-variant/30 focus:border-primary'"
               :disabled="showResult"
               :placeholder="$t('learning.inputAnswer')"
@@ -114,7 +114,7 @@
           <div v-if="showResult" class="space-y-4">
             <div
               class="p-4 rounded-xl font-label-lg text-label-lg text-center"
-              :class="submitResult?.isCorrect ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300' : 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300'"
+              :class="submitResult?.isCorrect ? 'bg-tertiary-container/30 text-on-tertiary-container' : 'bg-error-container/30 text-on-error-container'"
             >
               <span class="material-symbols-outlined align-middle mr-1">{{ submitResult?.isCorrect ? 'check_circle' : 'cancel' }}</span>
               {{ submitResult?.isCorrect ? $t('learning.correct') : $t('learning.incorrect') }}
@@ -190,14 +190,14 @@
             <div class="flex items-start gap-3">
               <span
                 class="w-7 h-7 rounded-full flex items-center justify-center text-sm shrink-0 mt-0.5"
-                :class="item.submitResult?.isCorrect ? 'bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300'"
+                :class="item.submitResult?.isCorrect ? 'bg-tertiary-container/45 text-on-tertiary-container' : 'bg-error-container/45 text-on-error-container'"
               >
                 <span class="material-symbols-outlined text-sm">{{ item.submitResult?.isCorrect ? 'check' : 'close' }}</span>
               </span>
               <div class="flex-1 min-w-0">
                 <p class="font-body-md text-body-md text-on-surface mb-2">{{ item.question.stem }}</p>
                 <div class="flex flex-wrap gap-x-4 gap-y-1 font-label-sm text-label-sm text-on-surface-variant">
-                  <span>{{ $t('learning.yourAnswer') }}：<span :class="item.submitResult?.isCorrect ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'">{{ item.selectedAnswer }}</span></span>
+                  <span>{{ $t('learning.yourAnswer') }}：<span :class="item.submitResult?.isCorrect ? 'text-tertiary' : 'text-error'">{{ item.selectedAnswer }}</span></span>
                   <span v-if="!item.submitResult?.isCorrect">{{ $t('learning.correctAnswer') }}：<span class="text-primary font-semibold">{{ item.submitResult?.correctAnswer }}</span></span>
                 </div>
               </div>

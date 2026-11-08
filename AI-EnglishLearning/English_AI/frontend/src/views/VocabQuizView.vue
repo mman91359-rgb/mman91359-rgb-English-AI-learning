@@ -29,16 +29,16 @@
           <div class="flex-1 max-w-md mx-auto relative flex items-center">
             <div class="absolute left-0 top-1/2 -translate-y-1/2 -ml-2 bg-white dark:bg-surface shadow-lg rounded-full w-14 h-14 flex items-center justify-center z-10 border-4 border-background dark:border-surface">
               <span
-                class="material-symbols-outlined text-[#1a7ba5] dark:text-[#4db8d6] text-2xl"
+                class="material-symbols-outlined text-info text-2xl"
                 style="font-variation-settings: 'FILL' 1;"
               >emoji_events</span>
             </div>
-            <div class="w-full h-12 bg-gray-100 dark:bg-surface-variant/50 rounded-full overflow-hidden ml-4 relative flex items-center">
+            <div class="w-full h-12 bg-surface-container-high rounded-full overflow-hidden ml-4 relative flex items-center">
               <div
-                class="h-full bg-[#7c6fae] dark:bg-primary/80 transition-all duration-500 ease-out"
+                class="h-full bg-primary transition-all duration-500 ease-out"
                 :style="{ width: progressPercent + '%' }"
               ></div>
-              <span class="absolute inset-0 flex items-center justify-center text-lg font-bold text-[#5d4e8a] dark:text-primary">
+              <span class="absolute inset-0 flex items-center justify-center text-lg font-bold text-primary">
                 {{ answeredCount }}/{{ totalCount }}
               </span>
             </div>
@@ -138,12 +138,12 @@
                       class="w-full h-14 bg-surface-container-low border-b-2 rounded-t-lg px-3 text-center font-headline-md text-headline-md transition-all duration-200 outline-none"
                       :class="showFeedback
                         ? (isCorrect
-                          ? 'border-green-500 text-green-700 dark:text-green-300 bg-green-50/50 dark:bg-green-900/20'
-                          : 'border-red-500 text-red-600 dark:text-red-400 bg-red-50/50 dark:bg-red-900/20')
+                          ? 'border-tertiary text-on-tertiary-container bg-tertiary-container/30'
+                          : 'border-error text-on-error-container bg-error-container/30')
                         : inputStatus === 'wrong'
-                          ? 'border-red-500 text-red-600 dark:text-red-400 bg-red-50/60 dark:bg-red-900/30 shadow-[0_0_0_3px_rgba(239,68,68,0.15)]'
+                          ? 'border-error text-on-error-container bg-error-container/40 ring-2 ring-error/30'
                           : inputStatus === 'correct'
-                            ? 'border-green-500 text-green-700 dark:text-green-400 bg-green-50/60 dark:bg-green-900/30 shadow-[0_0_0_3px_rgba(34,197,94,0.15)]'
+                            ? 'border-tertiary text-on-tertiary-container bg-tertiary-container/35 ring-2 ring-tertiary/30'
                             : 'border-primary-container focus:border-primary text-primary focus:outline-none focus:shadow-[0_0_0_3px_rgba(0,0,0,0.05)]'"
                       :disabled="showFeedback"
                       :placeholder="''"
@@ -156,11 +156,11 @@
                     <!-- 实时拼写状态图标 -->
                     <span
                       v-if="inputStatus === 'correct' && !showFeedback"
-                      class="material-symbols-outlined absolute -right-8 top-1/2 -translate-y-1/2 text-green-500 text-2xl pointer-events-none animate-pulse"
+                      class="material-symbols-outlined absolute -right-8 top-1/2 -translate-y-1/2 text-tertiary text-2xl pointer-events-none animate-pulse"
                     >check_circle</span>
                     <span
                       v-if="inputStatus === 'wrong' && !showFeedback && userAnswer.trim().length >= 2"
-                      class="material-symbols-outlined absolute -right-8 top-1/2 -translate-y-1/2 text-red-500 text-2xl pointer-events-none"
+                      class="material-symbols-outlined absolute -right-8 top-1/2 -translate-y-1/2 text-error text-2xl pointer-events-none"
                     >error</span>
                   </div>
                 </template>
@@ -176,17 +176,17 @@
                 <div
                   class="p-3 rounded-xl font-label-lg text-label-lg text-center"
                   :class="isCorrect
-                    ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300'
-                    : 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300'"
+                    ? 'bg-tertiary-container/30 text-on-tertiary-container'
+                    : 'bg-error-container/30 text-on-error-container'"
                 >
                   <span class="material-symbols-outlined align-middle mr-1">{{ isCorrect ? 'check_circle' : 'cancel' }}</span>
                   {{ isCorrect ? $t('learning.correct') : $t('learning.incorrect') }}
                 </div>
                 <!-- 语义匹配：判对但展示标准答案供参考 -->
                 <div v-if="isCorrect && submitResult?.isSemanticMatch && submitResult" class="bg-surface-container-low rounded-xl p-4 space-y-3">
-                  <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
-                    <p class="font-label-sm text-label-sm text-amber-700 dark:text-amber-300 mb-1">{{ $t('learning.bestAnswer') }}</p>
-                    <p class="font-body-md text-body-md text-amber-800 dark:text-amber-200 font-semibold">{{ submitResult.correctAnswer }}</p>
+                  <div class="bg-warning-container/40 border border-warning/30 rounded-lg p-3">
+                    <p class="font-label-sm text-label-sm text-on-warning-container mb-1">{{ $t('learning.bestAnswer') }}</p>
+                    <p class="font-body-md text-body-md text-on-warning-container font-semibold">{{ submitResult.correctAnswer }}</p>
                   </div>
                   <div v-if="submitResult.heuristicHint">
                     <p class="font-body-sm text-body-sm text-on-surface-variant">{{ submitResult.heuristicHint }}</p>
@@ -226,14 +226,14 @@
           <Transition name="hint">
             <div
               v-if="showInstantHint"
-              class="w-full max-w-3xl mx-auto -mt-16 mb-24 bg-[#fdecec] dark:bg-red-900/30 border border-red-200/60 dark:border-red-800/50 rounded-2xl p-5 shadow-sm flex items-start gap-3"
+              class="w-full max-w-3xl mx-auto -mt-16 mb-24 bg-error-container/25 border border-error/25 rounded-2xl p-5 shadow-sm flex items-start gap-3"
             >
-              <span class="material-symbols-outlined text-red-400 text-2xl shrink-0 mt-0.5">lightbulb</span>
-              <p class="flex-1 text-[15px] text-gray-800 dark:text-on-surface leading-relaxed">
+              <span class="material-symbols-outlined text-error/70 text-2xl shrink-0 mt-0.5">lightbulb</span>
+              <p class="flex-1 text-body-md text-on-surface leading-relaxed">
                 {{ instantHintMessage }}
               </p>
               <button
-                class="shrink-0 w-9 h-9 rounded-full hover:bg-red-100/80 dark:hover:bg-red-900/50 flex items-center justify-center text-red-300 dark:text-red-400 transition-colors"
+                class="shrink-0 w-9 h-9 rounded-full hover:bg-error-container/50 flex items-center justify-center text-error/70 transition-colors"
                 :title="$t('learning.favoriteHint')"
               >
                 <span class="material-symbols-outlined text-xl">favorite_border</span>
@@ -358,14 +358,14 @@
                 <div class="flex items-start gap-3">
                   <span
                     class="w-7 h-7 rounded-full flex items-center justify-center text-sm shrink-0 mt-0.5"
-                    :class="item.correct ? 'bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300'"
+                    :class="item.correct ? 'bg-tertiary-container/45 text-on-tertiary-container' : 'bg-error-container/45 text-on-error-container'"
                   >
                     <span class="material-symbols-outlined text-sm">{{ item.correct ? 'check' : 'close' }}</span>
                   </span>
                   <div class="flex-1 min-w-0">
                     <p class="font-body-md text-body-md text-on-surface mb-2">{{ item.question.stem }}</p>
                     <div class="flex flex-wrap gap-x-4 gap-y-1 font-label-sm text-label-sm text-on-surface-variant">
-                      <span>{{ $t('learning.yourAnswer') }}：<span :class="item.correct ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'">{{ item.answer }}</span></span>
+                      <span>{{ $t('learning.yourAnswer') }}：<span :class="item.correct ? 'text-tertiary' : 'text-error'">{{ item.answer }}</span></span>
                       <span v-if="!item.correct">{{ $t('learning.correctAnswer') }}：<span class="text-primary font-semibold">{{ item.question.correctAnswer || '' }}</span></span>
                     </div>
                   </div>

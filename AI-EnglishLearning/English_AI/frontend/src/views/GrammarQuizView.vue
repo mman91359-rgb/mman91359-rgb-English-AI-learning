@@ -20,11 +20,11 @@
 
           <div class="flex-1 max-w-md mx-auto relative flex items-center">
             <div class="absolute left-0 top-1/2 -translate-y-1/2 -ml-2 bg-white dark:bg-surface shadow-lg rounded-full w-14 h-14 flex items-center justify-center z-10 border-4 border-background dark:border-surface">
-              <span class="material-symbols-outlined text-[#1a7ba5] dark:text-[#4db8d6] text-2xl" style="font-variation-settings: 'FILL' 1;">emoji_events</span>
+              <span class="material-symbols-outlined text-info text-2xl" style="font-variation-settings: 'FILL' 1;">emoji_events</span>
             </div>
-            <div class="w-full h-12 bg-gray-100 dark:bg-surface-variant/50 rounded-full overflow-hidden ml-4 relative flex items-center">
-              <div class="h-full bg-[#7c6fae] dark:bg-primary/80 transition-all duration-500 ease-out" :style="{ width: progressPercent + '%' }"></div>
-              <span class="absolute inset-0 flex items-center justify-center text-lg font-bold text-[#5d4e8a] dark:text-primary">
+            <div class="w-full h-12 bg-surface-container-high rounded-full overflow-hidden ml-4 relative flex items-center">
+              <div class="h-full bg-primary transition-all duration-500 ease-out" :style="{ width: progressPercent + '%' }"></div>
+              <span class="absolute inset-0 flex items-center justify-center text-lg font-bold text-primary">
                 {{ answeredCount }}/{{ totalCount }}
               </span>
             </div>
@@ -81,32 +81,32 @@
           <!-- 主题目卡片：淡蓝渐变顶部 + 白色大圆角 -->
           <div class="bg-white dark:bg-surface-container-lowest rounded-[28px] w-full max-w-3xl shadow-[0_4px_24px_rgba(0,0,0,0.06)] overflow-hidden flex flex-col relative mb-12">
             <!-- 顶部渐变背景 -->
-            <div class="h-28 bg-gradient-to-b from-[#c7e6ff] via-[#d9edff] to-transparent dark:from-[#1a3547] dark:via-[#1e3a4a] dark:to-transparent absolute top-0 left-0 w-full z-0 pointer-events-none"></div>
+            <div class="h-28 bg-gradient-to-b from-info-container/60 via-info-container/25 to-transparent absolute top-0 left-0 w-full z-0 pointer-events-none"></div>
 
             <div class="p-8 z-10 flex flex-col flex-grow relative">
               <!-- 卡片头部：徽章 -->
               <div class="flex justify-between items-center mb-8">
                 <!-- 左上：难度等级徽章 -->
-                <div class="bg-[#cce8ff]/90 dark:bg-[#2a4757]/90 text-[#2a6b85] dark:text-[#9fdbf0] px-3.5 py-1.5 rounded-full flex items-center gap-1.5 text-sm font-medium">
+                <div class="bg-info-container/80 text-on-info-container px-3.5 py-1.5 rounded-full flex items-center gap-1.5 text-sm font-medium">
                   {{ $t('learning.difficultyLevelGrammar', { level: currentDifficulty }) }}
                   <span class="material-symbols-outlined text-base">help</span>
                 </div>
                 <!-- 右上：New 红色徽章 -->
-                <div class="bg-[#ff6b6b] text-white px-3.5 py-1.5 rounded-full text-sm font-medium shadow-sm flex items-center relative">
+                <div class="bg-error text-on-error px-3.5 py-1.5 rounded-full text-sm font-medium shadow-sm flex items-center relative">
                   {{ $t('learning.brandNew') }}
-                  <div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-t-[6px] border-t-[#ff6b6b] border-r-[6px] border-r-transparent"></div>
+                  <div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-t-[6px] border-t-error border-r-[6px] border-r-transparent"></div>
                 </div>
               </div>
 
               <!-- 任务提示：知识点 + 直译 -->
               <div class="flex flex-col gap-5 mb-8">
                 <div class="flex items-start gap-4">
-                  <div class="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-3 py-1 rounded-lg text-sm font-medium whitespace-nowrap mt-0.5">{{ $t('learning.knowledgePoint') }}</div>
-                  <p class="text-lg text-gray-800 dark:text-on-surface leading-relaxed">{{ knowledgePoint }}</p>
+                  <div class="bg-info-container/50 text-on-info-container px-3 py-1 rounded-lg text-sm font-medium whitespace-nowrap mt-0.5">{{ $t('learning.knowledgePoint') }}</div>
+                  <p class="text-lg text-on-surface leading-relaxed">{{ knowledgePoint }}</p>
                 </div>
                 <div class="flex items-start gap-4">
-                  <div class="bg-gray-200/70 dark:bg-surface-variant/50 text-gray-500 dark:text-on-surface-variant px-3 py-1 rounded-lg text-sm font-medium whitespace-nowrap mt-0.5">{{ $t('learning.literalTranslation') }}</div>
-                  <p class="text-lg text-gray-800 dark:text-on-surface leading-relaxed">{{ literalTranslation }}</p>
+                  <div class="bg-surface-container-high text-on-surface-variant px-3 py-1 rounded-lg text-sm font-medium whitespace-nowrap mt-0.5">{{ $t('learning.literalTranslation') }}</div>
+                  <p class="text-lg text-on-surface leading-relaxed">{{ literalTranslation }}</p>
                 </div>
               </div>
 
@@ -122,9 +122,9 @@
                 </button>
               </div>
               <div
-                class="bg-gray-50 dark:bg-surface-variant/30 rounded-2xl p-6 min-h-[140px] flex flex-wrap gap-3 content-start transition-all select-none"
+                class="bg-surface-container-low rounded-2xl p-6 min-h-[140px] flex flex-wrap gap-3 content-start transition-all select-none"
                 :class="[
-                  showFeedback && !isCorrect ? 'ring-2 ring-red-300 bg-red-50/50 dark:bg-red-900/20' : '',
+                  showFeedback && !isCorrect ? 'ring-2 ring-error/40 bg-error-container/20' : '',
                   dragOverAnswerArea ? 'ring-2 ring-primary bg-primary-container/10' : ''
                 ]"
                 @dragover.prevent="handleAnswerAreaDragOver"
@@ -135,11 +135,11 @@
                   <div
                     v-for="(token, idx) in selectedWords"
                     :key="'sel-' + idx + '-' + token.bankIdx"
-                    class="bg-white dark:bg-surface text-gray-800 dark:text-on-surface px-6 py-2.5 rounded-xl text-base font-medium shadow-[0_2px_8px_rgba(0,0,0,0.08)] border-2 cursor-grab active:cursor-grabbing transition-all flex items-center gap-1.5 relative"
+                    class="bg-white dark:bg-surface text-on-surface px-6 py-2.5 rounded-xl text-base font-medium shadow-[0_2px_8px_rgba(0,0,0,0.08)] border-2 cursor-grab active:cursor-grabbing transition-all flex items-center gap-1.5 relative"
                     :class="[
                       showFeedback && !isCorrect
-                        ? 'border-red-200 hover:bg-red-50 dark:hover:bg-red-900/30'
-                        : 'border-transparent hover:border-gray-300 dark:hover:border-outline-variant/30',
+                        ? 'border-error/30 hover:bg-error-container/40'
+                        : 'border-transparent hover:border-outline-variant',
                       dragOverSelectedIdx === idx ? 'ring-2 ring-primary' : ''
                     ]"
                     :draggable="!showFeedback"
@@ -150,7 +150,7 @@
                     @click="!showFeedback && removeWord(idx)"
                   >
                     {{ token.word }}
-                    <span v-if="!showFeedback" class="material-symbols-outlined text-sm text-gray-400">close</span>
+                    <span v-if="!showFeedback" class="material-symbols-outlined text-sm text-outline">close</span>
                     <div
                       v-if="dragOverSelectedIdx === idx && dragOverSide === 'left'"
                       class="absolute -left-1 top-1/2 -translate-y-1/2 w-0.5 h-8 bg-primary rounded-full"
@@ -163,7 +163,7 @@
                 </template>
                 <div
                   v-else
-                  class="w-full flex flex-col items-center justify-center text-gray-400 dark:text-on-surface-variant/40 text-base py-8 gap-2"
+                  class="w-full flex flex-col items-center justify-center text-outline text-base py-8 gap-2"
                 >
                   <span class="material-symbols-outlined text-3xl">drag_indicator</span>
                   {{ $t('learning.dragOrClickHint') }}
@@ -174,15 +174,15 @@
                   <div
                     class="p-3 rounded-xl text-sm font-medium text-center"
                     :class="isCorrect
-                      ? 'bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400'
-                      : 'bg-red-50 dark:bg-red-900/30 text-red-500 dark:text-red-400'"
+                      ? 'bg-tertiary-container/30 text-on-tertiary-container'
+                      : 'bg-error-container/30 text-error'"
                   >
                     <span class="material-symbols-outlined align-middle mr-1 text-base">{{ isCorrect ? 'check_circle' : 'cancel' }}</span>
                     {{ isCorrect ? $t('learning.correct') : $t('learning.incorrect') }}
                   </div>
                   <div v-if="!isCorrect" class="bg-white dark:bg-surface-container-low rounded-xl p-3 space-y-2">
                     <div>
-                      <p class="text-xs text-gray-500 dark:text-on-surface-variant mb-0.5">{{ $t('learning.correctAnswer') }}</p>
+                      <p class="text-xs text-on-surface-variant mb-0.5">{{ $t('learning.correctAnswer') }}</p>
                       <p class="text-sm text-primary font-medium">{{ correctSentence }}</p>
                     </div>
                   </div>
@@ -213,7 +213,7 @@
                 v-for="(word, wIdx) in wordBank"
                 :key="'bank-' + wIdx"
               :draggable="!showFeedback && !usedBankIndices.has(wIdx)"
-              class="bg-white dark:bg-surface text-gray-800 dark:text-on-surface px-6 py-2.5 rounded-2xl text-base font-medium shadow-[0_2px_10px_rgba(0,0,0,0.08)] border-2 transition-all active:scale-95 select-none min-w-[60px] text-center"
+              class="bg-white dark:bg-surface text-on-surface px-6 py-2.5 rounded-2xl text-base font-medium shadow-[0_2px_10px_rgba(0,0,0,0.08)] border-2 transition-all active:scale-95 select-none min-w-[60px] text-center"
               :class="[
                 showFeedback || usedBankIndices.has(wIdx)
                   ? 'opacity-30 cursor-not-allowed shadow-sm border-transparent'
@@ -231,7 +231,7 @@
           <div class="w-full max-w-2xl flex items-center gap-3 mt-auto pb-8">
             <!-- 查看答案 -->
             <button
-              class="bg-gray-100 dark:bg-surface-variant/50 text-gray-600 dark:text-on-surface-variant px-5 py-3 rounded-xl text-sm font-medium hover:bg-gray-200 dark:hover:bg-surface-variant transition-colors flex flex-col items-center disabled:opacity-50"
+              class="bg-surface-container-high text-on-surface-variant px-5 py-3 rounded-xl text-sm font-medium hover:bg-surface-container-highest transition-colors flex flex-col items-center disabled:opacity-50"
               :disabled="showFeedback"
               @click="revealAnswer"
             >
@@ -261,7 +261,7 @@
               class="flex-1 py-3 rounded-xl text-base font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               :class="showFeedback
                 ? 'bg-primary text-on-primary hover:bg-primary/90 shadow-[0_2px_8px_rgba(0,0,0,0.1)]'
-                : 'bg-gray-200 dark:bg-surface-variant text-gray-600 dark:text-on-surface-variant hover:bg-gray-300 dark:hover:bg-surface-dim'"
+                : 'bg-surface-container-high text-on-surface-variant hover:bg-surface-dim'"
               :disabled="!showFeedback && selectedWords.length === 0"
               @click="showFeedback ? goNextOrResults() : handleSubmit()"
             >

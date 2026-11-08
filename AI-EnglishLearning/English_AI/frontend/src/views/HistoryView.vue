@@ -105,11 +105,11 @@
           <!-- 正确/错误图标 -->
           <div
             class="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
-            :class="item.isCorrect ? 'bg-green-100' : 'bg-red-100'"
+            :class="item.isCorrect ? 'bg-tertiary-container/40' : 'bg-error-container/40'"
           >
             <span
               class="material-symbols-outlined text-lg"
-              :class="item.isCorrect ? 'text-green-600' : 'text-red-600'"
+              :class="item.isCorrect ? 'text-tertiary' : 'text-error'"
             >
               {{ item.isCorrect ? 'check' : 'close' }}
             </span>
@@ -142,7 +142,7 @@
             </span>
             <span
               class="font-label-sm text-label-sm"
-              :class="item.isCorrect ? 'text-green-600' : 'text-red-600'"
+              :class="item.isCorrect ? 'text-tertiary' : 'text-error'"
             >
               {{ item.isCorrect ? $t('learning.correctTag') : $t('learning.incorrectTag') }}
             </span>
@@ -174,7 +174,7 @@
               <!-- 正确答案（关键词高亮） -->
               <div>
                 <p class="font-label-sm text-label-sm text-on-surface-variant mb-1">{{ $t('learning.correctAnswer') }}</p>
-                <p class="font-body-md text-body-md text-green-600 font-semibold bg-green-50/40 p-3 rounded-xl">
+                <p class="font-body-md text-body-md text-on-tertiary-container font-semibold bg-tertiary-container/25 p-3 rounded-xl">
                   <span v-html="highlightKeyword(item)"></span>
                 </p>
               </div>
@@ -184,7 +184,7 @@
                 <div>
                   <p
                     class="font-body-md text-body-md font-semibold"
-                    :class="item.isCorrect ? 'text-green-600' : 'text-red-600'"
+                    :class="item.isCorrect ? 'text-tertiary' : 'text-error'"
                   >
                     {{ formatUserAnswer(item) }}
                   </p>
@@ -209,7 +209,7 @@
                 <p class="font-label-sm text-label-sm text-on-surface-variant mb-1">{{ $t('learning.yourAnswer') }}</p>
                 <p
                   class="font-body-md text-body-md font-semibold"
-                  :class="item.isCorrect ? 'text-green-600' : 'text-red-600'"
+                  :class="item.isCorrect ? 'text-tertiary' : 'text-error'"
                 >
                   {{ formatUserAnswer(item) }}
                 </p>
@@ -217,7 +217,7 @@
               <!-- 正确答案（始终展示，方便对比） -->
               <div>
                 <p class="font-label-sm text-label-sm text-on-surface-variant mb-1">{{ $t('learning.correctAnswer') }}</p>
-                <p class="font-body-md text-body-md text-green-600 font-semibold">
+                <p class="font-body-md text-body-md text-on-tertiary-container font-semibold">
                   {{ formatCorrectAnswer(item.correctAnswer) }}
                 </p>
               </div>

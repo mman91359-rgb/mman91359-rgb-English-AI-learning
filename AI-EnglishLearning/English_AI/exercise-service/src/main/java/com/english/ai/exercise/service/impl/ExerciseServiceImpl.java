@@ -977,7 +977,8 @@ public class ExerciseServiceImpl implements ExerciseService {
                 .hint(hint)
                 .analysis(content != null ? content.getAnalysis() : null)
                 .showAnswer(showAnswer)
-                .answerWord(correctAnswer)
+                // 优先用词条原形（V1.0.12 起自动生成的词汇题会写 answer_word），旧题回落正确答案
+                .answerWord(info.getAnswerWord() != null ? info.getAnswerWord() : correctAnswer)
                 .build();
     }
 

@@ -15,7 +15,7 @@ public class QuestionInfo {
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    /** 模块类型: 1词汇 2语法 3翻译 4听力 5造句 6写作 */
+    /** 模块类型: 1词汇 2语法 3翻译 4听力 5造句 6写作 7阅读 */
     private Integer moduleType;
 
     /** 目标等级: CET4/CET6 */
@@ -30,11 +30,20 @@ public class QuestionInfo {
     /** 关联主知识点ID */
     private Long knowledgePointId;
 
+    /** 阅读文章ID，仅 module_type=7 使用（V1.0.9） */
+    private Long passageId;
+
     /** 来源: MANUAL/AI/IMPORT */
     private String source;
 
     /** AI学习到的可接受答案列表（JSON数组），如 ["circumstance","condition"] */
     private String acceptedAnswers;
+
+    /**
+     * 词条原形（V1.0.12）：如题干答案是 inferred，此列为 infer。
+     * 仅用于新词去重，不下发前端（QuestionVO.answerWord 标了 @JsonIgnore）。
+     */
+    private String answerWord;
 
     /** 是否AI生成：0=原始题目，1=AI生成的可接受答案待审核 */
     private Integer aiGenerated;

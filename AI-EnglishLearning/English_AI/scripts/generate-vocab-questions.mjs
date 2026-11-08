@@ -144,27 +144,59 @@ const IRREGULAR = {
 
 const isVowel = (c) => 'aeiou'.includes(c)
 
-/** 按词性归类，决定生成哪几类变形（名词不加 -ed/-ing，形容词不加复数） */
+/**
+ * 按词性归类为六类：verb / noun / adj / adv / other / unknown。
+ * other（介词、连词、代词、数词、冠词、助动词）不生成任何变形；
+ * unknown 只用于句中命中，不写入 accepted_answers。
+ */
 function categoryOf(pos) {
-  const p = (pos || '').toLowerCase()
-  if (/^(vt|vi|v)\b/.test(p)) return 'verb'
-  if (/^n\b/.test(p)) return 'noun'
-  if (/^(adj|a)\b/.test(p)) return 'adj'
-  if (/^adv\b/.test(p)) return 'adv'
+  // 词库里的 pos 有两种写法：导入词条是缩写（vt/n/a），V1.0.1 种子是全称（verb/adjective/noun）
+  const p = String(pos || '').trim().toLowerCase()
+  const hit = (re) => re.test(p)
+  if (hit(/^(vt|vi|v|verb)(\.|\b|$)/)) return 'verb'
+  if (hit(/^(n|noun)(\.|\b|$)/)) return 'noun'
+  if (hit(/^(adv|adverb)(\.|\b|$)/)) return 'adv'
+  if (hit(/^(adj|adjective|a)(\.|\b|$)/)) return 'adj'
+  if (hit(/^(prep|conj|pron|num|aux|art|interj|int)(\.|\b|$)/)) return 'other'
   return 'unknown'
+}
+
+/**
+ * 可分级形容词/副词：只有单音节、或以 y/le/ow/er 结尾的短双音节词才加 er/est。
+ * 避免 recent → recenter/recentest 这类不地道形态。
+ */
+function isGradable(base) {
+  if (base.length > 7) return false
+  if (/(ed|ing|ous|ful|less|ive|able|ible|al|ary|ic)$/.test(base)) return false
+  const groups = (base.match(/[aeiouy]+/g) || []).length
+  if (groups <= 1) return true
+  return base.length <= 6 && /(y|le|ow|er)$/.test(base)
 }
 
 /**
  * 生成某个词干的规则变形。
  * - accepted：可以进入 accepted_answers 的合法变形
- * - matchOnly：只用于"句中命中"、但不预先接受的形态（如 CVC 双写与非双写并存，避免接受拼写错误）
+ * - matchOnly：只用于"句中命中"、但不预先接受的形态（未知词性、CVC 双写与非双写并存等）
  */
 function inflect(base, cat) {
   const accepted = new Set()
   const matchOnly = new Set()
-  const add = (set, s) => {
-    if (s && s !== base) set.add(s)
+
+  if (cat === 'other') {
+    return { accepted: [], matchOnly: [] }
   }
+
+  const unknownOnly = cat === 'unknown'
+  // unknown 时所有变形都只用于命中，不预先接受
+  const add = (s) => {
+    if (!s || s === base) return
+    matchOnly.add(s)
+    if (!unknownOnly) accepted.add(s)
+  }
+  const addMatch = (s) => {
+    if (s && s !== base) matchOnly.add(s)
+  }
+
   const last = base.slice(-1)
   const cvc =
     base.length >= 3 &&
@@ -183,31 +215,45 @@ function inflect(base, cat) {
     else plural = base + 's'
 
     if (plural !== base) {
-      // 复数总能用于"句中命中"；是否预先接受取决于是否可能是假形态
-      add(matchOnly, plural)
-      // 抽象/不可数名词不加复数：unemployment、illness、friendship 这类词加复数只会产出假形态
+      // 抽象/不可数名词不加复数；已是复数的 s 结尾词（goods/news/means）不再加 -es
       const abstractNoun = cat === 'noun' && /(ment|ness|ship|ism|hood|ity)$/.test(base)
-      // 本身已是复数或不可数的 s 结尾词（goods、news、means）：不再接受 -es
       const alreadyPlural = cat === 'noun' && /s$/.test(base) && !/(ss|us|is)$/.test(base)
-      if (!abstractNoun && !alreadyPlural) add(accepted, plural)
+      if (abstractNoun || alreadyPlural) addMatch(plural)
+      else add(plural)
     }
   }
 
   if (wantsVerb) {
-    if (last === 'e') add(accepted, base + 'd')
-    else if (/[^aeiou]y$/.test(base)) add(accepted, base.slice(0, -1) + 'ied')
+    if (last === 'e') add(base + 'd')
+    else if (/[^aeiou]y$/.test(base)) add(base.slice(0, -1) + 'ied')
     else if (cvc) {
-      // 双写与非双写都可能出现（inferred / visited），只用于命中，实际命中什么就把什么计入 accepted
-      add(matchOnly, base + last + 'ed')
-      add(matchOnly, base + 'ed')
-    } else add(accepted, base + 'ed')
+      // 双写与非双写都可能出现（inferred / visited），只用于命中；真正命中什么，表面形会计入 accepted
+      addMatch(base + last + 'ed')
+      addMatch(base + 'ed')
+    } else add(base + 'ed')
 
-    if (/ie$/.test(base)) add(accepted, base.slice(0, -2) + 'ying')
-    else if (last === 'e' && !/ee$/.test(base)) add(accepted, base.slice(0, -1) + 'ing')
+    if (/ie$/.test(base)) add(base.slice(0, -2) + 'ying')
+    else if (last === 'e' && !/ee$/.test(base)) add(base.slice(0, -1) + 'ing')
     else if (cvc) {
-      add(matchOnly, base + last + 'ing')
-      add(matchOnly, base + 'ing')
-    } else add(accepted, base + 'ing')
+      addMatch(base + last + 'ing')
+      addMatch(base + 'ing')
+    } else add(base + 'ing')
+  }
+
+  // 形容词/副词默认不变形，只有可分级词给比较级/最高级
+  if (cat === 'adj' || cat === 'adv') {
+    if (isGradable(base)) {
+      if (last === 'e') {
+        add(base + 'r')
+        add(base + 'st')
+      } else if (/[^aeiou]y$/.test(base)) {
+        add(base.slice(0, -1) + 'ier')
+        add(base.slice(0, -1) + 'iest')
+      } else {
+        add(base + 'er')
+        add(base + 'est')
+      }
+    }
   }
 
   return { accepted: [...accepted], matchOnly: [...matchOnly] }
@@ -233,11 +279,14 @@ function buildForms(word, pos) {
   }
 
   for (const f of IRREGULAR[w] || []) {
+    // 名词/形容词不接收 -ing/-ed 形态（避免 bite(noun) → biting 这类伪形态）
+    if ((cat === 'noun' || cat === 'adj' || cat === 'adv') && /(ing|ed)$/.test(f)) continue
     match.add(f)
-    accepted.add(f)
+    // 未知词性只用于命中，不写入 accepted
+    if (cat !== 'unknown') accepted.add(f)
   }
 
-  return { matchForms: [...match], acceptedForms: [...accepted] }
+  return { matchForms: [...match], acceptedForms: [...accepted], category: cat }
 }
 
 const escapeReg = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -348,6 +397,17 @@ function columnExists(mysqlBin, conn, table, column) {
   return n === '1'
 }
 
+function loadDifficultyFromJson(file) {
+  if (!fs.existsSync(file)) throw new Error(`难度文件不存在: ${file}`)
+  const data = JSON.parse(fs.readFileSync(file, 'utf8'))
+  // 统一小写建键：dump 里的拼写可能带首字母大写（如 P.M.），与库中小写词对不上
+  const map = new Map(
+    Object.entries(data.words || {}).map(([w, d]) => [w.trim().toLowerCase(), d]),
+  )
+  console.log(`[info] 难度来源：${file}（${map.size} 条）`)
+  return map
+}
+
 function loadDifficultyFromDb(mysqlBin, conn) {
   const out = runQuery(mysqlBin, conn, 'SELECT `word`, `difficulty_hint` FROM `word_dictionary` WHERE `difficulty_hint` IS NOT NULL')
   const map = new Map()
@@ -362,6 +422,29 @@ function loadDifficultyFromDb(mysqlBin, conn) {
 
 // ---------------------------------------------------------------- 生成
 
+/**
+ * 根据空位前的上下文推断该词的"用法词性"。
+ * 只做保守判断，识别不出返回 null（不据此跳过）。
+ */
+function impliedUsage(sentence, start, surface) {
+  const before = sentence.slice(Math.max(0, start - 48), start).toLowerCase()
+  // 助动词规则只在空位是 -ing/-ed 形态时成立，否则 "have absolute trust" 这类会被误判为动词用法
+  const inflected = /(ing|ed)$/.test(surface)
+  if (
+    inflected &&
+    /\b(am|is|are|was|were|be|been|being|do|does|did|have|has|had|will|would|can|could|may|might|must|shall|should)(\s+\w+){0,2}\s*$/.test(
+      before,
+    )
+  ) {
+    return 'verb'
+  }
+  // 冠词/物主紧邻 → 名词用法（注意 "a brilliant mind" 里冠词修饰的是形容词，冲突判定见调用处）
+  if (/\b(a|an|the|my|your|his|her|its|our|their|this|that|these|those)\s+$/.test(before)) return 'noun'
+  // 程度副词紧邻 → 形容词/副词用法
+  if (/\b(very|too|so|quite|rather|more|most|less|least)\s+$/.test(before)) return 'adj'
+  return null
+}
+
 function classify(row, opts) {
   const word = (row.word || '').trim()
   if (word.length < 2) return { skip: 'not-single-word' }
@@ -372,23 +455,43 @@ function classify(row, opts) {
   if (!row.translation) return { skip: 'no-translation' }
   if (!row.difficulty) return { skip: 'missing-difficulty' }
 
-  const { matchForms, acceptedForms } = buildForms(word, row.pos)
+  const { matchForms, acceptedForms, category } = buildForms(word, row.pos)
   const hits = findMatches(example, matchForms)
   if (hits.length === 0) return { skip: 'no-form-match' }
   if (hits.length > 1) return { skip: 'multi-occurrence' }
 
   const hit = hits[0]
   const surface = hit.text.toLowerCase()
+  const lemma = word.toLowerCase()
+
+  // c. 功能词/固定搭配：介词、连词、代词、数词、冠词、助动词不出词汇题
+  if (category === 'other') return { skip: 'fixed-phrase' }
+
+  // b. 词形歧义：表面形是 -ing/-ed，但词典词性是名词/形容词
+  if (surface !== lemma && /(ing|ed)$/.test(surface) && (category === 'noun' || category === 'adj')) {
+    return { skip: 'sense-mismatch' }
+  }
+
+  // a. 用法词性校验：只在"明确冲突"时跳过，避免误杀 "have absolute trust" / "a brilliant mind"
+  const usage = impliedUsage(example, hit.start, surface)
+  // 助动词 + -ing/-ed 却登记为名词 → 典型的 "Where are you heading?"（heading 词条是名词）
+  // 只对名词生效：sophisticated / ashamed 这类以 -ed 结尾的形容词不应被误判
+  if (usage === 'verb' && category === 'noun') return { skip: 'sense-mismatch' }
+  // 冠词后接动词/功能词 → 该位置应是名词
+  if (usage === 'noun' && (category === 'verb' || category === 'other')) return { skip: 'sense-mismatch' }
+  // very/too 后接动词/名词 → 该位置应是形容词或副词
+  if (usage === 'adj' && (category === 'verb' || category === 'noun')) return { skip: 'sense-mismatch' }
+
   const stem = `${example.slice(0, hit.start)}____${example.slice(hit.end)}`
 
-  // 硬性泄漏校验
+  // 硬性泄漏校验：题干里只能有一个空位，且不能再出现任何词形
   if ((stem.match(/____/g) || []).length !== 1) return { skip: 'leak-guard' }
   if (hasAnyForm(stem, matchForms)) return { skip: 'leak-guard' }
 
-  const analysis = `${row.translation} ｜ 原句：${stem}`
-  if (hasAnyForm(analysis, matchForms)) return { skip: 'leak-guard' }
+  // 解析保存"挖空前"的完整原句；服务端会在答题前截断到 "｜ 原句：" 之前（toQuestionVO）
+  const analysis = `${row.translation} ｜ 原句：${example}`
 
-  const accepted = [...new Set([word.toLowerCase(), surface, ...acceptedForms])]
+  const accepted = [...new Set([lemma, surface, ...acceptedForms])]
 
   return {
     branch: surface === word.toLowerCase() ? 'exact-form' : 'inflected',
@@ -401,6 +504,7 @@ function classify(row, opts) {
       answer: surface,
       analysis,
       accepted,
+      category,
       pos: row.pos || '',
     },
   }
@@ -493,6 +597,7 @@ function parseArgs(argv) {
     else if (a === '--max-len') opts.maxLen = Number(argv[++i]) || 160
     else if (a === '--seed') opts.seed = Number(argv[++i]) || 20261108
     else if (a === '--sample') opts.sample = Number(argv[++i]) || 10
+    else if (a === '--explain') opts.explain = String(argv[++i] || '').split(',').filter(Boolean)
     else if (a === '--help' || a === '-h') {
       printUsage()
       process.exit(0)
@@ -522,22 +627,22 @@ function main() {
     throw new Error('缺少 MYSQL_USERNAME / MYSQL_PASSWORD，请检查 .env')
   }
 
-  // 难度来源
+  // 难度来源：显式 --difficulty 优先（回填前也能按 JSON 生成），否则用库里的 difficulty_hint
   let difficultyMap
-  if (columnExists(mysqlBin, conn, 'word_dictionary', 'difficulty_hint')) {
+  if (opts.difficulty) {
+    difficultyMap = loadDifficultyFromJson(opts.difficulty)
+  } else if (columnExists(mysqlBin, conn, 'word_dictionary', 'difficulty_hint')) {
     difficultyMap = loadDifficultyFromDb(mysqlBin, conn)
+    if (difficultyMap.size === 0) {
+      throw new Error('difficulty_hint 列存在但没有任何非空值；请先回填，或用 --difficulty 指定 JSON')
+    }
     console.log(`[info] 难度来源：word_dictionary.difficulty_hint（${difficultyMap.size} 条）`)
   } else {
-    const file = opts.difficulty || path.resolve(ROOT, '..', '..', '英语资源', '_import', 'word-difficulty.json')
+    const file = path.resolve(ROOT, '..', '..', '英语资源', '_import', 'word-difficulty.json')
     if (!fs.existsSync(file)) {
       throw new Error(`difficulty_hint 列不存在，且找不到难度 JSON: ${file}\n        请先执行 V1.0.12 并回填，或用 --difficulty 指定 JSON`)
     }
-    const data = JSON.parse(fs.readFileSync(file, 'utf8'))
-    // 统一小写建键：dump 里的拼写可能带首字母大写（如 P.M.），与库中小写词对不上
-    difficultyMap = new Map(
-      Object.entries(data.words || {}).map(([w, d]) => [w.trim().toLowerCase(), d]),
-    )
-    console.log(`[info] 难度来源：${file}（${difficultyMap.size} 条）`)
+    difficultyMap = loadDifficultyFromJson(file)
   }
 
   console.log(`[info] 读取 word_dictionary（level=${opts.level}）...`)
@@ -545,7 +650,30 @@ function main() {
   console.log(`[info] 词条 ${rows.length}`)
 
   const skips = {}
+  if (opts.explain && opts.explain.length) {
+    const wanted = new Set(opts.explain.map((w) => w.trim().toLowerCase()))
+    for (const row of rows) {
+      if (!wanted.has((row.word || '').trim().toLowerCase())) continue
+      const difficulty = difficultyMap.get((row.word || '').trim().toLowerCase())
+      const result = classify({ ...row, difficulty }, opts)
+      if (result.skip) {
+        console.log(`[explain] ${row.word} (pos=${row.pos || '-'}) → 跳过：${result.skip}`)
+      } else {
+        const r = result.record
+        console.log(`[explain] ${row.word} (pos=${row.pos || '-'}) → 生成 [${r.level} d${r.difficulty}]`)
+        console.log(`          stem     : ${r.stem}`)
+        console.log(`          answer   : ${r.answer}`)
+        console.log(`          accepted : ${r.accepted.join(', ')}`)
+        console.log(`          analysis : ${r.analysis}`)
+      }
+      wanted.delete((row.word || '').trim().toLowerCase())
+    }
+    for (const w of wanted) console.log(`[explain] ${w} → 词库中未找到`)
+    console.log('')
+  }
+
   const generated = []
+  const skipSamples = {}
   const branch = { 'exact-form': 0, inflected: 0 }
 
   for (const row of rows) {
@@ -553,6 +681,8 @@ function main() {
     const result = classify({ ...row, difficulty }, opts)
     if (result.skip) {
       skips[result.skip] = (skips[result.skip] || 0) + 1
+      const bucket = (skipSamples[result.skip] = skipSamples[result.skip] || [])
+      if (bucket.length < 10) bucket.push((row.word || '').trim())
       continue
     }
     branch[result.branch] += 1
@@ -563,6 +693,14 @@ function main() {
   // 幂等指纹：排序后的 external_key 集合
   const keys = generated.map((q) => `vocab-auto-${q.wordId}-1`).sort()
   const digest = crypto.createHash('sha256').update(keys.join('\n')).digest('hex').slice(0, 12)
+
+  // 伪形态自检：名词/形容词/副词不应出现 -ed/-ing 变形
+  const pseudoForms = []
+  for (const q of generated) {
+    if (!['noun', 'adj', 'adv'].includes(q.category)) continue
+    const bad = q.accepted.filter((f) => f !== q.lemma && /(ed|ing)$/.test(f))
+    if (bad.length) pseudoForms.push(`${q.lemma}(${q.category}): ${bad.join('/')}`)
+  }
 
   const byLevel = {}
   const byDifficulty = {}
@@ -613,6 +751,14 @@ function main() {
     }
   }
 
+  // 遗留分片：上一轮生成、本轮没有覆盖到的 part 文件（数量变少时会出现）
+  const activeNames = new Set(parts.map((p) => p.file))
+  const leftovers = opts.dryRun || !fs.existsSync(opts.out)
+    ? []
+    : fs.readdirSync(opts.out)
+        .filter((f) => /__seed_vocab_auto_part\d+\.sql$/.test(f) && !activeNames.has(f))
+        .sort()
+
   const report = `# 词汇填空题生成报告
 
 - 生成时间：${new Date().toISOString()}
@@ -645,6 +791,13 @@ ${Object.entries(skips)
   .map(([k, v]) => `| \`${k}\` | ${v} |`)
   .join('\n')}
 
+### 3.1 跳过样本（每类最多 10 个，便于核对判定是否过严）
+
+${Object.entries(skipSamples)
+  .sort((a, b) => (skips[b[0]] || 0) - (skips[a[0]] || 0))
+  .map(([reason, words]) => `- **${reason}**：${words.join('、')}`)
+  .join('\n')}
+
 ## 4. 等级分布
 
 | 等级 | 生成题数 |
@@ -663,6 +816,11 @@ ${Object.entries(byDifficulty)
   .map(([k, v]) => `| ${k} | ${v} |`)
   .join('\n')}
 
+## 5.1 accepted 伪形态自检（名词/形容词/副词出现 -ed/-ing，目标 0）
+
+- 命中条数：**${pseudoForms.length}**
+${pseudoForms.slice(0, 20).map((x) => `  - ${x}`).join('\n')}
+
 ## 6. 幂等校验
 
 | 项 | 值 |
@@ -677,6 +835,8 @@ ${Object.entries(byDifficulty)
 
 ${parts.length ? `| 文件 | 题数 | 首键 | 尾键 |\n|---|---|---|---|\n${parts.map((p) => `| ${p.file} | ${p.count} | ${p.firstKey} | ${p.lastKey} |`).join('\n')}` : '_dry-run 模式未生成 SQL 分片_'}
 
+${leftovers.length ? `### 7.1 遗留分片（本次未覆盖、**不要导入**）\n\n${leftovers.map((f) => `- \`${f}\`：上一轮生成物，内容已过期，建议导入前删除\n`).join('')}` : '### 7.1 遗留分片\n\n无。'}
+
 ## 8. 抽样
 
 见同目录 \`vocab-auto-sample.json\`（${samples.length} 条，随机种子 ${opts.seed}）。
@@ -687,7 +847,7 @@ ${parts.length ? `| 文件 | 题数 | 首键 | 尾键 |\n|---|---|---|---|\n${pa
   if (!opts.dryRun) {
     fs.writeFileSync(
       path.join(opts.out, 'vocab-auto-manifest.json'),
-      JSON.stringify({ generatedAt: new Date().toISOString(), total: generated.length, digest, parts, skips, byLevel, byDifficulty }, null, 2),
+      JSON.stringify({ generatedAt: new Date().toISOString(), total: generated.length, digest, parts, leftovers, skips, byLevel, byDifficulty }, null, 2),
       'utf8',
     )
   }

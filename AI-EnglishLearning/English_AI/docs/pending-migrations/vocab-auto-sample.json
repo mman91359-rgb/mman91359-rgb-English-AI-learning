@@ -1,147 +1,307 @@
 [
   {
-    "externalKey": "vocab-auto-7389-1",
+    "externalKey": "vocab-auto-8486-1",
     "moduleType": 1,
     "questionType": "FILL_BLANK",
     "targetLevel": "CET4",
     "difficultyLevel": 7,
-    "answerWord": "heading",
-    "stem": "Where are you ____?",
-    "correctAnswer": "heading",
+    "answerWord": "queen",
+    "stem": "____ Elizabeth I passed away in 1603.",
+    "correctAnswer": "queen",
     "acceptedAnswers": [
-      "heading",
-      "headings"
+      "queen",
+      "queens"
     ],
-    "analysis": "n. 标题, 起始字, 方向 [计] 上标题 ｜ 原句：Where are you ____?"
+    "analysis": "n. 王后, 女王 vt. 立为女王 vi. 做女王 ｜ 原句：Queen Elizabeth I passed away in 1603."
   },
   {
-    "externalKey": "vocab-auto-9802-1",
-    "moduleType": 1,
-    "questionType": "FILL_BLANK",
-    "targetLevel": "CET6",
-    "difficultyLevel": 4,
-    "answerWord": "availability",
-    "stem": "____ may vary by region and device compatibility.",
-    "correctAnswer": "availability",
-    "acceptedAnswers": [
-      "availability"
-    ],
-    "analysis": "n. 有效性, 可利用性, 可利用的人 [计] 有效性; 可用性 ｜ 原句：____ may vary by region and device compatibility."
-  },
-  {
-    "externalKey": "vocab-auto-7787-1",
+    "externalKey": "vocab-auto-7270-1",
     "moduleType": 1,
     "questionType": "FILL_BLANK",
     "targetLevel": "CET4",
+    "difficultyLevel": 4,
+    "answerWord": "glance",
+    "stem": "At first ____, the question seemed easy.",
+    "correctAnswer": "glance",
+    "acceptedAnswers": [
+      "glance",
+      "glances"
+    ],
+    "analysis": "n. 一瞥, 闪光, 掠过, 辉矿类 vi. 扫视, 闪光, 掠过, 提到, 略说 vt. 扫视, 反射, 使掠过 ｜ 原句：At first glance, the question seemed easy."
+  },
+  {
+    "externalKey": "vocab-auto-11419-1",
+    "moduleType": 1,
+    "questionType": "FILL_BLANK",
+    "targetLevel": "CET6",
     "difficultyLevel": 3,
-    "answerWord": "location",
-    "stem": "A bookstore in that ____ wouldn't make enough money to survive.",
-    "correctAnswer": "location",
+    "answerWord": "symptom",
+    "stem": "One of the most common ____ of schizophrenia is hearing imaginary voices.",
+    "correctAnswer": "symptoms",
     "acceptedAnswers": [
-      "location",
-      "locations"
+      "symptom",
+      "symptoms"
     ],
-    "analysis": "n. 位置, 场所, 特定区域 [计] 位置 ｜ 原句：A bookstore in that ____ wouldn't make enough money to survive."
+    "analysis": "n. 症状, 征候, 征兆 [医] 症状 ｜ 原句：One of the most common symptoms of schizophrenia is hearing imaginary voices."
   },
   {
-    "externalKey": "vocab-auto-7848-1",
+    "externalKey": "vocab-auto-10062-1",
     "moduleType": 1,
     "questionType": "FILL_BLANK",
-    "targetLevel": "CET4",
+    "targetLevel": "CET6",
     "difficultyLevel": 2,
-    "answerWord": "marriage",
-    "stem": "____ has many pains, but celibacy has no pleasures.",
-    "correctAnswer": "marriage",
+    "answerWord": "criterion",
+    "stem": "Americans are said to regard the amount of money a man makes as a ____ of his ability.",
+    "correctAnswer": "criterion",
     "acceptedAnswers": [
-      "marriage",
-      "marriages"
+      "criterion",
+      "criterions",
+      "criteria"
     ],
-    "analysis": "n. 婚姻, 结婚, 婚礼, 合并 [医] 婚姻, 结婚 ｜ 原句：____ has many pains, but celibacy has no pleasures."
+    "analysis": "n. 标准, 准则, 规范 [化] 判据 ｜ 原句：Americans are said to regard the amount of money a man makes as a criterion of his ability."
   },
   {
-    "externalKey": "vocab-auto-11530-1",
-    "moduleType": 1,
-    "questionType": "FILL_BLANK",
-    "targetLevel": "CET6",
-    "difficultyLevel": 4,
-    "answerWord": "unemployment",
-    "stem": "What is the ____ rate at the moment?",
-    "correctAnswer": "unemployment",
-    "acceptedAnswers": [
-      "unemployment"
-    ],
-    "analysis": "n. 失业, 失业人数 [经] 失业 ｜ 原句：What is the ____ rate at the moment?"
-  },
-  {
-    "externalKey": "vocab-auto-10603-1",
-    "moduleType": 1,
-    "questionType": "FILL_BLANK",
-    "targetLevel": "CET6",
-    "difficultyLevel": 7,
-    "answerWord": "inland",
-    "stem": "Three soldiers who came back from the war are renting a house at the edge of a small town on the shore of the ____ Sea and live together.",
-    "correctAnswer": "inland",
-    "acceptedAnswers": [
-      "inland"
-    ],
-    "analysis": "a. 内陆的, 国内的 n. 内地 ｜ 原句：Three soldiers who came back from the war are renting a house at the edge of a small town on the shore of the ____ Sea and live together."
-  },
-  {
-    "externalKey": "vocab-auto-7290-1",
-    "moduleType": 1,
-    "questionType": "FILL_BLANK",
-    "targetLevel": "CET4",
-    "difficultyLevel": 2,
-    "answerWord": "goods",
-    "stem": "I buy the ____ at $3 a dozen.",
-    "correctAnswer": "goods",
-    "acceptedAnswers": [
-      "goods"
-    ],
-    "analysis": "n. 货物 [经] 货物, 商品, 动产 ｜ 原句：I buy the ____ at $3 a dozen."
-  },
-  {
-    "externalKey": "vocab-auto-11314-1",
-    "moduleType": 1,
-    "questionType": "FILL_BLANK",
-    "targetLevel": "CET6",
-    "difficultyLevel": 4,
-    "answerWord": "soar",
-    "stem": "The birds ____ in the air.",
-    "correctAnswer": "soar",
-    "acceptedAnswers": [
-      "soar",
-      "soars"
-    ],
-    "analysis": "n. 高扬, 翱翔 vi. 往上飞舞, 高耸, 翱翔 ｜ 原句：The birds ____ in the air."
-  },
-  {
-    "externalKey": "vocab-auto-7238-1",
+    "externalKey": "vocab-auto-7371-1",
     "moduleType": 1,
     "questionType": "FILL_BLANK",
     "targetLevel": "CET4",
     "difficultyLevel": 5,
-    "answerWord": "garbage",
-    "stem": "He had gone there to help ____ workers strike peacefully for better pay and working conditions.",
-    "correctAnswer": "garbage",
+    "answerWord": "hardware",
+    "stem": "A user should have freedom with respect to both ____ and software. An operating system should be open, not closed.",
+    "correctAnswer": "hardware",
     "acceptedAnswers": [
-      "garbage",
-      "garbages"
+      "hardware",
+      "hardwares"
     ],
-    "analysis": "n. 垃圾, 废物 [计] 无用信息 ｜ 原句：He had gone there to help ____ workers strike peacefully for better pay and working conditions."
+    "analysis": "n. 硬件, 五金器具, 零件 [计] 硬件 ｜ 原句：A user should have freedom with respect to both hardware and software. An operating system should be open, not closed."
   },
   {
-    "externalKey": "vocab-auto-7472-1",
+    "externalKey": "vocab-auto-9921-1",
+    "moduleType": 1,
+    "questionType": "FILL_BLANK",
+    "targetLevel": "CET6",
+    "difficultyLevel": 5,
+    "answerWord": "cigar",
+    "stem": "I watched a ring of smoke that floated from his ____ into the air.",
+    "correctAnswer": "cigar",
+    "acceptedAnswers": [
+      "cigar",
+      "cigars"
+    ],
+    "analysis": "n. 雪茄 ｜ 原句：I watched a ring of smoke that floated from his cigar into the air."
+  },
+  {
+    "externalKey": "vocab-auto-10452-1",
+    "moduleType": 1,
+    "questionType": "FILL_BLANK",
+    "targetLevel": "CET6",
+    "difficultyLevel": 6,
+    "answerWord": "grove",
+    "stem": "In spring, the bamboo ____ outside Hsinchu City is especially green.",
+    "correctAnswer": "grove",
+    "acceptedAnswers": [
+      "grove",
+      "groves"
+    ],
+    "analysis": "n. 小树林 ｜ 原句：In spring, the bamboo grove outside Hsinchu City is especially green."
+  },
+  {
+    "externalKey": "vocab-auto-6389-1",
+    "moduleType": 1,
+    "questionType": "FILL_BLANK",
+    "targetLevel": "CET4",
+    "difficultyLevel": 7,
+    "answerWord": "circumference",
+    "stem": "Is it possible to determine the diameter from the ____?",
+    "correctAnswer": "circumference",
+    "acceptedAnswers": [
+      "circumference",
+      "circumferences"
+    ],
+    "analysis": "n. 圆周, 周缘, 胸围 [医] 周缘, 环状面 ｜ 原句：Is it possible to determine the diameter from the circumference?"
+  },
+  {
+    "externalKey": "vocab-auto-9058-1",
+    "moduleType": 1,
+    "questionType": "FILL_BLANK",
+    "targetLevel": "CET4",
+    "difficultyLevel": 6,
+    "answerWord": "squirrel",
+    "stem": "The ____ advanced against the strong wind.",
+    "correctAnswer": "squirrel",
+    "acceptedAnswers": [
+      "squirrel",
+      "squirrels"
+    ],
+    "analysis": "n. 松鼠, 松鼠毛皮 vt. 贮藏 ｜ 原句：The squirrel advanced against the strong wind."
+  },
+  {
+    "externalKey": "vocab-auto-8458-1",
+    "moduleType": 1,
+    "questionType": "FILL_BLANK",
+    "targetLevel": "CET4",
+    "difficultyLevel": 4,
+    "answerWord": "publication",
+    "stem": "____ of the article was timed to coincide with the professor's birthday.",
+    "correctAnswer": "publication",
+    "acceptedAnswers": [
+      "publication",
+      "publications"
+    ],
+    "analysis": "n. 出版物, 出版, 公布 [经] 发布 ｜ 原句：Publication of the article was timed to coincide with the professor's birthday."
+  },
+  {
+    "externalKey": "vocab-auto-8174-1",
+    "moduleType": 1,
+    "questionType": "FILL_BLANK",
+    "targetLevel": "CET4",
+    "difficultyLevel": 7,
+    "answerWord": "pane",
+    "stem": "Tom broke the window ____.",
+    "correctAnswer": "pane",
+    "acceptedAnswers": [
+      "pane",
+      "panes"
+    ],
+    "analysis": "n. 窗玻璃, 方框, 方格, 窗格 vt. 嵌窗玻璃于 [计] 窗格 ｜ 原句：Tom broke the window pane."
+  },
+  {
+    "externalKey": "vocab-auto-6556-1",
+    "moduleType": 1,
+    "questionType": "FILL_BLANK",
+    "targetLevel": "CET4",
+    "difficultyLevel": 4,
+    "answerWord": "contest",
+    "stem": "I would often take part in an English speech ____ in my school days.",
+    "correctAnswer": "contest",
+    "acceptedAnswers": [
+      "contest",
+      "contests"
+    ],
+    "analysis": "n. 竞赛, 争论 vt. 竞争, 争取, 争辩 vi. 竞争 ｜ 原句：I would often take part in an English speech contest in my school days."
+  },
+  {
+    "externalKey": "vocab-auto-9627-1",
+    "moduleType": 1,
+    "questionType": "FILL_BLANK",
+    "targetLevel": "CET4",
+    "difficultyLevel": 5,
+    "answerWord": "widow",
+    "stem": "The ____ mourned for her husband for a long time.",
+    "correctAnswer": "widow",
+    "acceptedAnswers": [
+      "widow",
+      "widows"
+    ],
+    "analysis": "n. 寡妇, 孀妇 vt. 使成寡妇 ｜ 原句：The widow mourned for her husband for a long time."
+  },
+  {
+    "externalKey": "vocab-auto-9843-1",
+    "moduleType": 1,
+    "questionType": "FILL_BLANK",
+    "targetLevel": "CET6",
+    "difficultyLevel": 6,
+    "answerWord": "bitterness",
+    "stem": "She said good-bye with a smile, but there was a good deal of ____ in her heart.",
+    "correctAnswer": "bitterness",
+    "acceptedAnswers": [
+      "bitterness"
+    ],
+    "analysis": "n. 苦味, 悲痛, 怨恨 ｜ 原句：She said good-bye with a smile, but there was a good deal of bitterness in her heart."
+  },
+  {
+    "externalKey": "vocab-auto-8480-1",
+    "moduleType": 1,
+    "questionType": "FILL_BLANK",
+    "targetLevel": "CET4",
+    "difficultyLevel": 4,
+    "answerWord": "qualify",
+    "stem": "Free school lunches are given to children who ____.",
+    "correctAnswer": "qualify",
+    "acceptedAnswers": [
+      "qualify",
+      "qualifies",
+      "qualified",
+      "qualifying"
+    ],
+    "analysis": "vi. 取得资格, 有资格 vt. 使有资格, 使合格, 限定, 限制, 准予 ｜ 原句：Free school lunches are given to children who qualify."
+  },
+  {
+    "externalKey": "vocab-auto-10555-1",
+    "moduleType": 1,
+    "questionType": "FILL_BLANK",
+    "targetLevel": "CET6",
+    "difficultyLevel": 4,
+    "answerWord": "impulse",
+    "stem": "I felt an ____ to cry out loud.",
+    "correctAnswer": "impulse",
+    "acceptedAnswers": [
+      "impulse",
+      "impulses"
+    ],
+    "analysis": "n. 冲动, 驱使, 刺激, 推动, 冲力, 建议, 脉冲 vt. 推动 ｜ 原句：I felt an impulse to cry out loud."
+  },
+  {
+    "externalKey": "vocab-auto-6350-1",
+    "moduleType": 1,
+    "questionType": "FILL_BLANK",
+    "targetLevel": "CET4",
+    "difficultyLevel": 4,
+    "answerWord": "characterize",
+    "stem": "Bright colours ____ his paintings.",
+    "correctAnswer": "characterize",
+    "acceptedAnswers": [
+      "characterize",
+      "characterizes",
+      "characterized",
+      "characterizing",
+      "characterises",
+      "characterised",
+      "characterising"
+    ],
+    "analysis": "vt. 描绘...的特性, 刻划...的性格 ｜ 原句：Bright colours characterize his paintings."
+  },
+  {
+    "externalKey": "vocab-auto-10573-1",
+    "moduleType": 1,
+    "questionType": "FILL_BLANK",
+    "targetLevel": "CET6",
+    "difficultyLevel": 3,
+    "answerWord": "incredible",
+    "stem": "It's ____ that your mother speaks six languages!",
+    "correctAnswer": "incredible",
+    "acceptedAnswers": [
+      "incredible"
+    ],
+    "analysis": "a. 难以置信的 ｜ 原句：It's incredible that your mother speaks six languages!"
+  },
+  {
+    "externalKey": "vocab-auto-8548-1",
+    "moduleType": 1,
+    "questionType": "FILL_BLANK",
+    "targetLevel": "CET4",
+    "difficultyLevel": 2,
+    "answerWord": "recent",
+    "stem": "Is it a ____ picture?",
+    "correctAnswer": "recent",
+    "acceptedAnswers": [
+      "recent"
+    ],
+    "analysis": "a. 最近的, 近代的, 最新的 [经] 最近的, 新进的 ｜ 原句：Is it a recent picture?"
+  },
+  {
+    "externalKey": "vocab-auto-7218-1",
     "moduleType": 1,
     "questionType": "FILL_BLANK",
     "targetLevel": "CET4",
     "difficultyLevel": 3,
-    "answerWord": "illness",
-    "stem": "Have you ever had any serious ____?",
-    "correctAnswer": "illness",
+    "answerWord": "fuel",
+    "stem": "There was a shortage of ____.",
+    "correctAnswer": "fuel",
     "acceptedAnswers": [
-      "illness"
+      "fuel",
+      "fuels"
     ],
-    "analysis": "n. 疾病, 恶意 [医] 病 ｜ 原句：Have you ever had any serious ____?"
+    "analysis": "n. 燃料, 木炭 vt. 加燃料, 供燃料 vi. 得到燃料 ｜ 原句：There was a shortage of fuel."
   }
 ]

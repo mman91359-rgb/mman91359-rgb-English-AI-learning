@@ -36,6 +36,9 @@ public class QuestionInfo {
     /** 来源: MANUAL/AI/IMPORT */
     private String source;
 
+    /** 外部导入唯一键（V1.0.2 创建），如 cet6-2022-12-1-q01、vocab-auto-7533-1 */
+    private String externalKey;
+
     /** AI学习到的可接受答案列表（JSON数组），如 ["circumstance","condition"] */
     private String acceptedAnswers;
 

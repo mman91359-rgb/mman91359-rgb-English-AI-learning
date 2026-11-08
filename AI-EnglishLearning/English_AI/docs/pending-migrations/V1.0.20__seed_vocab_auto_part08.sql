@@ -6,1455 +6,6 @@
 --       DELETE FROM question_content WHERE question_id NOT IN (SELECT id FROM question_info);
 -- 校验：stem 含 ___、analysis 无答案残留（生成时已断言）
 
--- V1.0.20 · worship (CET4, 难度 6)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9658-1', 1, 'CET4', 6, 'FILL_BLANK',
-       'IMPORT', 'worship', JSON_ARRAY('worship'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9658-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9658-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'The Greeks used to ____ several gods.',
-       JSON_ARRAY(),
-       'worship',
-       'n. 崇拜, 礼拜, 尊敬 vi. 参加礼拜 vt. 崇拜, 尊敬 ｜ 原句：The Greeks used to ____ several gods.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · worst (CET4, 难度 7)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9659-1', 1, 'CET4', 7, 'FILL_BLANK',
-       'IMPORT', 'worst', JSON_ARRAY('worst', 'worsts'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9659-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9659-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'Let''s consider the ____ that could happen.',
-       JSON_ARRAY(),
-       'worst',
-       'n. 最坏, 最坏的时候 a. 最坏的, 最恶劣的, 最不利的 adv. 最坏, 最糟 ｜ 原句：Let''s consider the ____ that could happen.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · worthless (CET4, 难度 7)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9660-1', 1, 'CET4', 7, 'FILL_BLANK',
-       'IMPORT', 'worthless', JSON_ARRAY('worthless'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9660-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9660-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'An eight-year-old car is almost ____.',
-       JSON_ARRAY(),
-       'worthless',
-       'a. 无价值的, 无益的, 无足轻重的 [法] 无价值的, 无用的 ｜ 原句：An eight-year-old car is almost ____.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · worthwhile (CET4, 难度 6)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9661-1', 1, 'CET4', 6, 'FILL_BLANK',
-       'IMPORT', 'worthwhile', JSON_ARRAY('worthwhile'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9661-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9661-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'I think it is ____ to see this film twice.',
-       JSON_ARRAY(),
-       'worthwhile',
-       'a. 值得花时间的, 值得做的, 有真实价值的 ｜ 原句：I think it is ____ to see this film twice.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · worthy (CET4, 难度 6)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9662-1', 1, 'CET4', 6, 'FILL_BLANK',
-       'IMPORT', 'worthy', JSON_ARRAY('worthy', 'worthies'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9662-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9662-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'Your proposal is ____ of being considered.',
-       JSON_ARRAY(),
-       'worthy',
-       'n. 杰出人物 a. 有价值的, 可敬的, 值得的 ｜ 原句：Your proposal is ____ of being considered.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · wound (CET4, 难度 4)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9663-1', 1, 'CET4', 4, 'FILL_BLANK',
-       'IMPORT', 'wound', JSON_ARRAY('wound', 'wounds'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9663-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9663-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'Rub salt in the ____.',
-       JSON_ARRAY(),
-       'wound',
-       'n. 创伤, 伤口, 伤疤, 伤害, 痛苦 vt. 伤害, 损害, 使受伤 vi. 打伤, 伤害 wind的过去式和过去分词 ｜ 原句：Rub salt in the ____.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · wrap (CET4, 难度 3)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9664-1', 1, 'CET4', 3, 'FILL_BLANK',
-       'IMPORT', 'wrap', JSON_ARRAY('wrap', 'wraps'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9664-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9664-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'Could you ____ this separately, please?',
-       JSON_ARRAY(),
-       'wrap',
-       'n. 外套, 围巾, 包裹物, 限制, 约束, 秘密, 换行 vt. 包装, 卷, 缠绕, 包, 裹, 覆盖, 遮蔽, 隐藏, 掩护 vi. 缠绕, 穿外衣, 包起来 [计] 换行 ｜ 原句：Could you ____ this separately, please?',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · wreath (CET4, 难度 7)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9665-1', 1, 'CET4', 7, 'FILL_BLANK',
-       'IMPORT', 'wreath', JSON_ARRAY('wreath', 'wreaths'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9665-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9665-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'We hung a Christmas ____ on the front door.',
-       JSON_ARRAY(),
-       'wreath',
-       'n. 花圈, 花环, 圈状物 [医] 花冠, 花冠体(细胞核分裂的一时期) ｜ 原句：We hung a Christmas ____ on the front door.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · wreck (CET4, 难度 6)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9666-1', 1, 'CET4', 6, 'FILL_BLANK',
-       'IMPORT', 'wreck', JSON_ARRAY('wreck', 'wrecks'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9666-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9666-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'A stewardess was rescued from the ____.',
-       JSON_ARRAY(),
-       'wreck',
-       'n. 失事, 残骸, 破坏 vt. 使失事, 拆毁, 破坏 vi. (船)失事, 营救失事船只 ｜ 原句：A stewardess was rescued from the ____.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · wreckage (CET4, 难度 7)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9667-1', 1, 'CET4', 7, 'FILL_BLANK',
-       'IMPORT', 'wreckage', JSON_ARRAY('wreckage', 'wreckages'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9667-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9667-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'The ____ of the ship was salvaged after it had gone to Davy Jones''s locker.',
-       JSON_ARRAY(),
-       'wreckage',
-       'n. 残骸, 失事, 破坏 [经] (船双等的)失事遭难 ｜ 原句：The ____ of the ship was salvaged after it had gone to Davy Jones''s locker.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · wrist (CET4, 难度 5)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9668-1', 1, 'CET4', 5, 'FILL_BLANK',
-       'IMPORT', 'wrist', JSON_ARRAY('wrist', 'wrists'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9668-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9668-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'That man grabbed the young girl''s ____.',
-       JSON_ARRAY(),
-       'wrist',
-       'n. 手腕, 腕关节 [医] 腕 ｜ 原句：That man grabbed the young girl''s ____.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · writer (CET4, 难度 2)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9669-1', 1, 'CET4', 2, 'FILL_BLANK',
-       'IMPORT', 'writer', JSON_ARRAY('writer', 'writers'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9669-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9669-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'Every great ____ seems to have been interested in English.',
-       JSON_ARRAY(),
-       'writer',
-       'n. 作家, 撰稿者, 抄写员 [化] 记录器 ｜ 原句：Every great ____ seems to have been interested in English.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · writing (CET4, 难度 3)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9670-1', 1, 'CET4', 3, 'FILL_BLANK',
-       'IMPORT', 'writing', JSON_ARRAY('writing', 'writings'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9670-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9670-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'There was always too much superfluous ____ in his essays.',
-       JSON_ARRAY(),
-       'writing',
-       'n. 书写, 著作, 笔迹, 作品 [医] 书写 ｜ 原句：There was always too much superfluous ____ in his essays.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · x-ray (CET4, 难度 7)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9671-1', 1, 'CET4', 7, 'FILL_BLANK',
-       'IMPORT', 'x-ray', JSON_ARRAY('x-ray'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9671-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9671-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'The ____ showed two broken fingers.',
-       JSON_ARRAY(),
-       'x-ray',
-       'a. X射线的 vt. 用X光检查, 照X光 vi. 使用X光 ｜ 原句：The ____ showed two broken fingers.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · yard (CET4, 难度 2)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9672-1', 1, 'CET4', 2, 'FILL_BLANK',
-       'IMPORT', 'yard', JSON_ARRAY('yard', 'yards'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9672-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9672-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'Give him an inch and he''ll take a ____.',
-       JSON_ARRAY(),
-       'yard',
-       'n. 码, 庭院, 工场 [化] 堆置场 ｜ 原句：Give him an inch and he''ll take a ____.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · yawn (CET4, 难度 7)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9673-1', 1, 'CET4', 7, 'FILL_BLANK',
-       'IMPORT', 'yawn', JSON_ARRAY('yawn', 'yawns'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9673-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9673-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'Cover your mouth when you cough, sneeze, or ____.',
-       JSON_ARRAY(),
-       'yawn',
-       'n. 哈欠 vi. 打哈欠, 裂开 vt. 打着哈欠说 ｜ 原句：Cover your mouth when you cough, sneeze, or ____.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · yearly (CET4, 难度 7)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9674-1', 1, 'CET4', 7, 'FILL_BLANK',
-       'IMPORT', 'yearly', JSON_ARRAY('yearly'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9674-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9674-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'Salary levels are reviewed on a ____ basis.',
-       JSON_ARRAY(),
-       'yearly',
-       'a. 每年的, 一年一度的 adv. 一年一次, 每年 ｜ 原句：Salary levels are reviewed on a ____ basis.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · yield (CET4, 难度 4)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9676-1', 1, 'CET4', 4, 'FILL_BLANK',
-       'IMPORT', 'yield', JSON_ARRAY('yield', 'yields'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9676-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9676-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'A 6% ____ is guaranteed on the investment.',
-       JSON_ARRAY(),
-       'yield',
-       'n. 生产量, 投资收益 vt. 出产, 给予, 让出, 放弃, 使屈服 vi. 出产, 屈服, 投降, 倒塌 ｜ 原句：A 6% ____ is guaranteed on the investment.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · youth (CET4, 难度 2)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9678-1', 1, 'CET4', 2, 'FILL_BLANK',
-       'IMPORT', 'youth', JSON_ARRAY('youth', 'youths'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9678-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9678-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'Is there a ____ hostel near here?',
-       JSON_ARRAY(),
-       'youth',
-       'n. 年轻, 青年时代, 青年们, 青春 [法] 青年, 青年时期, 青春时期 ｜ 原句：Is there a ____ hostel near here?',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · zeal (CET4, 难度 7)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9680-1', 1, 'CET4', 7, 'FILL_BLANK',
-       'IMPORT', 'zeal', JSON_ARRAY('zeal', 'zeals'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9680-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9680-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       '____ for your house will consume me.',
-       JSON_ARRAY(),
-       'zeal',
-       'n. 热心, 热衷, 热诚 ｜ 原句：____ for your house will consume me.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · zebra (CET4, 难度 7)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9682-1', 1, 'CET4', 7, 'FILL_BLANK',
-       'IMPORT', 'zebra', JSON_ARRAY('zebra', 'zebras'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9682-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9682-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'Is this ____ yours?',
-       JSON_ARRAY(),
-       'zebra',
-       'n. 斑马 ｜ 原句：Is this ____ yours?',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · zone (CET4, 难度 3)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9683-1', 1, 'CET4', 3, 'FILL_BLANK',
-       'IMPORT', 'zone', JSON_ARRAY('zone', 'zones'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9683-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9683-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'That''s a no-entry ____.',
-       JSON_ARRAY(),
-       'zone',
-       'n. 地带, 带, 地区 vt. 环绕, 使分成地带 vi. 分成区 [计] 卡片顶部的三行区; 区; 区域 ｜ 原句：That''s a no-entry ____.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · abbreviation (CET6, 难度 7)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9687-1', 1, 'CET6', 7, 'FILL_BLANK',
-       'IMPORT', 'abbreviation', JSON_ARRAY('abbreviation', 'abbreviations'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9687-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9687-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'The ____ of "Chinese People''s Political Consultative Conference" is "CPPCC".',
-       JSON_ARRAY(),
-       'abbreviation',
-       'n. 缩写词, 缩写, 缩短, 节略 ｜ 原句：The ____ of "Chinese People''s Political Consultative Conference" is "CPPCC".',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · abide (CET6, 难度 6)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9688-1', 1, 'CET6', 6, 'FILL_BLANK',
-       'IMPORT', 'abide', JSON_ARRAY('abide', 'abides', 'abided', 'abiding'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9688-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9688-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'You have to ____ by the laws.',
-       JSON_ARRAY(),
-       'abide',
-       'vi. 停留, 遵守, 居留, 继续下去 vt. 忍受, 经受, 屈从于 ｜ 原句：You have to ____ by the laws.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · abolish (CET6, 难度 6)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9689-1', 1, 'CET6', 6, 'FILL_BLANK',
-       'IMPORT', 'abolish', JSON_ARRAY('abolish', 'abolishes', 'abolished', 'abolishing'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9689-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9689-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'How can we ____ war?',
-       JSON_ARRAY(),
-       'abolish',
-       'vt. 废止, 革除, 消灭 [经] 废除, 取消, 裁撤 ｜ 原句：How can we ____ war?',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · absurd (CET6, 难度 5)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9692-1', 1, 'CET6', 5, 'FILL_BLANK',
-       'IMPORT', 'absurd', JSON_ARRAY('absurd'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9692-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9692-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'It''s ____ of you to do that.',
-       JSON_ARRAY(),
-       'absurd',
-       'a. 荒谬的, 不合理的, 可笑的 n. 荒诞 ｜ 原句：It''s ____ of you to do that.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · abundance (CET6, 难度 5)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9693-1', 1, 'CET6', 5, 'FILL_BLANK',
-       'IMPORT', 'abundance', JSON_ARRAY('abundance', 'abundances'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9693-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9693-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'She lives in ____.',
-       JSON_ARRAY(),
-       'abundance',
-       'n. 丰富, 充足, 大量 [经] 丰富, 充裕 ｜ 原句：She lives in ____.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · accessary (CET6, 难度 7)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9694-1', 1, 'CET6', 7, 'FILL_BLANK',
-       'IMPORT', 'accessary', JSON_ARRAY('accessary'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9694-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9694-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'an ____ to murder',
-       JSON_ARRAY(),
-       'accessary',
-       'a. 附属的, 附带的, 从犯的 n. 附件, 同谋, 从犯 ｜ 原句：an ____ to murder',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · accessible (CET6, 难度 4)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9695-1', 1, 'CET6', 4, 'FILL_BLANK',
-       'IMPORT', 'accessible', JSON_ARRAY('accessible'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9695-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9695-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'New York is ____ by train from Washington.',
-       JSON_ARRAY(),
-       'accessible',
-       'a. 易接近的, 可进入的, 可使用的, 易受影响的, 可理解的 ｜ 原句：New York is ____ by train from Washington.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · acquisitive (CET6, 难度 7)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9698-1', 1, 'CET6', 7, 'FILL_BLANK',
-       'IMPORT', 'acquisitive', JSON_ARRAY('acquisitive'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9698-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9698-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'He is ____ of knowledge.',
-       JSON_ARRAY(),
-       'acquisitive',
-       'a. 渴望获得的, 贪婪的 [法] 取得的, 获得的, 贪得无厌的 ｜ 原句：He is ____ of knowledge.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · adjacent (CET6, 难度 5)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9700-1', 1, 'CET6', 5, 'FILL_BLANK',
-       'IMPORT', 'adjacent', JSON_ARRAY('adjacent'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9700-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9700-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'The stadium is ____ to the school.',
-       JSON_ARRAY(),
-       'adjacent',
-       'a. 毗连的, 邻近的, 连接的 [机] 相邻的, 邻位的, 交界的 ｜ 原句：The stadium is ____ to the school.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · admiration (CET6, 难度 6)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9703-1', 1, 'CET6', 6, 'FILL_BLANK',
-       'IMPORT', 'admiration', JSON_ARRAY('admiration', 'admirations'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9703-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9703-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'I feel ____ for his talent.',
-       JSON_ARRAY(),
-       'admiration',
-       'n. 赞赏, 钦佩, 引人赞赏的对象 ｜ 原句：I feel ____ for his talent.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · adore (CET6, 难度 6)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9706-1', 1, 'CET6', 6, 'FILL_BLANK',
-       'IMPORT', 'adore', JSON_ARRAY('adore', 'adores', 'adored', 'adoring'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9706-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9706-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'The students ____ the new English teacher.',
-       JSON_ARRAY(),
-       'adore',
-       'vt. 崇拜, 爱慕, 喜爱 vi. 崇拜, 爱慕 ｜ 原句：The students ____ the new English teacher.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · advantageous (CET6, 难度 7)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9707-1', 1, 'CET6', 7, 'FILL_BLANK',
-       'IMPORT', 'advantageous', JSON_ARRAY('advantageous'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9707-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9707-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'Being able to use a computer is ____.',
-       JSON_ARRAY(),
-       'advantageous',
-       'a. 有利的, 有益的 ｜ 原句：Being able to use a computer is ____.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · adverse (CET6, 难度 5)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9708-1', 1, 'CET6', 5, 'FILL_BLANK',
-       'IMPORT', 'adverse', JSON_ARRAY('adverse'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9708-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9708-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'They fear it could have an ____ effect on global financial markets.',
-       JSON_ARRAY(),
-       'adverse',
-       'a. 不利的, 敌对的, 相反的, 逆的 [法] 相反的, 敌对的, 逆的 ｜ 原句：They fear it could have an ____ effect on global financial markets.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · aerospace (CET6, 难度 6)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9710-1', 1, 'CET6', 6, 'FILL_BLANK',
-       'IMPORT', 'aerospace', JSON_ARRAY('aerospace', 'aerospaces'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9710-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9710-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'His dream is to become an ____ engineer.',
-       JSON_ARRAY(),
-       'aerospace',
-       'n. 航天空间, 航天技术 ｜ 原句：His dream is to become an ____ engineer.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · affiliate (CET6, 难度 6)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9713-1', 1, 'CET6', 6, 'FILL_BLANK',
-       'IMPORT', 'affiliate', JSON_ARRAY('affiliate', 'affiliated', 'affiliates', 'affiliating'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9713-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9713-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'The Society is not ____ with any political party.',
-       JSON_ARRAY(),
-       'affiliated',
-       'vt. 使紧密联系, 使附属, 接纳, 收养 vi. 发生联系, 参加 ｜ 原句：The Society is not ____ with any political party.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · affirm (CET6, 难度 5)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9714-1', 1, 'CET6', 5, 'FILL_BLANK',
-       'IMPORT', 'affirm', JSON_ARRAY('affirm', 'affirms', 'affirmed', 'affirming'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9714-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9714-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'It doesn''t matter how others see you. What is important is to be sure to ____ your own self.',
-       JSON_ARRAY(),
-       'affirm',
-       'v. 断言, 确认 ｜ 原句：It doesn''t matter how others see you. What is important is to be sure to ____ your own self.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · aggravate (CET6, 难度 6)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9717-1', 1, 'CET6', 6, 'FILL_BLANK',
-       'IMPORT', 'aggravate', JSON_ARRAY('aggravate', 'aggravated', 'aggravates', 'aggravating'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9717-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9717-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'Their money problems were further ____ by a rise in interest rates.',
-       JSON_ARRAY(),
-       'aggravated',
-       'vt. 使恶化, 使更严重, 加重 ｜ 原句：Their money problems were further ____ by a rise in interest rates.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · aggression (CET6, 难度 4)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9718-1', 1, 'CET6', 4, 'FILL_BLANK',
-       'IMPORT', 'aggression', JSON_ARRAY('aggression', 'aggressions'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9718-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9718-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'As North Korea displays ____, South Korea concentrates its forces near the border.',
-       JSON_ARRAY(),
-       'aggression',
-       'n. 侵犯, 侵略 [医] 攻击 ｜ 原句：As North Korea displays ____, South Korea concentrates its forces near the border.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · agreeable (CET6, 难度 7)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9720-1', 1, 'CET6', 7, 'FILL_BLANK',
-       'IMPORT', 'agreeable', JSON_ARRAY('agreeable'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9720-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9720-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'He is an ____ person.',
-       JSON_ARRAY(),
-       'agreeable',
-       'a. 令人愉快的, 同意的 [医] 佳适的 ｜ 原句：He is an ____ person.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · alas (CET6, 难度 6)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9721-1', 1, 'CET6', 6, 'FILL_BLANK',
-       'IMPORT', 'alas', JSON_ARRAY('alas', 'alases'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9721-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9721-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'Many of our pioneers are still alive... but, ____, many of them aren''t alive any more.',
-       JSON_ARRAY(),
-       'alas',
-       'interj. 唉 ｜ 原句：Many of our pioneers are still alive... but, ____, many of them aren''t alive any more.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · album (CET6, 难度 3)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9722-1', 1, 'CET6', 3, 'FILL_BLANK',
-       'IMPORT', 'album', JSON_ARRAY('album', 'albums'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9722-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9722-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'Damon showed me his stamp ____.',
-       JSON_ARRAY(),
-       'album',
-       'n. 粘贴簿, 唱片套 [医] 白色物 ｜ 原句：Damon showed me his stamp ____.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · alien (CET6, 难度 4)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9723-1', 1, 'CET6', 4, 'FILL_BLANK',
-       'IMPORT', 'alien', JSON_ARRAY('alien', 'aliens'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9723-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9723-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'If we ever came in contact with an ____ race, how would we communicate with it?',
-       JSON_ARRAY(),
-       'alien',
-       'n. 外国人, 外侨 a. 外国的, 相异的 ｜ 原句：If we ever came in contact with an ____ race, how would we communicate with it?',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · allegiance (CET6, 难度 6)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9727-1', 1, 'CET6', 6, 'FILL_BLANK',
-       'IMPORT', 'allegiance', JSON_ARRAY('allegiance', 'allegiances'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9727-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9727-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'The knight swore an oath of ____ to the king.',
-       JSON_ARRAY(),
-       'allegiance',
-       'n. 忠贞, 效忠 ｜ 原句：The knight swore an oath of ____ to the king.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · alleviate (CET6, 难度 6)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9728-1', 1, 'CET6', 6, 'FILL_BLANK',
-       'IMPORT', 'alleviate', JSON_ARRAY('alleviate', 'alleviates', 'alleviated', 'alleviating'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9728-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9728-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'In order to ____ employment pressures, the nation has established a series of relevant policies.',
-       JSON_ARRAY(),
-       'alleviate',
-       'vt. 减轻, 使缓和 ｜ 原句：In order to ____ employment pressures, the nation has established a series of relevant policies.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · allied (CET6, 难度 5)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9730-1', 1, 'CET6', 5, 'FILL_BLANK',
-       'IMPORT', 'allied', JSON_ARRAY('allied'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9730-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9730-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'Germany was once ____ with Italy.',
-       JSON_ARRAY(),
-       'allied',
-       'a. 联盟的, 联姻的, 联系起来的 ｜ 原句：Germany was once ____ with Italy.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · allowance (CET6, 难度 6)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9732-1', 1, 'CET6', 6, 'FILL_BLANK',
-       'IMPORT', 'allowance', JSON_ARRAY('allowance', 'allowances'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9732-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9732-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'My dad gives me a weekly ____ that I use to buy comics and ice cream.',
-       JSON_ARRAY(),
-       'allowance',
-       'n. 津贴, 零用钱, 限额, 折扣, 允许 vt. 定量供应 ｜ 原句：My dad gives me a weekly ____ that I use to buy comics and ice cream.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · ally (CET6, 难度 3)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9733-1', 1, 'CET6', 3, 'FILL_BLANK',
-       'IMPORT', 'ally', JSON_ARRAY('ally', 'allies'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9733-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9733-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'Germany was once an ____ of Italy.',
-       JSON_ARRAY(),
-       'ally',
-       'n. 同盟者, 同盟国, 助手 vt. 使联盟, 使联合, 使有关系 vi. 结盟 ｜ 原句：Germany was once an ____ of Italy.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · alongside (CET6, 难度 4)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9734-1', 1, 'CET6', 4, 'FILL_BLANK',
-       'IMPORT', 'alongside', JSON_ARRAY('alongside'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9734-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9734-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'Native Chinese people are working ____ foreigners to change the culture of Shanghai.',
-       JSON_ARRAY(),
-       'alongside',
-       'adv. 在旁边, 靠拢着 prep. 在...旁边, 与...在一起 ｜ 原句：Native Chinese people are working ____ foreigners to change the culture of Shanghai.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · alternate (CET6, 难度 6)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9736-1', 1, 'CET6', 6, 'FILL_BLANK',
-       'IMPORT', 'alternate', JSON_ARRAY('alternate'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9736-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9736-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'Please list ____ dates.',
-       JSON_ARRAY(),
-       'alternate',
-       'a. 交替的, 轮流的, 间隔的 v. 轮流, (使)交替 ｜ 原句：Please list ____ dates.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · amateur (CET6, 难度 5)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9737-1', 1, 'CET6', 5, 'FILL_BLANK',
-       'IMPORT', 'amateur', JSON_ARRAY('amateur', 'amateurs'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9737-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9737-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'The point we must clarify here is that the lines between ____ and professional in sport are beginning to disappear.',
-       JSON_ARRAY(),
-       'amateur',
-       'n. 业余爱好者, 外行, 爱好者 [电] 业余家 ｜ 原句：The point we must clarify here is that the lines between ____ and professional in sport are beginning to disappear.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · ambassador (CET6, 难度 4)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9738-1', 1, 'CET6', 4, 'FILL_BLANK',
-       'IMPORT', 'ambassador', JSON_ARRAY('ambassador', 'ambassadors'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9738-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9738-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'An ____ is an honest man sent to lie abroad for the good of his country.',
-       JSON_ARRAY(),
-       'ambassador',
-       'n. 大使 [法] 大使, 使节, 代理 ｜ 原句：An ____ is an honest man sent to lie abroad for the good of his country.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · ambiguous (CET6, 难度 6)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9741-1', 1, 'CET6', 6, 'FILL_BLANK',
-       'IMPORT', 'ambiguous', JSON_ARRAY('ambiguous'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9741-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9741-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'This sentence is ____.',
-       JSON_ARRAY(),
-       'ambiguous',
-       'a. 不明确的, 模棱两可的 [法] 意思含糊的, 模棱两可的, 暧昧的 ｜ 原句：This sentence is ____.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · ambitious (CET6, 难度 4)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9742-1', 1, 'CET6', 4, 'FILL_BLANK',
-       'IMPORT', 'ambitious', JSON_ARRAY('ambitious'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9742-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9742-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'I''m someone ____ - someone who knows very well what he is after.',
-       JSON_ARRAY(),
-       'ambitious',
-       'a. 有野心的, 抱负不凡的, 雄心勃勃的 ｜ 原句：I''m someone ____ - someone who knows very well what he is after.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · amends (CET6, 难度 7)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9743-1', 1, 'CET6', 7, 'FILL_BLANK',
-       'IMPORT', 'amends', JSON_ARRAY('amends'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9743-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9743-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'It''s never too late to make ____.',
-       JSON_ARRAY(),
-       'amends',
-       'n. 赔偿 [经] 赔偿 ｜ 原句：It''s never too late to make ____.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · amid (CET6, 难度 4)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9744-1', 1, 'CET6', 4, 'FILL_BLANK',
-       'IMPORT', 'amid', JSON_ARRAY('amid', 'amids'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9744-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9744-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'There''s a fear that the snow will strengthen ____ the strong winter pressure pattern.',
-       JSON_ARRAY(),
-       'amid',
-       'prep. 在其间, 在其中 [经] 在...中 ｜ 原句：There''s a fear that the snow will strengthen ____ the strong winter pressure pattern.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · ample (CET6, 难度 5)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9745-1', 1, 'CET6', 5, 'FILL_BLANK',
-       'IMPORT', 'ample', JSON_ARRAY('ample'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9745-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9745-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'We have ____ time to catch our train.',
-       JSON_ARRAY(),
-       'ample',
-       'a. 大量的, 充足的, 丰富的 ｜ 原句：We have ____ time to catch our train.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · analyst (CET6, 难度 2)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9751-1', 1, 'CET6', 2, 'FILL_BLANK',
-       'IMPORT', 'analyst', JSON_ARRAY('analyst', 'analysts'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9751-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9751-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'Tom is a financial ____.',
-       JSON_ARRAY(),
-       'analyst',
-       'n. 分析者, 精神分析学家 [化] 分析员; 化验员 ｜ 原句：Tom is a financial ____.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · analytical (CET6, 难度 6)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9753-1', 1, 'CET6', 6, 'FILL_BLANK',
-       'IMPORT', 'analytical', JSON_ARRAY('analytical'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9753-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9753-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       '____ chemistry',
-       JSON_ARRAY(),
-       'analytical',
-       'a. 分析的, 善于分析的, 解析的 [机] 分析的 ｜ 原句：____ chemistry',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · anniversary (CET6, 难度 3)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9754-1', 1, 'CET6', 3, 'FILL_BLANK',
-       'IMPORT', 'anniversary', JSON_ARRAY('anniversary', 'anniversaries'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9754-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9754-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'Tom never forgets to give his wife flowers on their wedding ____.',
-       JSON_ARRAY(),
-       'anniversary',
-       'n. 周年纪念 ｜ 原句：Tom never forgets to give his wife flowers on their wedding ____.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · annually (CET6, 难度 4)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9755-1', 1, 'CET6', 4, 'FILL_BLANK',
-       'IMPORT', 'annually', JSON_ARRAY('annually'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9755-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9755-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'Do you know how many people starve to death in the world ____?',
-       JSON_ARRAY(),
-       'annually',
-       'adv. 一年一次, 每年 [经] 年度的, 每年的 ｜ 原句：Do you know how many people starve to death in the world ____?',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · anonymous (CET6, 难度 4)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9757-1', 1, 'CET6', 4, 'FILL_BLANK',
-       'IMPORT', 'anonymous', JSON_ARRAY('anonymous'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9757-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9757-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'The questions will not take long, and everything would be kept completely ____.',
-       JSON_ARRAY(),
-       'anonymous',
-       'a. 姓氏不详的, 无名的, 无特色的 [计] 无记录 ｜ 原句：The questions will not take long, and everything would be kept completely ____.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
 -- V1.0.20 · antarctic (CET6, 难度 7)
 INSERT INTO `question_info`
   (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
@@ -1473,7 +24,7 @@ SELECT @qid,
        'They went on an expedition to the ____.',
        JSON_ARRAY(),
        'antarctic',
-       'a. 南极的, 南极地带的 n. 南极地区 ｜ 原句：They went on an expedition to the ____.',
+       'a. 南极的, 南极地带的 n. 南极地区 ｜ 原句：They went on an expedition to the Antarctic.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -1496,7 +47,7 @@ SELECT @qid,
        'The man tried to install his own ____.',
        JSON_ARRAY(),
        'antenna',
-       'n. 天线, 触须, 触角 [化] 天线 ｜ 原句：The man tried to install his own ____.',
+       'n. 天线, 触须, 触角 [化] 天线 ｜ 原句：The man tried to install his own antenna.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -1519,7 +70,7 @@ SELECT @qid,
        'Can you tell me where the nearest ____ shop is?',
        JSON_ARRAY(),
        'antique',
-       'n. 古董, 古物 a. 古老的, 古风的, 旧式的, 过时的 ｜ 原句：Can you tell me where the nearest ____ shop is?',
+       'n. 古董, 古物 a. 古老的, 古风的, 旧式的, 过时的 ｜ 原句：Can you tell me where the nearest antique shop is?',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -1530,7 +81,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-9761-1', 1, 'CET6', 7, 'FILL_BLANK',
-       'IMPORT', 'antisocial', JSON_ARRAY('antisocial', 'antisocials', 'antisocialed', 'antisocialing'), 0, 0, 0,
+       'IMPORT', 'antisocial', JSON_ARRAY('antisocial'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9761-1');
 
@@ -1542,7 +93,7 @@ SELECT @qid,
        'I may be ____, but it doesn''t mean I don''t talk to people.',
        JSON_ARRAY(),
        'antisocial',
-       '不爱社交的, 反社会的, 有害于公众利益的 [医] 不喜社交的 ｜ 原句：I may be ____, but it doesn''t mean I don''t talk to people.',
+       '不爱社交的, 反社会的, 有害于公众利益的 [医] 不喜社交的 ｜ 原句：I may be antisocial, but it doesn''t mean I don''t talk to people.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -1565,7 +116,7 @@ SELECT @qid,
        'The city offers an ____ combination of sporting and cultural events.',
        JSON_ARRAY(),
        'appealing',
-       'a. 有感染力的, 动人的, 恳求的 ｜ 原句：The city offers an ____ combination of sporting and cultural events.',
+       'a. 有感染力的, 动人的, 恳求的 ｜ 原句：The city offers an appealing combination of sporting and cultural events.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -1588,7 +139,7 @@ SELECT @qid,
        'The whole audience got up and started to ____.',
        JSON_ARRAY(),
        'applaud',
-       'v. 拍手喝彩, 称赞, 赞同 ｜ 原句：The whole audience got up and started to ____.',
+       'v. 拍手喝彩, 称赞, 赞同 ｜ 原句：The whole audience got up and started to applaud.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -1611,7 +162,7 @@ SELECT @qid,
        'He always comes to show his ____ during the New Year and holidays.',
        JSON_ARRAY(),
        'appreciation',
-       'n. 感激, 赏识, 鉴别 [经] 涨价, 增值 ｜ 原句：He always comes to show his ____ during the New Year and holidays.',
+       'n. 感激, 赏识, 鉴别 [经] 涨价, 增值 ｜ 原句：He always comes to show his appreciation during the New Year and holidays.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -1622,7 +173,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-9769-1', 1, 'CET6', 6, 'FILL_BLANK',
-       'IMPORT', 'apt', JSON_ARRAY('apt'), 0, 0, 0,
+       'IMPORT', 'apt', JSON_ARRAY('apt', 'apter', 'aptest'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9769-1');
 
@@ -1634,7 +185,7 @@ SELECT @qid,
        'You are ____ to be forgetful.',
        JSON_ARRAY(),
        'apt',
-       'a. 有...倾向的, 易于的, 恰当的, 聪明的 [计] 自动数控语言, 自动图象传输, 自动程序控制, 自动程序设计工具 ｜ 原句：You are ____ to be forgetful.',
+       'a. 有...倾向的, 易于的, 恰当的, 聪明的 [计] 自动数控语言, 自动图象传输, 自动程序控制, 自动程序设计工具 ｜ 原句：You are apt to be forgetful.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -1657,7 +208,7 @@ SELECT @qid,
        'A few months later they return to their breeding grounds in the ____.',
        JSON_ARRAY(),
        'arctic',
-       'a. 北极的, 极寒的 n. 北极圈, 北极 ｜ 原句：A few months later they return to their breeding grounds in the ____.',
+       'a. 北极的, 极寒的 n. 北极圈, 北极 ｜ 原句：A few months later they return to their breeding grounds in the Arctic.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -1680,7 +231,7 @@ SELECT @qid,
        'Behind every animal on the Chinese zodiac lies an ____ of proverbs, sayings and stories.',
        JSON_ARRAY(),
        'array',
-       'n. 排列, 衣服, 大批, 军队 vt. 布署, 打扮, 排列 [计] 数组; 阵列 ｜ 原句：Behind every animal on the Chinese zodiac lies an ____ of proverbs, sayings and stories.',
+       'n. 排列, 衣服, 大批, 军队 vt. 布署, 打扮, 排列 [计] 数组; 阵列 ｜ 原句：Behind every animal on the Chinese zodiac lies an array of proverbs, sayings and stories.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -1703,7 +254,7 @@ SELECT @qid,
        'That girl is ____ because of her beauty.',
        JSON_ARRAY(),
        'arrogant',
-       'a. 自大的, 傲慢的 ｜ 原句：That girl is ____ because of her beauty.',
+       'a. 自大的, 傲慢的 ｜ 原句：That girl is arrogant because of her beauty.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -1726,7 +277,7 @@ SELECT @qid,
        'Sometimes he has difficulty being ____ about his views.',
        JSON_ARRAY(),
        'articulate',
-       'a. 发音清晰的, 口才好的 vt. 明白地说, 以关节连接, 使成为系统的整体 ｜ 原句：Sometimes he has difficulty being ____ about his views.',
+       'a. 发音清晰的, 口才好的 vt. 明白地说, 以关节连接, 使成为系统的整体 ｜ 原句：Sometimes he has difficulty being articulate about his views.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -1749,7 +300,7 @@ SELECT @qid,
        'The plane ____ rapidly.',
        JSON_ARRAY(),
        'ascended',
-       'vi. 上升, 追溯, 登高 vt. 攀登 ｜ 原句：The plane ____ rapidly.',
+       'vi. 上升, 追溯, 登高 vt. 攀登 ｜ 原句：The plane ascended rapidly.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -1772,7 +323,7 @@ SELECT @qid,
        'Each has their ____.',
        JSON_ARRAY(),
        'aspiration',
-       'n. 热望, 志向, 渴望 [医] 吸入; 吸[引], 吸引术 ｜ 原句：Each has their ____.',
+       'n. 热望, 志向, 渴望 [医] 吸入; 吸[引], 吸引术 ｜ 原句：Each has their aspiration.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -1795,7 +346,7 @@ SELECT @qid,
        'It''s such a pain in the ____.',
        JSON_ARRAY(),
        'ass',
-       'n. 驴, 傻瓜, 笨蛋, 屁股 [计] 模拟仿真系统 ｜ 原句：It''s such a pain in the ____.',
+       'n. 驴, 傻瓜, 笨蛋, 屁股 [计] 模拟仿真系统 ｜ 原句：It''s such a pain in the ass.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -1818,7 +369,7 @@ SELECT @qid,
        'They attempted to ____ the president.',
        JSON_ARRAY(),
        'assassinate',
-       'vt. 暗杀, 行刺 [法] 暗杀, 行刺, 中伤 ｜ 原句：They attempted to ____ the president.',
+       'vt. 暗杀, 行刺 [法] 暗杀, 行刺, 中伤 ｜ 原句：They attempted to assassinate the president.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -1841,7 +392,7 @@ SELECT @qid,
        'The refugee camp came under ____ again last night.',
        JSON_ARRAY(),
        'assault',
-       'n. 攻击, 袭击 vt. 袭击, 攻击 vi. 发动攻击 ｜ 原句：The refugee camp came under ____ again last night.',
+       'n. 攻击, 袭击 vt. 袭击, 攻击 vi. 发动攻击 ｜ 原句：The refugee camp came under assault again last night.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -1864,7 +415,7 @@ SELECT @qid,
        'French cooking, she ____, is the best in the world.',
        JSON_ARRAY(),
        'asserted',
-       'vt. 主张, 坚称, 断言 [法] 宣称, 断言, 维护 ｜ 原句：French cooking, she ____, is the best in the world.',
+       'vt. 主张, 坚称, 断言 [法] 宣称, 断言, 维护 ｜ 原句：French cooking, she asserted, is the best in the world.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -1887,7 +438,7 @@ SELECT @qid,
        'a reading ____ test',
        JSON_ARRAY(),
        'assessment',
-       'n. 评估, 估定, 评定的款额 [化] 评估 ｜ 原句：a reading ____ test',
+       'n. 评估, 估定, 评定的款额 [化] 评估 ｜ 原句：a reading assessment test',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -1910,7 +461,7 @@ SELECT @qid,
        'Trump is a Russian ____.',
        JSON_ARRAY(),
        'asset',
-       'n. 资产, 有益的东西 ｜ 原句：Trump is a Russian ____.',
+       'n. 资产, 有益的东西 ｜ 原句：Trump is a Russian asset.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -1933,7 +484,7 @@ SELECT @qid,
        'Refugees find it difficult to become ____ into the community.',
        JSON_ARRAY(),
        'assimilated',
-       'vt. 使同化, 吸收, 使相拟, 把...比作 vi. 被吸收, 被同化 ｜ 原句：Refugees find it difficult to become ____ into the community.',
+       'vt. 使同化, 吸收, 使相拟, 把...比作 vi. 被吸收, 被同化 ｜ 原句：Refugees find it difficult to become assimilated into the community.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -1956,7 +507,7 @@ SELECT @qid,
        'To my ____, my money was gone.',
        JSON_ARRAY(),
        'astonishment',
-       'n. 惊异, 惊愕, 使人惊异的事物 ｜ 原句：To my ____, my money was gone.',
+       'n. 惊异, 惊愕, 使人惊异的事物 ｜ 原句：To my astonishment, my money was gone.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -1979,7 +530,7 @@ SELECT @qid,
        '____ deals with the stars and planets.',
        JSON_ARRAY(),
        'astronomy',
-       'n. 天文学 ｜ 原句：____ deals with the stars and planets.',
+       'n. 天文学 ｜ 原句：Astronomy deals with the stars and planets.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2002,7 +553,7 @@ SELECT @qid,
        'The ____ meeting will be put off.',
        JSON_ARRAY(),
        'athletic',
-       'a. 运动的 ｜ 原句：The ____ meeting will be put off.',
+       'a. 运动的 ｜ 原句：The athletic meeting will be put off.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2025,7 +576,7 @@ SELECT @qid,
        '____ is compulsory for all members.',
        JSON_ARRAY(),
        'attendance',
-       'n. 出席, 出席的人数, 照料 [法] 管理, 照料, 资助 ｜ 原句：____ is compulsory for all members.',
+       'n. 出席, 出席的人数, 照料 [法] 管理, 照料, 资助 ｜ 原句：Attendance is compulsory for all members.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2048,7 +599,7 @@ SELECT @qid,
        'Tom is a flight ____.',
        JSON_ARRAY(),
        'attendant',
-       'n. 随从, 侍者, 出席者 a. 侍候的, 伴随的, 出席的, 在场的 ｜ 原句：Tom is a flight ____.',
+       'n. 随从, 侍者, 出席者 a. 侍候的, 伴随的, 出席的, 在场的 ｜ 原句：Tom is a flight attendant.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2071,7 +622,7 @@ SELECT @qid,
        'It''s totally without precedent for the suspect''s ____ to be the true culprit.',
        JSON_ARRAY(),
        'attorney',
-       'n. 代理人, 律师 [经] 律师, 代理人 ｜ 原句：It''s totally without precedent for the suspect''s ____ to be the true culprit.',
+       'n. 代理人, 律师 [经] 律师, 代理人 ｜ 原句：It''s totally without precedent for the suspect''s attorney to be the true culprit.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2094,7 +645,7 @@ SELECT @qid,
        'I really hope that I can speak ____ Chinese.',
        JSON_ARRAY(),
        'authentic',
-       'a. 可靠的, 可信的, 真正的 [法] 被认证的, 确认的, 可信的 ｜ 原句：I really hope that I can speak ____ Chinese.',
+       'a. 可靠的, 可信的, 真正的 [法] 被认证的, 确认的, 可信的 ｜ 原句：I really hope that I can speak authentic Chinese.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2117,7 +668,7 @@ SELECT @qid,
        'Crying is of no ____.',
        JSON_ARRAY(),
        'avail',
-       'vi. 有用, 有利 vt. 有利于 n. 效用, 利益 ｜ 原句：Crying is of no ____.',
+       'vi. 有用, 有利 vt. 有利于 n. 效用, 利益 ｜ 原句：Crying is of no avail.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2140,7 +691,7 @@ SELECT @qid,
        '____ may vary by region and device compatibility.',
        JSON_ARRAY(),
        'availability',
-       'n. 有效性, 可利用性, 可利用的人 [计] 有效性; 可用性 ｜ 原句：____ may vary by region and device compatibility.',
+       'n. 有效性, 可利用性, 可利用的人 [计] 有效性; 可用性 ｜ 原句：Availability may vary by region and device compatibility.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2163,7 +714,7 @@ SELECT @qid,
        'Would you like ____ or sausage?',
        JSON_ARRAY(),
        'bacon',
-       'n. 熏猪肉 [机] 腌肉 ｜ 原句：Would you like ____ or sausage?',
+       'n. 熏猪肉 [机] 腌肉 ｜ 原句：Would you like bacon or sausage?',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2186,7 +737,7 @@ SELECT @qid,
        'Some spaghetti fell on the ____ of the uniform, dirtying it.',
        JSON_ARRAY(),
        'badge',
-       'n. 徽章, 标记 [计] 标记 ｜ 原句：Some spaghetti fell on the ____ of the uniform, dirtying it.',
+       'n. 徽章, 标记 [计] 标记 ｜ 原句：Some spaghetti fell on the badge of the uniform, dirtying it.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2209,7 +760,7 @@ SELECT @qid,
        'The question ____ me completely.',
        JSON_ARRAY(),
        'baffled',
-       'vt. 困惑, 为难, 使挫折 vi. 徒作挣扎 n. 迷惑, 挡板 ｜ 原句：The question ____ me completely.',
+       'vt. 困惑, 为难, 使挫折 vi. 徒作挣扎 n. 迷惑, 挡板 ｜ 原句：The question baffled me completely.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2232,7 +783,7 @@ SELECT @qid,
        'Before he went fishing, he dug up some worms for ____.',
        JSON_ARRAY(),
        'bait',
-       'n. 饵 vt. 以饵引诱, 欺负 vi. 中途休息 ｜ 原句：Before he went fishing, he dug up some worms for ____.',
+       'n. 饵 vt. 以饵引诱, 欺负 vi. 中途休息 ｜ 原句：Before he went fishing, he dug up some worms for bait.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2243,7 +794,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-9812-1', 1, 'CET6', 5, 'FILL_BLANK',
-       'IMPORT', 'bald', JSON_ARRAY('bald'), 0, 0, 0,
+       'IMPORT', 'bald', JSON_ARRAY('bald', 'balder', 'baldest'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9812-1');
 
@@ -2255,7 +806,7 @@ SELECT @qid,
        'Don''t worry too much, or you''ll go ____.',
        JSON_ARRAY(),
        'bald',
-       'a. 秃头的, 光秃的, 单调的, 赤裸的 vi. 变秃 ｜ 原句：Don''t worry too much, or you''ll go ____.',
+       'a. 秃头的, 光秃的, 单调的, 赤裸的 vi. 变秃 ｜ 原句：Don''t worry too much, or you''ll go bald.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2278,7 +829,7 @@ SELECT @qid,
        'We’re going to the ____ tomorrow evening.',
        JSON_ARRAY(),
        'ballet',
-       'n. 芭蕾舞 ｜ 原句：We’re going to the ____ tomorrow evening.',
+       'n. 芭蕾舞 ｜ 原句：We’re going to the ballet tomorrow evening.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2301,7 +852,7 @@ SELECT @qid,
        'At a time when women''s voices were silenced and their hopes dismissed, she lived to see them stand up and speak out and reach for the ____. Yes, we can.',
        JSON_ARRAY(),
        'ballot',
-       'n. 投票, 投票用纸, 抽签 vi. 投票, 抽签 vt. 投票选出, 拉选票 ｜ 原句：At a time when women''s voices were silenced and their hopes dismissed, she lived to see them stand up and speak out and reach for the ____. Yes, we can.',
+       'n. 投票, 投票用纸, 抽签 vi. 投票, 抽签 vt. 投票选出, 拉选票 ｜ 原句：At a time when women''s voices were silenced and their hopes dismissed, she lived to see them stand up and speak out and reach for the ballot. Yes, we can.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2324,7 +875,7 @@ SELECT @qid,
        'Pandas feed on ____ grass.',
        JSON_ARRAY(),
        'bamboo',
-       'n. 竹子 [医] 竹类 ｜ 原句：Pandas feed on ____ grass.',
+       'n. 竹子 [医] 竹类 ｜ 原句：Pandas feed on bamboo grass.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2347,7 +898,7 @@ SELECT @qid,
        'The nurse gently put a ____ around my head.',
        JSON_ARRAY(),
        'bandage',
-       'n. 绷带 [化] 帘布筒; 实心轮胎; 紧带; 绷带 ｜ 原句：The nurse gently put a ____ around my head.',
+       'n. 绷带 [化] 帘布筒; 实心轮胎; 紧带; 绷带 ｜ 原句：The nurse gently put a bandage around my head.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2370,7 +921,7 @@ SELECT @qid,
        'The company went ____.',
        JSON_ARRAY(),
        'bankrupt',
-       'n. 破产者 a. 破产的 vt. 使破产 ｜ 原句：The company went ____.',
+       'n. 破产者 a. 破产的 vt. 使破产 ｜ 原句：The company went bankrupt.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2393,7 +944,7 @@ SELECT @qid,
        'Can you tell wheat from ____?',
        JSON_ARRAY(),
        'barley',
-       'n. 大麦 [医] 大麦 ｜ 原句：Can you tell wheat from ____?',
+       'n. 大麦 [医] 大麦 ｜ 原句：Can you tell wheat from barley?',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2416,7 +967,7 @@ SELECT @qid,
        'The ____ is falling. It is going to rain.',
        JSON_ARRAY(),
        'barometer',
-       'n. 气压计 [化] 气压计 ｜ 原句：The ____ is falling. It is going to rain.',
+       'n. 气压计 [化] 气压计 ｜ 原句：The barometer is falling. It is going to rain.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2439,7 +990,7 @@ SELECT @qid,
        'They cleaned everything, from the ____ to the attic.',
        JSON_ARRAY(),
        'basement',
-       'n. 地下室, 墙脚 [化] 地下室 ｜ 原句：They cleaned everything, from the ____ to the attic.',
+       'n. 地下室, 墙脚 [化] 地下室 ｜ 原句：They cleaned everything, from the basement to the attic.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2462,30 +1013,7 @@ SELECT @qid,
        'The third ____ of vaccines provided by China to Colombia has arrived in Bogota, the capital of Colombia.',
        JSON_ARRAY(),
        'batch',
-       'n. 一次所烘的面包, 一次所制之量, 一组, 批, 成批, 分批 v. 成批, 分批处理 [计] 一批 ｜ 原句：The third ____ of vaccines provided by China to Colombia has arrived in Bogota, the capital of Colombia.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · bearing (CET6, 难度 5)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9831-1', 1, 'CET6', 5, 'FILL_BLANK',
-       'IMPORT', 'bearing', JSON_ARRAY('bearing', 'bearings'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9831-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9831-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'It has some ____ on this problem.',
-       JSON_ARRAY(),
-       'bearing',
-       'n. 举止, 轴承, 忍受, 关系, 意义, 方向, 生育 [化] 轴承 ｜ 原句：It has some ____ on this problem.',
+       'n. 一次所烘的面包, 一次所制之量, 一组, 批, 成批, 分批 v. 成批, 分批处理 [计] 一批 ｜ 原句：The third batch of vaccines provided by China to Colombia has arrived in Bogota, the capital of Colombia.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2508,7 +1036,7 @@ SELECT @qid,
        'Yanni saw his son playing with a June ____.',
        JSON_ARRAY(),
        'beetle',
-       'n. 甲虫, 大槌 vi. 快速移动 vt. 捶 ｜ 原句：Yanni saw his son playing with a June ____.',
+       'n. 甲虫, 大槌 vi. 快速移动 vt. 捶 ｜ 原句：Yanni saw his son playing with a June beetle.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2531,7 +1059,7 @@ SELECT @qid,
        '____ of pickpockets.',
        JSON_ARRAY(),
        'beware',
-       'v. 小心, 谨防 ｜ 原句：____ of pickpockets.',
+       'v. 小心, 谨防 ｜ 原句：Beware of pickpockets.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2554,7 +1082,7 @@ SELECT @qid,
        'People tend to look at others with ____.',
        JSON_ARRAY(),
        'bias',
-       'n. 偏见, 斜纹 a. 偏斜的 adv. 偏斜 vt. 使有偏见 [计] 偏流; 偏压; 偏磁; 偏离 ｜ 原句：People tend to look at others with ____.',
+       'n. 偏见, 斜纹 a. 偏斜的 adv. 偏斜 vt. 使有偏见 [计] 偏流; 偏压; 偏磁; 偏离 ｜ 原句：People tend to look at others with bias.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2577,7 +1105,7 @@ SELECT @qid,
        'Concerning this issue, I feel that the trash media only report ____ information.',
        JSON_ARRAY(),
        'biased',
-       'a. 有偏见的 [计] 边缘的 ｜ 原句：Concerning this issue, I feel that the trash media only report ____ information.',
+       'a. 有偏见的 [计] 边缘的 ｜ 原句：Concerning this issue, I feel that the trash media only report biased information.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2600,7 +1128,7 @@ SELECT @qid,
        'How much did you ____?',
        JSON_ARRAY(),
        'bid',
-       'n. 出价 v. 命令, 吩咐, 请求, 表示, 宣布, 投标 ｜ 原句：How much did you ____?',
+       'n. 出价 v. 命令, 吩咐, 请求, 表示, 宣布, 投标 ｜ 原句：How much did you bid?',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2623,7 +1151,7 @@ SELECT @qid,
        'She said good-bye with a smile, but there was a good deal of ____ in her heart.',
        JSON_ARRAY(),
        'bitterness',
-       'n. 苦味, 悲痛, 怨恨 ｜ 原句：She said good-bye with a smile, but there was a good deal of ____ in her heart.',
+       'n. 苦味, 悲痛, 怨恨 ｜ 原句：She said good-bye with a smile, but there was a good deal of bitterness in her heart.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2646,7 +1174,7 @@ SELECT @qid,
        'It''s by smithing that one becomes a ____.',
        JSON_ARRAY(),
        'blacksmith',
-       'n. 铁匠 [机] 铁匠 ｜ 原句：It''s by smithing that one becomes a ____.',
+       'n. 铁匠 [机] 铁匠 ｜ 原句：It''s by smithing that one becomes a blacksmith.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2669,7 +1197,7 @@ SELECT @qid,
        'Don''t mix ammonia and ____ together.',
        JSON_ARRAY(),
        'bleach',
-       'vt. 漂白 vi. 变白 n. 漂白, 漂白剂 ｜ 原句：Don''t mix ammonia and ____ together.',
+       'vt. 漂白 vi. 变白 n. 漂白, 漂白剂 ｜ 原句：Don''t mix ammonia and bleach together.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2680,7 +1208,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-9847-1', 1, 'CET6', 6, 'FILL_BLANK',
-       'IMPORT', 'bleak', JSON_ARRAY('bleak'), 0, 0, 0,
+       'IMPORT', 'bleak', JSON_ARRAY('bleak', 'bleaker', 'bleakest'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9847-1');
 
@@ -2692,30 +1220,7 @@ SELECT @qid,
        'a ____ January afternoon',
        JSON_ARRAY(),
        'bleak',
-       'a. 萧瑟的, 荒凉的, 阴冷的 ｜ 原句：a ____ January afternoon',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · blink (CET6, 难度 4)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9848-1', 1, 'CET6', 4, 'FILL_BLANK',
-       'IMPORT', 'blink', JSON_ARRAY('blink', 'blinks', 'blinked', 'blinking'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9848-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9848-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'He left in the ____ of an eye.',
-       JSON_ARRAY(),
-       'blink',
-       'vi. 眨眼, 闪亮 vt. 眨眼, 使闪亮 n. 眨眼, 瞬间, 闪光, 闪烁 [计] 闪烁 ｜ 原句：He left in the ____ of an eye.',
+       'a. 萧瑟的, 荒凉的, 阴冷的 ｜ 原句：a bleak January afternoon',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2738,7 +1243,7 @@ SELECT @qid,
        'Janet bought a skirt and a ____.',
        JSON_ARRAY(),
        'blouse',
-       'n. 宽松的上衣 ｜ 原句：Janet bought a skirt and a ____.',
+       'n. 宽松的上衣 ｜ 原句：Janet bought a skirt and a blouse.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2749,7 +1254,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-9852-1', 1, 'CET6', 6, 'FILL_BLANK',
-       'IMPORT', 'blunt', JSON_ARRAY('blunt'), 0, 0, 0,
+       'IMPORT', 'blunt', JSON_ARRAY('blunt', 'blunter', 'bluntest'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9852-1');
 
@@ -2761,7 +1266,7 @@ SELECT @qid,
        'My sword may be ____, but that''s more than enough for someone like you.',
        JSON_ARRAY(),
        'blunt',
-       'a. 钝的, 坦率的, 麻痹的 ｜ 原句：My sword may be ____, but that''s more than enough for someone like you.',
+       'a. 钝的, 坦率的, 麻痹的 ｜ 原句：My sword may be blunt, but that''s more than enough for someone like you.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2784,7 +1289,7 @@ SELECT @qid,
        'To put it ____, he''s mistaken.',
        JSON_ARRAY(),
        'bluntly',
-       'adv. 坦率地, 率直地 ｜ 原句：To put it ____, he''s mistaken.',
+       'adv. 坦率地, 率直地 ｜ 原句：To put it bluntly, he''s mistaken.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2807,7 +1312,7 @@ SELECT @qid,
        'As a result of the server ____, total PV of yesterday dropped by 30% compared with normal.',
        JSON_ARRAY(),
        'breakdown',
-       'n. 崩溃, 故障 [化] 事故; 击穿 ｜ 原句：As a result of the server ____, total PV of yesterday dropped by 30% compared with normal.',
+       'n. 崩溃, 故障 [化] 事故; 击穿 ｜ 原句：As a result of the server breakdown, total PV of yesterday dropped by 30% compared with normal.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2830,7 +1335,7 @@ SELECT @qid,
        'The mayor denied having taken a ____.',
        JSON_ARRAY(),
        'bribe',
-       'n. 贿赂 vt. 贿赂, 收买 vi. 行贿 ｜ 原句：The mayor denied having taken a ____.',
+       'n. 贿赂 vt. 贿赂, 收买 vi. 行贿 ｜ 原句：The mayor denied having taken a bribe.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2853,7 +1358,7 @@ SELECT @qid,
        'To ____ your view, go see the underground shopping mall beneath People''s Square.',
        JSON_ARRAY(),
        'broaden',
-       'vi. 变宽, 扩大 vt. 放宽, 使扩大 ｜ 原句：To ____ your view, go see the underground shopping mall beneath People''s Square.',
+       'vi. 变宽, 扩大 vt. 放宽, 使扩大 ｜ 原句：To broaden your view, go see the underground shopping mall beneath People''s Square.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2876,7 +1381,7 @@ SELECT @qid,
        'Tom chopped up the manuscript like it was iceberg lettuce. "Sounds ____." "It was, but it was also necessary."',
        JSON_ARRAY(),
        'brutal',
-       'a. 残忍的, 野蛮的, 不讲理的 ｜ 原句：Tom chopped up the manuscript like it was iceberg lettuce. "Sounds ____." "It was, but it was also necessary."',
+       'a. 残忍的, 野蛮的, 不讲理的 ｜ 原句：Tom chopped up the manuscript like it was iceberg lettuce. "Sounds brutal." "It was, but it was also necessary."',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2899,7 +1404,7 @@ SELECT @qid,
        'We''re thoroughly prepared for the Y2K ____.',
        JSON_ARRAY(),
        'bug',
-       'n. 错误, 虫, 病菌, 缺陷, 窃听器, 癖好, 防盗报警器, 双座小汽车, 要人 vt. 装防盗报警器, 装窃听器, 激怒 vi. 捉虫, 暴突 [计] 缺点, 错误 ｜ 原句：We''re thoroughly prepared for the Y2K ____.',
+       'n. 错误, 虫, 病菌, 缺陷, 窃听器, 癖好, 防盗报警器, 双座小汽车, 要人 vt. 装防盗报警器, 装窃听器, 激怒 vi. 捉虫, 暴突 [计] 缺点, 错误 ｜ 原句：We''re thoroughly prepared for the Y2K bug.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2922,7 +1427,7 @@ SELECT @qid,
        'Algeria needs to get rid of its ____.',
        JSON_ARRAY(),
        'bureaucracy',
-       'n. 官僚, 官吏 [法] 官僚主义, 官僚政治, 官僚机构 ｜ 原句：Algeria needs to get rid of its ____.',
+       'n. 官僚, 官吏 [法] 官僚主义, 官僚政治, 官僚机构 ｜ 原句：Algeria needs to get rid of its bureaucracy.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2945,7 +1450,7 @@ SELECT @qid,
        'The ____ was traced by one of the things he had left on the scene.',
        JSON_ARRAY(),
        'burglar',
-       'n. 窃贼 [法] 夜盗, 窃贼, 盗窃者 ｜ 原句：The ____ was traced by one of the things he had left on the scene.',
+       'n. 窃贼 [法] 夜盗, 窃贼, 盗窃者 ｜ 原句：The burglar was traced by one of the things he had left on the scene.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2968,7 +1473,7 @@ SELECT @qid,
        'The priest prepared the body for ____.',
        JSON_ARRAY(),
        'burial',
-       'n. 埋葬, 葬礼 [法] 埋葬, 葬礼 ｜ 原句：The priest prepared the body for ____.',
+       'n. 埋葬, 葬礼 [法] 埋葬, 葬礼 ｜ 原句：The priest prepared the body for burial.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -2991,7 +1496,7 @@ SELECT @qid,
        'Potassium, heated with a Bunsen ____, gives the flame a lilac color.',
        JSON_ARRAY(),
        'burner',
-       'n. 火炉, 烧火的人 [化] 灯; 灯头; 烧嘴炉; 燃烧器; 燃烧炉 ｜ 原句：Potassium, heated with a Bunsen ____, gives the flame a lilac color.',
+       'n. 火炉, 烧火的人 [化] 灯; 灯头; 烧嘴炉; 燃烧器; 燃烧炉 ｜ 原句：Potassium, heated with a Bunsen burner, gives the flame a lilac color.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3014,7 +1519,7 @@ SELECT @qid,
        'Hide not your light under a ____.',
        JSON_ARRAY(),
        'bushel',
-       'n. 蒲式耳(容量单位) v. 修整(衣物) ｜ 原句：Hide not your light under a ____.',
+       'n. 蒲式耳(容量单位) v. 修整(衣物) ｜ 原句：Hide not your light under a bushel.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3037,7 +1542,7 @@ SELECT @qid,
        'Last year I was a TA for ____.',
        JSON_ARRAY(),
        'calculus',
-       'n. 结石；微积分学 ｜ 原句：Last year I was a TA for ____.',
+       'n. 结石；微积分学 ｜ 原句：Last year I was a TA for calculus.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3060,7 +1565,7 @@ SELECT @qid,
        'Thoreau coveted the plant''s strong purple stalk for a ____, and the robins eat its dark crimson-juiced berries.',
        JSON_ARRAY(),
        'cane',
-       'n. 手杖, 细长的茎, 藤条 vt. 以杖击, 以藤编制 ｜ 原句：Thoreau coveted the plant''s strong purple stalk for a ____, and the robins eat its dark crimson-juiced berries.',
+       'n. 手杖, 细长的茎, 藤条 vt. 以杖击, 以藤编制 ｜ 原句：Thoreau coveted the plant''s strong purple stalk for a cane, and the robins eat its dark crimson-juiced berries.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3083,7 +1588,7 @@ SELECT @qid,
        'My classmate, Xiao Ming, has strong managerial ____.',
        JSON_ARRAY(),
        'capability',
-       'n. 能力, 性能, 约束力 [化] 能力 ｜ 原句：My classmate, Xiao Ming, has strong managerial ____.',
+       'n. 能力, 性能, 约束力 [化] 能力 ｜ 原句：My classmate, Xiao Ming, has strong managerial capability.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3106,7 +1611,7 @@ SELECT @qid,
        'This building is a ____ hotel lodging men and women.',
        JSON_ARRAY(),
        'capsule',
-       'n. 胶囊, 蒴果, 瓶帽, 航天舱 [化] 胶囊剂 ｜ 原句：This building is a ____ hotel lodging men and women.',
+       'n. 胶囊, 蒴果, 瓶帽, 航天舱 [化] 胶囊剂 ｜ 原句：This building is a capsule hotel lodging men and women.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3129,7 +1634,7 @@ SELECT @qid,
        'Do you know this ____?',
        JSON_ARRAY(),
        'cartoon',
-       'n. 卡通画, 漫画 v. 画漫画 ｜ 原句：Do you know this ____?',
+       'n. 卡通画, 漫画 v. 画漫画 ｜ 原句：Do you know this cartoon?',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3152,7 +1657,7 @@ SELECT @qid,
        'Please replace the empty ink ____ in the printer.',
        JSON_ARRAY(),
        'cartridge',
-       'n. 弹药筒, 弹药, 一卷软片, 墨粉鼓 [计] 盒式磁带机 ｜ 原句：Please replace the empty ink ____ in the printer.',
+       'n. 弹药筒, 弹药, 一卷软片, 墨粉鼓 [计] 盒式磁带机 ｜ 原句：Please replace the empty ink cartridge in the printer.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3175,7 +1680,7 @@ SELECT @qid,
        'The rebels have inflicted heavy ____ .',
        JSON_ARRAY(),
        'casualties',
-       'n. 意外事故, 伤亡, 受害者 [化] 事故 ｜ 原句：The rebels have inflicted heavy ____ .',
+       'n. 意外事故, 伤亡, 受害者 [化] 事故 ｜ 原句：The rebels have inflicted heavy casualties .',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3198,7 +1703,7 @@ SELECT @qid,
        'Due to the ____ caused by the huge tsunami, damage was sustained by the nuclear reactor as well as explosions at the nuclear power plant.',
        JSON_ARRAY(),
        'catastrophe',
-       'n. 大灾难, 大祸 [化] 突变 ｜ 原句：Due to the ____ caused by the huge tsunami, damage was sustained by the nuclear reactor as well as explosions at the nuclear power plant.',
+       'n. 大灾难, 大祸 [化] 突变 ｜ 原句：Due to the catastrophe caused by the huge tsunami, damage was sustained by the nuclear reactor as well as explosions at the nuclear power plant.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3221,7 +1726,7 @@ SELECT @qid,
        'A special feature of verbs in the Russian language is the presence of the ____ of aspect.',
        JSON_ARRAY(),
        'category',
-       'n. 种类, 类项 [计] 分类 ｜ 原句：A special feature of verbs in the Russian language is the presence of the ____ of aspect.',
+       'n. 种类, 类项 [计] 分类 ｜ 原句：A special feature of verbs in the Russian language is the presence of the category of aspect.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3244,7 +1749,7 @@ SELECT @qid,
        'We ____ to an exclusive clientele.',
        JSON_ARRAY(),
        'cater',
-       'v. 提供饮食及服务, 投合, 迎合 ｜ 原句：We ____ to an exclusive clientele.',
+       'v. 提供饮食及服务, 投合, 迎合 ｜ 原句：We cater to an exclusive clientele.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3267,7 +1772,7 @@ SELECT @qid,
        'Even people who don''t believe in the ____ church venerate the Pope as a symbolic leader.',
        JSON_ARRAY(),
        'catholic',
-       'n. 天主教徒 a. 天主教的, 普遍的, 广泛的, 宽宏大量的 ｜ 原句：Even people who don''t believe in the ____ church venerate the Pope as a symbolic leader.',
+       'n. 天主教徒 a. 天主教的, 普遍的, 广泛的, 宽宏大量的 ｜ 原句：Even people who don''t believe in the Catholic church venerate the Pope as a symbolic leader.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3290,7 +1795,7 @@ SELECT @qid,
        'I wonder which country will be the first to ____ Tatoeba.',
        JSON_ARRAY(),
        'censor',
-       'n. 检查员 vt. 检查, 审查, 删改 ｜ 原句：I wonder which country will be the first to ____ Tatoeba.',
+       'n. 检查员 vt. 检查, 审查, 删改 ｜ 原句：I wonder which country will be the first to censor Tatoeba.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3313,7 +1818,7 @@ SELECT @qid,
        'Tom does not know the difference between ____ and carbon.',
        JSON_ARRAY(),
        'charcoal',
-       'n. 木炭 [化] 木炭 ｜ 原句：Tom does not know the difference between ____ and carbon.',
+       'n. 木炭 [化] 木炭 ｜ 原句：Tom does not know the difference between charcoal and carbon.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3336,7 +1841,7 @@ SELECT @qid,
        'The old cottage has a certain ____ about it.',
        JSON_ARRAY(),
        'charm',
-       'n. 吸引力, 魔力, 符咒 vt. 迷住, 使陶醉, 行魔法 vi. 用符咒, 有魅力 ｜ 原句：The old cottage has a certain ____ about it.',
+       'n. 吸引力, 魔力, 符咒 vt. 迷住, 使陶醉, 行魔法 vi. 用符咒, 有魅力 ｜ 原句：The old cottage has a certain charm about it.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3359,7 +1864,7 @@ SELECT @qid,
        'Don''t ____! I have to study.',
        JSON_ARRAY(),
        'chatter',
-       'n. 饶舌, 啁啾, 喋喋不休 vi. 喋喋不休地谈, (鸟)啭鸣 ｜ 原句：Don''t ____! I have to study.',
+       'n. 饶舌, 啁啾, 喋喋不休 vi. 喋喋不休地谈, (鸟)啭鸣 ｜ 原句：Don''t chatter! I have to study.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3382,7 +1887,7 @@ SELECT @qid,
        'The teacher of the kindergarten told the pupils to respect, and ____ each other.',
        JSON_ARRAY(),
        'cherish',
-       'vt. 珍爱, 怀有, 爱护 ｜ 原句：The teacher of the kindergarten told the pupils to respect, and ____ each other.',
+       'vt. 珍爱, 怀有, 爱护 ｜ 原句：The teacher of the kindergarten told the pupils to respect, and cherish each other.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3405,7 +1910,7 @@ SELECT @qid,
        'Tom baked some chocolate ____ cookies.',
        JSON_ARRAY(),
        'chip',
-       'n. 屑片, 薄片, 碎片 vt. 削, 切, 削成碎片, 使摔倒, 凿 vi. 削下屑片 [计] 孔屑; 组件; 晶片; 芯片 ｜ 原句：Tom baked some chocolate ____ cookies.',
+       'n. 屑片, 薄片, 碎片 vt. 削, 切, 削成碎片, 使摔倒, 凿 vi. 削下屑片 [计] 孔屑; 组件; 晶片; 芯片 ｜ 原句：Tom baked some chocolate chip cookies.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3428,7 +1933,7 @@ SELECT @qid,
        'I can''t quite figure out what that ____ around 1:58 is. Can somebody help me out?',
        JSON_ARRAY(),
        'chord',
-       'n. 弦, 和音 [医] 索, 带 ｜ 原句：I can''t quite figure out what that ____ around 1:58 is. Can somebody help me out?',
+       'n. 弦, 和音 [医] 索, 带 ｜ 原句：I can''t quite figure out what that chord around 1:58 is. Can somebody help me out?',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3451,7 +1956,7 @@ SELECT @qid,
        'I watched a ring of smoke that floated from his ____ into the air.',
        JSON_ARRAY(),
        'cigar',
-       'n. 雪茄 ｜ 原句：I watched a ring of smoke that floated from his ____ into the air.',
+       'n. 雪茄 ｜ 原句：I watched a ring of smoke that floated from his cigar into the air.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3474,7 +1979,7 @@ SELECT @qid,
        'He works for a newspaper with a large ____.',
        JSON_ARRAY(),
        'circulation',
-       'n. 流通, 循环, 发行量 [化] 环流 ｜ 原句：He works for a newspaper with a large ____.',
+       'n. 流通, 循环, 发行量 [化] 环流 ｜ 原句：He works for a newspaper with a large circulation.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3497,7 +2002,7 @@ SELECT @qid,
        'At the age of six, I was taken to a ____ for the first time.',
        JSON_ARRAY(),
        'circus',
-       'n. 马戏团, 马戏, 竞技场 ｜ 原句：At the age of six, I was taken to a ____ for the first time.',
+       'n. 马戏团, 马戏, 竞技场 ｜ 原句：At the age of six, I was taken to a circus for the first time.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3520,7 +2025,7 @@ SELECT @qid,
        'The judge ____ a 1956 Supreme Court ruling in her decision.',
        JSON_ARRAY(),
        'cited',
-       'vt. 引用, 引证, 表彰 [建] 引证, 指引 ｜ 原句：The judge ____ a 1956 Supreme Court ruling in her decision.',
+       'vt. 引用, 引证, 表彰 [建] 引证, 指引 ｜ 原句：The judge cited a 1956 Supreme Court ruling in her decision.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3543,30 +2048,7 @@ SELECT @qid,
        'Every now and then they ____ over their differences.',
        JSON_ARRAY(),
        'clash',
-       'n. 冲突, 撞击声, 抵触 vi. 冲突, 抵触 vt. 使发出撞击声 [计] 对撞 ｜ 原句：Every now and then they ____ over their differences.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · clearing (CET6, 难度 6)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-9930-1', 1, 'CET6', 6, 'FILL_BLANK',
-       'IMPORT', 'clearing', JSON_ARRAY('clearing', 'clearings'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-9930-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-9930-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'Tom is ____ the garden.',
-       JSON_ARRAY(),
-       'clearing',
-       'n. 清扫, 空地, 票据清算 [经] 票据交换, 结算, 结帐 ｜ 原句：Tom is ____ the garden.',
+       'n. 冲突, 撞击声, 抵触 vi. 冲突, 抵触 vt. 使发出撞击声 [计] 对撞 ｜ 原句：Every now and then they clash over their differences.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3589,7 +2071,7 @@ SELECT @qid,
        'The lawyer warned his ____ against testifying, but he did it anyway.',
        JSON_ARRAY(),
        'client',
-       'n. 客户, 顾客, 委托人 [计] 客户, 客户机, 客户机程序 ｜ 原句：The lawyer warned his ____ against testifying, but he did it anyway.',
+       'n. 客户, 顾客, 委托人 [计] 客户, 客户机, 客户机程序 ｜ 原句：The lawyer warned his client against testifying, but he did it anyway.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3612,7 +2094,7 @@ SELECT @qid,
        'I am reaching the ____.',
        JSON_ARRAY(),
        'climax',
-       'n. 高潮, 极点, 层进法 v. (使)达到顶点, (使)达到高潮 ｜ 原句：I am reaching the ____.',
+       'n. 高潮, 极点, 层进法 v. (使)达到顶点, (使)达到高潮 ｜ 原句：I am reaching the climax.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3635,7 +2117,7 @@ SELECT @qid,
        'She went to the Takasu ____.',
        JSON_ARRAY(),
        'clinic',
-       'n. 诊所, 临床教学 [医] 诊所(门诊部); 临床(讲解); 临床(学)科 ｜ 原句：She went to the Takasu ____.',
+       'n. 诊所, 临床教学 [医] 诊所(门诊部); 临床(讲解); 临床(学)科 ｜ 原句：She went to the Takasu clinic.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3658,7 +2140,7 @@ SELECT @qid,
        'Not all ____ studies are hypothesis-driven.',
        JSON_ARRAY(),
        'clinical',
-       'a. 临床的, 门诊部的 [医] 临床的, 临证的 ｜ 原句：Not all ____ studies are hypothesis-driven.',
+       'a. 临床的, 门诊部的 [医] 临床的, 临证的 ｜ 原句：Not all clinical studies are hypothesis-driven.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3681,7 +2163,7 @@ SELECT @qid,
        'The burglar shut the child in the ____.',
        JSON_ARRAY(),
        'closet',
-       'n. 壁橱, 小室 a. 秘密的, 空谈的 vt. 把...关入小室 ｜ 原句：The burglar shut the child in the ____.',
+       'n. 壁橱, 小室 a. 秘密的, 空谈的 vt. 把...关入小室 ｜ 原句：The burglar shut the child in the closet.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3704,7 +2186,7 @@ SELECT @qid,
        'The ____ made a funny face.',
        JSON_ARRAY(),
        'clown',
-       'n. 小丑, 乡下人 ｜ 原句：The ____ made a funny face.',
+       'n. 小丑, 乡下人 ｜ 原句：The clown made a funny face.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3727,7 +2209,7 @@ SELECT @qid,
        'Chinese ____ cities are generally more developed than the inland ones.',
        JSON_ARRAY(),
        'coastal',
-       'a. 海岸的, 沿海的, 沿岸的 [法] 海岸的, 沿海的 ｜ 原句：Chinese ____ cities are generally more developed than the inland ones.',
+       'a. 海岸的, 沿海的, 沿岸的 [法] 海岸的, 沿海的 ｜ 原句：Chinese coastal cities are generally more developed than the inland ones.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3750,7 +2232,7 @@ SELECT @qid,
        '____ psychology',
        JSON_ARRAY(),
        'cognitive',
-       'a. 认知的, 认识的 ｜ 原句：____ psychology',
+       'a. 认知的, 认识的 ｜ 原句：cognitive psychology',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3773,7 +2255,7 @@ SELECT @qid,
        'The two sentences are both ____.',
        JSON_ARRAY(),
        'coherent',
-       'a. 互相耦合的, 清晰的, 明了的，凝聚性的, 连贯的 ｜ 原句：The two sentences are both ____.',
+       'a. 互相耦合的, 清晰的, 明了的，凝聚性的, 连贯的 ｜ 原句：The two sentences are both coherent.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3796,7 +2278,7 @@ SELECT @qid,
        'Publication of the article was timed to ____ with the professor''s birthday.',
        JSON_ARRAY(),
        'coincide',
-       'vi. 一致, 符合 [化] 重合 ｜ 原句：Publication of the article was timed to ____ with the professor''s birthday.',
+       'vi. 一致, 符合 [化] 重合 ｜ 原句：Publication of the article was timed to coincide with the professor''s birthday.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3819,7 +2301,7 @@ SELECT @qid,
        'Tom doesn''t think this is a ____.',
        JSON_ARRAY(),
        'coincidence',
-       'n. 巧合, 同时发生 [电] 符合计数器 ｜ 原句：Tom doesn''t think this is a ____.',
+       'n. 巧合, 同时发生 [电] 符合计数器 ｜ 原句：Tom doesn''t think this is a coincidence.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3842,7 +2324,7 @@ SELECT @qid,
        'A car and a van ____ on the motorway.',
        JSON_ARRAY(),
        'collided',
-       'vi. 碰撞, 互撞, 抵触 ｜ 原句：A car and a van ____ on the motorway.',
+       'vi. 碰撞, 互撞, 抵触 ｜ 原句：A car and a van collided on the motorway.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3865,7 +2347,7 @@ SELECT @qid,
        'In real ____, you must not forget that hesitation is a very dangerous thing.',
        JSON_ARRAY(),
        'combat',
-       'n. 争斗, 战斗 vi. 战斗, 争斗 vt. 与...战斗, 与...斗争 ｜ 原句：In real ____, you must not forget that hesitation is a very dangerous thing.',
+       'n. 争斗, 战斗 vi. 战斗, 争斗 vt. 与...战斗, 与...斗争 ｜ 原句：In real combat, you must not forget that hesitation is a very dangerous thing.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3888,7 +2370,7 @@ SELECT @qid,
        'agricultural ____',
        JSON_ARRAY(),
        'commodities',
-       'n. 农产品, 商品, 有用的物品 [经] 商品, 货物, 日用品 ｜ 原句：agricultural ____',
+       'n. 农产品, 商品, 有用的物品 [经] 商品, 货物, 日用品 ｜ 原句：agricultural commodities',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3911,7 +2393,7 @@ SELECT @qid,
        'Space travel will be ____ some time in the future.',
        JSON_ARRAY(),
        'commonplace',
-       'n. 寻常事, 老生常谈, 普通的东西 a. 平凡的, 普通的 ｜ 原句：Space travel will be ____ some time in the future.',
+       'n. 寻常事, 老生常谈, 普通的东西 a. 平凡的, 普通的 ｜ 原句：Space travel will be commonplace some time in the future.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3934,7 +2416,7 @@ SELECT @qid,
        'Do you ____ to school by bus?',
        JSON_ARRAY(),
        'commute',
-       'vt. 交换, 折偿, 减轻 vi. 代偿, 经常乘车来往 ｜ 原句：Do you ____ to school by bus?',
+       'vt. 交换, 折偿, 减轻 vi. 代偿, 经常乘车来往 ｜ 原句：Do you commute to school by bus?',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3957,7 +2439,7 @@ SELECT @qid,
        'I want a ____ car with an air conditioner.',
        JSON_ARRAY(),
        'compact',
-       'a. 紧凑的, 紧密的, 简洁的 vt. 使紧密结合, 压缩 vi. 变坚实 ｜ 原句：I want a ____ car with an air conditioner.',
+       'a. 紧凑的, 紧密的, 简洁的 vt. 使紧密结合, 压缩 vi. 变坚实 ｜ 原句：I want a compact car with an air conditioner.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -3980,7 +2462,7 @@ SELECT @qid,
        'Availability may vary by region and device ____.',
        JSON_ARRAY(),
        'compatibility',
-       'n. 兼容性 [计] 兼容性 ｜ 原句：Availability may vary by region and device ____.',
+       'n. 兼容性 [计] 兼容性 ｜ 原句：Availability may vary by region and device compatibility.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4003,7 +2485,7 @@ SELECT @qid,
        'He is not willing to testify for his ____.',
        JSON_ARRAY(),
        'compatriot',
-       'n. 同国人 a. 同国的, 同胞的 ｜ 原句：He is not willing to testify for his ____.',
+       'n. 同国人 a. 同国的, 同胞的 ｜ 原句：He is not willing to testify for his compatriot.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4026,7 +2508,7 @@ SELECT @qid,
        'You must ____ him for the money he lost.',
        JSON_ARRAY(),
        'compensate',
-       'v. 偿还, 补偿, 付报酬 ｜ 原句：You must ____ him for the money he lost.',
+       'v. 偿还, 补偿, 付报酬 ｜ 原句：You must compensate him for the money he lost.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4049,7 +2531,7 @@ SELECT @qid,
        'People who are wrongly arrested may be paid ____ .',
        JSON_ARRAY(),
        'compensation',
-       'n. 补偿, 赔偿金, 工资 [医] 代偿(机能), 补偿 ｜ 原句：People who are wrongly arrested may be paid ____ .',
+       'n. 补偿, 赔偿金, 工资 [医] 代偿(机能), 补偿 ｜ 原句：People who are wrongly arrested may be paid compensation .',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4072,7 +2554,7 @@ SELECT @qid,
        'Typing is considered by most employers to be a basic ____.',
        JSON_ARRAY(),
        'competence',
-       'n. 胜任, 职称, 能力 [医] 能力, 活性 ｜ 原句：Typing is considered by most employers to be a basic ____.',
+       'n. 胜任, 职称, 能力 [医] 能力, 活性 ｜ 原句：Typing is considered by most employers to be a basic competence.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4095,7 +2577,7 @@ SELECT @qid,
        'Last year they sold twice as many computers as their ____.',
        JSON_ARRAY(),
        'competitors',
-       'n. 竞争者 [经] 竞争者, 竞争对手 ｜ 原句：Last year they sold twice as many computers as their ____.',
+       'n. 竞争者 [经] 竞争者, 竞争对手 ｜ 原句：Last year they sold twice as many computers as their competitors.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4118,7 +2600,7 @@ SELECT @qid,
        'A complete intransitive verb takes neither ____ nor object.',
        JSON_ARRAY(),
        'complement',
-       'n. 补足物, 补语, 补数 vt. 补充, 补足 [计] 补码; 反相器; 补数 ｜ 原句：A complete intransitive verb takes neither ____ nor object.',
+       'n. 补足物, 补语, 补数 vt. 补充, 补足 [计] 补码; 反相器; 补数 ｜ 原句：A complete intransitive verb takes neither complement nor object.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4141,7 +2623,7 @@ SELECT @qid,
        'This building is near ____.',
        JSON_ARRAY(),
        'completion',
-       'n. 完成 [经] 完井, 结束, 完工 ｜ 原句：This building is near ____.',
+       'n. 完成 [经] 完井, 结束, 完工 ｜ 原句：This building is near completion.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4164,7 +2646,7 @@ SELECT @qid,
        'However, I recommend that you take the JR Narita Express (a train leaves every 30-60 minutes from the airport), to avoid the ____ of changing trains.',
        JSON_ARRAY(),
        'complexity',
-       'n. 复杂, 复杂性, 复杂的事物 ｜ 原句：However, I recommend that you take the JR Narita Express (a train leaves every 30-60 minutes from the airport), to avoid the ____ of changing trains.',
+       'n. 复杂, 复杂性, 复杂的事物 ｜ 原句：However, I recommend that you take the JR Narita Express (a train leaves every 30-60 minutes from the airport), to avoid the complexity of changing trains.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4187,7 +2669,7 @@ SELECT @qid,
        'He paid me a ____.',
        JSON_ARRAY(),
        'compliment',
-       'n. 称赞, 恭维, 敬意 vt. 称赞, 褒扬, 恭维 ｜ 原句：He paid me a ____.',
+       'n. 称赞, 恭维, 敬意 vt. 称赞, 褒扬, 恭维 ｜ 原句：He paid me a compliment.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4210,7 +2692,7 @@ SELECT @qid,
        'Hopefully you''ll ____ with traffic regulations after this.',
        JSON_ARRAY(),
        'comply',
-       'vi. 顺从, 依从 [法] 遵守, 承诺, 照做 ｜ 原句：Hopefully you''ll ____ with traffic regulations after this.',
+       'vi. 顺从, 依从 [法] 遵守, 承诺, 照做 ｜ 原句：Hopefully you''ll comply with traffic regulations after this.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4233,7 +2715,7 @@ SELECT @qid,
        'Who is your favorite ____?',
        JSON_ARRAY(),
        'composer',
-       'n. 作曲家, 作家, 调停者 ｜ 原句：Who is your favorite ____?',
+       'n. 作曲家, 作家, 调停者 ｜ 原句：Who is your favorite composer?',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4256,7 +2738,7 @@ SELECT @qid,
        'The professor was unable to ____ what I meant.',
        JSON_ARRAY(),
        'comprehend',
-       'vt. 理解, 包括 ｜ 原句：The professor was unable to ____ what I meant.',
+       'vt. 理解, 包括 ｜ 原句：The professor was unable to comprehend what I meant.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4279,7 +2761,7 @@ SELECT @qid,
        'Data ____ algorithms can be classified in two categories: those with data loss and those without data loss.',
        JSON_ARRAY(),
        'compression',
-       'n. 压缩, 压紧 [计] 压缩 ｜ 原句：Data ____ algorithms can be classified in two categories: those with data loss and those without data loss.',
+       'n. 压缩, 压紧 [计] 压缩 ｜ 原句：Data compression algorithms can be classified in two categories: those with data loss and those without data loss.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4302,7 +2784,7 @@ SELECT @qid,
        'Attendance is ____ for all members.',
        JSON_ARRAY(),
        'compulsory',
-       'a. 被强制的, 强迫的, 义务的 [经] 强迫的, 强制的 ｜ 原句：Attendance is ____ for all members.',
+       'a. 被强制的, 强迫的, 义务的 [经] 强迫的, 强制的 ｜ 原句：Attendance is compulsory for all members.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4325,7 +2807,7 @@ SELECT @qid,
        'The world tolerates ____ from those who are successful, but not from anybody else.',
        JSON_ARRAY(),
        'conceit',
-       'n. 自负, 空想, 狂妄 ｜ 原句：The world tolerates ____ from those who are successful, but not from anybody else.',
+       'n. 自负, 空想, 狂妄 ｜ 原句：The world tolerates conceit from those who are successful, but not from anybody else.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4348,7 +2830,7 @@ SELECT @qid,
        'I can''t ____ of living without him.',
        JSON_ARRAY(),
        'conceive',
-       'vt. 构思, 认为 vi. 怀孕 ｜ 原句：I can''t ____ of living without him.',
+       'vt. 构思, 认为 vi. 怀孕 ｜ 原句：I can''t conceive of living without him.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4371,7 +2853,7 @@ SELECT @qid,
        'He ____ on his studies.',
        JSON_ARRAY(),
        'concentrated',
-       'a. 集中的, 浓缩的 [建] 浓的 ｜ 原句：He ____ on his studies.',
+       'a. 集中的, 浓缩的 [建] 浓的 ｜ 原句：He concentrated on his studies.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4394,7 +2876,7 @@ SELECT @qid,
        'The British were not prepared to make any ____.',
        JSON_ARRAY(),
        'concessions',
-       'n. 特许, 让步, 认可 [经] 核准, 许可, 特殊(权) ｜ 原句：The British were not prepared to make any ____.',
+       'n. 特许, 让步, 认可 [经] 核准, 许可, 特殊(权) ｜ 原句：The British were not prepared to make any concessions.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4417,7 +2899,7 @@ SELECT @qid,
        'I find words with ____ definitions to be the easiest to remember.',
        JSON_ARRAY(),
        'concise',
-       'a. 简洁的, 简明的 ｜ 原句：I find words with ____ definitions to be the easiest to remember.',
+       'a. 简洁的, 简明的 ｜ 原句：I find words with concise definitions to be the easiest to remember.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4440,7 +2922,7 @@ SELECT @qid,
        'The constitution also ____ large powers on Brazil''s 25 constituent states.',
        JSON_ARRAY(),
        'confers',
-       'vt. 授予, 带来 vi. 协商 ｜ 原句：The constitution also ____ large powers on Brazil''s 25 constituent states.',
+       'vt. 授予, 带来 vi. 协商 ｜ 原句：The constitution also confers large powers on Brazil''s 25 constituent states.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4463,7 +2945,7 @@ SELECT @qid,
        'a ____ government report',
        JSON_ARRAY(),
        'confidential',
-       'a. 机密的, 获他人信赖的, 易于信任他人的 [经] 秘密件 ｜ 原句：a ____ government report',
+       'a. 机密的, 获他人信赖的, 易于信任他人的 [经] 秘密件 ｜ 原句：a confidential government report',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4486,7 +2968,7 @@ SELECT @qid,
        'We must ____ to the rules.',
        JSON_ARRAY(),
        'conform',
-       'vt. 使一致, 使遵守, 使符合 vi. 一致, 符合, 适应 ｜ 原句：We must ____ to the rules.',
+       'vt. 使一致, 使遵守, 使符合 vi. 一致, 符合, 适应 ｜ 原句：We must conform to the rules.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4509,7 +2991,7 @@ SELECT @qid,
        'Some people prefer ____, while others seek novelty.',
        JSON_ARRAY(),
        'conformity',
-       'n. 遵照, 适合, 一致, 相似 [计] 符合度 ｜ 原句：Some people prefer ____, while others seek novelty.',
+       'n. 遵照, 适合, 一致, 相似 [计] 符合度 ｜ 原句：Some people prefer conformity, while others seek novelty.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4532,7 +3014,7 @@ SELECT @qid,
        'I didn''t ____ them.',
        JSON_ARRAY(),
        'confront',
-       'vt. 使面对, 对抗, 遭遇, 使对质, 比较 [法] 对证, 使对质, 比较 ｜ 原句：I didn''t ____ them.',
+       'vt. 使面对, 对抗, 遭遇, 使对质, 比较 [法] 对证, 使对质, 比较 ｜ 原句：I didn''t confront them.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4555,7 +3037,7 @@ SELECT @qid,
        'Everybody knows that Cold War is the ____ between two nations.',
        JSON_ARRAY(),
        'confrontation',
-       'n. 对抗；对质；面对 ｜ 原句：Everybody knows that Cold War is the ____ between two nations.',
+       'n. 对抗；对质；面对 ｜ 原句：Everybody knows that Cold War is the confrontation between two nations.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4578,7 +3060,7 @@ SELECT @qid,
        'It snowed for ten ____ days.',
        JSON_ARRAY(),
        'consecutive',
-       'a. 连续的, 联贯的 [计] 连续的; 连接的 ｜ 原句：It snowed for ten ____ days.',
+       'a. 连续的, 联贯的 [计] 连续的; 连接的 ｜ 原句：It snowed for ten consecutive days.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4601,7 +3083,7 @@ SELECT @qid,
        'Just what time period is "Hong Fan" a product of? Although people have debated this issue for ages, there is still no clear ____ to this day.',
        JSON_ARRAY(),
        'consensus',
-       'n. 合意, 一致, 同感 [计] 合意 ｜ 原句：Just what time period is "Hong Fan" a product of? Although people have debated this issue for ages, there is still no clear ____ to this day.',
+       'n. 合意, 一致, 同感 [计] 合意 ｜ 原句：Just what time period is "Hong Fan" a product of? Although people have debated this issue for ages, there is still no clear consensus to this day.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4624,7 +3106,7 @@ SELECT @qid,
        'However, apart from Buddhists, hardly anyone can ____ follow this principle.',
        JSON_ARRAY(),
        'consistently',
-       'adv. 坚固, 坚实, 一致, 始终如一, 连贯 [计] 相容地 ｜ 原句：However, apart from Buddhists, hardly anyone can ____ follow this principle.',
+       'adv. 坚固, 坚实, 一致, 始终如一, 连贯 [计] 相容地 ｜ 原句：However, apart from Buddhists, hardly anyone can consistently follow this principle.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4647,7 +3129,7 @@ SELECT @qid,
        'She tried to ____ him.',
        JSON_ARRAY(),
        'console',
-       'vt. 安慰, 藉慰 n. 控制台 [计] 控制台 ｜ 原句：She tried to ____ him.',
+       'vt. 安慰, 藉慰 n. 控制台 [计] 控制台 ｜ 原句：She tried to console him.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4670,7 +3152,7 @@ SELECT @qid,
        'The scar on his forehead is ____.',
        JSON_ARRAY(),
        'conspicuous',
-       'a. 显著的, 显眼的, 出众的 ｜ 原句：The scar on his forehead is ____.',
+       'a. 显著的, 显眼的, 出众的 ｜ 原句：The scar on his forehead is conspicuous.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4693,7 +3175,7 @@ SELECT @qid,
        'These things ____ a balanced meal.',
        JSON_ARRAY(),
        'constitute',
-       'vt. 构成, 组成, 任命 [建] 构造, 组成 ｜ 原句：These things ____ a balanced meal.',
+       'vt. 构成, 组成, 任命 [建] 构造, 组成 ｜ 原句：These things constitute a balanced meal.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4716,7 +3198,7 @@ SELECT @qid,
        'Poor soil has ____ the level of crop production.',
        JSON_ARRAY(),
        'constrained',
-       'vt. 强迫, 限制, 关押 ｜ 原句：Poor soil has ____ the level of crop production.',
+       'vt. 强迫, 限制, 关押 ｜ 原句：Poor soil has constrained the level of crop production.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4739,7 +3221,7 @@ SELECT @qid,
        'a management ____',
        JSON_ARRAY(),
        'consultancy',
-       'n. 商量, 协商, 磋商, 会诊, 与...商量, 咨询, 请教, 找(医生)看病, 查阅, 考虑 [经] 咨询业务, 咨询服务 ｜ 原句：a management ____',
+       'n. 商量, 协商, 磋商, 会诊, 与...商量, 咨询, 请教, 找(医生)看病, 查阅, 考虑 [经] 咨询业务, 咨询服务 ｜ 原句：a management consultancy',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4762,7 +3244,7 @@ SELECT @qid,
        'a management ____',
        JSON_ARRAY(),
        'consultant',
-       'n. 顾问, 征询意见者 [医] 顾问医师 ｜ 原句：a management ____',
+       'n. 顾问, 征询意见者 [医] 顾问医师 ｜ 原句：a management consultant',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4785,7 +3267,7 @@ SELECT @qid,
        'Drinking water supplies are believed to have been ____.',
        JSON_ARRAY(),
        'contaminated',
-       'vt. 弄污, 弄脏, 污染, 毒害 [化] 污染 ｜ 原句：Drinking water supplies are believed to have been ____.',
+       'vt. 弄污, 弄脏, 污染, 毒害 [化] 污染 ｜ 原句：Drinking water supplies are believed to have been contaminated.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4808,7 +3290,7 @@ SELECT @qid,
        'radioactive ____',
        JSON_ARRAY(),
        'contamination',
-       'n. 污染, 污物 [化] 污染; 沾污 ｜ 原句：radioactive ____',
+       'n. 污染, 污物 [化] 污染; 沾污 ｜ 原句：radioactive contamination',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4831,7 +3313,7 @@ SELECT @qid,
        'It depends on the ____.',
        JSON_ARRAY(),
        'context',
-       'n. 上下文, 背景, 来龙去脉 n. 上下文 [计] 上下文 ｜ 原句：It depends on the ____.',
+       'n. 上下文, 背景, 来龙去脉 n. 上下文 [计] 上下文 ｜ 原句：It depends on the context.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4854,7 +3336,7 @@ SELECT @qid,
        'I cannot forbid a person to marry several wives, for it does not ____ Scripture.',
        JSON_ARRAY(),
        'contradict',
-       'vt. 反驳, 与...抵触, 与...矛盾 vi. 反驳 ｜ 原句：I cannot forbid a person to marry several wives, for it does not ____ Scripture.',
+       'vt. 反驳, 与...抵触, 与...矛盾 vi. 反驳 ｜ 原句：I cannot forbid a person to marry several wives, for it does not contradict Scripture.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4877,7 +3359,7 @@ SELECT @qid,
        'He ____ a means of speaking to Nancy privately.',
        JSON_ARRAY(),
        'contrived',
-       'a. 人造的, 勉强的, 不自然的 ｜ 原句：He ____ a means of speaking to Nancy privately.',
+       'a. 人造的, 勉强的, 不自然的 ｜ 原句：He contrived a means of speaking to Nancy privately.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4900,7 +3382,7 @@ SELECT @qid,
        'This movie is highly ____.',
        JSON_ARRAY(),
        'controversial',
-       'a. 争论的, 论争的, 被议论的 ｜ 原句：This movie is highly ____.',
+       'a. 争论的, 论争的, 被议论的 ｜ 原句：This movie is highly controversial.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4923,7 +3405,7 @@ SELECT @qid,
        'a political ____',
        JSON_ARRAY(),
        'controversy',
-       'n. 论争, 辩论, 论战, 争论 [法] 论战, 争论, 争吵 ｜ 原句：a political ____',
+       'n. 论争, 辩论, 论战, 争论 [法] 论战, 争论, 争吵 ｜ 原句：a political controversy',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4946,7 +3428,7 @@ SELECT @qid,
        'It was nice to ____ with her.',
        JSON_ARRAY(),
        'converse',
-       'n. 相反的事物, 倒, 逆向 a. 相反的, 逆向的, 颠倒的 vi. 交谈, 谈话 ｜ 原句：It was nice to ____ with her.',
+       'n. 相反的事物, 倒, 逆向 a. 相反的, 逆向的, 颠倒的 vi. 交谈, 谈话 ｜ 原句：It was nice to converse with her.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4969,7 +3451,7 @@ SELECT @qid,
        'Betty has a previous ____ for theft.',
        JSON_ARRAY(),
        'conviction',
-       'n. 定罪, 信服, 坚信 [法] 定罪, 证明有罪, 判罪 ｜ 原句：Betty has a previous ____ for theft.',
+       'n. 定罪, 信服, 坚信 [法] 定罪, 证明有罪, 判罪 ｜ 原句：Betty has a previous conviction for theft.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -4992,7 +3474,7 @@ SELECT @qid,
        'Tom has been quite ____.',
        JSON_ARRAY(),
        'cooperative',
-       'a. 合作的；合作社的 ｜ 原句：Tom has been quite ____.',
+       'a. 合作的；合作社的 ｜ 原句：Tom has been quite cooperative.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5015,7 +3497,7 @@ SELECT @qid,
        '____ earnings in the first quarter improved sharply.',
        JSON_ARRAY(),
        'corporate',
-       'a. 社团的, 合伙的, 公司的 [经] 团体的, 法人的, 社团的 ｜ 原句：____ earnings in the first quarter improved sharply.',
+       'a. 社团的, 合伙的, 公司的 [经] 团体的, 法人的, 社团的 ｜ 原句：Corporate earnings in the first quarter improved sharply.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5038,7 +3520,7 @@ SELECT @qid,
        'Check that your username and password are written ____.',
        JSON_ARRAY(),
        'correctly',
-       'adv. 对, 正确, 恰当, 符合一般性准则, 符合行为准则, 端正, 符合 ｜ 原句：Check that your username and password are written ____.',
+       'adv. 对, 正确, 恰当, 符合一般性准则, 符合行为准则, 端正, 符合 ｜ 原句：Check that your username and password are written correctly.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5061,7 +3543,7 @@ SELECT @qid,
        '____ does not imply causation.',
        JSON_ARRAY(),
        'correlation',
-       'n. 相互关系, 相关, 关联 [医] 相关, 联系 ｜ 原句：____ does not imply causation.',
+       'n. 相互关系, 相关, 关联 [医] 相关, 联系 ｜ 原句：Correlation does not imply causation.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5084,7 +3566,7 @@ SELECT @qid,
        'Let''s chase out ____ politicians!',
        JSON_ARRAY(),
        'corrupt',
-       'a. 腐败的, 贪污的, 讹误充斥的 vt. 使腐烂, 腐蚀, 使恶化 vi. 腐烂, 堕落 ｜ 原句：Let''s chase out ____ politicians!',
+       'a. 腐败的, 贪污的, 讹误充斥的 vt. 使腐烂, 腐蚀, 使恶化 vi. 腐烂, 堕落 ｜ 原句：Let''s chase out corrupt politicians!',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5107,7 +3589,7 @@ SELECT @qid,
        'To date nobody knows the actual size of the ____.',
        JSON_ARRAY(),
        'cosmos',
-       'n. 宇宙, 秩序, 和谐, 大波斯菊 [医] 大波斯菊 ｜ 原句：To date nobody knows the actual size of the ____.',
+       'n. 宇宙, 秩序, 和谐, 大波斯菊 [医] 大波斯菊 ｜ 原句：To date nobody knows the actual size of the cosmos.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5130,7 +3612,7 @@ SELECT @qid,
        'Sami was the only one who could fit into the ____.',
        JSON_ARRAY(),
        'costume',
-       'n. 装束, 服装 ｜ 原句：Sami was the only one who could fit into the ____.',
+       'n. 装束, 服装 ｜ 原句：Sami was the only one who could fit into the costume.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5153,7 +3635,7 @@ SELECT @qid,
        'A ____ potato is something that I don''t want to be.',
        JSON_ARRAY(),
        'couch',
-       'n. 长沙发, 睡椅, 卧榻 vt. 横躺, 表达 vi. 躺下, 蹲伏 ｜ 原句：A ____ potato is something that I don''t want to be.',
+       'n. 长沙发, 睡椅, 卧榻 vt. 横躺, 表达 vi. 躺下, 蹲伏 ｜ 原句：A couch potato is something that I don''t want to be.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5176,7 +3658,7 @@ SELECT @qid,
        'If the answer is no, you really need to get some professional ____ to determine if this marriage should be saved.',
        JSON_ARRAY(),
        'counseling',
-       'n. 咨询服务 ｜ 原句：If the answer is no, you really need to get some professional ____ to determine if this marriage should be saved.',
+       'n. 咨询服务 ｜ 原句：If the answer is no, you really need to get some professional counseling to determine if this marriage should be saved.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5199,7 +3681,7 @@ SELECT @qid,
        'As soon as he heard what was afoot, he telephoned his German and Italian ____ to protest.',
        JSON_ARRAY(),
        'counterparts',
-       'n. 副本, 复本, 配对物, 相应物 [经] 副本, 正副二份中之一 ｜ 原句：As soon as he heard what was afoot, he telephoned his German and Italian ____ to protest.',
+       'n. 副本, 复本, 配对物, 相应物 [经] 副本, 正副二份中之一 ｜ 原句：As soon as he heard what was afoot, he telephoned his German and Italian counterparts to protest.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5222,7 +3704,7 @@ SELECT @qid,
        'You are very ____.',
        JSON_ARRAY(),
        'courageous',
-       'a. 勇敢的, 大胆的, 有胆量的 ｜ 原句：You are very ____.',
+       'a. 勇敢的, 大胆的, 有胆量的 ｜ 原句：You are very courageous.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5233,7 +3715,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-10054-1', 1, 'CET6', 6, 'FILL_BLANK',
-       'IMPORT', 'cozy', JSON_ARRAY('cozy'), 0, 0, 0,
+       'IMPORT', 'cozy', JSON_ARRAY('cozy', 'cozier', 'coziest'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10054-1');
 
@@ -5245,7 +3727,7 @@ SELECT @qid,
        'He lives in a ____ little house.',
        JSON_ARRAY(),
        'cozy',
-       'a. 舒适的, 安逸的, 惬意的 n. (茶壶等的)保暖罩, 舒适的座位 vt. 以假话使安心 ｜ 原句：He lives in a ____ little house.',
+       'a. 舒适的, 安逸的, 惬意的 n. (茶壶等的)保暖罩, 舒适的座位 vt. 以假话使安心 ｜ 原句：He lives in a cozy little house.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5268,7 +3750,7 @@ SELECT @qid,
        'The first person who ate ____ must also have tried to eat a spider.',
        JSON_ARRAY(),
        'crab',
-       'n. 螃蟹, 偏航, 脾气乖戾的人, 沙果 vi. 捕蟹, 偏航, 发牢骚 vt. 使偏航, 抱怨, 破坏 ｜ 原句：The first person who ate ____ must also have tried to eat a spider.',
+       'n. 螃蟹, 偏航, 脾气乖戾的人, 沙果 vi. 捕蟹, 偏航, 发牢骚 vt. 使偏航, 抱怨, 破坏 ｜ 原句：The first person who ate crab must also have tried to eat a spider.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5291,7 +3773,7 @@ SELECT @qid,
        'What is learned in the ____ is carried to the tomb.',
        JSON_ARRAY(),
        'cradle',
-       'n. 摇篮, 发祥地, 孩提时代 vt. 放在摇篮内, 抚育 vi. 刈割 ｜ 原句：What is learned in the ____ is carried to the tomb.',
+       'n. 摇篮, 发祥地, 孩提时代 vt. 放在摇篮内, 抚育 vi. 刈割 ｜ 原句：What is learned in the cradle is carried to the tomb.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5314,7 +3796,7 @@ SELECT @qid,
        'Americans are said to regard the amount of money a man makes as a ____ of his ability.',
        JSON_ARRAY(),
        'criterion',
-       'n. 标准, 准则, 规范 [化] 判据 ｜ 原句：Americans are said to regard the amount of money a man makes as a ____ of his ability.',
+       'n. 标准, 准则, 规范 [化] 判据 ｜ 原句：Americans are said to regard the amount of money a man makes as a criterion of his ability.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5337,7 +3819,7 @@ SELECT @qid,
        'Even ____ tree gives shade.',
        JSON_ARRAY(),
        'crooked',
-       'a. 弯曲的, 歪的, 邪恶的 ｜ 原句：Even ____ tree gives shade.',
+       'a. 弯曲的, 歪的, 邪恶的 ｜ 原句：Even crooked tree gives shade.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5360,7 +3842,7 @@ SELECT @qid,
        'He was treated with great ____.',
        JSON_ARRAY(),
        'cruelty',
-       'n. 残酷, 野蛮, 残酷行为 [法] 残酷, 残忍, 虐待 ｜ 原句：He was treated with great ____.',
+       'n. 残酷, 野蛮, 残酷行为 [法] 残酷, 残忍, 虐待 ｜ 原句：He was treated with great cruelty.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5383,7 +3865,7 @@ SELECT @qid,
        'The straits were too narrow for the ____ ship.',
        JSON_ARRAY(),
        'cruise',
-       'n. 巡航, 巡弋, 漫游 v. 巡航, 巡弋, 漫游 ｜ 原句：The straits were too narrow for the ____ ship.',
+       'n. 巡航, 巡弋, 漫游 v. 巡航, 巡弋, 漫游 ｜ 原句：The straits were too narrow for the cruise ship.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5406,7 +3888,7 @@ SELECT @qid,
        'People call this kind of bird a ____.',
        JSON_ARRAY(),
        'cuckoo',
-       'n. 杜鹃鸟, 布谷鸟 ｜ 原句：People call this kind of bird a ____.',
+       'n. 杜鹃鸟, 布谷鸟 ｜ 原句：People call this kind of bird a cuckoo.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5429,7 +3911,7 @@ SELECT @qid,
        'Learning is a ____ process.',
        JSON_ARRAY(),
        'cumulative',
-       'a. 累积的 [医] 蓄积的, 累积的 ｜ 原句：Learning is a ____ process.',
+       'a. 累积的 [医] 蓄积的, 累积的 ｜ 原句：Learning is a cumulative process.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5452,7 +3934,7 @@ SELECT @qid,
        'measures to ____ the spread of the virus',
        JSON_ARRAY(),
        'curb',
-       'n. 抑制, 勒马绳, 边石 vt. 抑制, 束缚, 勒住 ｜ 原句：measures to ____ the spread of the virus',
+       'n. 抑制, 勒马绳, 边石 vt. 抑制, 束缚, 勒住 ｜ 原句：measures to curb the spread of the virus',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5463,7 +3945,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-10071-1', 1, 'CET6', 6, 'FILL_BLANK',
-       'IMPORT', 'curly', JSON_ARRAY('curly'), 0, 0, 0,
+       'IMPORT', 'curly', JSON_ARRAY('curly', 'curlier', 'curliest'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10071-1');
 
@@ -5475,7 +3957,7 @@ SELECT @qid,
        'We''re having ____ kale today.',
        JSON_ARRAY(),
        'curly',
-       'a. 拳曲的, 卷毛的, 弯曲的 ｜ 原句：We''re having ____ kale today.',
+       'a. 拳曲的, 卷毛的, 弯曲的 ｜ 原句：We''re having curly kale today.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5498,7 +3980,7 @@ SELECT @qid,
        'The exchange rates for foreign ____ change daily.',
        JSON_ARRAY(),
        'currency',
-       'n. 货币, 通货, 流通, 通用 [计] 货币, 货币型 ｜ 原句：The exchange rates for foreign ____ change daily.',
+       'n. 货币, 通货, 流通, 通用 [计] 货币, 货币型 ｜ 原句：The exchange rates for foreign currency change daily.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5521,7 +4003,7 @@ SELECT @qid,
        'We are ____ looking for individuals who have experience in customer service.',
        JSON_ARRAY(),
        'currently',
-       'adv. 现在, 当前, 一般, 普通 [计] 当前 ｜ 原句：We are ____ looking for individuals who have experience in customer service.',
+       'adv. 现在, 当前, 一般, 普通 [计] 当前 ｜ 原句：We are currently looking for individuals who have experience in customer service.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5544,7 +4026,7 @@ SELECT @qid,
        'Languages are an essential part of the school ____.',
        JSON_ARRAY(),
        'curriculum',
-       'n. 课程 [医] 课程, 学程 ｜ 原句：Languages are an essential part of the school ____.',
+       'n. 课程 [医] 课程, 学程 ｜ 原句：Languages are an essential part of the school curriculum.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5555,7 +4037,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-10075-1', 1, 'CET6', 7, 'FILL_BLANK',
-       'IMPORT', 'curt', JSON_ARRAY('curt'), 0, 0, 0,
+       'IMPORT', 'curt', JSON_ARRAY('curt', 'curter', 'curtest'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10075-1');
 
@@ -5567,7 +4049,7 @@ SELECT @qid,
        'Don''t you think it''s rude to give people such a ____ reply like that?',
        JSON_ARRAY(),
        'curt',
-       'a. 简略的, 简短的, 生硬的 ｜ 原句：Don''t you think it''s rude to give people such a ____ reply like that?',
+       'a. 简略的, 简短的, 生硬的 ｜ 原句：Don''t you think it''s rude to give people such a curt reply like that?',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5590,7 +4072,7 @@ SELECT @qid,
        'In Asian culture it''s ____ to take one''s shoes off before entering a house or temple.',
        JSON_ARRAY(),
        'customary',
-       'a. 习惯的, 惯常的 [经] 通常的, 习惯的 ｜ 原句：In Asian culture it''s ____ to take one''s shoes off before entering a house or temple.',
+       'a. 习惯的, 惯常的 [经] 通常的, 习惯的 ｜ 原句：In Asian culture it''s customary to take one''s shoes off before entering a house or temple.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5613,7 +4095,7 @@ SELECT @qid,
        'The piston does not come into contact with the ____ cover.',
        JSON_ARRAY(),
        'cylinder',
-       'n. 圆筒, 圆筒状物, 汽缸, 柱面 [计] 柱面 ｜ 原句：The piston does not come into contact with the ____ cover.',
+       'n. 圆筒, 圆筒状物, 汽缸, 柱面 [计] 柱面 ｜ 原句：The piston does not come into contact with the cylinder cover.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5636,7 +4118,7 @@ SELECT @qid,
        'People grow more ____ with age.',
        JSON_ARRAY(),
        'cynical',
-       'a. 愤世嫉俗的, 讽刺的, 冷嘲的 ｜ 原句：People grow more ____ with age.',
+       'a. 愤世嫉俗的, 讽刺的, 冷嘲的 ｜ 原句：People grow more cynical with age.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5659,7 +4141,7 @@ SELECT @qid,
        'Looks can be ____.',
        JSON_ARRAY(),
        'deceptive',
-       'a. 迷惑的, 虚伪的, 欺诈的 ｜ 原句：Looks can be ____.',
+       'a. 迷惑的, 虚伪的, 欺诈的 ｜ 原句：Looks can be deceptive.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5682,7 +4164,7 @@ SELECT @qid,
        'None of these considerations are ____.',
        JSON_ARRAY(),
        'decisive',
-       'a. 决定性的, 坚定的, 果断的 ｜ 原句：None of these considerations are ____.',
+       'a. 决定性的, 坚定的, 果断的 ｜ 原句：None of these considerations are decisive.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5705,7 +4187,7 @@ SELECT @qid,
        'Spirits of Heaven and Earth, heed my call; manifest swiftly by divine ____!',
        JSON_ARRAY(),
        'decree',
-       'n. 法令, 判决, 天意 vt. 颁布, 判决 vi. 发布命令 ｜ 原句：Spirits of Heaven and Earth, heed my call; manifest swiftly by divine ____!',
+       'n. 法令, 判决, 天意 vt. 颁布, 判决 vi. 发布命令 ｜ 原句：Spirits of Heaven and Earth, heed my call; manifest swiftly by divine decree!',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5728,7 +4210,7 @@ SELECT @qid,
        'French and German were ____ essential.',
        JSON_ARRAY(),
        'deemed',
-       'v. 认为, 相信 ｜ 原句：French and German were ____ essential.',
+       'v. 认为, 相信 ｜ 原句：French and German were deemed essential.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5751,7 +4233,7 @@ SELECT @qid,
        'I''ve heard that if you ____ on the water rates your water supply will be suspended, is that true?',
        JSON_ARRAY(),
        'default',
-       'n. 违约, 不履行责任, 缺席, 默认值 v. 疏怠职责, 缺席, 拖欠, 默认 [计] 默认; 默认值; 缺省值 ｜ 原句：I''ve heard that if you ____ on the water rates your water supply will be suspended, is that true?',
+       'n. 违约, 不履行责任, 缺席, 默认值 v. 疏怠职责, 缺席, 拖欠, 默认 [计] 默认; 默认值; 缺省值 ｜ 原句：I''ve heard that if you default on the water rates your water supply will be suspended, is that true?',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5774,7 +4256,7 @@ SELECT @qid,
        'The news article painted the ____ as a guilty man, even though he had been proven innocent.',
        JSON_ARRAY(),
        'defendant',
-       'n. 被告 [经] 被告方 ｜ 原句：The news article painted the ____ as a guilty man, even though he had been proven innocent.',
+       'n. 被告 [经] 被告方 ｜ 原句：The news article painted the defendant as a guilty man, even though he had been proven innocent.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5797,7 +4279,7 @@ SELECT @qid,
        'Women who are dieting can become iron ____.',
        JSON_ARRAY(),
        'deficient',
-       'a. 不足的, 不充分的, 有缺陷的 ｜ 原句：Women who are dieting can become iron ____.',
+       'a. 不足的, 不充分的, 有缺陷的 ｜ 原句：Women who are dieting can become iron deficient.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5820,7 +4302,7 @@ SELECT @qid,
        'the country’s widening budget ____',
        JSON_ARRAY(),
        'deficit',
-       'n. 赤字, 不足额 [医] 短缺 ｜ 原句：the country’s widening budget ____',
+       'n. 赤字, 不足额 [医] 短缺 ｜ 原句：the country’s widening budget deficit',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5843,7 +4325,7 @@ SELECT @qid,
        'The truth is the truth, even if you ____ it and intentionally cover it up, it is still no different from daydreaming.',
        JSON_ARRAY(),
        'defy',
-       'vt. 藐视, 挑衅, 使落空 n. 挑战 ｜ 原句：The truth is the truth, even if you ____ it and intentionally cover it up, it is still no different from daydreaming.',
+       'vt. 藐视, 挑衅, 使落空 n. 挑战 ｜ 原句：The truth is the truth, even if you defy it and intentionally cover it up, it is still no different from daydreaming.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5866,7 +4348,7 @@ SELECT @qid,
        'Egg tarts, when freshly baked, are a real ____.',
        JSON_ARRAY(),
        'delicacy',
-       'n. 细软, 精致, 精美的食品, 娇气, 微妙, 棘手, 娇弱, 灵敏, 灵巧 ｜ 原句：Egg tarts, when freshly baked, are a real ____.',
+       'n. 细软, 精致, 精美的食品, 娇气, 微妙, 棘手, 娇弱, 灵敏, 灵巧 ｜ 原句：Egg tarts, when freshly baked, are a real delicacy.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5889,7 +4371,7 @@ SELECT @qid,
        'In its more extreme variants, cis ideology can include ____ of the empirical reality of intersex and transgender people.',
        JSON_ARRAY(),
        'denial',
-       'n. 否认 [法] 否定, 否认, 拒绝接受 ｜ 原句：In its more extreme variants, cis ideology can include ____ of the empirical reality of intersex and transgender people.',
+       'n. 否认 [法] 否定, 否认, 拒绝接受 ｜ 原句：In its more extreme variants, cis ideology can include denial of the empirical reality of intersex and transgender people.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5912,7 +4394,7 @@ SELECT @qid,
        'You ought to see a ____.',
        JSON_ARRAY(),
        'dentist',
-       'n. 牙科医生 [医] 牙医师 ｜ 原句：You ought to see a ____.',
+       'n. 牙科医生 [医] 牙医师 ｜ 原句：You ought to see a dentist.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5935,7 +4417,7 @@ SELECT @qid,
        'I''m not a poet; I couldn''t write a single line to ____ its beauty.',
        JSON_ARRAY(),
        'depict',
-       'vt. 描述, 描写 ｜ 原句：I''m not a poet; I couldn''t write a single line to ____ its beauty.',
+       'vt. 描述, 描写 ｜ 原句：I''m not a poet; I couldn''t write a single line to depict its beauty.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5958,7 +4440,7 @@ SELECT @qid,
        'This law will ____ us of our basic rights.',
        JSON_ARRAY(),
        'deprive',
-       'vt. 剥夺, 使丧失 [法] 剥夺, 剥夺, 夺去 ｜ 原句：This law will ____ us of our basic rights.',
+       'vt. 剥夺, 使丧失 [法] 剥夺, 剥夺, 夺去 ｜ 原句：This law will deprive us of our basic rights.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -5981,7 +4463,7 @@ SELECT @qid,
        'He was a direct ____ of Napoleon Bonaparte.',
        JSON_ARRAY(),
        'descendant',
-       'n. 后裔, 子孙 a. 传下的, 下降的 ｜ 原句：He was a direct ____ of Napoleon Bonaparte.',
+       'n. 后裔, 子孙 a. 传下的, 下降的 ｜ 原句：He was a direct descendant of Napoleon Bonaparte.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6004,7 +4486,7 @@ SELECT @qid,
        'young men and women of Asian ____',
        JSON_ARRAY(),
        'descent',
-       'n. 降落, 家系, 侵袭, 血统 [医] 下降, 世代, 血统 ｜ 原句：young men and women of Asian ____',
+       'n. 降落, 家系, 侵袭, 血统 [医] 下降, 世代, 血统 ｜ 原句：young men and women of Asian descent',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6027,7 +4509,7 @@ SELECT @qid,
        'Some of the rooms were ____ as offices.',
        JSON_ARRAY(),
        'designated',
-       'vt. 指定, 指明, 称呼 a. 已选出而未上任的 ｜ 原句：Some of the rooms were ____ as offices.',
+       'vt. 指定, 指明, 称呼 a. 已选出而未上任的 ｜ 原句：Some of the rooms were designated as offices.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6050,7 +4532,7 @@ SELECT @qid,
        'She needed money ____.',
        JSON_ARRAY(),
        'desperately',
-       'adv. 拼命地；绝望地；极度地 ｜ 原句：She needed money ____.',
+       'adv. 拼命地；绝望地；极度地 ｜ 原句：She needed money desperately.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6073,7 +4555,7 @@ SELECT @qid,
        'What would you like for ____?',
        JSON_ARRAY(),
        'dessert',
-       'n. 餐后甜点 ｜ 原句：What would you like for ____?',
+       'n. 餐后甜点 ｜ 原句：What would you like for dessert?',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6096,7 +4578,7 @@ SELECT @qid,
        'You are the master of your own ____.',
        JSON_ARRAY(),
        'destiny',
-       'n. 命运, 定数 ｜ 原句：You are the master of your own ____.',
+       'n. 命运, 定数 ｜ 原句：You are the master of your own destiny.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6119,7 +4601,7 @@ SELECT @qid,
        'The man turned out to be a private ____.',
        JSON_ARRAY(),
        'detective',
-       'n. 侦探 a. 侦探的 ｜ 原句：The man turned out to be a private ____.',
+       'n. 侦探 a. 侦探的 ｜ 原句：The man turned out to be a private detective.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6142,7 +4624,7 @@ SELECT @qid,
        'If Tom doesn''t take the prescribed medicine, his state of health might ____.',
        JSON_ARRAY(),
        'deteriorate',
-       'v. (使)恶化 ｜ 原句：If Tom doesn''t take the prescribed medicine, his state of health might ____.',
+       'v. (使)恶化 ｜ 原句：If Tom doesn''t take the prescribed medicine, his state of health might deteriorate.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6165,7 +4647,7 @@ SELECT @qid,
        'They stopped you as soon as you ____ from the script.',
        JSON_ARRAY(),
        'deviated',
-       'vi. 脱离, 偏离 vt. 使偏离 a. 脱离常规的 n. 脱离常规的人 ｜ 原句：They stopped you as soon as you ____ from the script.',
+       'vi. 脱离, 偏离 vt. 使偏离 a. 脱离常规的 n. 脱离常规的人 ｜ 原句：They stopped you as soon as you deviated from the script.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6188,7 +4670,7 @@ SELECT @qid,
        'Joe struggled in school before he was ____ as dyslexic.',
        JSON_ARRAY(),
        'diagnosed',
-       'v. 诊断 ｜ 原句：Joe struggled in school before he was ____ as dyslexic.',
+       'v. 诊断 ｜ 原句：Joe struggled in school before he was diagnosed as dyslexic.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6211,7 +4693,7 @@ SELECT @qid,
        'The poor people were at the mercy of the cruel ____.',
        JSON_ARRAY(),
        'dictator',
-       'n. 命令者, 独裁者 ｜ 原句：The poor people were at the mercy of the cruel ____.',
+       'n. 命令者, 独裁者 ｜ 原句：The poor people were at the mercy of the cruel dictator.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6234,7 +4716,7 @@ SELECT @qid,
        'When Vin ____ does pushups, he''s not pushing himself up - he''s pushing the Earth down.',
        JSON_ARRAY(),
        'diesel',
-       'n. 内燃机, 柴油机, 柴油 ｜ 原句：When Vin ____ does pushups, he''s not pushing himself up - he''s pushing the Earth down.',
+       'n. 内燃机, 柴油机, 柴油 ｜ 原句：When Vin Diesel does pushups, he''s not pushing himself up - he''s pushing the Earth down.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6257,7 +4739,7 @@ SELECT @qid,
        'Your action has offended his ____.',
        JSON_ARRAY(),
        'dignity',
-       'n. 尊严, 高贵 [法] 尊严, 高位, 高贵 ｜ 原句：Your action has offended his ____.',
+       'n. 尊严, 高贵 [法] 尊严, 高位, 高贵 ｜ 原句：Your action has offended his dignity.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6280,7 +4762,7 @@ SELECT @qid,
        'This is the ____.',
        JSON_ARRAY(),
        'dilemma',
-       'n. 困境, (进退两难的)窘境 ｜ 原句：This is the ____.',
+       'n. 困境, (进退两难的)窘境 ｜ 原句：This is the dilemma.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6303,7 +4785,7 @@ SELECT @qid,
        'Her ____ is a good example to us all.',
        JSON_ARRAY(),
        'diligence',
-       'n. 勤奋 ｜ 原句：Her ____ is a good example to us all.',
+       'n. 勤奋 ｜ 原句：Her diligence is a good example to us all.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6326,7 +4808,7 @@ SELECT @qid,
        'The party’s share of the electorate has ____ steadily.',
        JSON_ARRAY(),
        'diminished',
-       'v. (使)减少, (使)变小 ｜ 原句：The party’s share of the electorate has ____ steadily.',
+       'v. (使)减少, (使)变小 ｜ 原句：The party’s share of the electorate has diminished steadily.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6349,7 +4831,7 @@ SELECT @qid,
        'Even if they have a good wine menu, I will not want to ____ here.',
        JSON_ARRAY(),
        'dine',
-       'vi. 用正餐, 进餐 vt. 宴请 ｜ 原句：Even if they have a good wine menu, I will not want to ____ here.',
+       'vi. 用正餐, 进餐 vt. 宴请 ｜ 原句：Even if they have a good wine menu, I will not want to dine here.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6372,7 +4854,7 @@ SELECT @qid,
        'Trees give off oxygen and absorb carbon ____.',
        JSON_ARRAY(),
        'dioxide',
-       'n. 二氧化物 [医] 二氧化物 ｜ 原句：Trees give off oxygen and absorb carbon ____.',
+       'n. 二氧化物 [医] 二氧化物 ｜ 原句：Trees give off oxygen and absorb carbon dioxide.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6395,7 +4877,7 @@ SELECT @qid,
        'The principal presented each of the graduates with ____.',
        JSON_ARRAY(),
        'diploma',
-       'n. 文凭, 毕业证书 [医] 文凭 ｜ 原句：The principal presented each of the graduates with ____.',
+       'n. 文凭, 毕业证书 [医] 文凭 ｜ 原句：The principal presented each of the graduates with diploma.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6418,7 +4900,7 @@ SELECT @qid,
        '____ dialogue helped put an end to the conflict.',
        JSON_ARRAY(),
        'diplomatic',
-       'a. 外交的, 老练的 [法] 外交的, 外交上的, 文献上的 ｜ 原句：____ dialogue helped put an end to the conflict.',
+       'a. 外交的, 老练的 [法] 外交的, 外交上的, 文献上的 ｜ 原句：Diplomatic dialogue helped put an end to the conflict.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6441,7 +4923,7 @@ SELECT @qid,
        'May I see the telephone ____?',
        JSON_ARRAY(),
        'directory',
-       'n. 目录, 工商名录, 指南 [计] 目录 ｜ 原句：May I see the telephone ____?',
+       'n. 目录, 工商名录, 指南 [计] 目录 ｜ 原句：May I see the telephone directory?',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6464,7 +4946,7 @@ SELECT @qid,
        'They express ____ by shaking their heads, which may indicate agreement in other countries.',
        JSON_ARRAY(),
        'disagreement',
-       'n. 不合, 争论, 不一致 [法] 不一致, 不同意, 陪审团的意见不一 ｜ 原句：They express ____ by shaking their heads, which may indicate agreement in other countries.',
+       'n. 不合, 争论, 不一致 [法] 不一致, 不同意, 陪审团的意见不一 ｜ 原句：They express disagreement by shaking their heads, which may indicate agreement in other countries.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6487,7 +4969,7 @@ SELECT @qid,
        'We have to look into the ____ of the doctor.',
        JSON_ARRAY(),
        'disappearance',
-       'n. 看不见, 失踪, 消失 ｜ 原句：We have to look into the ____ of the doctor.',
+       'n. 看不见, 失踪, 消失 ｜ 原句：We have to look into the disappearance of the doctor.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6510,7 +4992,7 @@ SELECT @qid,
        'Pollution has a ____ effect on the ecology of a region.',
        JSON_ARRAY(),
        'disastrous',
-       'a. 损失惨重的, 悲伤的 ｜ 原句：Pollution has a ____ effect on the ecology of a region.',
+       'a. 损失惨重的, 悲伤的 ｜ 原句：Pollution has a disastrous effect on the ecology of a region.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6533,7 +5015,7 @@ SELECT @qid,
        'You need a long series of data to be able to ____ such a trend.',
        JSON_ARRAY(),
        'discern',
-       'v. 辨别, 看清楚, 了解 ｜ 原句：You need a long series of data to be able to ____ such a trend.',
+       'v. 辨别, 看清楚, 了解 ｜ 原句：You need a long series of data to be able to discern such a trend.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6556,7 +5038,7 @@ SELECT @qid,
        'What you did brought ____ on the whole class.',
        JSON_ARRAY(),
        'disgrace',
-       'n. 耻辱, 不名誉 vt. 使受耻辱, 使失体面 ｜ 原句：What you did brought ____ on the whole class.',
+       'n. 耻辱, 不名誉 vt. 使受耻辱, 使失体面 ｜ 原句：What you did brought disgrace on the whole class.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6579,7 +5061,7 @@ SELECT @qid,
        'Goods are normally ____ within 24 hours.',
        JSON_ARRAY(),
        'dispatched',
-       'vt. 派遣 n. 派遣, 急件 [计] 调度 ｜ 原句：Goods are normally ____ within 24 hours.',
+       'vt. 派遣 n. 派遣, 急件 [计] 调度 ｜ 原句：Goods are normally dispatched within 24 hours.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6602,7 +5084,7 @@ SELECT @qid,
        'I can ____ with her help.',
        JSON_ARRAY(),
        'dispense',
-       'vt. 分发, 分配 vi. 特许, 豁免 ｜ 原句：I can ____ with her help.',
+       'vt. 分发, 分配 vi. 特许, 豁免 ｜ 原句：I can dispense with her help.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6625,7 +5107,7 @@ SELECT @qid,
        'Coal has been ____ by natural gas as a major source of energy.',
        JSON_ARRAY(),
        'displaced',
-       'vt. 移置, 替换, 转移 ｜ 原句：Coal has been ____ by natural gas as a major source of energy.',
+       'vt. 移置, 替换, 转移 ｜ 原句：Coal has been displaced by natural gas as a major source of energy.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6648,7 +5130,7 @@ SELECT @qid,
        'The ____ power of the Western world has started to decline.',
        JSON_ARRAY(),
        'disproportionate',
-       'a. 不成比例的 ｜ 原句：The ____ power of the Western world has started to decline.',
+       'a. 不成比例的 ｜ 原句：The disproportionate power of the Western world has started to decline.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6671,7 +5153,7 @@ SELECT @qid,
        'I have no business making demands and you have every right to simply ____ all this rubbish I''ve written and send me whatever you bloody well please.',
        JSON_ARRAY(),
        'disregard',
-       'n. 忽视, 漠视 vt. 忽视, 不顾 ｜ 原句：I have no business making demands and you have every right to simply ____ all this rubbish I''ve written and send me whatever you bloody well please.',
+       'n. 忽视, 漠视 vt. 忽视, 不顾 ｜ 原句：I have no business making demands and you have every right to simply disregard all this rubbish I''ve written and send me whatever you bloody well please.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6694,7 +5176,7 @@ SELECT @qid,
        'Don''t eat too much and ____ the stomach''s normal digestion process.',
        JSON_ARRAY(),
        'disrupt',
-       'a. 分裂的, 中断的 vt. 使分裂, 使瓦解 ｜ 原句：Don''t eat too much and ____ the stomach''s normal digestion process.',
+       'a. 分裂的, 中断的 vt. 使分裂, 使瓦解 ｜ 原句：Don''t eat too much and disrupt the stomach''s normal digestion process.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6717,7 +5199,7 @@ SELECT @qid,
        'The residents expressed their ____ at the noise.',
        JSON_ARRAY(),
        'dissatisfaction',
-       'n. 不满, 不平 ｜ 原句：The residents expressed their ____ at the noise.',
+       'n. 不满, 不平 ｜ 原句：The residents expressed their dissatisfaction at the noise.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6740,7 +5222,7 @@ SELECT @qid,
        'He said the protesters were doing a ____ to the nation.',
        JSON_ARRAY(),
        'disservice',
-       'n. 伤害, 帮倒忙的行为 ｜ 原句：He said the protesters were doing a ____ to the nation.',
+       'n. 伤害, 帮倒忙的行为 ｜ 原句：He said the protesters were doing a disservice to the nation.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6763,7 +5245,7 @@ SELECT @qid,
        'Japan has many ____ traits.',
        JSON_ARRAY(),
        'distinctive',
-       'a. 有特色的, 出众的 ｜ 原句：Japan has many ____ traits.',
+       'a. 有特色的, 出众的 ｜ 原句：Japan has many distinctive traits.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6786,7 +5268,7 @@ SELECT @qid,
        'His account was badly ____ by the press.',
        JSON_ARRAY(),
        'distorted',
-       'vt. 扭曲, 歪曲 [法] 歪区, 曲解, 纂改 ｜ 原句：His account was badly ____ by the press.',
+       'vt. 扭曲, 歪曲 [法] 歪区, 曲解, 纂改 ｜ 原句：His account was badly distorted by the press.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6809,7 +5291,7 @@ SELECT @qid,
        'I think perfection is ugly, he said. "Somewhere in the things that humans make, I want to see scars, failure, disorder, ____."',
        JSON_ARRAY(),
        'distortion',
-       'n. 扭曲, 变形, 曲解 [计] 畸变; 失真 ｜ 原句：I think perfection is ugly, he said. "Somewhere in the things that humans make, I want to see scars, failure, disorder, ____."',
+       'n. 扭曲, 变形, 曲解 [计] 畸变; 失真 ｜ 原句：I think perfection is ugly, he said. "Somewhere in the things that humans make, I want to see scars, failure, disorder, distortion."',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6832,7 +5314,7 @@ SELECT @qid,
        'Don''t ____ me while I am studying.',
        JSON_ARRAY(),
        'distract',
-       'vt. 转移, 分心, 使发狂 ｜ 原句：Don''t ____ me while I am studying.',
+       'vt. 转移, 分心, 使发狂 ｜ 原句：Don''t distract me while I am studying.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6855,7 +5337,7 @@ SELECT @qid,
        '...the illegal ____ of profits from secret arms sales.',
        JSON_ARRAY(),
        'diversion',
-       'n. 转移 [医] 转向 ｜ 原句：...the illegal ____ of profits from secret arms sales.',
+       'n. 转移 [医] 转向 ｜ 原句：...the illegal diversion of profits from secret arms sales.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6878,7 +5360,7 @@ SELECT @qid,
        'The high street is closed and traffic is being ____ .',
        JSON_ARRAY(),
        'diverted',
-       'vt. 转移, 使欢娱 vi. 转移 ｜ 原句：The high street is closed and traffic is being ____ .',
+       'vt. 转移, 使欢娱 vi. 转移 ｜ 原句：The high street is closed and traffic is being diverted .',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6901,7 +5383,7 @@ SELECT @qid,
        'To err is human, to forgive ____.',
        JSON_ARRAY(),
        'divine',
-       'a. 神的, 神圣的, 非凡的 n. 神学家 ｜ 原句：To err is human, to forgive ____.',
+       'a. 神的, 神圣的, 非凡的 n. 神学家 ｜ 原句：To err is human, to forgive divine.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6912,7 +5394,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-10198-1', 1, 'CET6', 6, 'FILL_BLANK',
-       'IMPORT', 'dizzy', JSON_ARRAY('dizzy'), 0, 0, 0,
+       'IMPORT', 'dizzy', JSON_ARRAY('dizzy', 'dizzier', 'dizziest'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10198-1');
 
@@ -6924,7 +5406,7 @@ SELECT @qid,
        'I get ____ spells when I stand up.',
        JSON_ARRAY(),
        'dizzy',
-       'a. 晕眩的, 眼花缭乱的 vt. 使晕眩 ｜ 原句：I get ____ spells when I stand up.',
+       'a. 晕眩的, 眼花缭乱的 vt. 使晕眩 ｜ 原句：I get dizzy spells when I stand up.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6947,7 +5429,7 @@ SELECT @qid,
        'That ____ about the environmental crisis was a real eye-opener.',
        JSON_ARRAY(),
        'documentary',
-       'n. 记录片 a. 文件的 ｜ 原句：That ____ about the environmental crisis was a real eye-opener.',
+       'n. 记录片 a. 文件的 ｜ 原句：That documentary about the environmental crisis was a real eye-opener.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6970,7 +5452,7 @@ SELECT @qid,
        'A holomorphic function can be expressed as a convergent power series in a neighborhood of any point in its ____.',
        JSON_ARRAY(),
        'domain',
-       'n. 领域, 领土, 产业, 范围 [计] 域, 区域, 支配命令 ｜ 原句：A holomorphic function can be expressed as a convergent power series in a neighborhood of any point in its ____.',
+       'n. 领域, 领土, 产业, 范围 [计] 域, 区域, 支配命令 ｜ 原句：A holomorphic function can be expressed as a convergent power series in a neighborhood of any point in its domain.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -6993,7 +5475,7 @@ SELECT @qid,
        'What''s the number for the Tokyo ____?',
        JSON_ARRAY(),
        'dome',
-       'n. 圆顶 vt. 加圆顶 vi. 成圆顶状 ｜ 原句：What''s the number for the Tokyo ____?',
+       'n. 圆顶 vt. 加圆顶 vi. 成圆顶状 ｜ 原句：What''s the number for the Tokyo Dome?',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7016,7 +5498,7 @@ SELECT @qid,
        'The ____ male gorilla is the largest in the group.',
        JSON_ARRAY(),
        'dominant',
-       'a. 占优势的, 支配的 [医] 优性的, 显性的 ｜ 原句：The ____ male gorilla is the largest in the group.',
+       'a. 占优势的, 支配的 [医] 优性的, 显性的 ｜ 原句：The dominant male gorilla is the largest in the group.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7039,7 +5521,7 @@ SELECT @qid,
        'Whenever I get a large sum of money, I ____ some of it to charity.',
        JSON_ARRAY(),
        'donate',
-       'v. 捐赠 ｜ 原句：Whenever I get a large sum of money, I ____ some of it to charity.',
+       'v. 捐赠 ｜ 原句：Whenever I get a large sum of money, I donate some of it to charity.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7062,7 +5544,7 @@ SELECT @qid,
        'Mt. Asama is now ____.',
        JSON_ARRAY(),
        'dormant',
-       'a. 睡眠状态的, 静止的 [医] 休眠的, 不活动的, 休止的 ｜ 原句：Mt. Asama is now ____.',
+       'a. 睡眠状态的, 静止的 [医] 休眠的, 不活动的, 休止的 ｜ 原句：Mt. Asama is now dormant.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7085,7 +5567,7 @@ SELECT @qid,
        'There is a white ____ on the roof.',
        JSON_ARRAY(),
        'dove',
-       'n. 鸽子 dive的过去式 ｜ 原句：There is a white ____ on the roof.',
+       'n. 鸽子 dive的过去式 ｜ 原句：There is a white dove on the roof.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7108,7 +5590,7 @@ SELECT @qid,
        'The invention of TV caused a ____ change in our daily life.',
        JSON_ARRAY(),
        'drastic',
-       'a. 激烈的 [医] 峻泻药, 剧烈的 ｜ 原句：The invention of TV caused a ____ change in our daily life.',
+       'a. 激烈的 [医] 峻泻药, 剧烈的 ｜ 原句：The invention of TV caused a drastic change in our daily life.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7131,7 +5613,7 @@ SELECT @qid,
        'Brilliant people have one major ____ - they don''t know how to lose.',
        JSON_ARRAY(),
        'drawback',
-       'n. 缺点, 退税 [法] 退款, 退税 ｜ 原句：Brilliant people have one major ____ - they don''t know how to lose.',
+       'n. 缺点, 退税 [法] 退款, 退税 ｜ 原句：Brilliant people have one major drawback - they don''t know how to lose.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7154,7 +5636,7 @@ SELECT @qid,
        'The consequences of Sendai''s earthquake were ____!',
        JSON_ARRAY(),
        'dreadful',
-       'a. 可怕的 ｜ 原句：The consequences of Sendai''s earthquake were ____!',
+       'a. 可怕的 ｜ 原句：The consequences of Sendai''s earthquake were dreadful!',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7177,7 +5659,7 @@ SELECT @qid,
        'Their relationship is ____.',
        JSON_ARRAY(),
        'dubious',
-       'a. 可疑的, 不确定的 ｜ 原句：Their relationship is ____.',
+       'a. 可疑的, 不确定的 ｜ 原句：Their relationship is dubious.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7200,7 +5682,7 @@ SELECT @qid,
        'She kept both the ____ and the original.',
        JSON_ARRAY(),
        'duplicate',
-       'n. 副本, 复本, 复制品 a. 复制的, 二重的 vt. 复制, 使加倍 [计] 复制 ｜ 原句：She kept both the ____ and the original.',
+       'n. 副本, 复本, 复制品 a. 复制的, 二重的 vt. 复制, 使加倍 [计] 复制 ｜ 原句：She kept both the duplicate and the original.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7223,7 +5705,7 @@ SELECT @qid,
        'The populations of China and India ____ those of every other nation.',
        JSON_ARRAY(),
        'dwarf',
-       'n. 矮子, 侏儒 v. (使)变矮小 ｜ 原句：The populations of China and India ____ those of every other nation.',
+       'n. 矮子, 侏儒 v. (使)变矮小 ｜ 原句：The populations of China and India dwarf those of every other nation.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7246,7 +5728,7 @@ SELECT @qid,
        'Corporate ____ in the first quarter improved sharply.',
        JSON_ARRAY(),
        'earnings',
-       'n. 所赚的钱, 工资, 收入 [经] 工资, 收入, 收益, 盈余 ｜ 原句：Corporate ____ in the first quarter improved sharply.',
+       'n. 所赚的钱, 工资, 收入 [经] 工资, 收入, 收益, 盈余 ｜ 原句：Corporate earnings in the first quarter improved sharply.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7269,7 +5751,7 @@ SELECT @qid,
        'My mother is ____.',
        JSON_ARRAY(),
        'eccentric',
-       'n. 怪人, 偏心圆 a. 古怪的, 反常的, 不同圆心的 ｜ 原句：My mother is ____.',
+       'n. 怪人, 偏心圆 a. 古怪的, 反常的, 不同圆心的 ｜ 原句：My mother is eccentric.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7292,7 +5774,7 @@ SELECT @qid,
        'An ____ of the moon is a rare phenomenon.',
        JSON_ARRAY(),
        'eclipse',
-       'n. 日食, 月食, (地位名誉等的)消失 vt. 引起日食, 引起月食, 使黯然失色 ｜ 原句：An ____ of the moon is a rare phenomenon.',
+       'n. 日食, 月食, (地位名誉等的)消失 vt. 引起日食, 引起月食, 使黯然失色 ｜ 原句：An eclipse of the moon is a rare phenomenon.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7315,7 +5797,7 @@ SELECT @qid,
        'Pollution has a disastrous effect on the ____ of a region.',
        JSON_ARRAY(),
        'ecology',
-       'n. 生态学, 社会生态学 [化] 生态学 ｜ 原句：Pollution has a disastrous effect on the ____ of a region.',
+       'n. 生态学, 社会生态学 [化] 生态学 ｜ 原句：Pollution has a disastrous effect on the ecology of a region.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7338,7 +5820,7 @@ SELECT @qid,
        'More and more women have their own careers and are ____ independent of their husbands.',
        JSON_ARRAY(),
        'economically',
-       'adv. 节约地, 不浪费地, 节省地, 节俭地, 在经济上, 在经济学上 ｜ 原句：More and more women have their own careers and are ____ independent of their husbands.',
+       'adv. 节约地, 不浪费地, 节省地, 节俭地, 在经济上, 在经济学上 ｜ 原句：More and more women have their own careers and are economically independent of their husbands.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7361,7 +5843,7 @@ SELECT @qid,
        '...the forest ____.',
        JSON_ARRAY(),
        'ecosystem',
-       'n. 生态系统 [医] 生态系 ｜ 原句：...the forest ____.',
+       'n. 生态系统 [医] 生态系 ｜ 原句：...the forest ecosystem.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7384,7 +5866,7 @@ SELECT @qid,
        'This fish is not ____.',
        JSON_ARRAY(),
        'edible',
-       'n. 食品, 食物 a. 可食用的 ｜ 原句：This fish is not ____.',
+       'n. 食品, 食物 a. 可食用的 ｜ 原句：This fish is not edible.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7407,7 +5889,7 @@ SELECT @qid,
        '____ your work better before you submit it, it''s sloppy.',
        JSON_ARRAY(),
        'edit',
-       'vt. 编辑, 编校, 修订, 剪辑 [计] 编辑; DOS外部命令:该命令是一个用于编辑文本文件的全屏幕编辑程序 ｜ 原句：____ your work better before you submit it, it''s sloppy.',
+       'vt. 编辑, 编校, 修订, 剪辑 [计] 编辑; DOS外部命令:该命令是一个用于编辑文本文件的全屏幕编辑程序 ｜ 原句：Edit your work better before you submit it, it''s sloppy.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7430,7 +5912,7 @@ SELECT @qid,
        'You can never have too much ____.',
        JSON_ARRAY(),
        'ego',
-       'n. 自我 [医] 自我 ｜ 原句：You can never have too much ____.',
+       'n. 自我 [医] 自我 ｜ 原句：You can never have too much ego.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7453,7 +5935,7 @@ SELECT @qid,
        'I am an ____.',
        JSON_ARRAY(),
        'electrician',
-       'n. 电学家, 电气技师, 电工 [化] 电工; 电气工人 ｜ 原句：I am an ____.',
+       'n. 电学家, 电气技师, 电工 [化] 电工; 电气工人 ｜ 原句：I am an electrician.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7476,7 +5958,7 @@ SELECT @qid,
        'She looks very ____.',
        JSON_ARRAY(),
        'elegant',
-       'a. 优雅的, 端庄的, 高雅的 ｜ 原句：She looks very ____.',
+       'a. 优雅的, 端庄的, 高雅的 ｜ 原句：She looks very elegant.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7499,7 +5981,7 @@ SELECT @qid,
        'Language has ____ humans above the other animals.',
        JSON_ARRAY(),
        'elevated',
-       'vt. 举起, 提拔, 鼓舞 ｜ 原句：Language has ____ humans above the other animals.',
+       'vt. 举起, 提拔, 鼓舞 ｜ 原句：Language has elevated humans above the other animals.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7522,7 +6004,7 @@ SELECT @qid,
        'The treeline in the German alps lies at an ____ of about 1800 meters.',
        JSON_ARRAY(),
        'elevation',
-       'n. 海拔, 提高, 仰角 [计] 仰角 ｜ 原句：The treeline in the German alps lies at an ____ of about 1800 meters.',
+       'n. 海拔, 提高, 仰角 [计] 仰角 ｜ 原句：The treeline in the German alps lies at an elevation of about 1800 meters.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7545,7 +6027,7 @@ SELECT @qid,
        'If he were a little younger, he would be ____ for the post.',
        JSON_ARRAY(),
        'eligible',
-       'a. 有资格当选的, 合格的 n. 有资格者, 合格者, 适任者 ｜ 原句：If he were a little younger, he would be ____ for the post.',
+       'a. 有资格当选的, 合格的 n. 有资格者, 合格者, 适任者 ｜ 原句：If he were a little younger, he would be eligible for the post.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7568,7 +6050,7 @@ SELECT @qid,
        'a struggle for power within the ruling ____',
        JSON_ARRAY(),
        'elite',
-       'n. 精华, 精锐, 中坚分子 ｜ 原句：a struggle for power within the ruling ____',
+       'n. 精华, 精锐, 中坚分子 ｜ 原句：a struggle for power within the ruling elite',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7591,7 +6073,7 @@ SELECT @qid,
        'Since the orbits are ____, the planets do not always have the same distance from the Sun.',
        JSON_ARRAY(),
        'elliptical',
-       'a. 椭圆的 [医] 椭圆形的 ｜ 原句：Since the orbits are ____, the planets do not always have the same distance from the Sun.',
+       'a. 椭圆的 [医] 椭圆形的 ｜ 原句：Since the orbits are elliptical, the planets do not always have the same distance from the Sun.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7614,7 +6096,7 @@ SELECT @qid,
        '____ is silver, silence is golden.',
        JSON_ARRAY(),
        'eloquence',
-       'n. 口才, 雄辩术, 雄辩 [法] 善辩, 口才 ｜ 原句：____ is silver, silence is golden.',
+       'n. 口才, 雄辩术, 雄辩 [法] 善辩, 口才 ｜ 原句：Eloquence is silver, silence is golden.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7637,7 +6119,7 @@ SELECT @qid,
        'We were deeply impressed by the lecturer''s ____ speech.',
        JSON_ARRAY(),
        'eloquent',
-       'a. 雄辩的, 有口才的, 有说服力的 ｜ 原句：We were deeply impressed by the lecturer''s ____ speech.',
+       'a. 雄辩的, 有口才的, 有说服力的 ｜ 原句：We were deeply impressed by the lecturer''s eloquent speech.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7660,7 +6142,7 @@ SELECT @qid,
        'The ____ is located next to the Supreme Court.',
        JSON_ARRAY(),
        'embassy',
-       'n. 大使馆, 大使馆全体人员 [经] 大使馆 ｜ 原句：The ____ is located next to the Supreme Court.',
+       'n. 大使馆, 大使馆全体人员 [经] 大使馆 ｜ 原句：The embassy is located next to the Supreme Court.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7683,7 +6165,7 @@ SELECT @qid,
        'She ____ everything I admire in a teacher.',
        JSON_ARRAY(),
        'embodies',
-       'vt. 具体表达, 使具体化 [经] 合并, 具体化, 具体表现 ｜ 原句：She ____ everything I admire in a teacher.',
+       'vt. 具体表达, 使具体化 [经] 合并, 具体化, 具体表现 ｜ 原句：She embodies everything I admire in a teacher.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7706,7 +6188,7 @@ SELECT @qid,
        'Saving energy can reduce the ____ of greenhouse gases into the atmosphere.',
        JSON_ARRAY(),
        'emission',
-       'n. 发射, 射出, 发行 [医] 发射, 遗精 ｜ 原句：Saving energy can reduce the ____ of greenhouse gases into the atmosphere.',
+       'n. 发射, 射出, 发行 [医] 发射, 遗精 ｜ 原句：Saving energy can reduce the emission of greenhouse gases into the atmosphere.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7729,7 +6211,7 @@ SELECT @qid,
        'In its more extreme variants, cis ideology can include denial of the ____ reality of intersex and transgender people.',
        JSON_ARRAY(),
        'empirical',
-       'a. 完全跟据经验的, 经验主义的 [医] 经验主义的 ｜ 原句：In its more extreme variants, cis ideology can include denial of the ____ reality of intersex and transgender people.',
+       'a. 完全跟据经验的, 经验主义的 [医] 经验主义的 ｜ 原句：In its more extreme variants, cis ideology can include denial of the empirical reality of intersex and transgender people.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7752,7 +6234,7 @@ SELECT @qid,
        'Smoking during pregnancy ____ your baby’s life.',
        JSON_ARRAY(),
        'endangers',
-       'vt. 危及 [法] 使危险, 危及 ｜ 原句：Smoking during pregnancy ____ your baby’s life.',
+       'vt. 危及 [法] 使危险, 危及 ｜ 原句：Smoking during pregnancy endangers your baby’s life.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7775,7 +6257,7 @@ SELECT @qid,
        'Self-confidence is the principal element of any great ____.',
        JSON_ARRAY(),
        'endeavor',
-       'n. 努力, 尽力 vi. 努力, 尽力 ｜ 原句：Self-confidence is the principal element of any great ____.',
+       'n. 努力, 尽力 vi. 努力, 尽力 ｜ 原句：Self-confidence is the principal element of any great endeavor.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7798,7 +6280,7 @@ SELECT @qid,
        'We will ____ to finish the job by the end of the week.',
        JSON_ARRAY(),
        'endeavour',
-       'n. 努力, 力图, 尽力 vi. 努力, 力图, 尽力 ｜ 原句：We will ____ to finish the job by the end of the week.',
+       'n. 努力, 力图, 尽力 vi. 努力, 力图, 尽力 ｜ 原句：We will endeavour to finish the job by the end of the week.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7821,7 +6303,7 @@ SELECT @qid,
        'She was pushed beyond her powers of ____.',
        JSON_ARRAY(),
        'endurance',
-       'n. 忍耐, 忍耐力, 耐性 [机] 持九性 ｜ 原句：She was pushed beyond her powers of ____.',
+       'n. 忍耐, 忍耐力, 耐性 [机] 持九性 ｜ 原句：She was pushed beyond her powers of endurance.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7844,7 +6326,7 @@ SELECT @qid,
        'He isn''t as ____ as he once was.',
        JSON_ARRAY(),
        'energetic',
-       'a. 精力充沛的, 积极的 ｜ 原句：He isn''t as ____ as he once was.',
+       'a. 精力充沛的, 积极的 ｜ 原句：He isn''t as energetic as he once was.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7867,7 +6349,7 @@ SELECT @qid,
        'I congratulate you on your ____.',
        JSON_ARRAY(),
        'engagement',
-       'n. 诺言, 约会, 婚约, 交战 [医] 衔接 ｜ 原句：I congratulate you on your ____.',
+       'n. 诺言, 约会, 婚约, 交战 [医] 衔接 ｜ 原句：I congratulate you on your engagement.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7890,7 +6372,7 @@ SELECT @qid,
        'You should ____ your mind when young.',
        JSON_ARRAY(),
        'enrich',
-       'vt. 使富足, 使肥沃 ｜ 原句：You should ____ your mind when young.',
+       'vt. 使富足, 使肥沃 ｜ 原句：You should enrich your mind when young.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7913,7 +6395,7 @@ SELECT @qid,
        'A new computer system ____ a lot of re-training.',
        JSON_ARRAY(),
        'entails',
-       'vt. 使成为必需, 需要, 使承担, 遗传给 n. 限定继承 ｜ 原句：A new computer system ____ a lot of re-training.',
+       'vt. 使成为必需, 需要, 使承担, 遗传给 n. 限定继承 ｜ 原句：A new computer system entails a lot of re-training.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7936,7 +6418,7 @@ SELECT @qid,
        'Everyone is an ____.',
        JSON_ARRAY(),
        'entrepreneur',
-       'n. 企业家, 主办人 [经] 承包商, 企业家 ｜ 原句：Everyone is an ____.',
+       'n. 企业家, 主办人 [经] 承包商, 企业家 ｜ 原句：Everyone is an entrepreneur.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7959,7 +6441,7 @@ SELECT @qid,
        'John is ____ of your new car.',
        JSON_ARRAY(),
        'envious',
-       'a. 嫉妒的, 羡慕的 ｜ 原句：John is ____ of your new car.',
+       'a. 嫉妒的, 羡慕的 ｜ 原句：John is envious of your new car.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -7982,7 +6464,7 @@ SELECT @qid,
        '____ pollution is causing abnormal weather conditions.',
        JSON_ARRAY(),
        'environmental',
-       'a. 周围的, 环境的 [经] 环境的, 环保的 ｜ 原句：____ pollution is causing abnormal weather conditions.',
+       'a. 周围的, 环境的 [经] 环境的, 环保的 ｜ 原句：Environmental pollution is causing abnormal weather conditions.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8005,7 +6487,7 @@ SELECT @qid,
        'Thousands upon thousands have died from the ____.',
        JSON_ARRAY(),
        'epidemic',
-       'n. 传染病, 流行病 a. 流行的, 传染性的 ｜ 原句：Thousands upon thousands have died from the ____.',
+       'n. 传染病, 流行病 a. 流行的, 传染性的 ｜ 原句：Thousands upon thousands have died from the epidemic.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8028,7 +6510,7 @@ SELECT @qid,
        'You can''t ____ nationalism with fascism.',
        JSON_ARRAY(),
        'equate',
-       'vt. 使相等, 视为平等 vi. 等同 ｜ 原句：You can''t ____ nationalism with fascism.',
+       'vt. 使相等, 视为平等 vi. 等同 ｜ 原句：You can''t equate nationalism with fascism.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8051,7 +6533,7 @@ SELECT @qid,
        'That ship crossed the ____ yesterday.',
        JSON_ARRAY(),
        'equator',
-       'n. 赤道 [医] 赤道, 中纬线 ｜ 原句：That ship crossed the ____ yesterday.',
+       'n. 赤道 [医] 赤道, 中纬线 ｜ 原句：That ship crossed the equator yesterday.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8074,7 +6556,7 @@ SELECT @qid,
        'We could apply the theory of punctuated ____ to languages.',
        JSON_ARRAY(),
        'equilibrium',
-       'n. 平衡, 平静, 均衡 [化] 平衡 ｜ 原句：We could apply the theory of punctuated ____ to languages.',
+       'n. 平衡, 平静, 均衡 [化] 平衡 ｜ 原句：We could apply the theory of punctuated equilibrium to languages.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8097,7 +6579,7 @@ SELECT @qid,
        'an attempt to ____ inflation',
        JSON_ARRAY(),
        'eradicate',
-       'vt. 根除, 扑灭, 根绝, 消灭 ｜ 原句：an attempt to ____ inflation',
+       'vt. 根除, 扑灭, 根绝, 消灭 ｜ 原句：an attempt to eradicate inflation',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8120,7 +6602,7 @@ SELECT @qid,
        'Tom is out on an ____.',
        JSON_ARRAY(),
        'errand',
-       'n. 任务, 差使, 使命 ｜ 原句：Tom is out on an ____.',
+       'n. 任务, 差使, 使命 ｜ 原句：Tom is out on an errand.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8143,7 +6625,7 @@ SELECT @qid,
        'His economic predictions are based on some ____ assumptions.',
        JSON_ARRAY(),
        'erroneous',
-       'a. 错误的, 不正确的 [法] 错误的, 不正确的 ｜ 原句：His economic predictions are based on some ____ assumptions.',
+       'a. 错误的, 不正确的 [法] 错误的, 不正确的 ｜ 原句：His economic predictions are based on some erroneous assumptions.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8166,7 +6648,7 @@ SELECT @qid,
        'Violence ____ after police shot a student during the demonstration.',
        JSON_ARRAY(),
        'erupted',
-       'vi. 爆发 vt. 喷出 ｜ 原句：Violence ____ after police shot a student during the demonstration.',
+       'vi. 爆发 vt. 喷出 ｜ 原句：Violence erupted after police shot a student during the demonstration.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8189,7 +6671,7 @@ SELECT @qid,
        'The ____ of liberty is mathematics.',
        JSON_ARRAY(),
        'essence',
-       'n. 实质, 本质, 香精 [化] 香精 ｜ 原句：The ____ of liberty is mathematics.',
+       'n. 实质, 本质, 香精 [化] 香精 ｜ 原句：The essence of liberty is mathematics.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8212,7 +6694,7 @@ SELECT @qid,
        'The ____ silence of these infinite spaces terrifies me.',
        JSON_ARRAY(),
        'eternal',
-       'a. 永恒的, 永远的, 不灭的 ｜ 原句：The ____ silence of these infinite spaces terrifies me.',
+       'a. 永恒的, 永远的, 不灭的 ｜ 原句：The eternal silence of these infinite spaces terrifies me.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8235,7 +6717,7 @@ SELECT @qid,
        'Would it be ____ to sacrifice one person to save many?',
        JSON_ARRAY(),
        'ethical',
-       'a. 伦理的, 民族的, 民族特有的 [医] 伦理的, 道德的 ｜ 原句：Would it be ____ to sacrifice one person to save many?',
+       'a. 伦理的, 民族的, 民族特有的 [医] 伦理的, 道德的 ｜ 原句：Would it be ethical to sacrifice one person to save many?',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8258,7 +6740,7 @@ SELECT @qid,
        'The senator was censured by the congressional ____ committee.',
        JSON_ARRAY(),
        'ethics',
-       'n. 道德规范 [医] 伦理学 ｜ 原句：The senator was censured by the congressional ____ committee.',
+       'n. 道德规范 [医] 伦理学 ｜ 原句：The senator was censured by the congressional ethics committee.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8281,7 +6763,7 @@ SELECT @qid,
        'There are 56 ____ groups in China.',
        JSON_ARRAY(),
        'ethnic',
-       'a. 人种的, 种族的 [医] 人种的 ｜ 原句：There are 56 ____ groups in China.',
+       'a. 人种的, 种族的 [医] 人种的 ｜ 原句：There are 56 ethnic groups in China.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8304,7 +6786,7 @@ SELECT @qid,
        'We need to carry out a proper ____ of the new system.',
        JSON_ARRAY(),
        'evaluation',
-       'n. 评估, 估价, 求值 [计] 鉴定; 评价; 求值 ｜ 原句：We need to carry out a proper ____ of the new system.',
+       'n. 评估, 估价, 求值 [计] 鉴定; 评价; 求值 ｜ 原句：We need to carry out a proper evaluation of the new system.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8315,7 +6797,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-10296-1', 1, 'CET6', 5, 'FILL_BLANK',
-       'IMPORT', 'evenly', JSON_ARRAY('evenly'), 0, 0, 0,
+       'IMPORT', 'evenly', JSON_ARRAY('evenly', 'evenlier', 'evenliest'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10296-1');
 
@@ -8327,7 +6809,7 @@ SELECT @qid,
        'Nowadays, equal pay is not enough. Household responsibilities must also be distributed ____.',
        JSON_ARRAY(),
        'evenly',
-       'adv. 平衡地, 平坦地, 平等地 ｜ 原句：Nowadays, equal pay is not enough. Household responsibilities must also be distributed ____.',
+       'adv. 平衡地, 平坦地, 平等地 ｜ 原句：Nowadays, equal pay is not enough. Household responsibilities must also be distributed evenly.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8350,7 +6832,7 @@ SELECT @qid,
        'the ____ development of birds',
        JSON_ARRAY(),
        'evolutionary',
-       'a. 展开的, 进化论的, 进化的, 发展的 [计] 进化的, 改良的, 发展的 ｜ 原句：the ____ development of birds',
+       'a. 展开的, 进化论的, 进化的, 发展的 [计] 进化的, 改良的, 发展的 ｜ 原句：the evolutionary development of birds',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8373,7 +6855,7 @@ SELECT @qid,
        'Australians ____ at sports and entertainment.',
        JSON_ARRAY(),
        'excel',
-       'vt. 胜过, 优于, 擅长 vi. 胜过其他 ｜ 原句：Australians ____ at sports and entertainment.',
+       'vt. 胜过, 优于, 擅长 vi. 胜过其他 ｜ 原句：Australians excel at sports and entertainment.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8396,7 +6878,7 @@ SELECT @qid,
        'A review panel concluded that there were no ____ circumstances that would warrant a lesser penalty for him.',
        JSON_ARRAY(),
        'exceptional',
-       'a. 例外的, 异常的, 特别的 ｜ 原句：A review panel concluded that there were no ____ circumstances that would warrant a lesser penalty for him.',
+       'a. 例外的, 异常的, 特别的 ｜ 原句：A review panel concluded that there were no exceptional circumstances that would warrant a lesser penalty for him.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8419,7 +6901,7 @@ SELECT @qid,
        'There are plenty of examples of people who do these things “____”, but no-one says those are “addictions”.',
        JSON_ARRAY(),
        'excessively',
-       'adv. 过多, 极度, 过度, 过分 ｜ 原句：There are plenty of examples of people who do these things “____”, but no-one says those are “addictions”.',
+       'adv. 过多, 极度, 过度, 过分 ｜ 原句：There are plenty of examples of people who do these things “excessively”, but no-one says those are “addictions”.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8442,7 +6924,7 @@ SELECT @qid,
        'An ____ mark is a punctuation mark.',
        JSON_ARRAY(),
        'exclamation',
-       'n. 惊呼, 激烈言词, 惊叹词 ｜ 原句：An ____ mark is a punctuation mark.',
+       'n. 惊呼, 激烈言词, 惊叹词 ｜ 原句：An exclamation mark is a punctuation mark.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8465,7 +6947,7 @@ SELECT @qid,
        'A stay of ____ was ordered at the eleventh hour.',
        JSON_ARRAY(),
        'execution',
-       'n. 实行, 完成, 执行, 死刑 [计] 执行 ｜ 原句：A stay of ____ was ordered at the eleventh hour.',
+       'n. 实行, 完成, 执行, 死刑 [计] 执行 ｜ 原句：A stay of execution was ordered at the eleventh hour.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8488,7 +6970,7 @@ SELECT @qid,
        'Nothing is ____ from Murphy''s Law.',
        JSON_ARRAY(),
        'exempt',
-       'n. 免税者, 被免除义务者 a. 免除的 vt. 使免除, 豁免 ｜ 原句：Nothing is ____ from Murphy''s Law.',
+       'n. 免税者, 被免除义务者 a. 免除的 vt. 使免除, 豁免 ｜ 原句：Nothing is exempt from Murphy''s Law.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8511,7 +6993,7 @@ SELECT @qid,
        'He spent many years in enforced ____.',
        JSON_ARRAY(),
        'exile',
-       'n. 放逐, 流放, 被放逐者 vt. 放逐, 流放, 使背井离乡 ｜ 原句：He spent many years in enforced ____.',
+       'n. 放逐, 流放, 被放逐者 vt. 放逐, 流放, 使背井离乡 ｜ 原句：He spent many years in enforced exile.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8534,7 +7016,7 @@ SELECT @qid,
        'We encountered a lot of difficulties on the ____.',
        JSON_ARRAY(),
        'expedition',
-       'n. 远征, 探险队, 迅速 ｜ 原句：We encountered a lot of difficulties on the ____.',
+       'n. 远征, 探险队, 迅速 ｜ 原句：We encountered a lot of difficulties on the expedition.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8557,7 +7039,7 @@ SELECT @qid,
        'She was not an accountant and didn''t have the ____ to verify all of the financial details.',
        JSON_ARRAY(),
        'expertise',
-       'n. 专家意见, 专门技术 [法] 专门知识, 专家意见 ｜ 原句：She was not an accountant and didn''t have the ____ to verify all of the financial details.',
+       'n. 专家意见, 专门技术 [法] 专门知识, 专家意见 ｜ 原句：She was not an accountant and didn''t have the expertise to verify all of the financial details.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8580,7 +7062,7 @@ SELECT @qid,
        'The ____ will be held for six months.',
        JSON_ARRAY(),
        'exposition',
-       'n. 阐述, 讲解, 说明, 博览会, 展览会 [经] 展览会, 集市, 义卖市场 ｜ 原句：The ____ will be held for six months.',
+       'n. 阐述, 讲解, 说明, 博览会, 展览会 [经] 展览会, 集市, 义卖市场 ｜ 原句：The exposition will be held for six months.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8603,7 +7085,7 @@ SELECT @qid,
        'The tourists were fascinated with the ____ scenery.',
        JSON_ARRAY(),
        'exquisite',
-       'a. 精致的, 细腻的, 敏锐的 ｜ 原句：The tourists were fascinated with the ____ scenery.',
+       'a. 精致的, 细腻的, 敏锐的 ｜ 原句：The tourists were fascinated with the exquisite scenery.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8626,7 +7108,7 @@ SELECT @qid,
        'They are in danger of ____.',
        JSON_ARRAY(),
        'extinction',
-       'n. 消失, 消灭, 废止 [化] 消光; 熄灭 ｜ 原句：They are in danger of ____.',
+       'n. 消失, 消灭, 废止 [化] 消光; 熄灭 ｜ 原句：They are in danger of extinction.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8649,7 +7131,7 @@ SELECT @qid,
        'Don''t forget to ____ your cigarette.',
        JSON_ARRAY(),
        'extinguish',
-       'vt. 熄灭, 使消亡, 压制, 使减色 [医] 消灭 ｜ 原句：Don''t forget to ____ your cigarette.',
+       'vt. 熄灭, 使消亡, 压制, 使减色 [医] 消灭 ｜ 原句：Don''t forget to extinguish your cigarette.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8672,7 +7154,7 @@ SELECT @qid,
        'Each child had participated in ____ activities at school.',
        JSON_ARRAY(),
        'extracurricular',
-       'a. 课外的, 业余的 ｜ 原句：Each child had participated in ____ activities at school.',
+       'a. 课外的, 业余的 ｜ 原句：Each child had participated in extracurricular activities at school.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8695,7 +7177,7 @@ SELECT @qid,
        'A clear conscience is an ____ soft pillow.',
        JSON_ARRAY(),
        'extraordinarily',
-       'adv. 非凡, 破例, 特别, 非常, 离奇, 使人惊奇, 惊人, 特命, 特派 ｜ 原句：A clear conscience is an ____ soft pillow.',
+       'adv. 非凡, 破例, 特别, 非常, 离奇, 使人惊奇, 惊人, 特命, 特派 ｜ 原句：A clear conscience is an extraordinarily soft pillow.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8718,7 +7200,7 @@ SELECT @qid,
        'This diamond ring is too ____ for me.',
        JSON_ARRAY(),
        'extravagant',
-       'a. 奢侈的, 挥霍无度的, 浪费的 ｜ 原句：This diamond ring is too ____ for me.',
+       'a. 奢侈的, 挥霍无度的, 浪费的 ｜ 原句：This diamond ring is too extravagant for me.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8741,7 +7223,7 @@ SELECT @qid,
        'Drawing dragons and dotting in the eyes is a ____.',
        JSON_ARRAY(),
        'fable',
-       'n. 寓言, 神话, 谎言 vi. 虚构, 作寓言 ｜ 原句：Drawing dragons and dotting in the eyes is a ____.',
+       'n. 寓言, 神话, 谎言 vi. 虚构, 作寓言 ｜ 原句：Drawing dragons and dotting in the eyes is a fable.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8764,7 +7246,7 @@ SELECT @qid,
        'The new airport will ____ the development of tourism.',
        JSON_ARRAY(),
        'facilitate',
-       'vt. 使容易, 促进, 帮助 [法] 使容易, 使便利, 推进 ｜ 原句：The new airport will ____ the development of tourism.',
+       'vt. 使容易, 促进, 帮助 [法] 使容易, 使便利, 推进 ｜ 原句：The new airport will facilitate the development of tourism.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8787,7 +7269,7 @@ SELECT @qid,
        'I think Tom is going to be pretty mad when he finds out that the painting he bought is a ____.',
        JSON_ARRAY(),
        'fake',
-       'n. 假货, 欺骗, 诡计 a. 假的 vt. 假造, 仿造 vi. 伪装 ｜ 原句：I think Tom is going to be pretty mad when he finds out that the painting he bought is a ____.',
+       'n. 假货, 欺骗, 诡计 a. 假的 vt. 假造, 仿造 vi. 伪装 ｜ 原句：I think Tom is going to be pretty mad when he finds out that the painting he bought is a fake.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8810,7 +7292,7 @@ SELECT @qid,
        'The rocks are weathered into ____ forms.',
        JSON_ARRAY(),
        'fantastic',
-       'a. 奇妙的, 稀奇的, 空想的 ｜ 原句：The rocks are weathered into ____ forms.',
+       'a. 奇妙的, 稀奇的, 空想的 ｜ 原句：The rocks are weathered into fantastic forms.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8833,7 +7315,7 @@ SELECT @qid,
        'Slavic languages ____ me.',
        JSON_ARRAY(),
        'fascinate',
-       'vt. 令人入神, 使着迷 vi. 入迷 ｜ 原句：Slavic languages ____ me.',
+       'vt. 令人入神, 使着迷 vi. 入迷 ｜ 原句：Slavic languages fascinate me.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8856,7 +7338,7 @@ SELECT @qid,
        'Your glasses ____ on the floor.',
        JSON_ARRAY(),
        'fell',
-       'vt. 击倒 n. 一季所伐的木材, 折缝 a. 凶猛的, 可怕的 fall的过去式 ｜ 原句：Your glasses ____ on the floor.',
+       'vt. 击倒 n. 一季所伐的木材, 折缝 a. 凶猛的, 可怕的 fall的过去式 ｜ 原句：Your glasses fell on the floor.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8879,30 +7361,7 @@ SELECT @qid,
        'There were not more than one hundred passengers on board the ____.',
        JSON_ARRAY(),
        'ferry',
-       'n. 渡船, 渡口 [法] 摆渡营业权, 轮渡 ｜ 原句：There were not more than one hundred passengers on board the ____.',
-       NOW(), NOW()
-WHERE @qid IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
-
--- V1.0.20 · fiber (CET6, 难度 3)
-INSERT INTO `question_info`
-  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
-   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
-   `created_at`, `updated_at`)
-SELECT 'vocab-auto-10345-1', 1, 'CET6', 3, 'FILL_BLANK',
-       'IMPORT', 'fiber', JSON_ARRAY('fiber', 'fibers'), 0, 0, 0,
-       NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10345-1');
-
-SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10345-1' LIMIT 1);
-
-INSERT INTO `question_content`
-  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
-SELECT @qid,
-       'You need to eat more ____.',
-       JSON_ARRAY(),
-       'fiber',
-       'n. 纤维, 构造, 纤维制品 [化] 纤维 ｜ 原句：You need to eat more ____.',
+       'n. 渡船, 渡口 [法] 摆渡营业权, 轮渡 ｜ 原句：There were not more than one hundred passengers on board the ferry.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8925,7 +7384,7 @@ SELECT @qid,
        'One man''s terrorist is another man''s freedom ____.',
        JSON_ARRAY(),
        'fighter',
-       'n. 斗士, 战士, 好战者, 战斗机 ｜ 原句：One man''s terrorist is another man''s freedom ____.',
+       'n. 斗士, 战士, 好战者, 战斗机 ｜ 原句：One man''s terrorist is another man''s freedom fighter.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8948,7 +7407,7 @@ SELECT @qid,
        '____ breeds illnesses.',
        JSON_ARRAY(),
        'filth',
-       'n. 污秽, 不洁, 猥亵 [法] 污秽, 污物, 淫猥 ｜ 原句：____ breeds illnesses.',
+       'n. 污秽, 不洁, 猥亵 [法] 污秽, 污物, 淫猥 ｜ 原句：Filth breeds illnesses.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8971,7 +7430,7 @@ SELECT @qid,
        'The clock is above the ____.',
        JSON_ARRAY(),
        'fireplace',
-       'n. 壁炉 ｜ 原句：The clock is above the ____.',
+       'n. 壁炉 ｜ 原句：The clock is above the fireplace.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -8994,7 +7453,7 @@ SELECT @qid,
        'an exercise programme to improve your ____',
        JSON_ARRAY(),
        'fitness',
-       'n. 适合, 合宜, 合理, 恰当, 健康 [医] 适合性, 适应性 ｜ 原句：an exercise programme to improve your ____',
+       'n. 适合, 合宜, 合理, 恰当, 健康 [医] 适合性, 适应性 ｜ 原句：an exercise programme to improve your fitness',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9017,7 +7476,7 @@ SELECT @qid,
        'The ____ room is occupied.',
        JSON_ARRAY(),
        'fitting',
-       'a. 适宜的 n. 试穿, 试衣, 装配, 装置 ｜ 原句：The ____ room is occupied.',
+       'a. 适宜的 n. 试穿, 试衣, 装配, 装置 ｜ 原句：The fitting room is occupied.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9040,7 +7499,7 @@ SELECT @qid,
        'He took a swig from his ____.',
        JSON_ARRAY(),
        'flask',
-       'n. 细颈瓶, 烧瓶, 小水瓶 [化] 瓶; 烧瓶 ｜ 原句：He took a swig from his ____.',
+       'n. 细颈瓶, 烧瓶, 小水瓶 [化] 瓶; 烧瓶 ｜ 原句：He took a swig from his flask.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9063,7 +7522,7 @@ SELECT @qid,
        'I can''t find a single ____ in his theory.',
        JSON_ARRAY(),
        'flaw',
-       'n. 缺点, 裂纹, 瑕疵, 一阵狂风 [化] 划痕; 裂缝; 裂纹 ｜ 原句：I can''t find a single ____ in his theory.',
+       'n. 缺点, 裂纹, 瑕疵, 一阵狂风 [化] 划痕; 裂缝; 裂纹 ｜ 原句：I can''t find a single flaw in his theory.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9086,7 +7545,7 @@ SELECT @qid,
        'Insect populations ____ wildly from year to year.',
        JSON_ARRAY(),
        'fluctuate',
-       'vi. 变动, 起伏, 动摇 vt. 使波动, 使动摇 ｜ 原句：Insect populations ____ wildly from year to year.',
+       'vi. 变动, 起伏, 动摇 vt. 使波动, 使动摇 ｜ 原句：Insect populations fluctuate wildly from year to year.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9109,7 +7568,7 @@ SELECT @qid,
        'Nobody can ____ when the war will end.',
        JSON_ARRAY(),
        'foresee',
-       'vt. 预见, 预知 ｜ 原句：Nobody can ____ when the war will end.',
+       'vt. 预见, 预知 ｜ 原句：Nobody can foresee when the war will end.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9132,7 +7591,7 @@ SELECT @qid,
        '____ people did not know that the earth is round and that it moves around the sun.',
        JSON_ARRAY(),
        'formerly',
-       'adv. 从前, 以前 ｜ 原句：____ people did not know that the earth is round and that it moves around the sun.',
+       'adv. 从前, 以前 ｜ 原句：Formerly people did not know that the earth is round and that it moves around the sun.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9155,7 +7614,7 @@ SELECT @qid,
        'The building is grey, ____, not at all picturesque.',
        JSON_ARRAY(),
        'formidable',
-       'a. 巨大的, 优秀的, 可怕的, 艰难的 ｜ 原句：The building is grey, ____, not at all picturesque.',
+       'a. 巨大的, 优秀的, 可怕的, 艰难的 ｜ 原句：The building is grey, formidable, not at all picturesque.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9178,7 +7637,7 @@ SELECT @qid,
        'By visualizing where you want to be, you start helping your mind ____ ways to achieve that next goal in your life.',
        JSON_ARRAY(),
        'formulate',
-       'vt. 用公式表示, 明确叙述, 制订 [机] 公式化, 公式表示 ｜ 原句：By visualizing where you want to be, you start helping your mind ____ ways to achieve that next goal in your life.',
+       'vt. 用公式表示, 明确叙述, 制订 [机] 公式化, 公式表示 ｜ 原句：By visualizing where you want to be, you start helping your mind formulate ways to achieve that next goal in your life.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9201,7 +7660,7 @@ SELECT @qid,
        'I''m afraid this is an incorrect ____ of the question.',
        JSON_ARRAY(),
        'formulation',
-       'n. 系统陈述, 公式化, 配制 [化] 表述; 数学表述; 数式化; 数学表述 ｜ 原句：I''m afraid this is an incorrect ____ of the question.',
+       'n. 系统陈述, 公式化, 配制 [化] 表述; 数学表述; 数式化; 数学表述 ｜ 原句：I''m afraid this is an incorrect formulation of the question.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9224,7 +7683,7 @@ SELECT @qid,
        'He could not ____ his friend in trouble.',
        JSON_ARRAY(),
        'forsake',
-       'vt. 放弃, 断念, 抛弃 [法] 遗弃, 抛弃, 摒绝 ｜ 原句：He could not ____ his friend in trouble.',
+       'vt. 放弃, 断念, 抛弃 [法] 遗弃, 抛弃, 摒绝 ｜ 原句：He could not forsake his friend in trouble.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9247,7 +7706,7 @@ SELECT @qid,
        'the ____ elections',
        JSON_ARRAY(),
        'forthcoming',
-       'a. 即将来临的 n. 来临 ｜ 原句：the ____ elections',
+       'a. 即将来临的 n. 来临 ｜ 原句：the forthcoming elections',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9270,7 +7729,7 @@ SELECT @qid,
        'Members of the council agreed that was an important ____ for discussion.',
        JSON_ARRAY(),
        'forum',
-       'n. 论坛, 公开讨论的广场, 法庭, 讨论会 [法] 讨论会, 专题讨论, 公共论坛 ｜ 原句：Members of the council agreed that was an important ____ for discussion.',
+       'n. 论坛, 公开讨论的广场, 法庭, 讨论会 [法] 讨论会, 专题讨论, 公共论坛 ｜ 原句：Members of the council agreed that was an important forum for discussion.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9293,7 +7752,7 @@ SELECT @qid,
        'What I have in my hand is a ____ seashell.',
        JSON_ARRAY(),
        'fossil',
-       'n. 化石, 古物 a. 化石的, 陈腐的, 守旧的 ｜ 原句：What I have in my hand is a ____ seashell.',
+       'n. 化石, 古物 a. 化石的, 陈腐的, 守旧的 ｜ 原句：What I have in my hand is a fossil seashell.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9304,7 +7763,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-10390-1', 1, 'CET6', 4, 'FILL_BLANK',
-       'IMPORT', 'foster', JSON_ARRAY('foster'), 0, 0, 0,
+       'IMPORT', 'foster', JSON_ARRAY('foster', 'fosterer', 'fosterest'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10390-1');
 
@@ -9316,7 +7775,7 @@ SELECT @qid,
        'This song was written by ____.',
        JSON_ARRAY(),
        'foster',
-       'a. 收养的, 养育的 vt. 养育, 抚育, 培养, 鼓励, 抱(希望) ｜ 原句：This song was written by ____.',
+       'a. 收养的, 养育的 vt. 养育, 抚育, 培养, 鼓励, 抱(希望) ｜ 原句：This song was written by Foster.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9327,7 +7786,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-10391-1', 1, 'CET6', 6, 'FILL_BLANK',
-       'IMPORT', 'foul', JSON_ARRAY('foul'), 0, 0, 0,
+       'IMPORT', 'foul', JSON_ARRAY('foul', 'fouler', 'foulest'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10391-1');
 
@@ -9339,7 +7798,7 @@ SELECT @qid,
        'No love is ____ nor prison fair.',
        JSON_ARRAY(),
        'foul',
-       'a. 污秽的, 邪恶的, 恶臭的, 肮脏的, 恶劣的, 淤塞的 vt. 弄脏, 妨害, 污蔑, 犯规, 淤塞 vi. 腐烂, 犯规, 缠结 adv. 违反规则地, 不正当地 n. 犯规, 缠绕 ｜ 原句：No love is ____ nor prison fair.',
+       'a. 污秽的, 邪恶的, 恶臭的, 肮脏的, 恶劣的, 淤塞的 vt. 弄脏, 妨害, 污蔑, 犯规, 淤塞 vi. 腐烂, 犯规, 缠结 adv. 违反规则地, 不正当地 n. 犯规, 缠绕 ｜ 原句：No love is foul nor prison fair.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9362,7 +7821,7 @@ SELECT @qid,
        'All of the longing and wishes for good fortune are wrapped up in the ____ skin of the dumplings.',
        JSON_ARRAY(),
        'fragile',
-       'a. 易碎的, 脆的 [医] 脆弱的, 脆的 ｜ 原句：All of the longing and wishes for good fortune are wrapped up in the ____ skin of the dumplings.',
+       'a. 易碎的, 脆的 [医] 脆弱的, 脆的 ｜ 原句：All of the longing and wishes for good fortune are wrapped up in the fragile skin of the dumplings.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9385,7 +7844,7 @@ SELECT @qid,
        'She planted ____ olives in the garden.',
        JSON_ARRAY(),
        'fragrant',
-       'a. 芬香的, 馥郁的, 愉快的 ｜ 原句：She planted ____ olives in the garden.',
+       'a. 芬香的, 馥郁的, 愉快的 ｜ 原句：She planted fragrant olives in the garden.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9396,7 +7855,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-10396-1', 1, 'CET6', 6, 'FILL_BLANK',
-       'IMPORT', 'frail', JSON_ARRAY('frail'), 0, 0, 0,
+       'IMPORT', 'frail', JSON_ARRAY('frail', 'frailer', 'frailest'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10396-1');
 
@@ -9408,7 +7867,7 @@ SELECT @qid,
        'Mary had become so ____ and gaunt that it seemed she already had one foot in the grave.',
        JSON_ARRAY(),
        'frail',
-       'a. 脆弱的, 虚弱的, 意志薄弱的 n. 少女, 少妇, 灯心草篓 ｜ 原句：Mary had become so ____ and gaunt that it seemed she already had one foot in the grave.',
+       'a. 脆弱的, 虚弱的, 意志薄弱的 n. 少女, 少妇, 灯心草篓 ｜ 原句：Mary had become so frail and gaunt that it seemed she already had one foot in the grave.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9431,7 +7890,7 @@ SELECT @qid,
        'Academic ____ is more common than you might think.',
        JSON_ARRAY(),
        'fraud',
-       'n. 欺骗, 欺诈, 诡计, 骗子 [经] 欺诈, 舞弊, 骗子 ｜ 原句：Academic ____ is more common than you might think.',
+       'n. 欺骗, 欺诈, 诡计, 骗子 [经] 欺诈, 舞弊, 骗子 ｜ 原句：Academic fraud is more common than you might think.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9454,7 +7913,7 @@ SELECT @qid,
        'He turned pale with ____.',
        JSON_ARRAY(),
        'fright',
-       'n. 惊骇, 吃惊 [医] 惊吓 ｜ 原句：He turned pale with ____.',
+       'n. 惊骇, 吃惊 [医] 惊吓 ｜ 原句：He turned pale with fright.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9465,7 +7924,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-10403-1', 1, 'CET6', 7, 'FILL_BLANK',
-       'IMPORT', 'fro', JSON_ARRAY('fro'), 0, 0, 0,
+       'IMPORT', 'fro', JSON_ARRAY('fro', 'froer', 'froest'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10403-1');
 
@@ -9477,7 +7936,7 @@ SELECT @qid,
        'He walked to and ____ in front of the door, hesitating from entering.',
        JSON_ARRAY(),
        'fro',
-       'adv. 向那边, 向后 ｜ 原句：He walked to and ____ in front of the door, hesitating from entering.',
+       'adv. 向那边, 向后 ｜ 原句：He walked to and fro in front of the door, hesitating from entering.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9500,7 +7959,7 @@ SELECT @qid,
        'Visiting Disneyland has ____ a boyhood dream.',
        JSON_ARRAY(),
        'fulfilled',
-       'vt. 实践, 履行, 实行, 完成, 结束, 满足 [法] 履行, 完成, 达到 ｜ 原句：Visiting Disneyland has ____ a boyhood dream.',
+       'vt. 实践, 履行, 实行, 完成, 结束, 满足 [法] 履行, 完成, 达到 ｜ 原句：Visiting Disneyland has fulfilled a boyhood dream.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9523,7 +7982,7 @@ SELECT @qid,
        'But I dare to say that it is better to face those few but powerful interests, rather than eventually facing the ____ of society.',
        JSON_ARRAY(),
        'fury',
-       'n. 愤怒, 狂暴, 狂怒的人 [医] 狂乱, 狂暴, 狂怒 ｜ 原句：But I dare to say that it is better to face those few but powerful interests, rather than eventually facing the ____ of society.',
+       'n. 愤怒, 狂暴, 狂怒的人 [医] 狂乱, 狂暴, 狂怒 ｜ 原句：But I dare to say that it is better to face those few but powerful interests, rather than eventually facing the fury of society.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9546,7 +8005,7 @@ SELECT @qid,
        'No sooner had Tom turned on the TV than the ____ blew.',
        JSON_ARRAY(),
        'fuse',
-       'n. 保险丝, 导火线 v. 熔化, 融合 ｜ 原句：No sooner had Tom turned on the TV than the ____ blew.',
+       'n. 保险丝, 导火线 v. 熔化, 融合 ｜ 原句：No sooner had Tom turned on the TV than the fuse blew.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9569,7 +8028,7 @@ SELECT @qid,
        'James said he’d better be getting back or there’d be a ____ .',
        JSON_ARRAY(),
        'fuss',
-       'n. 大惊小怪, 小题大作, 忙乱 vi. 无事自扰, 焦急, 焦燥, 忙乱 vt. 使激动, 使烦燥 ｜ 原句：James said he’d better be getting back or there’d be a ____ .',
+       'n. 大惊小怪, 小题大作, 忙乱 vi. 无事自扰, 焦急, 焦燥, 忙乱 vt. 使激动, 使烦燥 ｜ 原句：James said he’d better be getting back or there’d be a fuss .',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9592,7 +8051,7 @@ SELECT @qid,
        'Astronomers have discovered a ____ that has almost no dark matter.',
        JSON_ARRAY(),
        'galaxy',
-       'n. 银河, 星系, 一群(显赫的人物) [电] 银河系 ｜ 原句：Astronomers have discovered a ____ that has almost no dark matter.',
+       'n. 银河, 星系, 一群(显赫的人物) [电] 银河系 ｜ 原句：Astronomers have discovered a galaxy that has almost no dark matter.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9615,7 +8074,7 @@ SELECT @qid,
        'Do you like to ____?',
        JSON_ARRAY(),
        'gamble',
-       'n. 赌博, 冒险 v. 赌博, 孤注一掷 ｜ 原句：Do you like to ____?',
+       'n. 赌博, 冒险 v. 赌博, 孤注一掷 ｜ 原句：Do you like to gamble?',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9638,7 +8097,7 @@ SELECT @qid,
        'The food tasted slightly of ____.',
        JSON_ARRAY(),
        'garlic',
-       'n. 大蒜 [化] 大蒜 ｜ 原句：The food tasted slightly of ____.',
+       'n. 大蒜 [化] 大蒜 ｜ 原句：The food tasted slightly of garlic.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9661,7 +8120,7 @@ SELECT @qid,
        'The qipao is a classic female ____ that originated in 17th century China.',
        JSON_ARRAY(),
        'garment',
-       'n. 衣服, 衣装, 外表 ｜ 原句：The qipao is a classic female ____ that originated in 17th century China.',
+       'n. 衣服, 衣装, 外表 ｜ 原句：The qipao is a classic female garment that originated in 17th century China.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9684,7 +8143,7 @@ SELECT @qid,
        'The way some people see it, associating with the opposite sex is just like going to the seaside and ____ stones; everyone can pick up the ones they like.',
        JSON_ARRAY(),
        'gathering',
-       'n. 聚集, 集中, 采集 [化] 富集 ｜ 原句：The way some people see it, associating with the opposite sex is just like going to the seaside and ____ stones; everyone can pick up the ones they like.',
+       'n. 聚集, 集中, 采集 [化] 富集 ｜ 原句：The way some people see it, associating with the opposite sex is just like going to the seaside and gathering stones; everyone can pick up the ones they like.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9707,7 +8166,7 @@ SELECT @qid,
        'You can’t make ____ about what men and women are like.',
        JSON_ARRAY(),
        'generalizations',
-       'n. 一般化, 普遍化, 概括 [化] 推广; 普适化 ｜ 原句：You can’t make ____ about what men and women are like.',
+       'n. 一般化, 普遍化, 概括 [化] 推广; 普适化 ｜ 原句：You can’t make generalizations about what men and women are like.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9730,7 +8189,7 @@ SELECT @qid,
        'I had great admiration for his ____.',
        JSON_ARRAY(),
        'generosity',
-       'n. 慷慨, 宽大 ｜ 原句：I had great admiration for his ____.',
+       'n. 慷慨, 宽大 ｜ 原句：I had great admiration for his generosity.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9753,7 +8212,7 @@ SELECT @qid,
        'We saw the ____ of a distant lighthouse.',
        JSON_ARRAY(),
        'gleam',
-       'n. 光束, 微光, 反光 vi. 闪烁, 隐约地闪现 vt. 使发微光, 使闪烁 ｜ 原句：We saw the ____ of a distant lighthouse.',
+       'n. 光束, 微光, 反光 vi. 闪烁, 隐约地闪现 vt. 使发微光, 使闪烁 ｜ 原句：We saw the gleam of a distant lighthouse.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9776,7 +8235,7 @@ SELECT @qid,
        'Pachamama is a ____ of earth and fertility revered by the indigenous peoples of the Andes.',
        JSON_ARRAY(),
        'goddess',
-       'n. 女神, 美女, 受崇拜的女性 ｜ 原句：Pachamama is a ____ of earth and fertility revered by the indigenous peoples of the Andes.',
+       'n. 女神, 美女, 受崇拜的女性 ｜ 原句：Pachamama is a goddess of earth and fertility revered by the indigenous peoples of the Andes.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9799,7 +8258,7 @@ SELECT @qid,
        'She is wearing ____ silk clothes.',
        JSON_ARRAY(),
        'gorgeous',
-       'a. 华丽的, 灿烂的 ｜ 原句：She is wearing ____ silk clothes.',
+       'a. 华丽的, 灿烂的 ｜ 原句：She is wearing gorgeous silk clothes.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9822,7 +8281,7 @@ SELECT @qid,
        'Koko is not an ordinary ____.',
        JSON_ARRAY(),
        'gorilla',
-       'n. 大猩猩, 残暴的男人, 歹徒 ｜ 原句：Koko is not an ordinary ____.',
+       'n. 大猩猩, 残暴的男人, 歹徒 ｜ 原句：Koko is not an ordinary gorilla.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9845,7 +8304,7 @@ SELECT @qid,
        '____ a hold of the rope.',
        JSON_ARRAY(),
        'grab',
-       'n. 抓握, 掠夺, 强占, 东方沿岸帆船 vi. 抓取, 抢去 vt. 攫取, 捕获, 霸占 ｜ 原句：____ a hold of the rope.',
+       'n. 抓握, 掠夺, 强占, 东方沿岸帆船 vi. 抓取, 抢去 vt. 攫取, 捕获, 霸占 ｜ 原句：Grab a hold of the rope.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9868,7 +8327,7 @@ SELECT @qid,
        'The washbasin is made of ____.',
        JSON_ARRAY(),
        'granite',
-       'n. 花岗岩 [化] 花岗岩 ｜ 原句：The washbasin is made of ____.',
+       'n. 花岗岩 [化] 花岗岩 ｜ 原句：The washbasin is made of granite.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9891,7 +8350,7 @@ SELECT @qid,
        'That''s not a ____. It''s a locust!',
        JSON_ARRAY(),
        'grasshopper',
-       'n. 蚱蜢, 蝗虫 ｜ 原句：That''s not a ____. It''s a locust!',
+       'n. 蚱蜢, 蝗虫 ｜ 原句：That''s not a grasshopper. It''s a locust!',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9914,7 +8373,7 @@ SELECT @qid,
        '____ the waffle maker.',
        JSON_ARRAY(),
        'grease',
-       'n. 脂肪, 兽脂, 油脂, 贿赂 vt. 涂脂于, 贿赂 ｜ 原句：____ the waffle maker.',
+       'n. 脂肪, 兽脂, 油脂, 贿赂 vt. 涂脂于, 贿赂 ｜ 原句：Grease the waffle maker.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9937,7 +8396,7 @@ SELECT @qid,
        '____ is always hungry.',
        JSON_ARRAY(),
        'greed',
-       'n. 贪欲, 贪婪 ｜ 原句：____ is always hungry.',
+       'n. 贪欲, 贪婪 ｜ 原句：Greed is always hungry.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9960,7 +8419,7 @@ SELECT @qid,
        'She was filled with deep ____ to hear of her father''s sudden death.',
        JSON_ARRAY(),
        'grief',
-       'n. 伤心, 忧愁, 悲痛, 不幸, 灾难 ｜ 原句：She was filled with deep ____ to hear of her father''s sudden death.',
+       'n. 伤心, 忧愁, 悲痛, 不幸, 灾难 ｜ 原句：She was filled with deep grief to hear of her father''s sudden death.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -9983,7 +8442,7 @@ SELECT @qid,
        'We just have to ____ and bear it.',
        JSON_ARRAY(),
        'grin',
-       'n. 露齿笑 v. 露齿而笑 ｜ 原句：We just have to ____ and bear it.',
+       'n. 露齿笑 v. 露齿而笑 ｜ 原句：We just have to grin and bear it.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10006,7 +8465,7 @@ SELECT @qid,
        'In spring, the bamboo ____ outside Hsinchu City is especially green.',
        JSON_ARRAY(),
        'grove',
-       'n. 小树林 ｜ 原句：In spring, the bamboo ____ outside Hsinchu City is especially green.',
+       'n. 小树林 ｜ 原句：In spring, the bamboo grove outside Hsinchu City is especially green.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10029,7 +8488,7 @@ SELECT @qid,
        'His sense of ____ was diminished.',
        JSON_ARRAY(),
        'guilt',
-       'n. 罪行, 内疚 [法] 罪, 犯罪, 罪行 ｜ 原句：His sense of ____ was diminished.',
+       'n. 罪行, 内疚 [法] 罪, 犯罪, 罪行 ｜ 原句：His sense of guilt was diminished.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10052,7 +8511,7 @@ SELECT @qid,
        'Bob plays not only the ____ but also the flute.',
        JSON_ARRAY(),
        'guitar',
-       'n. 吉他 ｜ 原句：Bob plays not only the ____ but also the flute.',
+       'n. 吉他 ｜ 原句：Bob plays not only the guitar but also the flute.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10075,7 +8534,7 @@ SELECT @qid,
        'Losing his balance from a sudden ____ of wind, the tightrope walker fell to his death.',
        JSON_ARRAY(),
        'gust',
-       'n. 突然一阵, 趣味, 爱好 ｜ 原句：Losing his balance from a sudden ____ of wind, the tightrope walker fell to his death.',
+       'n. 突然一阵, 趣味, 爱好 ｜ 原句：Losing his balance from a sudden gust of wind, the tightrope walker fell to his death.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10098,7 +8557,7 @@ SELECT @qid,
        'On May 18, a young Japanese couple was arrested after their one-year-old baby was found wrapped in a plastic bag and dumped in a ____.',
        JSON_ARRAY(),
        'gutter',
-       'n. 排水沟, 槽, 贫民区 vt. 开沟于 vi. 流 [计] 装订线 ｜ 原句：On May 18, a young Japanese couple was arrested after their one-year-old baby was found wrapped in a plastic bag and dumped in a ____.',
+       'n. 排水沟, 槽, 贫民区 vt. 开沟于 vi. 流 [计] 装订线 ｜ 原句：On May 18, a young Japanese couple was arrested after their one-year-old baby was found wrapped in a plastic bag and dumped in a gutter.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10121,7 +8580,7 @@ SELECT @qid,
        'We marched under a ____ of bullets.',
        JSON_ARRAY(),
        'hail',
-       'n. 冰雹, 致敬, 欢呼, 招呼 vt. 向...欢呼, 致敬, 招呼, 使象下雹样落下 vi. 招呼, 下雹 interj. 万岁, 欢迎 ｜ 原句：We marched under a ____ of bullets.',
+       'n. 冰雹, 致敬, 欢呼, 招呼 vt. 向...欢呼, 致敬, 招呼, 使象下雹样落下 vi. 招呼, 下雹 interj. 万岁, 欢迎 ｜ 原句：We marched under a hail of bullets.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10144,7 +8603,7 @@ SELECT @qid,
        'Carrefour''s ____ offcuts are not expensive at all, but are nonetheless delicious.',
        JSON_ARRAY(),
        'ham',
-       'n. 火腿, 后腿, 笨拙演员 a. 过火的, 做作的 v. 演得过火 ｜ 原句：Carrefour''s ____ offcuts are not expensive at all, but are nonetheless delicious.',
+       'n. 火腿, 后腿, 笨拙演员 a. 过火的, 做作的 v. 演得过火 ｜ 原句：Carrefour''s Ham offcuts are not expensive at all, but are nonetheless delicious.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10167,7 +8626,7 @@ SELECT @qid,
        'Having no will is the worst ____.',
        JSON_ARRAY(),
        'handicap',
-       'n. 障碍, 困难, 不利条件 vt. 加障碍于, 妨碍 ｜ 原句：Having no will is the worst ____.',
+       'n. 障碍, 困难, 不利条件 vt. 加障碍于, 妨碍 ｜ 原句：Having no will is the worst handicap.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10190,7 +8649,7 @@ SELECT @qid,
        'There are many ships in the ____.',
        JSON_ARRAY(),
        'harbor',
-       'n. 港, 避难所 v. 庇护, 藏匿, (使)入港停泊 ｜ 原句：There are many ships in the ____.',
+       'n. 港, 避难所 v. 庇护, 藏匿, (使)入港停泊 ｜ 原句：There are many ships in the harbor.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10213,7 +8672,7 @@ SELECT @qid,
        'Our sex life is not completely ____.',
        JSON_ARRAY(),
        'harmonious',
-       'a. 和睦的, 调和的, 和谐的, 协调的 ｜ 原句：Our sex life is not completely ____.',
+       'a. 和睦的, 调和的, 和谐的, 协调的 ｜ 原句：Our sex life is not completely harmonious.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10236,7 +8695,7 @@ SELECT @qid,
        'It''s become a ____ to keep on dyeing my hair.',
        JSON_ARRAY(),
        'hassle',
-       'n. 激烈而持久的争论 vi. 争论 vt. 与...争辩, 使烦恼 ｜ 原句：It''s become a ____ to keep on dyeing my hair.',
+       'n. 激烈而持久的争论 vi. 争论 vt. 与...争辩, 使烦恼 ｜ 原句：It''s become a hassle to keep on dyeing my hair.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10259,7 +8718,7 @@ SELECT @qid,
        'the disposal of ____ waste',
        JSON_ARRAY(),
        'hazardous',
-       'a. 危险的, 冒险的, 碰运气的 [法] 危险的, 冒险的, 碰运气的 ｜ 原句：the disposal of ____ waste',
+       'a. 危险的, 冒险的, 碰运气的 [法] 危险的, 冒险的, 碰运气的 ｜ 原句：the disposal of hazardous waste',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10270,7 +8729,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-10478-1', 1, 'CET6', 7, 'FILL_BLANK',
-       'IMPORT', 'hearty', JSON_ARRAY('hearty'), 0, 0, 0,
+       'IMPORT', 'hearty', JSON_ARRAY('hearty', 'heartier', 'heartiest'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10478-1');
 
@@ -10282,7 +8741,7 @@ SELECT @qid,
        'On behalf of the company, I would like to express our ____ thanks to you all.',
        JSON_ARRAY(),
        'hearty',
-       'a. 诚恳的, 健壮的, 热烈的, 丰盛的 ｜ 原句：On behalf of the company, I would like to express our ____ thanks to you all.',
+       'a. 诚恳的, 健壮的, 热烈的, 丰盛的 ｜ 原句：On behalf of the company, I would like to express our hearty thanks to you all.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10305,7 +8764,7 @@ SELECT @qid,
        'Don''t let the cops find a ____ on you.',
        JSON_ARRAY(),
        'heater',
-       'n. 加热器, 灯丝, 加热工 [化] 加热器 ｜ 原句：Don''t let the cops find a ____ on you.',
+       'n. 加热器, 灯丝, 加热工 [化] 加热器 ｜ 原句：Don''t let the cops find a heater on you.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10328,7 +8787,7 @@ SELECT @qid,
        'Japan is located in the Northern ____.',
        JSON_ARRAY(),
        'hemisphere',
-       'n. 半球, 地球的半面, 大脑半球 [医] 半球 ｜ 原句：Japan is located in the Northern ____.',
+       'n. 半球, 地球的半面, 大脑半球 [医] 半球 ｜ 原句：Japan is located in the Northern Hemisphere.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10351,7 +8810,7 @@ SELECT @qid,
        'The ____ used in that pasta sauce might be parsley.',
        JSON_ARRAY(),
        'herb',
-       'n. 药草, 香草 [医] 草, 草本, 草药 ｜ 原句：The ____ used in that pasta sauce might be parsley.',
+       'n. 药草, 香草 [医] 草, 草本, 草药 ｜ 原句：The herb used in that pasta sauce might be parsley.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10374,7 +8833,7 @@ SELECT @qid,
        'Is it true that our genetic ____ is almost the same as that of chimpanzees?',
        JSON_ARRAY(),
        'heritage',
-       'n. 遗产, 祖先遗留物, 继承物 [医] 遗传性 ｜ 原句：Is it true that our genetic ____ is almost the same as that of chimpanzees?',
+       'n. 遗产, 祖先遗留物, 继承物 [医] 遗传性 ｜ 原句：Is it true that our genetic heritage is almost the same as that of chimpanzees?',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10397,7 +8856,7 @@ SELECT @qid,
        'We should cancel the ____.',
        JSON_ARRAY(),
        'hike',
-       'n. 徒步旅行, 远足, 涨价, 提高 vi. 步行, 徒步旅行, 上升 vt. 使高涨, 拉起 ｜ 原句：We should cancel the ____.',
+       'n. 徒步旅行, 远足, 涨价, 提高 vi. 步行, 徒步旅行, 上升 vt. 使高涨, 拉起 ｜ 原句：We should cancel the hike.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10408,7 +8867,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-10489-1', 1, 'CET6', 6, 'FILL_BLANK',
-       'IMPORT', 'hinder', JSON_ARRAY('hinder'), 0, 0, 0,
+       'IMPORT', 'hinder', JSON_ARRAY('hinder', 'hinderer', 'hinderest'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10489-1');
 
@@ -10420,7 +8879,7 @@ SELECT @qid,
        'Nothing will ____ my malicious plan.',
        JSON_ARRAY(),
        'hinder',
-       'a. 后面的 v. 阻碍, 打扰 ｜ 原句：Nothing will ____ my malicious plan.',
+       'a. 后面的 v. 阻碍, 打扰 ｜ 原句：Nothing will hinder my malicious plan.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10443,7 +8902,7 @@ SELECT @qid,
        'He got a ____ ultrasound.',
        JSON_ARRAY(),
        'hip',
-       'n. 臀部, 蔷薇果, 忧郁 a. 熟悉内情的 vt. 使忧郁, 给(屋顶)造屋脊 interj. 喝彩声 ｜ 原句：He got a ____ ultrasound.',
+       'n. 臀部, 蔷薇果, 忧郁 a. 熟悉内情的 vt. 使忧郁, 给(屋顶)造屋脊 interj. 喝彩声 ｜ 原句：He got a hip ultrasound.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10466,7 +8925,7 @@ SELECT @qid,
        'This is a ____ city.',
        JSON_ARRAY(),
        'historic',
-       'a. 历史上著名的, 有历史性的 ｜ 原句：This is a ____ city.',
+       'a. 历史上著名的, 有历史性的 ｜ 原句：This is a historic city.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10489,7 +8948,7 @@ SELECT @qid,
        'Karl Marx says, "The history of all ____ existing societies is the history of class struggles."',
        JSON_ARRAY(),
        'hitherto',
-       'adv. 迄今, 至今 ｜ 原句：Karl Marx says, "The history of all ____ existing societies is the history of class struggles."',
+       'adv. 迄今, 至今 ｜ 原句：Karl Marx says, "The history of all hitherto existing societies is the history of class struggles."',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10512,7 +8971,7 @@ SELECT @qid,
        'They were all ____ from shouting.',
        JSON_ARRAY(),
        'hoarse',
-       'a. 沙哑的, 嘶哑的 [医] 声嘶的 ｜ 原句：They were all ____ from shouting.',
+       'a. 沙哑的, 嘶哑的 [医] 声嘶的 ｜ 原句：They were all hoarse from shouting.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10535,7 +8994,7 @@ SELECT @qid,
        'Let me know beforehand instead of catching me on the ____ at the last minute.',
        JSON_ARRAY(),
        'hop',
-       'n. 单脚跳, 跳跃, 舞会, 飞行 vi. 单脚跳, 跳跃 vt. 跃过, 跳上, 加蛇麻子于, 服麻醉药 [计] 跳跃式传输 ｜ 原句：Let me know beforehand instead of catching me on the ____ at the last minute.',
+       'n. 单脚跳, 跳跃, 舞会, 飞行 vi. 单脚跳, 跳跃 vt. 跃过, 跳上, 加蛇麻子于, 服麻醉药 [计] 跳跃式传输 ｜ 原句：Let me know beforehand instead of catching me on the hop at the last minute.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10558,7 +9017,7 @@ SELECT @qid,
        'All the guests were touched by her ____.',
        JSON_ARRAY(),
        'hospitality',
-       'n. 款待, 亲切, 殷勤 ｜ 原句：All the guests were touched by her ____.',
+       'n. 款待, 亲切, 殷勤 ｜ 原句：All the guests were touched by her hospitality.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10581,7 +9040,7 @@ SELECT @qid,
        'Russia expresses regret for those lost in the ____ incident.',
        JSON_ARRAY(),
        'hostage',
-       'n. 人质, 抵押品 [经] 人质, 抵押品 ｜ 原句：Russia expresses regret for those lost in the ____ incident.',
+       'n. 人质, 抵押品 [经] 人质, 抵押品 ｜ 原句：Russia expresses regret for those lost in the hostage incident.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10604,7 +9063,7 @@ SELECT @qid,
        'She wants to ____ him.',
        JSON_ARRAY(),
        'hug',
-       'n. 紧抱, 拥抱 vt. 紧抱, 坚持, 使沾沾自喜 ｜ 原句：She wants to ____ him.',
+       'n. 紧抱, 拥抱 vt. 紧抱, 坚持, 使沾沾自喜 ｜ 原句：She wants to hug him.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10627,7 +9086,7 @@ SELECT @qid,
        'All ____ will suffer if a nuclear war breaks out.',
        JSON_ARRAY(),
        'humanity',
-       'n. 人性, 人类, 博爱 ｜ 原句：All ____ will suffer if a nuclear war breaks out.',
+       'n. 人性, 人类, 博爱 ｜ 原句：All humanity will suffer if a nuclear war breaks out.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10650,7 +9109,7 @@ SELECT @qid,
        'After the ____, their house was a wreck.',
        JSON_ARRAY(),
        'hurricane',
-       'n. 飓风, 暴风, 暴风雨 ｜ 原句：After the ____, their house was a wreck.',
+       'n. 飓风, 暴风, 暴风雨 ｜ 原句：After the hurricane, their house was a wreck.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10673,7 +9132,7 @@ SELECT @qid,
        'The victim of blackmail has been paying ____ money for years, but now he realizes it is foolish, and has decided not to pay a red cent more.',
        JSON_ARRAY(),
        'hush',
-       'n. 肃静, 安静, 沉默 vt. (使)肃静, (使)安静, (使)缄默 interj. 嘘, 别作声 ｜ 原句：The victim of blackmail has been paying ____ money for years, but now he realizes it is foolish, and has decided not to pay a red cent more.',
+       'n. 肃静, 安静, 沉默 vt. (使)肃静, (使)安静, (使)缄默 interj. 嘘, 别作声 ｜ 原句：The victim of blackmail has been paying hush money for years, but now he realizes it is foolish, and has decided not to pay a red cent more.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10696,7 +9155,7 @@ SELECT @qid,
        'The result confirmed my ____.',
        JSON_ARRAY(),
        'hypothesis',
-       'n. 假设 [化] 假设 ｜ 原句：The result confirmed my ____.',
+       'n. 假设 [化] 假设 ｜ 原句：The result confirmed my hypothesis.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10707,7 +9166,7 @@ INSERT INTO `question_info`
    `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
    `created_at`, `updated_at`)
 SELECT 'vocab-auto-10528-1', 1, 'CET6', 5, 'FILL_BLANK',
-       'IMPORT', 'icy', JSON_ARRAY('icy'), 0, 0, 0,
+       'IMPORT', 'icy', JSON_ARRAY('icy', 'icier', 'iciest'), 0, 0, 0,
        NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10528-1');
 
@@ -10719,7 +9178,7 @@ SELECT @qid,
        'An ____ blast of wind chilled me to the bone.',
        JSON_ARRAY(),
        'icy',
-       'a. 冰的, 冰冷的, 冷淡的, 滑溜的 ｜ 原句：An ____ blast of wind chilled me to the bone.',
+       'a. 冰的, 冰冷的, 冷淡的, 滑溜的 ｜ 原句：An icy blast of wind chilled me to the bone.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10742,7 +9201,7 @@ SELECT @qid,
        '____, a candidate for this job should have four years'' work experience.',
        JSON_ARRAY(),
        'ideally',
-       'adv. 完美地, 理想地 ｜ 原句：____, a candidate for this job should have four years'' work experience.',
+       'adv. 完美地, 理想地 ｜ 原句：Ideally, a candidate for this job should have four years'' work experience.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10765,7 +9224,7 @@ SELECT @qid,
        'This is the ____ to which my speech is written.',
        JSON_ARRAY(),
        'ideology',
-       'n. 思想体系, 意识形态, 观念学, 空论 [医] 观念学, 观念形态 ｜ 原句：This is the ____ to which my speech is written.',
+       'n. 思想体系, 意识形态, 观念学, 空论 [医] 观念学, 观念形态 ｜ 原句：This is the ideology to which my speech is written.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10788,7 +9247,7 @@ SELECT @qid,
        'Thanks for having explained to me at last why people take me for an ____.',
        JSON_ARRAY(),
        'idiot',
-       'n. 白痴, 极蠢之人 [医] 白痴者, 痴子 ｜ 原句：Thanks for having explained to me at last why people take me for an ____.',
+       'n. 白痴, 极蠢之人 [医] 白痴者, 痴子 ｜ 原句：Thanks for having explained to me at last why people take me for an idiot.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10811,7 +9270,7 @@ SELECT @qid,
        'Sooner or later, you will regret your ____.',
        JSON_ARRAY(),
        'idleness',
-       'n. 懒惰, 闲散, 失业 [化] 空载 ｜ 原句：Sooner or later, you will regret your ____.',
+       'n. 懒惰, 闲散, 失业 [化] 空载 ｜ 原句：Sooner or later, you will regret your idleness.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10834,7 +9293,7 @@ SELECT @qid,
        'If you think education is expensive, wait till you see what ____ costs you.',
        JSON_ARRAY(),
        'ignorance',
-       'n. 无知, 愚味 [法] 无知, 不知情, 愚昧 ｜ 原句：If you think education is expensive, wait till you see what ____ costs you.',
+       'n. 无知, 愚味 [法] 无知, 不知情, 愚昧 ｜ 原句：If you think education is expensive, wait till you see what ignorance costs you.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10857,7 +9316,7 @@ SELECT @qid,
        'The report ____ the difficult issues at the heart of science policy.',
        JSON_ARRAY(),
        'illuminated',
-       'vt. 照明, 用灯装饰, 阐明, 说明, 使灿烂 vi. 照亮, 用灯装饰 ｜ 原句：The report ____ the difficult issues at the heart of science policy.',
+       'vt. 照明, 用灯装饰, 阐明, 说明, 使灿烂 vi. 照亮, 用灯装饰 ｜ 原句：The report illuminated the difficult issues at the heart of science policy.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10880,7 +9339,7 @@ SELECT @qid,
        'He is a very ____ writer.',
        JSON_ARRAY(),
        'imaginative',
-       'a. 想像的, 虚构的 ｜ 原句：He is a very ____ writer.',
+       'a. 想像的, 虚构的 ｜ 原句：He is a very imaginative writer.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10903,7 +9362,7 @@ SELECT @qid,
        'What is the difference between ____ and real diamonds?',
        JSON_ARRAY(),
        'imitation',
-       'n. 模仿, 效法, 冒充, 赝品 [医] 模仿, 仿制, 仿制品 ｜ 原句：What is the difference between ____ and real diamonds?',
+       'n. 模仿, 效法, 冒充, 赝品 [医] 模仿, 仿制, 仿制品 ｜ 原句：What is the difference between imitation and real diamonds?',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10926,7 +9385,7 @@ SELECT @qid,
        'Please let me see your passport, also did you complete the ____ form?',
        JSON_ARRAY(),
        'immigration',
-       'n. 移民, 移居 [医] 移民 ｜ 原句：Please let me see your passport, also did you complete the ____ form?',
+       'n. 移民, 移居 [医] 移民 ｜ 原句：Please let me see your passport, also did you complete the immigration form?',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10949,7 +9408,7 @@ SELECT @qid,
        'Mortal enemies are ____ friends.',
        JSON_ARRAY(),
        'immortal',
-       'n. 不朽人物, 神仙 a. 永远的, 不死的, 长久的 ｜ 原句：Mortal enemies are ____ friends.',
+       'n. 不朽人物, 神仙 a. 永远的, 不死的, 长久的 ｜ 原句：Mortal enemies are immortal friends.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10972,7 +9431,7 @@ SELECT @qid,
        'Every person in this community is like a cell in the ____ system of a healthy human body.',
        JSON_ARRAY(),
        'immune',
-       'a. 免疫的, 免除的, 不受影响的 n. 免疫者 ｜ 原句：Every person in this community is like a cell in the ____ system of a healthy human body.',
+       'a. 免疫的, 免除的, 不受影响的 n. 免疫者 ｜ 原句：Every person in this community is like a cell in the immune system of a healthy human body.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -10995,7 +9454,7 @@ SELECT @qid,
        'The illness had ____ his ability to think and concentrate.',
        JSON_ARRAY(),
        'impaired',
-       'vt. 损害, 减少, 削弱 [法] 损害, 伤害, 减少 ｜ 原句：The illness had ____ his ability to think and concentrate.',
+       'vt. 损害, 减少, 削弱 [法] 损害, 伤害, 减少 ｜ 原句：The illness had impaired his ability to think and concentrate.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -11018,7 +9477,7 @@ SELECT @qid,
        'She had information that she couldn’t wait to ____.',
        JSON_ARRAY(),
        'impart',
-       'vt. 给予, 传授, 告知 ｜ 原句：She had information that she couldn’t wait to ____.',
+       'vt. 给予, 传授, 告知 ｜ 原句：She had information that she couldn’t wait to impart.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -11041,7 +9500,7 @@ SELECT @qid,
        'He puts on a show of being ____ and unbiased, but I think he''s just a guy with no opinion of his own.',
        JSON_ARRAY(),
        'impartial',
-       'a. 公平的, 不偏不倚的 [法] 公正无私的, 不偏袒的, 公平的 ｜ 原句：He puts on a show of being ____ and unbiased, but I think he''s just a guy with no opinion of his own.',
+       'a. 公平的, 不偏不倚的 [法] 公正无私的, 不偏袒的, 公平的 ｜ 原句：He puts on a show of being impartial and unbiased, but I think he''s just a guy with no opinion of his own.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -11064,7 +9523,7 @@ SELECT @qid,
        'It is ____ for you to act at once.',
        JSON_ARRAY(),
        'imperative',
-       'n. 命令, 必要的事, 规则, 祈使语气 a. 命令式的, 急需的, 势在必行的, 强制的 ｜ 原句：It is ____ for you to act at once.',
+       'n. 命令, 必要的事, 规则, 祈使语气 a. 命令式的, 急需的, 势在必行的, 强制的 ｜ 原句：It is imperative for you to act at once.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -11087,7 +9546,7 @@ SELECT @qid,
        'Meet me at the lobby of the ____ Hotel at 6:30 p.m.',
        JSON_ARRAY(),
        'imperial',
-       'a. 帝王的, 宗主国的, 至尊的, 壮丽的 n. 特等品 ｜ 原句：Meet me at the lobby of the ____ Hotel at 6:30 p.m.',
+       'a. 帝王的, 宗主国的, 至尊的, 壮丽的 n. 特等品 ｜ 原句：Meet me at the lobby of the Imperial Hotel at 6:30 p.m.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -11110,7 +9569,7 @@ SELECT @qid,
        'It is highly ____.',
        JSON_ARRAY(),
        'improper',
-       'a. 不合适的, 错误的, 不成体统的, 不道德的 [法] 不适当的, 不合适的, 不正确的 ｜ 原句：It is highly ____.',
+       'a. 不合适的, 错误的, 不成体统的, 不道德的 [法] 不适当的, 不合适的, 不正确的 ｜ 原句：It is highly improper.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -11133,7 +9592,7 @@ SELECT @qid,
        'I felt an ____ to cry out loud.',
        JSON_ARRAY(),
        'impulse',
-       'n. 冲动, 驱使, 刺激, 推动, 冲力, 建议, 脉冲 vt. 推动 ｜ 原句：I felt an ____ to cry out loud.',
+       'n. 冲动, 驱使, 刺激, 推动, 冲力, 建议, 脉冲 vt. 推动 ｜ 原句：I felt an impulse to cry out loud.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -11156,7 +9615,7 @@ SELECT @qid,
        '____ resources',
        JSON_ARRAY(),
        'inadequate',
-       'a. 不充分的, 不适当的 [法] 不充分的, 不适当的 ｜ 原句：____ resources',
+       'a. 不充分的, 不适当的 [法] 不充分的, 不适当的 ｜ 原句：inadequate resources',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -11179,7 +9638,7 @@ SELECT @qid,
        'I am entirely ____ of accepting this minister''s arguments.',
        JSON_ARRAY(),
        'incapable',
-       'a. 无能力的, 不能的 [机] 不能行的, 耐不住的 ｜ 原句：I am entirely ____ of accepting this minister''s arguments.',
+       'a. 无能力的, 不能的 [机] 不能行的, 耐不住的 ｜ 原句：I am entirely incapable of accepting this minister''s arguments.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -11202,7 +9661,7 @@ SELECT @qid,
        'As an added ____, there’s a bottle of champagne for the best team.',
        JSON_ARRAY(),
        'incentive',
-       'n. 动机 a. 激励的 ｜ 原句：As an added ____, there’s a bottle of champagne for the best team.',
+       'n. 动机 a. 激励的 ｜ 原句：As an added incentive, there’s a bottle of champagne for the best team.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -11225,7 +9684,7 @@ SELECT @qid,
        'The ____ of breast cancer increases with age.',
        JSON_ARRAY(),
        'incidence',
-       'n. 发生, 发生率, 影响, 负担者, 入射, 倾角 [医] 入射, 发生率, 发生数 ｜ 原句：The ____ of breast cancer increases with age.',
+       'n. 发生, 发生率, 影响, 负担者, 入射, 倾角 [医] 入射, 发生率, 发生数 ｜ 原句：The incidence of breast cancer increases with age.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -11248,7 +9707,7 @@ SELECT @qid,
        '____, I have to tell you something.',
        JSON_ARRAY(),
        'incidentally',
-       'adv. 伴随地, 偶然, 顺便 ｜ 原句：____, I have to tell you something.',
+       'adv. 伴随地, 偶然, 顺便 ｜ 原句：Incidentally, I have to tell you something.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -11271,7 +9730,7 @@ SELECT @qid,
        'It''s ____ that your mother speaks six languages!',
        JSON_ARRAY(),
        'incredible',
-       'a. 难以置信的 ｜ 原句：It''s ____ that your mother speaks six languages!',
+       'a. 难以置信的 ｜ 原句：It''s incredible that your mother speaks six languages!',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -11294,7 +9753,7 @@ SELECT @qid,
        'She wondered what she’d done to ____ his displeasure this time.',
        JSON_ARRAY(),
        'incur',
-       'vt. 招致, 蒙受, 遭遇 [经] 招致, 蒙受, 担负 ｜ 原句：She wondered what she’d done to ____ his displeasure this time.',
+       'vt. 招致, 蒙受, 遭遇 [经] 招致, 蒙受, 担负 ｜ 原句：She wondered what she’d done to incur his displeasure this time.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -11317,7 +9776,7 @@ SELECT @qid,
        'This behaviour is ____ of her whole attitude, I’m afraid.',
        JSON_ARRAY(),
        'indicative',
-       'a. 指示的, 象征的, 表示...的 [经] 指标的 ｜ 原句：This behaviour is ____ of her whole attitude, I’m afraid.',
+       'a. 指示的, 象征的, 表示...的 [经] 指标的 ｜ 原句：This behaviour is indicative of her whole attitude, I’m afraid.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -11340,7 +9799,7 @@ SELECT @qid,
        'The soldiers fired ____ into the crowd.',
        JSON_ARRAY(),
        'indiscriminately',
-       'adv. 无差别, 任意地; 不分青红皂白地; 滥; 不分皂白 ｜ 原句：The soldiers fired ____ into the crowd.',
+       'adv. 无差别, 任意地; 不分青红皂白地; 滥; 不分皂白 ｜ 原句：The soldiers fired indiscriminately into the crowd.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -11363,7 +9822,7 @@ SELECT @qid,
        'Nothing would ____ me to vote for him again.',
        JSON_ARRAY(),
        'induce',
-       'vt. 引诱, 招致, 归纳出, 感应 [医] 诱导, 感应 ｜ 原句：Nothing would ____ me to vote for him again.',
+       'vt. 引诱, 招致, 归纳出, 感应 [医] 诱导, 感应 ｜ 原句：Nothing would induce me to vote for him again.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -11386,7 +9845,7 @@ SELECT @qid,
        'St James Palace represents her, William and his brother Harry, and now regards her "____" as complete.',
        JSON_ARRAY(),
        'induction',
-       'n. 归纳法, 感应, 就职, 入门 [计] 归纳法 ｜ 原句：St James Palace represents her, William and his brother Harry, and now regards her "____" as complete.',
+       'n. 归纳法, 感应, 就职, 入门 [计] 归纳法 ｜ 原句：St James Palace represents her, William and his brother Harry, and now regards her "induction" as complete.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -11409,7 +9868,7 @@ SELECT @qid,
        'His mother spoiled him, ____ his every whim.',
        JSON_ARRAY(),
        'indulging',
-       'vt. 纵情于, 使高兴, 放任, 迁就 vi. 沉溺 ｜ 原句：His mother spoiled him, ____ his every whim.',
+       'vt. 纵情于, 使高兴, 放任, 迁就 vi. 沉溺 ｜ 原句：His mother spoiled him, indulging his every whim.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -11432,7 +9891,7 @@ SELECT @qid,
        'He is an ____ student to the best of my knowledge.',
        JSON_ARRAY(),
        'industrious',
-       'a. 勤勉的, 刻苦的 ｜ 原句：He is an ____ student to the best of my knowledge.',
+       'a. 勤勉的, 刻苦的 ｜ 原句：He is an industrious student to the best of my knowledge.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -11455,7 +9914,7 @@ SELECT @qid,
        'In addition, coincidences ____ come in threes.',
        JSON_ARRAY(),
        'inevitably',
-       'adv. 不可避免地 ｜ 原句：In addition, coincidences ____ come in threes.',
+       'adv. 不可避免地 ｜ 原句：In addition, coincidences inevitably come in threes.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -11478,7 +9937,7 @@ SELECT @qid,
        'Space science is still in its ____.',
        JSON_ARRAY(),
        'infancy',
-       'n. 幼年, 初期, 幼儿期 [医] 婴儿期(一足岁以内) ｜ 原句：Space science is still in its ____.',
+       'n. 幼年, 初期, 幼儿期 [医] 婴儿期(一足岁以内) ｜ 原句：Space science is still in its infancy.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
@@ -11501,7 +9960,1548 @@ SELECT @qid,
        'Tom''s laughter is ____.',
        JSON_ARRAY(),
        'infectious',
-       'a. 有传染性的, 易传染的 [医] 传染性的 ｜ 原句：Tom''s laughter is ____.',
+       'a. 有传染性的, 易传染的 [医] 传染性的 ｜ 原句：Tom''s laughter is infectious.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · inferiority (CET6, 难度 7)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10588-1', 1, 'CET6', 7, 'FILL_BLANK',
+       'IMPORT', 'inferiority', JSON_ARRAY('inferiority'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10588-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10588-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'How can I rid myself of my ____ complex?',
+       JSON_ARRAY(),
+       'inferiority',
+       'n. 自卑, 次等 [医] 下位, 下级, 次级, 劣等 ｜ 原句：How can I rid myself of my inferiority complex?',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · inflate (CET6, 难度 6)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10591-1', 1, 'CET6', 6, 'FILL_BLANK',
+       'IMPORT', 'inflate', JSON_ARRAY('inflate', 'inflates', 'inflated', 'inflating'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10591-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10591-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'It took us half an hour to ____ the dinghy.',
+       JSON_ARRAY(),
+       'inflate',
+       'vt. 使膨胀, 使得意, 使通货膨胀, 使充气 vi. 充气, 膨胀 ｜ 原句：It took us half an hour to inflate the dinghy.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · inflation (CET6, 难度 3)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10592-1', 1, 'CET6', 3, 'FILL_BLANK',
+       'IMPORT', 'inflation', JSON_ARRAY('inflation', 'inflations'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10592-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10592-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'The value of the dollar declines as the rate of ____ rises.',
+       JSON_ARRAY(),
+       'inflation',
+       'n. 胀大, 夸张, 通货膨胀 [化] 充气吹胀; 膨胀 ｜ 原句：The value of the dollar declines as the rate of inflation rises.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · infrastructure (CET6, 难度 4)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10594-1', 1, 'CET6', 4, 'FILL_BLANK',
+       'IMPORT', 'infrastructure', JSON_ARRAY('infrastructure', 'infrastructures'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10594-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10594-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'The ____ of an application is directly related to its overall performance.',
+       JSON_ARRAY(),
+       'infrastructure',
+       'n. 基础结构, 基础设施 [经] 基础设施 ｜ 原句：The infrastructure of an application is directly related to its overall performance.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · ingenious (CET6, 难度 7)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10596-1', 1, 'CET6', 7, 'FILL_BLANK',
+       'IMPORT', 'ingenious', JSON_ARRAY('ingenious'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10596-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10596-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'Everyone''s tricks are different; each differs in ____ ways.',
+       JSON_ARRAY(),
+       'ingenious',
+       'a. 灵敏的, 精巧的, 聪明的 ｜ 原句：Everyone''s tricks are different; each differs in ingenious ways.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · ingenuity (CET6, 难度 7)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10597-1', 1, 'CET6', 7, 'FILL_BLANK',
+       'IMPORT', 'ingenuity', JSON_ARRAY('ingenuity'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10597-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10597-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'Inspecting the nest can be difficult and may require some ____.',
+       JSON_ARRAY(),
+       'ingenuity',
+       'n. 心灵手巧, 精巧, 精巧设计 ｜ 原句：Inspecting the nest can be difficult and may require some ingenuity.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · inherent (CET6, 难度 4)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10598-1', 1, 'CET6', 4, 'FILL_BLANK',
+       'IMPORT', 'inherent', JSON_ARRAY('inherent'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10598-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10598-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'She has ____ dignity.',
+       JSON_ARRAY(),
+       'inherent',
+       'a. 固有的, 与生俱来的 [医] 固有的, 生来的 ｜ 原句：She has inherent dignity.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · initially (CET6, 难度 3)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10600-1', 1, 'CET6', 3, 'FILL_BLANK',
+       'IMPORT', 'initially', JSON_ARRAY('initially'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10600-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10600-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       '____ we had some problems with our computer system, but they''ve been sorted out now.',
+       JSON_ARRAY(),
+       'initially',
+       'adv. 最初, 开头 ｜ 原句：Initially we had some problems with our computer system, but they''ve been sorted out now.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · initiate (CET6, 难度 4)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10601-1', 1, 'CET6', 4, 'FILL_BLANK',
+       'IMPORT', 'initiate', JSON_ARRAY('initiate', 'initiates'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10601-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10601-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'They have decided to ____ legal proceedings against the newspaper.',
+       JSON_ARRAY(),
+       'initiate',
+       'n. 入会, 开始 a. 新加入的 vt. 开始, 传授基本知识给 ｜ 原句：They have decided to initiate legal proceedings against the newspaper.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · inland (CET6, 难度 7)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10603-1', 1, 'CET6', 7, 'FILL_BLANK',
+       'IMPORT', 'inland', JSON_ARRAY('inland'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10603-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10603-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'Three soldiers who came back from the war are renting a house at the edge of a small town on the shore of the ____ Sea and live together.',
+       JSON_ARRAY(),
+       'inland',
+       'a. 内陆的, 国内的 n. 内地 ｜ 原句：Three soldiers who came back from the war are renting a house at the edge of a small town on the shore of the Inland Sea and live together.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · innate (CET6, 难度 7)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10605-1', 1, 'CET6', 7, 'FILL_BLANK',
+       'IMPORT', 'innate', JSON_ARRAY('innate'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10605-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10605-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'He has an ____ love of adventure.',
+       JSON_ARRAY(),
+       'innate',
+       'a. 先天的, 天生的 [医] 先天的, 生来的 ｜ 原句：He has an innate love of adventure.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · innovation (CET6, 难度 4)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10606-1', 1, 'CET6', 4, 'FILL_BLANK',
+       'IMPORT', 'innovation', JSON_ARRAY('innovation', 'innovations'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10606-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10606-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'We must encourage ____ if the company is to remain competitive.',
+       JSON_ARRAY(),
+       'innovation',
+       'n. 改革, 创新 [法] 创新, 改革, 刷新 ｜ 原句：We must encourage innovation if the company is to remain competitive.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · innumerable (CET6, 难度 7)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10607-1', 1, 'CET6', 7, 'FILL_BLANK',
+       'IMPORT', 'innumerable', JSON_ARRAY('innumerable'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10607-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10607-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'I have tried ____ times to contact him.',
+       JSON_ARRAY(),
+       'innumerable',
+       'a. 无数的, 数不清的 ｜ 原句：I have tried innumerable times to contact him.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · insane (CET6, 难度 5)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10609-1', 1, 'CET6', 5, 'FILL_BLANK',
+       'IMPORT', 'insane', JSON_ARRAY('insane'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10609-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10609-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'This world is just an ____ asylum.',
+       JSON_ARRAY(),
+       'insane',
+       'a. 患精神病的, 极愚蠢的 [医] 神经错乱的 ｜ 原句：This world is just an insane asylum.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · insanity (CET6, 难度 6)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10610-1', 1, 'CET6', 6, 'FILL_BLANK',
+       'IMPORT', 'insanity', JSON_ARRAY('insanity'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10610-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10610-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'Masturbation leads to ____.',
+       JSON_ARRAY(),
+       'insanity',
+       'n. 疯狂, 愚顽, 精神错乱 [医] 精神病 ｜ 原句：Masturbation leads to insanity.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · inspector (CET6, 难度 4)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10613-1', 1, 'CET6', 4, 'FILL_BLANK',
+       'IMPORT', 'inspector', JSON_ARRAY('inspector', 'inspectors'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10613-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10613-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'The suspect told a lie to the ____.',
+       JSON_ARRAY(),
+       'inspector',
+       'n. 检查员, 巡视员 [化] 检查员 ｜ 原句：The suspect told a lie to the inspector.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · inspiration (CET6, 难度 4)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10614-1', 1, 'CET6', 4, 'FILL_BLANK',
+       'IMPORT', 'inspiration', JSON_ARRAY('inspiration', 'inspirations'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10614-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10614-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'What is your greatest source of ____?',
+       JSON_ARRAY(),
+       'inspiration',
+       'n. 灵感, 鼓舞人心的人或物, 妙计, 吸气 [医] 吸[气] ｜ 原句：What is your greatest source of inspiration?',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · instantaneous (CET6, 难度 7)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10617-1', 1, 'CET6', 7, 'FILL_BLANK',
+       'IMPORT', 'instantaneous', JSON_ARRAY('instantaneous'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10617-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10617-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'modern methods of ____ communication',
+       JSON_ARRAY(),
+       'instantaneous',
+       'a. 即时的, 瞬间的, 猝发的 [机] 瞬时的 ｜ 原句：modern methods of instantaneous communication',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · instinctively (CET6, 难度 6)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10618-1', 1, 'CET6', 6, 'FILL_BLANK',
+       'IMPORT', 'instinctively', JSON_ARRAY('instinctively'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10618-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10618-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'Some teachers ____ know how to play “favorites” to manipulate the other students.',
+       JSON_ARRAY(),
+       'instinctively',
+       'adv. 本能地, 直觉地 ｜ 原句：Some teachers instinctively know how to play “favorites” to manipulate the other students.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · instructor (CET6, 难度 3)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10619-1', 1, 'CET6', 3, 'FILL_BLANK',
+       'IMPORT', 'instructor', JSON_ARRAY('instructor', 'instructors'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10619-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10619-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'My driving ____ says I should be more patient.',
+       JSON_ARRAY(),
+       'instructor',
+       'n. 教员, 讲师 [法] 指导者, 教员, 讲师 ｜ 原句：My driving instructor says I should be more patient.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · instrumental (CET6, 难度 5)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10620-1', 1, 'CET6', 5, 'FILL_BLANK',
+       'IMPORT', 'instrumental', JSON_ARRAY('instrumental'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10620-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10620-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'I like ____ music.',
+       JSON_ARRAY(),
+       'instrumental',
+       'a. 仪器的, 器具的, 可作为手段的 [医] 器械的 ｜ 原句：I like instrumental music.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · intact (CET6, 难度 4)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10623-1', 1, 'CET6', 4, 'FILL_BLANK',
+       'IMPORT', 'intact', JSON_ARRAY('intact'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10623-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10623-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'You can write a sentence in a lot of ways and still keep the general message ____.',
+       JSON_ARRAY(),
+       'intact',
+       'a. 尚未被人碰过的, 原封不动的, 完整的 [医] 完整的, 无伤的 ｜ 原句：You can write a sentence in a lot of ways and still keep the general message intact.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · intake (CET6, 难度 5)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10624-1', 1, 'CET6', 5, 'FILL_BLANK',
+       'IMPORT', 'intake', JSON_ARRAY('intake', 'intakes'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10624-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10624-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'Your ____ of alcohol should not exceed two units per day.',
+       JSON_ARRAY(),
+       'intake',
+       'n. 入口, 吸入, 吸入量 [医] 摄取量 ｜ 原句：Your intake of alcohol should not exceed two units per day.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · integral (CET6, 难度 5)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10625-1', 1, 'CET6', 5, 'FILL_BLANK',
+       'IMPORT', 'integral', JSON_ARRAY('integral', 'integrals'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10625-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10625-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'The ____ and the antiderivative are defined in two different ways, and the Fundamental Theorem of Calculus states the relationship between them.',
+       JSON_ARRAY(),
+       'integral',
+       'n. 整体, 积分, 整数 a. 固有的, 整体的, 整数的, 积分的 [计] 积分 ｜ 原句：The integral and the antiderivative are defined in two different ways, and the Fundamental Theorem of Calculus states the relationship between them.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · integrity (CET6, 难度 4)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10626-1', 1, 'CET6', 4, 'FILL_BLANK',
+       'IMPORT', 'integrity', JSON_ARRAY('integrity'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10626-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10626-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'In our society we find men of ____ along with crooks.',
+       JSON_ARRAY(),
+       'integrity',
+       'n. 正直, 廉正, 完整 [计] 完整性 ｜ 原句：In our society we find men of integrity along with crooks.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · intent (CET6, 难度 4)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10631-1', 1, 'CET6', 4, 'FILL_BLANK',
+       'IMPORT', 'intent', JSON_ARRAY('intent', 'intents'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10631-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10631-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'The only difference between a bad cook and a poisoner is the ____.',
+       JSON_ARRAY(),
+       'intent',
+       'n. 意图, 含义, 故意 a. 专心的, 决心的, 热心的 ｜ 原句：The only difference between a bad cook and a poisoner is the intent.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · interact (CET6, 难度 4)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10632-1', 1, 'CET6', 4, 'FILL_BLANK',
+       'IMPORT', 'interact', JSON_ARRAY('interact', 'interacts', 'interacted', 'interacting'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10632-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10632-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'You should ____ with the local culture more, to better understand some traditions.',
+       JSON_ARRAY(),
+       'interact',
+       'vi. 互相影响, 交互作用 n. 幕间剧, 幕间休息 ｜ 原句：You should interact with the local culture more, to better understand some traditions.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · interconnect (CET6, 难度 7)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10633-1', 1, 'CET6', 7, 'FILL_BLANK',
+       'IMPORT', 'interconnect', JSON_ARRAY('interconnect', 'interconnected', 'interconnects', 'interconnecting'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10633-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10633-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'In Freud’s theory, the two areas of sexuality and violence are ____.',
+       JSON_ARRAY(),
+       'interconnected',
+       'vt. 使互相连接 ｜ 原句：In Freud’s theory, the two areas of sexuality and violence are interconnected.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · interface (CET6, 难度 5)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10635-1', 1, 'CET6', 5, 'FILL_BLANK',
+       'IMPORT', 'interface', JSON_ARRAY('interface', 'interfaces'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10635-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10635-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'Please select a language for the Image Viewer ____.',
+       JSON_ARRAY(),
+       'interface',
+       'n. 分界面, 接触面, 界面 [计] 接口, 界面 ｜ 原句：Please select a language for the Image Viewer interface.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · intersection (CET6, 难度 5)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10638-1', 1, 'CET6', 5, 'FILL_BLANK',
+       'IMPORT', 'intersection', JSON_ARRAY('intersection', 'intersections'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10638-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10638-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'He failed to see the stop sign at the ____ and hit an oncoming car.',
+       JSON_ARRAY(),
+       'intersection',
+       'n. 交集, 十字路口, 交叉点 [计] 逻辑乘; 与 ｜ 原句：He failed to see the stop sign at the intersection and hit an oncoming car.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · intervention (CET6, 难度 2)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10640-1', 1, 'CET6', 2, 'FILL_BLANK',
+       'IMPORT', 'intervention', JSON_ARRAY('intervention', 'interventions'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10640-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10640-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'government ____ to regulate prices',
+       JSON_ARRAY(),
+       'intervention',
+       'n. 插入, 介入, 调停 [经] 干预 ｜ 原句：government intervention to regulate prices',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · intricate (CET6, 难度 6)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10643-1', 1, 'CET6', 6, 'FILL_BLANK',
+       'IMPORT', 'intricate', JSON_ARRAY('intricate'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10643-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10643-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'Great thoughts are created through ____ details.',
+       JSON_ARRAY(),
+       'intricate',
+       'a. 复杂的, 错综的, 缠结的, 难懂的 ｜ 原句：Great thoughts are created through intricate details.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · intrigue (CET6, 难度 6)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10644-1', 1, 'CET6', 6, 'FILL_BLANK',
+       'IMPORT', 'intrigue', JSON_ARRAY('intrigue', 'intrigues'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10644-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10644-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'Foreign people ____ me.',
+       JSON_ARRAY(),
+       'intrigue',
+       'n. 阴谋, 复杂的事 vi. 密谋, 私通 vt. 激起...的兴趣, 用诡计取得 ｜ 原句：Foreign people intrigue me.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · intrinsic (CET6, 难度 6)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10646-1', 1, 'CET6', 6, 'FILL_BLANK',
+       'IMPORT', 'intrinsic', JSON_ARRAY('intrinsic'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10646-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10646-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'the ____ interest of the subject',
+       JSON_ARRAY(),
+       'intrinsic',
+       'a. 本质的, 原有的, 真正的 [医] 内部的, 内在的 ｜ 原句：the intrinsic interest of the subject',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · intuition (CET6, 难度 6)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10647-1', 1, 'CET6', 6, 'FILL_BLANK',
+       'IMPORT', 'intuition', JSON_ARRAY('intuition', 'intuitions'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10647-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10647-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'By ____ he knew she was lying.',
+       JSON_ARRAY(),
+       'intuition',
+       'n. 直觉, 直觉的知识 ｜ 原句：By intuition he knew she was lying.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · invalid (CET6, 难度 7)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10648-1', 1, 'CET6', 7, 'FILL_BLANK',
+       'IMPORT', 'invalid', JSON_ARRAY('invalid', 'invalids'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10648-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10648-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'Without the right date stamped on it, your ticket will be ____.',
+       JSON_ARRAY(),
+       'invalid',
+       'n. 病人, 残废者 a. 有病的, 无效的 ｜ 原句：Without the right date stamped on it, your ticket will be invalid.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · invaluable (CET6, 难度 7)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10649-1', 1, 'CET6', 7, 'FILL_BLANK',
+       'IMPORT', 'invaluable', JSON_ARRAY('invaluable'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10649-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10649-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'The Internet is an ____ source of information.',
+       JSON_ARRAY(),
+       'invaluable',
+       'a. 无价的, 价值无法衡量的 ｜ 原句：The Internet is an invaluable source of information.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · invariably (CET6, 难度 6)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10650-1', 1, 'CET6', 6, 'FILL_BLANK',
+       'IMPORT', 'invariably', JSON_ARRAY('invariably'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10650-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10650-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'It ____ rains when I go there.',
+       JSON_ARRAY(),
+       'invariably',
+       'adv. 不变化地, 恒定地, 始终如一地 ｜ 原句：It invariably rains when I go there.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · inversely (CET6, 难度 7)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10652-1', 1, 'CET6', 7, 'FILL_BLANK',
+       'IMPORT', 'inversely', JSON_ARRAY('inversely'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10652-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10652-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'The number of muffins that you''ll receive will be ____ proportional to the number of times you talk on IRC.',
+       JSON_ARRAY(),
+       'inversely',
+       'adv. 相反地 [机] 反的, 反对 ｜ 原句：The number of muffins that you''ll receive will be inversely proportional to the number of times you talk on IRC.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · irony (CET6, 难度 4)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10657-1', 1, 'CET6', 4, 'FILL_BLANK',
+       'IMPORT', 'irony', JSON_ARRAY('irony', 'ironies'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10657-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10657-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'Writer Luiz Fernando Veríssimo, a columnist capable of uniting generations of readers with ____, precision and sensitivity, died in Porto Alegre, Brazil.',
+       JSON_ARRAY(),
+       'irony',
+       'n. 反语, 讽刺, 具有讽刺意味的事 ｜ 原句：Writer Luiz Fernando Veríssimo, a columnist capable of uniting generations of readers with irony, precision and sensitivity, died in Porto Alegre, Brazil.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · irrespective (CET6, 难度 7)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10659-1', 1, 'CET6', 7, 'FILL_BLANK',
+       'IMPORT', 'irrespective', JSON_ARRAY('irrespective'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10659-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10659-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'She voted for Mr Nishioka ____ of party lines.',
+       JSON_ARRAY(),
+       'irrespective',
+       'a. 不顾的, 无关的, 没关系的 ｜ 原句：She voted for Mr Nishioka irrespective of party lines.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · irrigation (CET6, 难度 6)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10660-1', 1, 'CET6', 6, 'FILL_BLANK',
+       'IMPORT', 'irrigation', JSON_ARRAY('irrigation', 'irrigations'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10660-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10660-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'Rivers and lakes provide us with water transport and ____.',
+       JSON_ARRAY(),
+       'irrigation',
+       'n. 灌溉, 冲洗 [医] 冲洗法, 灌溉 ｜ 原句：Rivers and lakes provide us with water transport and irrigation.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · irritate (CET6, 难度 6)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10661-1', 1, 'CET6', 6, 'FILL_BLANK',
+       'IMPORT', 'irritate', JSON_ARRAY('irritate', 'irritates', 'irritated', 'irritating'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10661-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10661-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'It really ____ me when he doesn’t help around the house.',
+       JSON_ARRAY(),
+       'irritates',
+       'vt. 激怒, 使发怒, 使兴奋, 使发炎 vi. 引起不快 ｜ 原句：It really irritates me when he doesn’t help around the house.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · ivory (CET6, 难度 5)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10663-1', 1, 'CET6', 5, 'FILL_BLANK',
+       'IMPORT', 'ivory', JSON_ARRAY('ivory', 'ivories'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10663-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10663-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'The economist and statistician based in ____ Coast says commercial trade in the region is primarily conducted with France.',
+       JSON_ARRAY(),
+       'ivory',
+       'n. 象牙, 乳白色 a. 象牙制的, 乳白色的 ｜ 原句：The economist and statistician based in Ivory Coast says commercial trade in the region is primarily conducted with France.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · jealousy (CET6, 难度 6)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10665-1', 1, 'CET6', 6, 'FILL_BLANK',
+       'IMPORT', 'jealousy', JSON_ARRAY('jealousy', 'jealousies'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10665-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10665-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'There''s no love without ____.',
+       JSON_ARRAY(),
+       'jealousy',
+       'n. 妒忌, 猜忌, 羡慕 [法] 妒忌, 嫉妒, 猜忌 ｜ 原句：There''s no love without jealousy.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · jean (CET6, 难度 3)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10666-1', 1, 'CET6', 3, 'FILL_BLANK',
+       'IMPORT', 'jean', JSON_ARRAY('jean', 'jeans'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10666-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10666-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       '____ has fallen out with Paul over the education of their children.',
+       JSON_ARRAY(),
+       'jean',
+       'n. 牛仔裤, 牛仔布, 斜纹棉布 ｜ 原句：Jean has fallen out with Paul over the education of their children.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · jelly (CET6, 难度 6)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10667-1', 1, 'CET6', 6, 'FILL_BLANK',
+       'IMPORT', 'jelly', JSON_ARRAY('jelly', 'jellies'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10667-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10667-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'I like grape ____ best.',
+       JSON_ARRAY(),
+       'jelly',
+       'n. 果冻, 果冻甜食, 胶状物 v. (使)结冻, (使)成胶状 ｜ 原句：I like grape jelly best.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · jeopardize (CET6, 难度 6)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10668-1', 1, 'CET6', 6, 'FILL_BLANK',
+       'IMPORT', 'jeopardize', JSON_ARRAY('jeopardize', 'jeopardizes', 'jeopardized', 'jeopardizing', 'jeopardises', 'jeopardised', 'jeopardising'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10668-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10668-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'Will this stuff ____ my health?',
+       JSON_ARRAY(),
+       'jeopardize',
+       'vt. 危害, 使受危困, 使陷危地 ｜ 原句：Will this stuff jeopardize my health?',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · jewellery (CET6, 难度 7)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10671-1', 1, 'CET6', 7, 'FILL_BLANK',
+       'IMPORT', 'jewellery', JSON_ARRAY('jewellery', 'jewelleries'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10671-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10671-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'Sir and Miss, what type of ____ are you looking to buy?',
+       JSON_ARRAY(),
+       'jewellery',
+       'n. 宝石, 贵重饰物, 珠宝, 宝石饰物, 受珍视的人/物, 宝贝, 有价值的人/物 ｜ 原句：Sir and Miss, what type of jewellery are you looking to buy?',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · jog (CET6, 难度 6)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10673-1', 1, 'CET6', 6, 'FILL_BLANK',
+       'IMPORT', 'jog', JSON_ARRAY('jog', 'jogs'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10673-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10673-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'The man next door said he goes for a ____ every morning.',
+       JSON_ARRAY(),
+       'jog',
+       'n. 轻推, 轻撞, 慢跑 v. 轻推, (使)蹒跚行进, (使)慢跑 ｜ 原句：The man next door said he goes for a jog every morning.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · junction (CET6, 难度 7)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10675-1', 1, 'CET6', 7, 'FILL_BLANK',
+       'IMPORT', 'junction', JSON_ARRAY('junction', 'junctions'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10675-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10675-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'The ____ box allows you to store the camera''s pigtail inside of it.',
+       JSON_ARRAY(),
+       'junction',
+       'n. 连接, 会合处, 交叉点 [医] 接[合]处, 接点.[接]界 ｜ 原句：The junction box allows you to store the camera''s pigtail inside of it.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · junk (CET6, 难度 5)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10676-1', 1, 'CET6', 5, 'FILL_BLANK',
+       'IMPORT', 'junk', JSON_ARRAY('junk', 'junks'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10676-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10676-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'The antiques my father left when he died turned out to be nothing but worthless ____.',
+       JSON_ARRAY(),
+       'junk',
+       'n. 垃圾, 乌七八糟的东西, 舢板 [计] 清除 ｜ 原句：The antiques my father left when he died turned out to be nothing but worthless junk.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · kernel (CET6, 难度 7)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10679-1', 1, 'CET6', 7, 'FILL_BLANK',
+       'IMPORT', 'kernel', JSON_ARRAY('kernel', 'kernels'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10679-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10679-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'Tom tried to crack a walnut without damaging its ____.',
+       JSON_ARRAY(),
+       'kernel',
+       'n. 核心, 中心, 精髓, 内核 [计] 内核 ｜ 原句：Tom tried to crack a walnut without damaging its kernel.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · kidnap (CET6, 难度 6)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10680-1', 1, 'CET6', 6, 'FILL_BLANK',
+       'IMPORT', 'kidnap', JSON_ARRAY('kidnap', 'kidnapped', 'kidnaps'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10680-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10680-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'Police appealed for witnesses after a woman was ____ at gunpoint.',
+       JSON_ARRAY(),
+       'kidnapped',
+       'vt. 绑架, 诱拐, 拐骗 [法] 拐带, 诱拐, 绑架 ｜ 原句：Police appealed for witnesses after a woman was kidnapped at gunpoint.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · kit (CET6, 难度 4)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10686-1', 1, 'CET6', 4, 'FILL_BLANK',
+       'IMPORT', 'kit', JSON_ARRAY('kit', 'kits'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10686-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10686-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'Don''t forget to take the first-aid ____.',
+       JSON_ARRAY(),
+       'kit',
+       'n. 装备, 工具箱, 成套工具 [计] 成套部件; 成套零件 ｜ 原句：Don''t forget to take the first-aid kit.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · knight (CET6, 难度 7)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10687-1', 1, 'CET6', 7, 'FILL_BLANK',
+       'IMPORT', 'knight', JSON_ARRAY('knight', 'knights'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10687-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10687-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'The ____ swore an oath of allegiance to the king.',
+       JSON_ARRAY(),
+       'knight',
+       'n. 骑士, 爵士 vt. 授以爵位 ｜ 原句：The knight swore an oath of allegiance to the king.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · landscape (CET6, 难度 2)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10689-1', 1, 'CET6', 2, 'FILL_BLANK',
+       'IMPORT', 'landscape', JSON_ARRAY('landscape', 'landscapes'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10689-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10689-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'The ____ is unfamiliar to me.',
+       JSON_ARRAY(),
+       'landscape',
+       'n. 风景, 山水, 风景画 vi. 从事景观美化 vt. 美化...景观 [计] 横向 ｜ 原句：The landscape is unfamiliar to me.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · lawsuit (CET6, 难度 3)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10694-1', 1, 'CET6', 3, 'FILL_BLANK',
+       'IMPORT', 'lawsuit', JSON_ARRAY('lawsuit', 'lawsuits'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10694-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10694-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'The dispute culminated last week in a ____ against the government.',
+       JSON_ARRAY(),
+       'lawsuit',
+       'n. 诉讼 [法] 诉讼, 诉讼案件 ｜ 原句：The dispute culminated last week in a lawsuit against the government.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · layman (CET6, 难度 7)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10695-1', 1, 'CET6', 7, 'FILL_BLANK',
+       'IMPORT', 'layman', JSON_ARRAY('layman', 'laymans'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10695-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10695-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'To the ____ (= laymen in general ) all these plants look pretty similar.',
+       JSON_ARRAY(),
+       'layman',
+       'n. 俗人, 门外汉, 凡人 [医] 外行, 业外人 ｜ 原句：To the layman (= laymen in general ) all these plants look pretty similar.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · lease (CET6, 难度 5)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10699-1', 1, 'CET6', 5, 'FILL_BLANK',
+       'IMPORT', 'lease', JSON_ARRAY('lease', 'leases'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10699-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10699-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'I signed the ____ today.',
+       JSON_ARRAY(),
+       'lease',
+       'n. 租约, 租期, 租 vt. 出租, 租出, 租得 ｜ 原句：I signed the lease today.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · leopard (CET6, 难度 7)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10703-1', 1, 'CET6', 7, 'FILL_BLANK',
+       'IMPORT', 'leopard', JSON_ARRAY('leopard', 'leopards'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10703-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10703-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'A ____ never changes its spots.',
+       JSON_ARRAY(),
+       'leopard',
+       'n. 豹, 美洲豹 ｜ 原句：A leopard never changes its spots.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · liability (CET6, 难度 4)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10704-1', 1, 'CET6', 4, 'FILL_BLANK',
+       'IMPORT', 'liability', JSON_ARRAY('liability'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10704-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10704-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'But without the formal business entity, you have no hope of limiting your personal ____.',
+       JSON_ARRAY(),
+       'liability',
+       'n. 责任, 债务, 倾向 [经] 责任, 义务, 负债 ｜ 原句：But without the formal business entity, you have no hope of limiting your personal liability.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · lighter (CET6, 难度 6)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10705-1', 1, 'CET6', 6, 'FILL_BLANK',
+       'IMPORT', 'lighter', JSON_ARRAY('lighter', 'lighters'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10705-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10705-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'It is getting ____ outside.',
+       JSON_ARRAY(),
+       'lighter',
+       'n. 点火者, 点灯工人, 打火机, 驳船 vt. 以驳船搬运 ｜ 原句：It is getting lighter outside.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · lily (CET6, 难度 6)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10707-1', 1, 'CET6', 6, 'FILL_BLANK',
+       'IMPORT', 'lily', JSON_ARRAY('lily', 'lilies'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10707-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10707-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'I bought a sprig of ____ of the valley.',
+       JSON_ARRAY(),
+       'lily',
+       'n. 百合, 百合花 a. 洁白的, 纯白色的, 纯洁的 ｜ 原句：I bought a sprig of lily of the valley.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · linear (CET6, 难度 5)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10710-1', 1, 'CET6', 5, 'FILL_BLANK',
+       'IMPORT', 'linear', JSON_ARRAY('linear'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10710-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10710-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'Is the system ____?',
+       JSON_ARRAY(),
+       'linear',
+       'a. 线的, 直线的, 线状的 [计] 线性 ｜ 原句：Is the system linear?',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · linger (CET6, 难度 5)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10711-1', 1, 'CET6', 5, 'FILL_BLANK',
+       'IMPORT', 'linger', JSON_ARRAY('linger', 'lingered', 'lingers'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10711-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10711-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'I spent a week at Kandersteg and could happily have ____ on.',
+       JSON_ARRAY(),
+       'lingered',
+       'vi. 逗留, 消磨, 徘徊 vt. 消磨 ｜ 原句：I spent a week at Kandersteg and could happily have lingered on.',
+       NOW(), NOW()
+WHERE @qid IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);
+
+-- V1.0.20 · linguistic (CET6, 难度 5)
+INSERT INTO `question_info`
+  (`external_key`, `module_type`, `target_level`, `difficulty_level`, `question_type`,
+   `source`, `answer_word`, `accepted_answers`, `ai_generated`, `usage_count`, `is_deleted`,
+   `created_at`, `updated_at`)
+SELECT 'vocab-auto-10712-1', 1, 'CET6', 5, 'FILL_BLANK',
+       'IMPORT', 'linguistic', JSON_ARRAY('linguistic'), 0, 0, 0,
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM `question_info` WHERE `external_key` = 'vocab-auto-10712-1');
+
+SET @qid = (SELECT `id` FROM `question_info` WHERE `external_key` = 'vocab-auto-10712-1' LIMIT 1);
+
+INSERT INTO `question_content`
+  (`question_id`, `stem`, `options`, `correct_answer`, `analysis`, `created_at`, `updated_at`)
+SELECT @qid,
+       'Using Esperanto with him, I sense that we both are at the same level, at least from a ____ point of view.',
+       JSON_ARRAY(),
+       'linguistic',
+       'a. 语言的, 语言学的 [计] 语言的, 语言学的 ｜ 原句：Using Esperanto with him, I sense that we both are at the same level, at least from a linguistic point of view.',
        NOW(), NOW()
 WHERE @qid IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM `question_content` WHERE `question_id` = @qid);

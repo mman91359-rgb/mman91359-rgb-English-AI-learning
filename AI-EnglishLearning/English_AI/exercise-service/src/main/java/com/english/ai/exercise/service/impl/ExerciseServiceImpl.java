@@ -57,6 +57,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ExerciseServiceImpl implements ExerciseService {
 
+    /**
+     * 自动生成词汇题的解析分隔符：`释义 ｜ 原句：完整例句`。
+     * 答题前只下发分隔符之前的释义，避免原句中的目标词泄漏答案。
+     */
+    private static final String ANALYSIS_SENTENCE_MARK = "｜ 原句：";
+
     private final QuestionInfoMapper questionInfoMapper;
     private final QuestionContentMapper questionContentMapper;
     private final SysKnowledgePointMapper knowledgePointMapper;
@@ -966,6 +972,18 @@ public class ExerciseServiceImpl implements ExerciseService {
             hint = null;
         }
 
+        String analysis = content != null ? content.getAnalysis() : null;
+        // 自动生成的词汇题：analysis 存的是"释义 ｜ 原句：完整例句"，答题前只下发释义，
+        // 否则原句里的目标词会直接泄漏答案。答题后（showAnswer=true）与 SubmittedResponse 仍下发完整解析。
+        if (!showAnswer && analysis != null
+                && info.getExternalKey() != null
+                && info.getExternalKey().startsWith("vocab-auto-")) {
+            int markIndex = analysis.indexOf(ANALYSIS_SENTENCE_MARK);
+            if (markIndex > 0) {
+                analysis = analysis.substring(0, markIndex).trim();
+            }
+        }
+
         return QuestionVO.builder()
                 .id(info.getId())
                 .moduleType(info.getModuleType())
@@ -975,7 +993,7 @@ public class ExerciseServiceImpl implements ExerciseService {
                 .options(content != null ? content.getOptions() : null)
                 .correctAnswer(showAnswer && content != null ? correctAnswer : null)
                 .hint(hint)
-                .analysis(content != null ? content.getAnalysis() : null)
+                .analysis(analysis)
                 .showAnswer(showAnswer)
                 // 优先用词条原形（V1.0.12 起自动生成的词汇题会写 answer_word），旧题回落正确答案
                 .answerWord(info.getAnswerWord() != null ? info.getAnswerWord() : correctAnswer)

@@ -30,25 +30,24 @@
         <button
           v-if="data.user.id !== currentUserId"
           type="button"
-          class="flex items-center gap-2 rounded-full px-4 py-2 font-label-lg text-label-lg text-on-primary"
-          :class="data.user.status === 1 ? 'bg-error' : 'bg-primary'"
+          :class="data.user.status === 1 ? btnDangerSm : btnPrimarySm"
           @click="action = { kind: 'status', user: data.user }"
         >
           <span class="material-symbols-outlined text-icon-sm">{{ data.user.status === 1 ? 'block' : 'check_circle' }}</span>
           {{ data.user.status === 1 ? $t('adminConsole.users.actionDisable') : $t('adminConsole.users.actionEnable') }}
         </button>
-        <button type="button" class="flex items-center gap-2 rounded-full border border-outline-variant px-4 py-2 font-label-lg text-label-lg text-on-surface-variant" @click="action = { kind: 'reset', user: data.user }">
+        <button type="button" :class="btnSecondarySm" @click="action = { kind: 'reset', user: data.user }">
           <span class="material-symbols-outlined text-icon-sm">lock_reset</span>
           {{ $t('adminConsole.users.actionReset') }}
         </button>
-        <button type="button" class="flex items-center gap-2 rounded-full border border-outline-variant px-4 py-2 font-label-lg text-label-lg text-on-surface-variant" @click="action = { kind: 'setPassword', user: data.user }">
+        <button type="button" :class="btnSecondarySm" @click="action = { kind: 'setPassword', user: data.user }">
           <span class="material-symbols-outlined text-icon-sm">key</span>
           {{ $t('adminConsole.users.actionSetPassword') }}
         </button>
         <button
           v-if="data.user.id !== currentUserId"
           type="button"
-          class="flex items-center gap-2 rounded-full border border-outline-variant px-4 py-2 font-label-lg text-label-lg text-on-surface-variant"
+          :class="btnSecondarySm"
           @click="action = { kind: 'role', user: data.user }"
         >
           <span class="material-symbols-outlined text-icon-sm">manage_accounts</span>
@@ -107,6 +106,7 @@ import ErrorState from '../../components/ui/ErrorState.vue'
 import LoadingState from '../../components/ui/LoadingState.vue'
 import StatusBadge from '../../components/admin/StatusBadge.vue'
 import UserAvatar from '../../components/admin/UserAvatar.vue'
+import { btnDangerSm, btnPrimarySm, btnSecondarySm } from '../../components/ui/buttonStyles'
 import UserActionDialog from '../../components/admin/UserActionDialog.vue'
 import DetailRecordCard from './components/DetailRecordCard.vue'
 import type { UserAction } from '../../components/admin/userActionTypes'

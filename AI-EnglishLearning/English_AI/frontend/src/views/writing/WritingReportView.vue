@@ -37,15 +37,15 @@
           </div>
         </div>
         <div class="flex flex-wrap gap-3">
-          <button type="button" class="flex items-center gap-2 rounded-full border border-outline-variant px-4 py-2 font-label-lg text-label-lg text-on-surface-variant" @click="router.push('/writing/history')">
+          <button type="button" :class="btnSecondarySm" @click="router.push('/writing/history')">
             <span class="material-symbols-outlined text-icon-sm">history</span>
             {{ $t('writing.report.history') }}
           </button>
-          <button type="button" class="flex items-center gap-2 rounded-full border border-outline-variant px-4 py-2 font-label-lg text-label-lg text-on-surface-variant" @click="toggleFavorite">
+          <button type="button" :class="btnSecondarySm" @click="toggleFavorite">
             <span class="material-symbols-outlined text-icon-sm">{{ isFavorite ? 'favorite' : 'favorite_border' }}</span>
             {{ isFavorite ? $t('writing.report.unfavorite') : $t('writing.report.favorite') }}
           </button>
-          <button type="button" class="flex items-center gap-2 rounded-full bg-primary px-5 py-2 font-label-lg text-label-lg text-on-primary" @click="rewrite">
+          <button type="button" :class="btnPrimarySm" @click="rewrite">
             <span class="material-symbols-outlined text-icon-sm">refresh</span>
             {{ $t('writing.report.again') }}
           </button>
@@ -107,6 +107,7 @@ import AppLayout from '../../components/AppLayout.vue'
 import EmptyState from '../../components/ui/EmptyState.vue'
 import ErrorState from '../../components/ui/ErrorState.vue'
 import LoadingState from '../../components/ui/LoadingState.vue'
+import { btnPrimarySm, btnSecondarySm } from '../../components/ui/buttonStyles'
 import WritingCorrectionList from '../../components/writing/WritingCorrectionList.vue'
 import WritingDimensionBar from '../../components/writing/WritingDimensionBar.vue'
 import { useToast } from '../../composables/useToast'

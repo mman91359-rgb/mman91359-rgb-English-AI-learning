@@ -2,6 +2,12 @@
  * 按钮共用样式。
  * 层级（主 / 次 / 危险 / 幽灵 / 图标）与尺寸在此统一，四种交互态（hover、active、
  * focus-visible、disabled）随变体内置，调用方无需再单独书写状态类。
+ *
+ * 尺寸分三档，按容器密度选档，不要跨档混排：
+ *   - 默认档 42px（py-2.5）：表单提交、弹窗底部、页面主 CTA
+ *   - 小档   36px（py-2   ）：区块头部、卡片工具条、表格上方的并排动作
+ *   - 图标档 40/36/32px   ：只有图标没有文字的场景，见 btnIcon 系列
+ *
  * 新增按钮请直接从本文件引入，不要在页面里重复拼装按钮类名。
  */
 
@@ -31,7 +37,18 @@ export const btnDialogPrimary = `${base} flex-1 bg-primary px-4 py-3 text-on-pri
 export const btnDialogSecondary = `${base} flex-1 bg-surface-container-low px-4 py-3 text-on-surface hover:bg-surface-container-high active:bg-surface-container`
 
 /** 幽灵按钮：无边框，仅悬停时浮现底色 */
-export const btnGhost = `${base} px-4 py-2 text-on-surface-variant hover:bg-surface-container-high/60 active:bg-surface-container-high`
+export const btnGhostSm = `${base} px-4 py-2 text-on-surface-variant hover:bg-surface-container-high/60 active:bg-surface-container-high`
+
+/** ——— 小档 36px：区块头部与卡片工具条，图标配 text-icon-sm ——— */
+
+/** 小档 · 主：区块内的唯一主动作（如报告页的重新生成） */
+export const btnPrimarySm = `${base} bg-primary px-4 py-2 text-on-primary hover:bg-primary/90 active:bg-primary/80`
+
+/** 小档 · 次：与主按钮并排的次级动作，描边样式 */
+export const btnSecondarySm = `${base} border border-outline-variant px-4 py-2 text-on-surface-variant hover:bg-surface-container active:bg-surface-container-high`
+
+/** 小档 · 危险：区块内的负向动作（停用、删除） */
+export const btnDangerSm = `${base} bg-error px-4 py-2 text-on-error hover:bg-error/90 active:bg-error/80`
 
 /** 图标按钮底座：定尺寸圆形，图标使用 text-icon-md */
 const iconBase =

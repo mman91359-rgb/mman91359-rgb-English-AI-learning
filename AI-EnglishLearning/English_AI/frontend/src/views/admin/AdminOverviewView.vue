@@ -13,10 +13,10 @@
       </p>
       <button
         type="button"
-        class="flex items-center gap-2 rounded-full border border-outline-variant px-4 py-2 font-label-lg text-label-lg text-on-surface-variant transition-colors hover:bg-surface-container-low"
+        :class="btnSecondarySm"
         @click="reload"
       >
-        <span class="material-symbols-outlined text-icon-md" :class="loading ? 'animate-spin' : ''">refresh</span>
+        <span class="material-symbols-outlined text-icon-sm" :class="loading ? 'animate-spin' : ''">refresh</span>
         {{ $t('adminConsole.common.refresh') }}
       </button>
     </div>
@@ -130,6 +130,7 @@ import AdminChartCard from '../../components/admin/AdminChartCard.vue'
 import AdminStatCard from '../../components/admin/AdminStatCard.vue'
 import LoadingState from '../../components/ui/LoadingState.vue'
 import ErrorState from '../../components/ui/ErrorState.vue'
+import { btnSecondarySm } from '../../components/ui/buttonStyles'
 import OverviewPanels from './components/OverviewPanels.vue'
 import { useAsyncData } from '../../composables/useAsyncData'
 import { getAdminOverview } from '../../api/admin'

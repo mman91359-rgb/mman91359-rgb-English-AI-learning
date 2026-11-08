@@ -2,8 +2,8 @@
   <AppLayout flush hide-top-bar>
     <template #topbar>
       <div class="mx-auto flex h-20 w-full max-w-[1192px] items-center justify-between px-gutter">
-        <button type="button" class="flex items-center gap-2 rounded-full px-3 py-2 font-label-lg text-label-lg text-on-surface-variant transition-colors hover:bg-surface-container-high/50" @click="router.push({ path: '/learning', query: { tab: 'writing' } })">
-          <span class="material-symbols-outlined text-icon-md">arrow_back</span>
+        <button type="button" :class="btnGhostSm" @click="router.push({ path: '/learning', query: { tab: 'writing' } })">
+          <span class="material-symbols-outlined text-icon-sm">arrow_back</span>
           {{ $t('writing.practice.backToLearning') }}
         </button>
         <span class="rounded-full bg-warning-container px-3 py-1 font-label-md text-label-md text-on-warning-container">
@@ -131,6 +131,7 @@ import EmptyState from '../../components/ui/EmptyState.vue'
 import ErrorState from '../../components/ui/ErrorState.vue'
 import LoadingState from '../../components/ui/LoadingState.vue'
 import { inputClass } from '@/components/ui/formStyles'
+import { btnGhostSm } from '@/components/ui/buttonStyles'
 import type { BadgeTone } from '../../components/admin/tableTypes'
 import { fetchDrafts, fetchFavoriteIds, fetchSubmissions, fetchWritingTopics, setFavorite } from '../../api/writing'
 import type { WritingHistoryItem, WritingSubmissionStatus, WritingTopic, WritingTopicType } from '../../types/writing'

@@ -151,19 +151,19 @@
             v-model="oldPassword"
             type="password"
             :placeholder="$t('settings.oldPassword')"
-            class="w-full py-3 px-4 bg-background border border-outline-variant rounded-[16px] text-on-surface placeholder-outline font-body-md text-body-md focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all"
+            :class="inputClassLg"
           />
           <input
             v-model="newPassword"
             type="password"
             :placeholder="$t('settings.newPassword')"
-            class="w-full py-3 px-4 bg-background border border-outline-variant rounded-[16px] text-on-surface placeholder-outline font-body-md text-body-md focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all"
+            :class="inputClassLg"
           />
           <input
             v-model="confirmPassword"
             type="password"
             :placeholder="$t('settings.confirmPassword')"
-            class="w-full py-3 px-4 bg-background border border-outline-variant rounded-[16px] text-on-surface placeholder-outline font-body-md text-body-md focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all"
+            :class="inputClassLg"
             @keyup.enter="submitPassword"
           />
         </div>
@@ -204,7 +204,7 @@
           type="tel"
           maxlength="11"
           :placeholder="$t('settings.phonePlaceholder')"
-          class="w-full py-3 px-4 bg-background border border-outline-variant rounded-[16px] text-on-surface placeholder-outline font-body-md text-body-md focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all mb-4"
+          :class="[inputClassLg, 'mb-4']"
           @keyup.enter="submitPhone"
         />
         <div class="flex gap-3">
@@ -236,6 +236,7 @@ import { useAppStore } from '@/stores/app'
 import { useUserStore } from '@/stores/user'
 import { useToast } from '@/composables/useToast'
 import { updatePassword, updatePhone } from '@/api/user'
+import { inputClassLg } from '@/components/ui/formStyles'
 
 const router = useRouter()
 const { t } = useI18n()

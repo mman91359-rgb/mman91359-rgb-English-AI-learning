@@ -73,11 +73,11 @@
                 </div>
                 <input
                   v-model="form.nickname"
-                  class="w-full py-3.5 pl-12 pr-4 bg-background border border-outline-variant rounded-[16px] text-on-surface placeholder-outline font-body-md text-body-md focus:bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all"
+                  :class="[inputClassLg, 'pl-12 pr-4']"
                   :placeholder="$t('auth.nicknamePlaceholder')"
                   type="text"
                 />
-                <p v-if="validationErrors.nickname" class="mt-1.5 px-1 font-label-sm text-label-sm text-red-500 flex items-center gap-1">
+                <p v-if="validationErrors.nickname" class="mt-1.5 px-1 font-label-sm text-label-sm text-error flex items-center gap-1">
                   <span class="material-symbols-outlined text-sm">error</span>
                   {{ validationErrors.nickname }}
                 </p>
@@ -89,12 +89,12 @@
                 </div>
                 <input
                   v-model="form.account"
-                  class="w-full py-3.5 pl-12 pr-4 bg-background border border-outline-variant rounded-[16px] text-on-surface placeholder-outline font-body-md text-body-md focus:bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all"
+                  :class="[inputClassLg, 'pl-12 pr-4']"
                   :placeholder="$t('auth.accountPlaceholderRegister')"
                   type="text"
                   autocomplete="off"
                 />
-                <p v-if="validationErrors.account" class="mt-1.5 px-1 font-label-sm text-label-sm text-red-500 flex items-center gap-1">
+                <p v-if="validationErrors.account" class="mt-1.5 px-1 font-label-sm text-label-sm text-error flex items-center gap-1">
                   <span class="material-symbols-outlined text-sm">error</span>
                   {{ validationErrors.account }}
                 </p>
@@ -110,7 +110,7 @@
                     type="text"
                     inputmode="numeric"
                     maxlength="6"
-                    class="w-full rounded-[16px] border border-outline-variant bg-background py-3.5 pl-12 pr-4 font-body-md text-body-md tracking-widest text-on-surface placeholder-outline transition-all focus:border-primary focus:bg-surface-container-lowest focus:outline-none focus:ring-1 focus:ring-primary"
+                    :class="[inputClassLg, 'pl-12 pr-4 tracking-widest']"
                     :placeholder="$t('auth.codePlaceholder')"
                   />
                 </div>
@@ -123,7 +123,7 @@
                   {{ codeSent && remaining > 0 ? $t('auth.resendIn', { seconds: remaining }) : $t('auth.sendCode') }}
                 </button>
               </div>
-              <p v-if="validationErrors.code" class="mt-1.5 px-1 font-label-sm text-label-sm text-red-500 flex items-center gap-1">
+              <p v-if="validationErrors.code" class="mt-1.5 px-1 font-label-sm text-label-sm text-error flex items-center gap-1">
                 <span class="material-symbols-outlined text-sm">error</span>
                 {{ validationErrors.code }}
               </p>
@@ -135,7 +135,7 @@
                 <input
                   v-model="form.password"
                   :type="showPassword ? 'text' : 'password'"
-                  class="w-full py-3.5 pl-12 pr-12 bg-background border border-outline-variant rounded-[16px] text-on-surface placeholder-outline font-body-md text-body-md focus:bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all"
+                  :class="[inputClassLg, 'pl-12 pr-12']"
                   :placeholder="$t('auth.password')"
                   required
                 />
@@ -150,7 +150,7 @@
                     </span>
                   </Transition>
                 </button>
-                <p v-if="validationErrors.password" class="mt-1.5 px-1 font-label-sm text-label-sm text-red-500 flex items-center gap-1">
+                <p v-if="validationErrors.password" class="mt-1.5 px-1 font-label-sm text-label-sm text-error flex items-center gap-1">
                   <span class="material-symbols-outlined text-sm">error</span>
                   {{ validationErrors.password }}
                 </p>
@@ -163,7 +163,7 @@
                 <input
                   v-model="form.confirmPassword"
                   :type="showConfirmPassword ? 'text' : 'password'"
-                  class="w-full py-3.5 pl-12 pr-12 bg-background border border-outline-variant rounded-[16px] text-on-surface placeholder-outline font-body-md text-body-md focus:bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all"
+                  :class="[inputClassLg, 'pl-12 pr-12']"
                   :placeholder="$t('auth.confirmPassword')"
                   required
                 />
@@ -174,7 +174,7 @@
                 >
                   <span class="material-symbols-outlined">{{ showConfirmPassword ? 'visibility' : 'visibility_off' }}</span>
                 </button>
-                <p v-if="validationErrors.confirmPassword" class="mt-1.5 px-1 font-label-sm text-label-sm text-red-500 flex items-center gap-1">
+                <p v-if="validationErrors.confirmPassword" class="mt-1.5 px-1 font-label-sm text-label-sm text-error flex items-center gap-1">
                   <span class="material-symbols-outlined text-sm">error</span>
                   {{ validationErrors.confirmPassword }}
                 </p>
@@ -186,14 +186,14 @@
                 </div>
                 <select
                   v-model="form.cetLevel"
-                  class="w-full py-3.5 pl-12 pr-4 bg-background border border-outline-variant rounded-[16px] text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all appearance-none cursor-pointer"
+                  :class="[inputClassLg, 'pl-12 pr-4 appearance-none cursor-pointer']"
                   required
                 >
                   <option value="" disabled>{{ $t('auth.cefLevel') }}</option>
                   <option value="CET4">{{ $t('auth.cet4') }}</option>
                   <option value="CET6">{{ $t('auth.cet6') }}</option>
                 </select>
-                <p v-if="validationErrors.cetLevel" class="mt-1.5 px-1 font-label-sm text-label-sm text-red-500 flex items-center gap-1">
+                <p v-if="validationErrors.cetLevel" class="mt-1.5 px-1 font-label-sm text-label-sm text-error flex items-center gap-1">
                   <span class="material-symbols-outlined text-sm">error</span>
                   {{ validationErrors.cetLevel }}
                 </p>
@@ -231,6 +231,7 @@ import { useI18n } from 'vue-i18n'
 import { useUserStore } from '@/stores/user'
 import { useToast } from '@/composables/useToast'
 import { useCountdown } from '@/composables/useCountdown'
+import { inputClassLg } from '@/components/ui/formStyles'
 
 const route = useRoute()
 const router = useRouter()

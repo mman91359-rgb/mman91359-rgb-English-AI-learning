@@ -15,7 +15,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { inputClass } from './formStyles'
+import { inputClass } from '@/components/ui/formStyles'
 
 const props = defineProps<{
   modelValue: string

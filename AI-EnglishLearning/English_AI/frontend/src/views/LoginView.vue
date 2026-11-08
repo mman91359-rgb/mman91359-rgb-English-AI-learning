@@ -71,7 +71,7 @@
                 </div>
                 <input
                   v-model="account"
-                  class="w-full py-3.5 pl-12 pr-4 bg-background border border-outline-variant rounded-[16px] text-on-surface placeholder-outline font-body-md text-body-md focus:bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all"
+                  :class="[inputClassLg, 'pl-12 pr-4']"
                   :placeholder="$t('auth.accountPlaceholder')"
                   required
                   type="text"
@@ -85,7 +85,7 @@
                 <input
                   v-model="password"
                   :type="showPassword ? 'text' : 'password'"
-                  class="w-full py-3.5 pl-12 pr-12 bg-background border border-outline-variant rounded-[16px] text-on-surface placeholder-outline font-body-md text-body-md focus:bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all"
+                  :class="[inputClassLg, 'pl-12 pr-12']"
                   :placeholder="$t('auth.password')"
                   required
                   autocomplete="new-password"
@@ -142,6 +142,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useUserStore } from '@/stores/user'
 import { useToast } from '@/composables/useToast'
+import { inputClassLg } from '@/components/ui/formStyles'
 
 const { t } = useI18n()
 const route = useRoute()

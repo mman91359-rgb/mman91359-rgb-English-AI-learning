@@ -19,7 +19,7 @@ const toneClass = computed(() => {
   if (props.tone === 'success') return 'bg-tertiary-container/50 text-on-tertiary-container'
   if (props.tone === 'danger') return 'bg-error-container text-on-error-container'
   if (props.tone === 'warning') return 'bg-warning-container text-on-warning-container'
-  if (props.tone === 'info') return 'bg-secondary-container text-on-secondary-container'
+  if (props.tone === 'info') return 'bg-info-container text-on-info-container'
   return 'bg-surface-container-high text-on-surface-variant'
 })
 </script>

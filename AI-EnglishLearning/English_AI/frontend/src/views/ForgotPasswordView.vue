@@ -49,7 +49,7 @@
                   type="tel"
                   required
                   autocomplete="tel"
-                  class="w-full rounded-[16px] border border-outline-variant bg-background py-3.5 pl-12 pr-4 font-body-md text-body-md text-on-surface placeholder-outline transition-all focus:border-primary focus:bg-surface-container-lowest focus:outline-none focus:ring-1 focus:ring-primary"
+                  :class="[inputClassLg, 'pl-12 pr-4']"
                   :placeholder="$t('auth.phonePlaceholder')"
                 />
               </div>
@@ -65,7 +65,7 @@
                     required
                     inputmode="numeric"
                     maxlength="6"
-                    class="w-full rounded-[16px] border border-outline-variant bg-background py-3.5 pl-12 pr-4 font-body-md text-body-md tracking-widest text-on-surface placeholder-outline transition-all focus:border-primary focus:bg-surface-container-lowest focus:outline-none focus:ring-1 focus:ring-primary"
+                    :class="[inputClassLg, 'pl-12 pr-4 tracking-widest']"
                     :placeholder="$t('auth.codePlaceholder')"
                   />
                 </div>
@@ -88,7 +88,7 @@
                   type="password"
                   required
                   autocomplete="new-password"
-                  class="w-full rounded-[16px] border border-outline-variant bg-background py-3.5 pl-12 pr-4 font-body-md text-body-md text-on-surface placeholder-outline transition-all focus:border-primary focus:bg-surface-container-lowest focus:outline-none focus:ring-1 focus:ring-primary"
+                  :class="[inputClassLg, 'pl-12 pr-4']"
                   :placeholder="$t('auth.newPassword')"
                 />
               </div>
@@ -106,7 +106,7 @@
                   type="password"
                   required
                   autocomplete="new-password"
-                  class="w-full rounded-[16px] border border-outline-variant bg-background py-3.5 pl-12 pr-4 font-body-md text-body-md text-on-surface placeholder-outline transition-all focus:border-primary focus:bg-surface-container-lowest focus:outline-none focus:ring-1 focus:ring-primary"
+                  :class="[inputClassLg, 'pl-12 pr-4']"
                   :placeholder="$t('auth.confirmNewPassword')"
                 />
               </div>
@@ -140,6 +140,7 @@ import { useI18n } from 'vue-i18n'
 import { useToast } from '../composables/useToast'
 import { useCountdown } from '../composables/useCountdown'
 import { resetPasswordByPhone } from '../api/user'
+import { inputClassLg } from '@/components/ui/formStyles'
 
 const router = useRouter()
 const { t } = useI18n()

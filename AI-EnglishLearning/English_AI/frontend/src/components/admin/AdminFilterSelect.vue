@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts" generic="V extends string | number">
-import { inputClass } from './formStyles'
+import { inputClass } from '@/components/ui/formStyles'
 
 interface FilterSelectOption<T> {
   value: T

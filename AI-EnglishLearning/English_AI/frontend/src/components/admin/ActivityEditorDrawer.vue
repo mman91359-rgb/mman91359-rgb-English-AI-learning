@@ -84,7 +84,7 @@ import { computed, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import BaseDrawer from './BaseDrawer.vue'
 import FormField from './FormField.vue'
-import { inputClass } from './formStyles'
+import { inputClass } from '@/components/ui/formStyles'
 import { useToast } from '../../composables/useToast'
 import {
   createActivity,

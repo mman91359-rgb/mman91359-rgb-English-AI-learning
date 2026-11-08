@@ -653,7 +653,9 @@ npm run build
 
 **推荐**：
 - **正式环境** 用 **方案 A**（回填真实信息），保证唯一后回填。
-- **开发/测试环境** 用 **方案 B**（生成占位邮箱），推荐规则 `{userId}@recall.local` 或复用 `nickname` 兜底，避免唯一冲突；用户登录后通过现有 `POST /user/phone/update` 或未来邮箱绑定接口换成真实标识。
+- **开发/测试环境** 用 **方案 B**（生成占位邮箱），推荐规则 `user{id}@recall.local`，避免唯一冲突；用户登录后通过现有 `POST /user/phone/update` 或未来邮箱绑定接口换成真实标识。
+
+> **已落地（2026-11-08 第二轮）**：本项目已实际执行**方案 B**，详见下方「变更记录（2026-11-08 · 第二轮）」——通过 Flyway `V1.0.4` 给无手机号/邮箱的存量账号回填占位邮箱 `user{id}@recall.local`，并**统一重置所有 21 个账号密码为临时密码 `Recall@2026`**。
 
 > 回填/生成占位同样属于数据变更，建议走一条**独立的 Flyway 迁移**（如 `V1.0.4__backfill_login_identifier.sql`）或明确的数据脚本，先备份、先展示 SQL 获批再执行；不要用 Navicat 手改共享库。
 
@@ -666,8 +668,79 @@ npm run build
 
 ### 八、遗留风险 / 待办
 
-1. **存量用户登录态**：改造前用 `username` 登录、且未绑手机号/邮箱的用户，改造后无法登录（见「六」处理方案，尚未回填）。
+1. **存量用户登录态**：改造前用 `username` 登录、且未绑手机号/邮箱的用户，改造后无法登录——**已在第二轮通过方案 B 解决**（回填占位邮箱 + 统一重置密码）。
 2. **旧 JWT 兼容**：改造前签发的 token 其 `username` claim 存的是旧账号，改造后仅作展示，不影响 `sub`(userId) 鉴权，但前端展示的昵称可能短暂显示旧账号值，重新登录后恢复正常。
 3. **找回密码仍走手机号**：`ForgotPasswordView` 与 `PasswordResetService` 目前仍按手机号匹配，尚未支持邮箱找回；若后续要邮箱找回，需单独扩展。
+
+---
+
+## 变更记录（2026-11-08 · 第二轮）
+
+> 本轮在上一轮「登录标识改为手机号/邮箱」基础上，落地三件事：① 方案 B 存量账号数据回填；② 密码强度规则（含小写字母+数字、≥10 位）；③ 注册页新增验证码组件（手机/邮箱共用输入框）。
+
+### 一、核心变化
+
+| 项 | 结果 |
+|---|---|
+| 存量账号回填 | 17 个「无手机号且无邮箱」账号回填占位邮箱 `user{id}@recall.local` |
+| 密码统一重置 | **全部 21 个账号**密码重置为临时密码 `Recall@2026`（BCrypt 强度 10） |
+| 密码强度规则 | 注册/改密/找回密码**强制校验**「≥10 位且含小写字母和数字」；登录不校验强度 |
+| 注册验证码 | 注册页新增验证码组件，账号框（手机号/邮箱二选一共用）+ 验证码框；本地模拟固定 `123456`，prod 拒绝 |
+
+### 二、修改文件清单
+
+**Flyway（已执行）**
+- `user-service/src/main/resources/db/migration/V1.0.4__backfill_placeholder_email_reset_password.sql`（新增）
+
+**common**
+- `PasswordUtil.java`：新增 `isValidPassword(String)` 静态方法（≥10 位且含小写字母和数字）
+
+**user-service**
+- `dto/RegisterRequest.java`：新增 `code`（验证码）字段
+- `dto/ForgotPasswordRequest.java`：移除 `@Size(min=6)`，改由 service 层用 `isValidPassword` 校验
+- `controller/UserController.java`：注册接口加验证码校验（模拟 `123456`、prod 拒绝）+ 密码强度校验；改密接口密码强度校验；注入 `Environment`
+- `service/PasswordResetService.java`：找回密码加密码强度校验
+
+**frontend**
+- `views/RegisterView.vue`：账号输入合并为「手机号/邮箱」单框 + 验证码组件（发送/倒计时）+ 密码强度校验
+- `views/ForgotPasswordView.vue`：密码强度校验改为新规则 + 规则提示文案
+- `views/LoginView.vue`：密码框下加规则提示文案（不拦截）
+- `api/user.ts`：`RegisterRequest` 加 `code`
+- `i18n/locales/zh-CN.ts`、`en-US.ts`：新增 `passwordInvalid`/`passwordRule`/`invalidEmail`/`accountPlaceholderRegister` 等 key
+
+### 三、迁移执行结果（V1.0.4）
+
+- 执行顺序：`backup-schema.sh`（备份至 `sql/backup/20261108_183848_*`）→ `flyway.sh user-service migrate` → `validate`。
+- `flyway_schema_history`：installed_rank=5，version=1.0.4，success=1。
+- 回填结果：17 个账号回填 `user{id}@recall.local`；4 个已有手机号账号（id 6/16/18/21）邮箱保持 NULL；全部 21 个账号密码重置为 `Recall@2026` 哈希。
+
+### 四、关键配置与注意事项
+
+1. **密码强度规则**：统一为「至少 10 位，且必须同时包含小写英文字母和数字」，校验逻辑集中在 `PasswordUtil.isValidPassword`。**仅「设置密码」入口校验**（注册 `POST /user/register`、改密 `POST /user/password/update`、找回 `POST /user/forgot-password/reset`），登录入口不校验（否则历史弱密码账号无法登录）。
+2. **注册验证码**：本地模拟固定 `123456`，`prod` profile 下注册接口直接拒绝模拟验证码（与找回密码逻辑一致）。**尚未接入真实短信/邮件服务**，后续接真实验证码时需新增验证码存储（表/Redis）、发送通道、频率限制与单次消费，当前不引入新依赖。
+3. **账号输入框共用**：注册页用一个输入框自动识别手机号（`^1[3-9]\d{9}$`）或邮箱（含 `@`），提交时分别填入 `phone`/`email` 字段；后端契约不变（`phone`/`email` 至少一个非空）。
+4. **临时密码**：`Recall@2026` 为统一临时密码，已通过 `BCryptPasswordEncoder(strength=10)` 生成哈希写入，人工验证 `matches` 通过。**建议登录后立即改密**；账号清单见 `docs/Workbuddy/账号测试信息表.md`。
+
+### 五、账号测试信息
+
+完整账号清单（登录标识 + 统一临时密码）见 **`docs/Workbuddy/账号测试信息表.md`**，要点：
+
+- 管理员账号：`user20@recall.local`（admin_e2e）、`13912345678`（admin），密码均 `Recall@2026`。
+- 占位邮箱 `user{id}@recall.local` 仅作登录标识，**不能收发真实邮件**。
+- 管理员登录入口仍为普通登录页 `/login`。
+
+### 六、验证结果
+
+- 后端 `mvn -pl user-service -am compile`（JDK 21）通过。
+- 前端 `npm run type-check` 通过。
+- Flyway `migrate`/`validate` 通过；`flyway_schema_history` 已记录 1.0.4 success=1。
+- 已人工验证 `Recall@2026` 的 BCrypt 哈希匹配正确（`matches("Recall@2026")=true`）。
+
+### 七、遗留风险 / 待办
+
+1. **真实验证码未接入**：注册/找回密码的验证码仍是本地模拟 `123456`，正式上线前必须接入真实短信/邮件服务，否则任何人可用固定码注册。
+2. **临时密码安全**：所有账号现用统一弱临时密码 `Recall@2026`（虽含字母+数字+符号，但公开在文档里），**上线前务必强制用户改密**，或重新走方案 A 回填真实联系方式。
+3. **改密接口未校验新密码强度**：`POST /user/password/update` 已改为 `isValidPassword` 校验（本轮已覆盖），请确认无其他改密入口遗漏。
+
 4. **端到端联调未做**：本轮只做了编译 + 迁移验证，未起服务做注册/登录/管理员邮箱登录的完整浏览器冒烟（user-service 需重启后验证）。
 5. `.claude/worktrees/frontend-devtiny-fix` 是嵌套 git 仓库（位于仓库外），提交时勿 `git add -A` 误收。

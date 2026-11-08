@@ -77,25 +77,9 @@
                   :placeholder="$t('auth.nicknamePlaceholder')"
                   type="text"
                 />
-              <p v-if="validationErrors.nickname" class="mt-1.5 px-1 font-label-sm text-label-sm text-red-500 flex items-center gap-1">
-                <span class="material-symbols-outlined text-sm">error</span>
-                {{ validationErrors.nickname }}
-              </p>
-            </div>
-
-              <div class="relative group">
-                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <span class="material-symbols-outlined text-secondary group-focus-within:text-primary transition-colors">smartphone</span>
-                </div>
-                <input
-                  v-model="form.phone"
-                  class="w-full py-3.5 pl-12 pr-4 bg-background border border-outline-variant rounded-[16px] text-on-surface placeholder-outline font-body-md text-body-md focus:bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all"
-                  :placeholder="$t('auth.phone')"
-                  type="tel"
-                />
-                <p v-if="validationErrors.phone" class="mt-1.5 px-1 font-label-sm text-label-sm text-red-500 flex items-center gap-1">
+                <p v-if="validationErrors.nickname" class="mt-1.5 px-1 font-label-sm text-label-sm text-red-500 flex items-center gap-1">
                   <span class="material-symbols-outlined text-sm">error</span>
-                  {{ validationErrors.phone }}
+                  {{ validationErrors.nickname }}
                 </p>
               </div>
 
@@ -104,16 +88,45 @@
                   <span class="material-symbols-outlined text-secondary group-focus-within:text-primary transition-colors">alternate_email</span>
                 </div>
                 <input
-                  v-model="form.email"
+                  v-model="form.account"
                   class="w-full py-3.5 pl-12 pr-4 bg-background border border-outline-variant rounded-[16px] text-on-surface placeholder-outline font-body-md text-body-md focus:bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all"
-                  :placeholder="$t('auth.email')"
-                  type="email"
+                  :placeholder="$t('auth.accountPlaceholderRegister')"
+                  type="text"
+                  autocomplete="off"
                 />
-                <p v-if="validationErrors.email" class="mt-1.5 px-1 font-label-sm text-label-sm text-red-500 flex items-center gap-1">
+                <p v-if="validationErrors.account" class="mt-1.5 px-1 font-label-sm text-label-sm text-red-500 flex items-center gap-1">
                   <span class="material-symbols-outlined text-sm">error</span>
-                  {{ validationErrors.email }}
+                  {{ validationErrors.account }}
                 </p>
               </div>
+
+              <div class="flex flex-col gap-2 sm:flex-row">
+                <div class="relative flex-1 group">
+                  <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+                    <span class="material-symbols-outlined text-secondary transition-colors group-focus-within:text-primary">verified_user</span>
+                  </div>
+                  <input
+                    v-model="form.code"
+                    type="text"
+                    inputmode="numeric"
+                    maxlength="6"
+                    class="w-full rounded-[16px] border border-outline-variant bg-background py-3.5 pl-12 pr-4 font-body-md text-body-md tracking-widest text-on-surface placeholder-outline transition-all focus:border-primary focus:bg-surface-container-lowest focus:outline-none focus:ring-1 focus:ring-primary"
+                    :placeholder="$t('auth.codePlaceholder')"
+                  />
+                </div>
+                <button
+                  type="button"
+                  class="h-[52px] shrink-0 rounded-[16px] border border-primary/30 bg-primary-container/20 px-4 font-label-lg text-label-lg text-primary disabled:cursor-not-allowed disabled:opacity-50"
+                  :disabled="codeSent && remaining > 0"
+                  @click="sendCode"
+                >
+                  {{ codeSent && remaining > 0 ? $t('auth.resendIn', { seconds: remaining }) : $t('auth.sendCode') }}
+                </button>
+              </div>
+              <p v-if="validationErrors.code" class="mt-1.5 px-1 font-label-sm text-label-sm text-red-500 flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">error</span>
+                {{ validationErrors.code }}
+              </p>
 
               <div class="relative group">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -137,12 +150,11 @@
                     </span>
                   </Transition>
                 </button>
-              
-              <p v-if="validationErrors.password" class="mt-1.5 px-1 font-label-sm text-label-sm text-red-500 flex items-center gap-1">
-                <span class="material-symbols-outlined text-sm">error</span>
-                {{ validationErrors.password }}
-              </p>
-            </div>
+                <p v-if="validationErrors.password" class="mt-1.5 px-1 font-label-sm text-label-sm text-red-500 flex items-center gap-1">
+                  <span class="material-symbols-outlined text-sm">error</span>
+                  {{ validationErrors.password }}
+                </p>
+              </div>
 
               <div class="relative group">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -162,12 +174,11 @@
                 >
                   <span class="material-symbols-outlined">{{ showConfirmPassword ? 'visibility' : 'visibility_off' }}</span>
                 </button>
-              
-              <p v-if="validationErrors.confirmPassword" class="mt-1.5 px-1 font-label-sm text-label-sm text-red-500 flex items-center gap-1">
-                <span class="material-symbols-outlined text-sm">error</span>
-                {{ validationErrors.confirmPassword }}
-              </p>
-            </div>
+                <p v-if="validationErrors.confirmPassword" class="mt-1.5 px-1 font-label-sm text-label-sm text-red-500 flex items-center gap-1">
+                  <span class="material-symbols-outlined text-sm">error</span>
+                  {{ validationErrors.confirmPassword }}
+                </p>
+              </div>
 
               <div class="relative group">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -182,12 +193,11 @@
                   <option value="CET4">{{ $t('auth.cet4') }}</option>
                   <option value="CET6">{{ $t('auth.cet6') }}</option>
                 </select>
-              
-              <p v-if="validationErrors.cetLevel" class="mt-1.5 px-1 font-label-sm text-label-sm text-red-500 flex items-center gap-1">
-                <span class="material-symbols-outlined text-sm">error</span>
-                {{ validationErrors.cetLevel }}
-              </p>
-            </div>
+                <p v-if="validationErrors.cetLevel" class="mt-1.5 px-1 font-label-sm text-label-sm text-red-500 flex items-center gap-1">
+                  <span class="material-symbols-outlined text-sm">error</span>
+                  {{ validationErrors.cetLevel }}
+                </p>
+              </div>
 
               <div class="pt-2">
                 <button
@@ -217,20 +227,23 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useUserStore } from '@/stores/user'
 import { useToast } from '@/composables/useToast'
+import { useCountdown } from '@/composables/useCountdown'
 
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
+const { t } = useI18n()
 const { show: toast } = useToast()
 
 const isLogin = computed(() => route.path === '/login')
 
 const form = ref({
   nickname: '',
-  phone: '',
-  email: '',
+  account: '',
+  code: '',
   password: '',
   confirmPassword: '',
   cetLevel: ''
@@ -238,8 +251,8 @@ const form = ref({
 
 const validationErrors = ref({
   nickname: '',
-  phone: '',
-  email: '',
+  account: '',
+  code: '',
   password: '',
   confirmPassword: '',
   cetLevel: ''
@@ -247,8 +260,14 @@ const validationErrors = ref({
 
 const showPassword = ref(false)
 const showConfirmPassword = ref(false)
+const codeSent = ref(false)
+const { remaining, reset } = useCountdown(60, undefined, false)
 
 const isLoading = computed(() => userStore.isLoading)
+
+const phonePattern = /^1[3-9]\d{9}$/
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const passwordRulePattern = /^(?=.*[a-z])(?=.*\d).{10,}$/
 
 const togglePassword = () => {
   showPassword.value = !showPassword.value
@@ -258,8 +277,27 @@ const toggleConfirmPassword = () => {
   showConfirmPassword.value = !showConfirmPassword.value
 }
 
+/** 判断账号是手机号还是邮箱 */
+const resolveAccountType = (value: string): 'phone' | 'email' | null => {
+  const v = value.trim()
+  if (phonePattern.test(v)) return 'phone'
+  if (emailPattern.test(v)) return 'email'
+  return null
+}
+
+/** 发送验证码（本地模拟，固定 123456） */
+const sendCode = () => {
+  if (!resolveAccountType(form.value.account)) {
+    toast(t('auth.accountEmpty'), 'warning')
+    return
+  }
+  codeSent.value = true
+  toast(t('auth.codeSentMock', { code: '123456' }), 'success')
+  reset()
+}
+
 const validate = (): boolean => {
-  const err = { nickname: '', phone: '', email: '', password: '', confirmPassword: '', cetLevel: '' }
+  const err = { nickname: '', account: '', code: '', password: '', confirmPassword: '', cetLevel: '' }
   let valid = true
 
   // 昵称可选，但填了则限制长度
@@ -267,27 +305,24 @@ const validate = (): boolean => {
     err.nickname = '昵称长度不能超过20个字符'
     valid = false
   }
-  // 手机号与邮箱至少填一个
-  const hasPhone = form.value.phone.trim() !== ''
-  const hasEmail = form.value.email.trim() !== ''
-  if (!hasPhone && !hasEmail) {
-    err.phone = '手机号和邮箱至少填写一个'
+  // 账号：手机号或邮箱必填且格式正确
+  const accountType = resolveAccountType(form.value.account)
+  if (!accountType) {
+    err.account = t('auth.accountEmpty')
     valid = false
   }
-  if (hasPhone && !/^1[3-9]\d{9}$/.test(form.value.phone.trim())) {
-    err.phone = '请输入有效手机号'
+  // 验证码必填
+  if (!form.value.code.trim()) {
+    err.code = t('auth.invalidCode')
     valid = false
   }
-  if (hasEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.value.email.trim())) {
-    err.email = '请输入有效邮箱'
-    valid = false
-  }
-  if (!form.value.password || form.value.password.length < 6) {
-    err.password = '密码不能少于6位'
+  // 密码强度：至少10位且含小写字母和数字
+  if (!passwordRulePattern.test(form.value.password)) {
+    err.password = t('auth.passwordInvalid')
     valid = false
   }
   if (form.value.password !== form.value.confirmPassword) {
-    err.confirmPassword = '两次输入的密码不一致'
+    err.confirmPassword = t('auth.passwordMismatch')
     valid = false
   }
   if (!form.value.cetLevel) {
@@ -302,30 +337,30 @@ const validate = (): boolean => {
 const handleRegister = async () => {
   if (!validate()) return
 
+  // 解析账号类型，分别填入 phone / email
+  const accountType = resolveAccountType(form.value.account)
+  const phone = accountType === 'phone' ? form.value.account.trim() : undefined
+  const email = accountType === 'email' ? form.value.account.trim() : undefined
+
   try {
     // 1. 注册
     await userStore.register({
       nickname: form.value.nickname.trim() || undefined,
-      phone: form.value.phone.trim() || undefined,
-      email: form.value.email.trim() || undefined,
+      phone,
+      email,
+      code: form.value.code.trim(),
       password: form.value.password,
       cetLevel: form.value.cetLevel
     })
     // 2. 直接登录（用手机号或邮箱其一）
-    const account = form.value.phone.trim() || form.value.email.trim()
     await userStore.login({
-      account,
+      account: form.value.account.trim(),
       password: form.value.password
     })
-    toast('注册成功，欢迎加入！', 'success')
+    toast(t('auth.registerSuccess'), 'success')
     router.push('/assess')
   } catch (error: any) {
-    toast(error.message || '注册失败', 'error')
+    toast(error.message || t('auth.register'), 'error')
   }
 }
 </script>
-
-
-
-
-

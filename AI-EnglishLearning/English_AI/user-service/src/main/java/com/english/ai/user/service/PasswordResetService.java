@@ -41,6 +41,9 @@ public class PasswordResetService {
         if (!MOCK_SMS_CODE.equals(request.getCode())) {
             throw new BusinessException(ErrorCode.BAD_REQUEST, "验证码错误");
         }
+        if (!PasswordUtil.isValidPassword(request.getNewPassword())) {
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "新密码至少10位，且需包含小写字母和数字");
+        }
 
         List<SysUser> users = userMapper.selectList(new LambdaQueryWrapper<SysUser>()
                 .eq(SysUser::getPhone, request.getPhone()));

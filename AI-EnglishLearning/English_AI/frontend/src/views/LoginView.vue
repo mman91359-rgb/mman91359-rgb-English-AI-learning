@@ -102,7 +102,11 @@
                   </Transition>
                 </button>
               </div>
-              <div class="flex justify-end">
+              <div class="flex justify-between items-center">
+                <p class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+                  <span class="material-symbols-outlined text-sm">info</span>
+                  {{ $t('auth.passwordRule') }}
+                </p>
                 <router-link to="/forgot-password" class="font-label-md text-label-md text-primary hover:underline">
                   {{ $t('auth.forgotPassword') }}
                 </router-link>

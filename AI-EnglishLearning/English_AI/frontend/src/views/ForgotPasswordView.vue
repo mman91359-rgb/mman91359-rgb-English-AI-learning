@@ -92,6 +92,10 @@
                   :placeholder="$t('auth.newPassword')"
                 />
               </div>
+              <p class="mt-1.5 px-1 font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">info</span>
+                {{ $t('auth.passwordRule') }}
+              </p>
 
               <div class="relative group">
                 <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
@@ -150,6 +154,7 @@ const codeSent = ref(false)
 const { remaining, reset } = useCountdown(60, undefined, false)
 
 const phonePattern = /^1[3-9]\d{9}$/
+const passwordRulePattern = /^(?=.*[a-z])(?=.*\d).{10,}$/
 
 const sendCode = () => {
   if (!phonePattern.test(phone.value)) {
@@ -170,7 +175,7 @@ const handleReset = async () => {
     toast(t('auth.invalidCode'), 'warning')
     return
   }
-  if (newPassword.value.length < 6) {
+  if (!passwordRulePattern.test(newPassword.value)) {
     toast(t('auth.passwordTooShort'), 'warning')
     return
   }

@@ -2,6 +2,7 @@ package com.english.ai.user.controller;
 
 import com.english.ai.common.BusinessException;
 import com.english.ai.common.ErrorCode;
+import com.english.ai.common.PasswordUtil;
 import com.english.ai.common.Result;
 import com.english.ai.common.UserIdentityUtil;
 import com.english.ai.user.dto.AssessSubmitRequest;
@@ -15,6 +16,8 @@ import com.english.ai.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -37,6 +40,11 @@ public class UserController {
     private final UserService userService;
     private final UserAbilityRadarService radarService;
 
+    /** 本地模拟验证码；生产 profile 不允许使用 */
+    private static final String MOCK_SMS_CODE = "123456";
+
+    private final Environment environment;
+
     /** 头像文件存储目录，从配置文件读取 */
     @Value("${avatar.upload-dir:./uploads/avatars}")
     private String avatarUploadDir;
@@ -45,8 +53,15 @@ public class UserController {
 
     @PostMapping("/register")
     public Result<Long> register(@RequestBody RegisterRequest request) {
-        if (request.getPassword() == null || request.getPassword().length() < 6) {
-            return Result.badRequest("密码不能少于6位");
+        // 验证码校验（本地模拟固定 123456，生产环境拒绝）
+        if (environment.acceptsProfiles(Profiles.of("prod"))) {
+            return Result.badRequest("模拟验证码仅本地开发可用");
+        }
+        if (!MOCK_SMS_CODE.equals(request.getCode())) {
+            return Result.badRequest("验证码错误");
+        }
+        if (!PasswordUtil.isValidPassword(request.getPassword())) {
+            return Result.badRequest("密码至少10位，且需包含小写字母和数字");
         }
         // 手机号与邮箱至少一个非空
         if (isBlank(request.getPhone()) && isBlank(request.getEmail())) {
@@ -234,8 +249,8 @@ public class UserController {
         if (oldPwdObj == null || String.valueOf(oldPwdObj).isBlank()) {
             return Result.badRequest("原密码不能为空");
         }
-        if (newPwdObj == null || String.valueOf(newPwdObj).length() < 6) {
-            return Result.badRequest("新密码不能少于6位");
+        if (newPwdObj == null || !PasswordUtil.isValidPassword(String.valueOf(newPwdObj))) {
+            return Result.badRequest("新密码至少10位，且需包含小写字母和数字");
         }
         Long userId = Long.valueOf(String.valueOf(userIdObj));
         String oldPassword = String.valueOf(oldPwdObj);

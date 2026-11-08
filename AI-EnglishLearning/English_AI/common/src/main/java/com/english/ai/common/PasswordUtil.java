@@ -31,6 +31,33 @@ public class PasswordUtil {
     }
 
     /**
+     * 校验密码强度：至少 10 位，且必须同时包含小写英文字母和数字。
+     * <p>
+     * 仅用于「设置密码」类入口（注册/改密/找回密码），登录入口不校验强度，
+     * 避免历史弱密码存量账号无法登录。
+     *
+     * @return true 表示符合强度要求
+     */
+    public static boolean isValidPassword(String rawPassword) {
+        if (rawPassword == null) {
+            return false;
+        }
+        if (rawPassword.length() < 10) {
+            return false;
+        }
+        boolean hasLower = false;
+        boolean hasDigit = false;
+        for (char c : rawPassword.toCharArray()) {
+            if (c >= 'a' && c <= 'z') {
+                hasLower = true;
+            } else if (c >= '0' && c <= '9') {
+                hasDigit = true;
+            }
+        }
+        return hasLower && hasDigit;
+    }
+
+    /**
      * 判断已存哈希是否需要按当前强度重编码。
      * <p>
      * 注意：{@link BCryptPasswordEncoder#upgradeEncoding(String)} 只在存量强度**低于**目标强度时返回 true。

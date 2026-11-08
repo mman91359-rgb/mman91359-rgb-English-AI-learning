@@ -26,6 +26,7 @@ export interface RegisterRequest {
   phone?: string
   email?: string
   cetLevel?: string
+  code?: string
 }
 
 export interface ForgotPasswordRequest {

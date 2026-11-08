@@ -18,7 +18,7 @@
           <span v-else class="material-symbols-outlined text-[80px] text-primary fill">featured_seasonal_and_gifts</span>
           <!-- 悬浮遮罩提示 -->
           <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-3xl">
-            <span class="material-symbols-outlined text-white text-4xl">camera_alt</span>
+            <span class="material-symbols-outlined text-white text-icon-2xl">camera_alt</span>
           </div>
         </div>
         <!-- 隐藏的文件输入框 -->
@@ -188,7 +188,7 @@
 
         <!-- 错误态 -->
         <div v-else-if="radarError" class="flex flex-col items-center gap-3 py-12 text-center">
-          <span class="material-symbols-outlined text-4xl text-error">error_outline</span>
+          <span class="material-symbols-outlined text-icon-2xl text-error">error_outline</span>
           <p class="font-body-md text-body-md text-on-surface-variant">{{ radarError }}</p>
           <button
             type="button"
@@ -281,7 +281,7 @@
           <span class="material-symbols-outlined text-outline-variant">chevron_right</span>
         </router-link>
         <div class="mt-auto bg-primary-fixed-dim/10 rounded-[24px] p-6 border border-primary-fixed-dim/20 flex flex-col items-center justify-center text-center">
-          <span class="material-symbols-outlined text-primary text-4xl mb-2">workspace_premium</span>
+          <span class="material-symbols-outlined text-primary text-icon-2xl mb-2">workspace_premium</span>
           <h4 class="font-label-lg text-label-lg text-primary mb-1">{{ $t('profile.upgradePro') }}</h4>
           <p class="font-label-md text-label-md text-on-surface-variant mb-4">{{ $t('profile.upgradeDesc') }}</p>
           <button class="w-full bg-primary text-on-primary py-2 rounded-xl font-label-lg text-label-lg hover:bg-primary/90 transition-colors">

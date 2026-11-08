@@ -72,7 +72,7 @@
       <div class="flex-1 p-gutter flex flex-col items-center max-w-container-max mx-auto w-full">
         <!-- 加载态 -->
         <div v-if="loading" class="flex-1 flex flex-col items-center justify-center py-20">
-          <span class="material-symbols-outlined text-4xl text-primary animate-spin">progress_activity</span>
+          <span class="material-symbols-outlined text-icon-2xl text-primary animate-spin">progress_activity</span>
           <p class="mt-4 text-on-surface-variant font-body-md text-body-md">{{ $t('common.loading') }}</p>
         </div>
 
@@ -275,7 +275,7 @@
           <div class="max-w-3xl mx-auto w-full">
             <div class="bg-surface rounded-3xl p-8 md:p-12 shadow-soft-glow text-center mb-8 border border-outline-variant/20">
               <div class="w-20 h-20 rounded-full bg-primary-container/20 flex items-center justify-center mx-auto mb-4">
-                <span class="material-symbols-outlined text-4xl text-secondary" style="font-variation-settings: 'FILL' 1;">emoji_events</span>
+                <span class="material-symbols-outlined text-icon-2xl text-secondary" style="font-variation-settings: 'FILL' 1;">emoji_events</span>
               </div>
               <h3 class="font-headline-md text-headline-md text-on-surface mb-2">{{ $t('learning.grammarComplete') }}</h3>
               <div class="flex items-center justify-center gap-8 mt-6">
@@ -313,7 +313,7 @@
 
         <!-- 无题 -->
         <div v-else class="flex-1 flex flex-col items-center justify-center py-20">
-          <span class="material-symbols-outlined text-4xl text-outline">inbox</span>
+          <span class="material-symbols-outlined text-icon-2xl text-outline">inbox</span>
           <p class="mt-4 text-on-surface-variant font-body-md text-body-md">{{ $t('learning.noGrammarQuestions') }}</p>
           <button class="mt-4 bg-primary text-on-primary px-6 py-2 rounded-full" @click="goBack">{{ $t('common.back') }}</button>
         </div>

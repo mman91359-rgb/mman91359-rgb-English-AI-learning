@@ -178,7 +178,7 @@ import GenerateQuestionsDialog from '../../components/admin/GenerateQuestionsDia
 import RejectQuestionDialog from '../../components/admin/RejectQuestionDialog.vue'
 import StatusBadge from '../../components/admin/StatusBadge.vue'
 import ErrorState from '../../components/ui/ErrorState.vue'
-import { inputClass } from '../../components/admin/formStyles'
+import { inputClass } from '@/components/ui/formStyles'
 import type { TableColumn } from '../../components/admin/tableTypes'
 import { useAsyncData } from '../../composables/useAsyncData'
 import { useToast } from '../../composables/useToast'

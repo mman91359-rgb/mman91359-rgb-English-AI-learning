@@ -22,7 +22,7 @@
 
     <template v-else-if="phase === 'scoring'">
       <div class="flex flex-col items-center gap-3 py-4">
-        <span class="material-symbols-outlined animate-spin text-4xl text-primary">progress_activity</span>
+        <span class="material-symbols-outlined animate-spin text-icon-2xl text-primary">progress_activity</span>
         <p class="font-body-sm text-body-sm text-on-surface-variant">{{ $t('writing.practice.scoring') }}</p>
       </div>
       <ol class="flex flex-col gap-3">
@@ -42,7 +42,7 @@
 
     <template v-else-if="phase === 'failed'">
       <div class="flex flex-col items-center gap-3 py-6 text-center">
-        <span class="material-symbols-outlined text-4xl text-error">error</span>
+        <span class="material-symbols-outlined text-icon-2xl text-error">error</span>
         <p class="font-body-sm text-body-sm text-on-surface-variant">{{ $t('writing.practice.scoringFailed') }}</p>
         <button type="button" class="rounded-full bg-primary px-5 py-2 font-label-lg text-label-lg text-on-primary" @click="$emit('retry')">
           {{ $t('writing.practice.retry') }}

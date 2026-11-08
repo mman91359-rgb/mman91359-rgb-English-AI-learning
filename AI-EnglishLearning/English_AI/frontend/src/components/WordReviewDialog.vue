@@ -36,7 +36,7 @@
           <!-- 完成总结 -->
           <div v-if="finished" class="mt-8 flex flex-col items-center text-center">
             <div class="flex h-20 w-20 items-center justify-center rounded-full bg-tertiary-container/20">
-              <span class="material-symbols-outlined text-tertiary text-5xl fill">task_alt</span>
+              <span class="material-symbols-outlined text-tertiary text-icon-3xl fill">task_alt</span>
             </div>
             <h4 class="mt-5 font-headline-md text-headline-md text-on-surface">{{ $t('wordReview.summaryTitle') }}</h4>
             <p class="mt-2 font-body-md text-body-md text-on-surface-variant">

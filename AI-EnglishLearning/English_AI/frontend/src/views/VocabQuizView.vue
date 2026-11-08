@@ -89,7 +89,7 @@
       <div class="flex-1 w-full max-w-container-max mx-auto px-gutter py-8 flex flex-col relative">
         <!-- 加载态 -->
         <div v-if="loading" class="flex-1 flex flex-col items-center justify-center">
-          <span class="material-symbols-outlined text-4xl text-primary animate-spin">progress_activity</span>
+          <span class="material-symbols-outlined text-icon-2xl text-primary animate-spin">progress_activity</span>
           <p class="mt-4 text-on-surface-variant">{{ $t('common.loading') }}</p>
         </div>
 
@@ -325,7 +325,7 @@
             <div class="bg-surface rounded-3xl p-8 md:p-12 shadow-soft-glow text-center mb-8 border border-outline-variant/20">
               <div class="w-20 h-20 rounded-full bg-primary-container/20 flex items-center justify-center mx-auto mb-4">
                 <span
-                  class="material-symbols-outlined text-4xl text-secondary"
+                  class="material-symbols-outlined text-icon-2xl text-secondary"
                   style="font-variation-settings: 'FILL' 1;"
                 >emoji_events</span>
               </div>
@@ -393,7 +393,7 @@
 
         <!-- 无题 -->
         <div v-else class="flex-1 flex flex-col items-center justify-center py-20">
-          <span class="material-symbols-outlined text-4xl text-outline">inbox</span>
+          <span class="material-symbols-outlined text-icon-2xl text-outline">inbox</span>
           <p class="mt-4 text-on-surface-variant">{{ $t('learning.noQuestions') }}</p>
           <button
             class="mt-4 bg-primary text-on-primary px-6 py-2 rounded-full"

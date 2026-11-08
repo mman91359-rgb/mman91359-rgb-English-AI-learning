@@ -245,7 +245,7 @@
 
         <!-- 复习完成 -->
         <div v-else class="py-12 text-center">
-          <span class="material-symbols-outlined text-6xl text-primary">celebration</span>
+          <span class="material-symbols-outlined text-icon-3xl text-primary">celebration</span>
           <p class="mt-4 font-headline-md text-headline-md text-on-surface">今日复习完成！</p>
           <p class="mt-2 font-body-md text-body-md text-on-surface-variant">
             记住 {{ reviewCorrect }} 个，未记住 {{ reviewWrong }} 个

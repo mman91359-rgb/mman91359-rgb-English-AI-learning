@@ -8,11 +8,11 @@
     </div>
 
     <div v-if="loading" class="flex justify-center py-20">
-      <span class="material-symbols-outlined text-4xl text-primary animate-spin">progress_activity</span>
+      <span class="material-symbols-outlined text-icon-2xl text-primary animate-spin">progress_activity</span>
     </div>
 
     <div v-else-if="errors.length === 0" class="text-center py-20">
-      <span class="material-symbols-outlined text-6xl text-outline">check_circle</span>
+      <span class="material-symbols-outlined text-icon-3xl text-outline">check_circle</span>
       <p class="mt-4 text-on-surface-variant font-body-lg text-body-lg">{{ $t('learning.noErrorsFound') }}</p>
       <p class="mt-2 text-on-surface-variant/60 font-body-md text-body-md">{{ $t('learning.keepItUp') }}</p>
       <router-link
@@ -73,7 +73,7 @@
 
       <!-- 筛选后无结果 -->
       <div v-if="filteredErrors.length === 0" class="text-center py-12">
-        <span class="material-symbols-outlined text-5xl text-outline">filter_alt_off</span>
+        <span class="material-symbols-outlined text-icon-3xl text-outline">filter_alt_off</span>
         <p class="mt-3 text-on-surface-variant font-body-md text-body-md">{{ $t('learning.noFilterResult') }}</p>
         <button
           class="mt-3 px-5 py-2 rounded-full border border-outline-variant text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-variant transition-colors"
@@ -405,7 +405,7 @@
           </div>
 
           <div v-else class="text-center py-12">
-            <span class="material-symbols-outlined text-5xl text-outline">quiz</span>
+            <span class="material-symbols-outlined text-icon-3xl text-outline">quiz</span>
             <p class="mt-3 text-on-surface-variant font-body-md text-body-md">暂无生成的题目</p>
           </div>
         </div>

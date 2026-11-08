@@ -7,7 +7,7 @@
       >
         <div class="relative flex flex-col items-center">
           <div class="coin-reward-text flex items-center gap-2 text-tertiary">
-            <span class="material-symbols-outlined text-4xl fill">paid</span>
+            <span class="material-symbols-outlined text-icon-2xl fill">paid</span>
             <span class="font-headline-md text-headline-md font-bold">+{{ amount }}</span>
           </div>
           <span

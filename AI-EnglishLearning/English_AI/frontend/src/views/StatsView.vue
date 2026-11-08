@@ -123,7 +123,7 @@
           <div class="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
           <div class="relative z-10 text-center mb-6">
             <div class="inline-flex items-center justify-center w-20 h-20 bg-surface-container-lowest rounded-full shadow-sm mb-4">
-              <span class="material-symbols-outlined text-4xl text-[#FFC107] fill">trophy</span>
+              <span class="material-symbols-outlined text-icon-2xl text-[#FFC107] fill">trophy</span>
             </div>
             <h3 class="font-headline-md text-headline-md text-on-surface">{{ $t('stats.myVocabulary') }}</h3>
             <p class="text-label-md font-label-md text-on-surface-variant mt-1">{{ $t('stats.testedAt') }} {{ vocabTestDate }}</p>

@@ -17,13 +17,13 @@
       </div>
 
       <div v-if="loading" class="bg-surface rounded-2xl p-12 text-center shadow-soft-glow">
-        <span class="material-symbols-outlined text-4xl text-primary animate-spin">progress_activity</span>
+        <span class="material-symbols-outlined text-icon-2xl text-primary animate-spin">progress_activity</span>
         <p class="mt-4 text-on-surface-variant">{{ $t('common.loading') }}</p>
       </div>
 
       <div v-else-if="finished" class="bg-surface rounded-2xl p-8 shadow-soft-glow text-center">
         <div class="w-20 h-20 mx-auto rounded-full bg-primary-container/20 flex items-center justify-center mb-4">
-          <span class="material-symbols-outlined text-4xl text-primary">workspace_premium</span>
+          <span class="material-symbols-outlined text-icon-2xl text-primary">workspace_premium</span>
         </div>
         <h2 class="font-headline-lg text-headline-lg text-on-surface">{{ $t('assess.completed') }}</h2>
         <p class="mt-3 font-body-md text-body-md text-on-surface-variant">
@@ -99,7 +99,7 @@
       </div>
 
       <div v-else class="bg-surface rounded-2xl p-12 text-center shadow-soft-glow">
-        <span class="material-symbols-outlined text-5xl text-outline">inbox</span>
+        <span class="material-symbols-outlined text-icon-3xl text-outline">inbox</span>
         <p class="mt-4 text-on-surface-variant">暂无测评题，请稍后重试</p>
         <button class="mt-5 px-6 py-3 bg-primary text-on-primary rounded-xl" @click="router.push('/dashboard')">
           返回首页

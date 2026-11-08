@@ -31,7 +31,7 @@
     <!-- ===== 答题模式 ===== -->
     <template v-if="!showResults">
       <div v-if="loading" class="flex justify-center py-20">
-        <span class="material-symbols-outlined text-4xl text-primary animate-spin">progress_activity</span>
+        <span class="material-symbols-outlined text-icon-2xl text-primary animate-spin">progress_activity</span>
         <p class="mt-4 text-on-surface-variant font-body-md text-body-md">{{ $t('common.loading') }}</p>
       </div>
 
@@ -146,7 +146,7 @@
       </div>
 
       <div v-else class="text-center py-20">
-        <span class="material-symbols-outlined text-4xl text-outline">inbox</span>
+        <span class="material-symbols-outlined text-icon-2xl text-outline">inbox</span>
         <p class="mt-4 text-on-surface-variant">{{ $t('learning.noQuestions') }}</p>
         <button class="mt-4 bg-primary text-on-primary px-6 py-2 rounded-full" @click="$router.back()">
           {{ $t('learning.backToHub') }}
@@ -159,7 +159,7 @@
       <div class="max-w-3xl mx-auto">
         <div class="bg-surface rounded-2xl p-8 shadow-soft-glow text-center mb-8">
           <div class="w-20 h-20 rounded-full bg-primary-container/20 flex items-center justify-center mx-auto mb-4">
-            <span class="material-symbols-outlined text-4xl text-primary">emoji_events</span>
+            <span class="material-symbols-outlined text-icon-2xl text-primary">emoji_events</span>
           </div>
           <h3 class="font-headline-lg text-headline-lg text-on-surface mb-2">{{ $t('learning.practiceComplete') }}</h3>
           <div class="flex items-center justify-center gap-8 mt-6">

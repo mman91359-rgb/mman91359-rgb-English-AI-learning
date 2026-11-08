@@ -56,7 +56,7 @@
 
       <div v-else-if="showSummary" class="max-w-3xl mx-auto">
         <div class="bg-surface-container-lowest rounded-[24px] p-8 shadow-[0_4px_20px_rgba(51,58,72,0.05)] text-center">
-          <span class="material-symbols-outlined text-5xl text-primary">headphones</span>
+          <span class="material-symbols-outlined text-icon-3xl text-primary">headphones</span>
           <h3 class="font-headline-lg text-headline-lg text-on-surface mt-4">{{ $t('listening.completeTitle') }}</h3>
           <p class="font-body-lg text-body-lg text-on-surface-variant mt-2">
             {{ $t('listening.completeSummary', { correct: correctCount, total: questions.length, rate: accuracy }) }}

@@ -57,3 +57,14 @@ service:
 app:
   internal:
     token: ${INTERNAL_TOKEN:local-dev-internal-token}
+
+# 判题引擎开关
+judgment:
+  mismatch:
+    # accepted_answers 非空但未命中时，提示里是否直接给出正确答案
+    reveal-answer: ${JUDGMENT_REVEAL_ANSWER:true}
+  accepted-cache:
+    # 默认关闭；开启后按题目 ID + TTL 缓存 accepted_answers 解析结果
+    enabled: ${JUDGMENT_ACCEPTED_CACHE_ENABLED:false}
+    ttl-seconds: ${JUDGMENT_ACCEPTED_CACHE_TTL:60}
+    max-size: ${JUDGMENT_ACCEPTED_CACHE_MAX_SIZE:2000}

@@ -194,6 +194,32 @@ class JudgmentEngineImplTest {
         assertFalse(result.getIsCorrect());
     }
 
+    // ===== P1-2-1：错答提示开关 =====
+
+    @Test
+    void mismatchHintRevealsCorrectAnswerWhenEnabled() {
+        ReflectionTestUtils.setField(engine, "revealCorrectAnswer", true);
+        when(questionInfoMapper.selectById(QID)).thenReturn(question("FILL_BLANK", "[\"gave up\"]"));
+
+        JudgmentResult result = engine.judge(request("zzzzzzzz"), "abandon", "He ____ his plan.");
+
+        assertEquals("MISMATCH", result.getErrorType());
+        assertTrue(result.getHeuristicHint().contains("abandon"));
+        verifyNoInteractions(restTemplate);
+    }
+
+    @Test
+    void mismatchHintFallsBackWhenDisabled() {
+        ReflectionTestUtils.setField(engine, "revealCorrectAnswer", false);
+        when(questionInfoMapper.selectById(QID)).thenReturn(question("FILL_BLANK", "[\"gave up\"]"));
+
+        JudgmentResult result = engine.judge(request("zzzzzzzz"), "abandon", "He ____ his plan.");
+
+        assertEquals("MISMATCH", result.getErrorType());
+        assertFalse(result.getHeuristicHint().contains("abandon"));
+        assertTrue(result.getHeuristicHint().contains("可接受答案范围内"));
+    }
+
     // ===== P1-1：翻译题归一化对齐 =====
 
     @Test

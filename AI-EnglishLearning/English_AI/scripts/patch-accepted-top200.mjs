@@ -95,9 +95,18 @@ const SUFFIX_RULES = [
   [/s$/, ''],
 ]
 
+/** 词库缺失时的人工兜底：答案 → 词干 + 词性（不写回 word_dictionary） */
+const LEMMA_OVERRIDES = new Map([
+  ['study', { lemma: 'study', pos: 'v' }],
+  ['become', { lemma: 'become', pos: 'v' }],
+  ['substantiated', { lemma: 'substantiate', pos: 'v' }],
+])
+
 function resolveLemma(surface, dictionary) {
   const base = normalize(surface)
   if (!base) return { lemma: '', pos: '' }
+  const override = LEMMA_OVERRIDES.get(base)
+  if (override) return { lemma: override.lemma, pos: override.pos }
   if (dictionary.has(base)) return { lemma: base, pos: dictionary.get(base) }
   for (const [re, rep] of SUFFIX_RULES) {
     if (!re.test(base)) continue
@@ -205,6 +214,18 @@ function loadTop200(mysqlBin, conn) {
   return rows
 }
 
+/** 按 external_key 精确取行（用于 --only-keys 定点补丁） */
+function loadByKeys(mysqlBin, conn, keys) {
+  if (!keys.length) return []
+  const inList = keys.map((k) => `'${k.replace(/'/g, "''")}'`).join(',')
+  const out = runQuery(
+    mysqlBin,
+    conn,
+    `SELECT ${BASE_COLUMNS} ${BASE_FROM} AND i.external_key IN (${inList})`,
+  )
+  return parseRows(out)
+}
+
 function parseRows(out) {
   const rows = []
   for (const line of out.split('\n')) {
@@ -268,6 +289,7 @@ function parseArgs(argv) {
     dryRun: false,
     topN: TOP_N,
     sample: 20,
+    onlyKeys: [],
   }
   for (let i = 0; i < argv.length; i += 1) {
     const a = argv[i]
@@ -275,6 +297,7 @@ function parseArgs(argv) {
     else if (a === '--dry-run') opts.dryRun = true
     else if (a === '--top') opts.topN = Number(argv[++i]) || TOP_N
     else if (a === '--sample') opts.sample = Number(argv[++i]) || 20
+    else if (a === '--only-keys') opts.onlyKeys = String(argv[++i] || '').split(',').filter(Boolean)
   }
   return opts
 }
@@ -298,7 +321,9 @@ function main() {
   console.log(`[info] 词库 ${dictionary.size} 条`)
 
   console.log('[info] 选取 Top N 填空题 ...')
-  const rows = loadTop200(mysqlBin, conn).slice(0, opts.topN)
+  const rows = opts.onlyKeys.length
+    ? loadByKeys(mysqlBin, conn, opts.onlyKeys)
+    : loadTop200(mysqlBin, conn).slice(0, opts.topN)
   console.log(`[info] 选中 ${rows.length} 道（其中有作答记录 ${rows.filter((r) => r.logCount > 0).length} 道）`)
 
   const stats = {

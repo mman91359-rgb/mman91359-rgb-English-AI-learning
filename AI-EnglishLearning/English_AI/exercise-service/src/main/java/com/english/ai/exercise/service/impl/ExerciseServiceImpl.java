@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.english.ai.common.BusinessException;
 import com.english.ai.common.ErrorCode;
+import com.english.ai.common.JudgmentLevel;
 import com.english.ai.common.ModuleType;
 import com.english.ai.common.Result;
 import com.english.ai.exercise.config.RabbitMQConfig;
@@ -384,7 +385,7 @@ public class ExerciseServiceImpl implements ExerciseService {
                 judgmentResult = JudgmentResult.builder()
                         .isCorrect(true)
                         .heuristicHint("回答正确！")
-                        .matchedLevel(0)
+                        .matchedLevel(JudgmentLevel.LOCAL_MATCH)
                         .suggestions(List.of())
                         .build();
             } else {
@@ -400,7 +401,7 @@ public class ExerciseServiceImpl implements ExerciseService {
             judgmentResult = JudgmentResult.builder()
                     .isCorrect(choiceCorrect)
                     .heuristicHint(choiceCorrect ? "回答正确！" : wrongHint)
-                    .matchedLevel(1)
+                    .matchedLevel(JudgmentLevel.EXACT)
                     .suggestions(List.of())
                     .isSemanticMatch(false)
                     .build();

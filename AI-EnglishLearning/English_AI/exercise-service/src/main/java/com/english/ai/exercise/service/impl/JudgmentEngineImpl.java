@@ -1,5 +1,6 @@
 package com.english.ai.exercise.service.impl;
 
+import com.english.ai.common.JudgmentLevel;
 import com.english.ai.common.util.AnswerNormalizer;
 import com.english.ai.exercise.dto.JudgmentResult;
 import com.english.ai.exercise.dto.SubmitRequest;
@@ -20,10 +21,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Service
@@ -38,8 +41,48 @@ public class JudgmentEngineImpl implements JudgmentEngine {
     @Value("${service.ai.url}")
     private String aiServiceUrl;
 
+    /** accepted 非空且未命中时，是否在提示里直接给出正确答案 */
+    @Value("${judgment.mismatch.reveal-answer:true}")
+    private boolean revealCorrectAnswer;
+
+    /** accepted_answers 解析结果缓存（默认关闭，开启后按题目 ID + TTL 缓存） */
+    @Value("${judgment.accepted-cache.enabled:false}")
+    private boolean acceptedCacheEnabled;
+
+    @Value("${judgment.accepted-cache.ttl-seconds:60}")
+    private long acceptedCacheTtlSeconds;
+
+    @Value("${judgment.accepted-cache.max-size:2000}")
+    private int acceptedCacheMaxSize;
+
+    private final Map<Long, AcceptedCacheEntry> acceptedCache = new ConcurrentHashMap<>();
+
+    /** 判题埋点：层级命中与 AI 触发率统计 */
+    private final JudgmentMetrics judgmentMetrics = new JudgmentMetrics();
+
+    /** 缓存条目：值 + 过期时间戳 */
+    private static final class AcceptedCacheEntry {
+        private final List<String> values;
+        private final long expireAt;
+
+        private AcceptedCacheEntry(List<String> values, long expireAt) {
+            this.values = values;
+            this.expireAt = expireAt;
+        }
+    }
+
     @Override
     public JudgmentResult judge(SubmitRequest request, String correctAnswer, String context) {
+        long startNanos = System.nanoTime();
+        boolean[] aiCalled = new boolean[1];
+        JudgmentResult result = doJudge(request, correctAnswer, context, aiCalled);
+        long elapsedMs = (System.nanoTime() - startNanos) / 1_000_000;
+        judgmentMetrics.record(request.getQuestionId(), result, elapsedMs, aiCalled[0]);
+        return result;
+    }
+
+    private JudgmentResult doJudge(SubmitRequest request, String correctAnswer, String context,
+                                   boolean[] aiCalled) {
         String rawUser = request.getUserAnswer() != null ? request.getUserAnswer().trim() : "";
         if (rawUser.isEmpty()) {
             return emptyAnswerResult();
@@ -70,7 +113,7 @@ public class JudgmentEngineImpl implements JudgmentEngine {
             return JudgmentResult.builder()
                     .isCorrect(true)
                     .heuristicHint("回答正确！")
-                    .matchedLevel(1)
+                    .matchedLevel(JudgmentLevel.EXACT)
                     .suggestions(List.of())
                     .build();
         }
@@ -81,7 +124,7 @@ public class JudgmentEngineImpl implements JudgmentEngine {
                     .isCorrect(true)
                     .heuristicHint("你的答案 \"" + userAnswer + "\" 也可以用在这里，但最适合这道题的词是 \"" + correctAnswer + "\"。")
                     .errorType(null)
-                    .matchedLevel(2)
+                    .matchedLevel(JudgmentLevel.SEMANTIC)
                     .suggestions(List.of("近义词替换，语义可接受"))
                     .isSemanticMatch(true)
                     .build();
@@ -117,12 +160,13 @@ public class JudgmentEngineImpl implements JudgmentEngine {
         if (!acceptedList.isEmpty()) {
             log.debug("判题引擎：accepted_answers 非空且未命中，短路返回, traceId={}",
                     request.getUserId() + "-" + request.getQuestionId());
-            return mismatchResult();
+            return mismatchResult(correctAnswer);
         }
 
         // ====== 第 6 层：accepted_answers 为空，保留原有 AI 兜底路径 ======
         // 语法连词成句题（moduleType=2）不经过语义判对，避免 AI 放水
         if (request.getModuleType() == null || request.getModuleType() != 2) {
+            aiCalled[0] = true;
             JudgmentResult semanticResult = level2_5SemanticAccept(
                     request.getQuestionId(), userAnswer, normCorrect, context);
             if (semanticResult != null) {
@@ -132,6 +176,7 @@ public class JudgmentEngineImpl implements JudgmentEngine {
             }
         }
 
+        aiCalled[0] = true;
         JudgmentResult level3Result = level3AiFallback(request.getQuestionId(), userAnswer, normCorrect, context);
         log.debug("判题引擎：层级3AI兜底层执行完成, traceId={}",
                 request.getUserId() + "-" + request.getQuestionId());
@@ -143,19 +188,24 @@ public class JudgmentEngineImpl implements JudgmentEngine {
                 .isCorrect(false)
                 .heuristicHint("请输入答案")
                 .errorType("EMPTY")
-                .matchedLevel(1)
+                .matchedLevel(JudgmentLevel.EXACT)
                 .suggestions(List.of())
                 .build();
     }
 
-    /** accepted_answers 非空但全部未命中时的确定性结果：不调 AI、不写错因表 */
-    private JudgmentResult mismatchResult() {
-        String hint = "你的答案不在本题的可接受答案范围内，请再检查一下拼写或用词。";
+    /**
+     * accepted_answers 非空但全部未命中时的确定性结果：不调 AI、不写错因表。
+     * 提交后 {@code SubmitResponse.correctAnswer} 本来就会返回，因此提示里给出正确答案不额外泄露。
+     */
+    private JudgmentResult mismatchResult(String correctAnswer) {
+        String hint = revealCorrectAnswer && correctAnswer != null && !correctAnswer.isBlank()
+                ? "你的答案不符合本题的可接受答案，正确答案是：" + correctAnswer + "。"
+                : "你的答案不在本题的可接受答案范围内，请再检查一下拼写或用词。";
         return JudgmentResult.builder()
                 .isCorrect(false)
                 .heuristicHint(hint)
                 .errorType("MISMATCH")
-                .matchedLevel(2)
+                .matchedLevel(JudgmentLevel.SEMANTIC)
                 .suggestions(List.of(hint))
                 .build();
     }
@@ -163,6 +213,27 @@ public class JudgmentEngineImpl implements JudgmentEngine {
     /** 解析并归一化 accepted_answers；解析失败按空集合处理 */
     private List<String> parseAcceptedAnswers(QuestionInfo info) {
         if (info == null) return List.of();
+
+        Long cacheKey = info.getId();
+        if (acceptedCacheEnabled && cacheKey != null) {
+            AcceptedCacheEntry cached = acceptedCache.get(cacheKey);
+            if (cached != null) {
+                if (cached.expireAt > System.currentTimeMillis()) {
+                    return cached.values;
+                }
+                acceptedCache.remove(cacheKey);
+            }
+        }
+
+        List<String> normalized = parseAcceptedAnswersUncached(info);
+        // 空集合也缓存：自学习写入后会主动 invalidate，避免"空集合"被长期缓存
+        if (acceptedCacheEnabled && cacheKey != null) {
+            putAcceptedCache(cacheKey, normalized);
+        }
+        return normalized;
+    }
+
+    private List<String> parseAcceptedAnswersUncached(QuestionInfo info) {
         String json = info.getAcceptedAnswers();
         if (json == null || json.isBlank()) return List.of();
         try {
@@ -178,6 +249,32 @@ public class JudgmentEngineImpl implements JudgmentEngine {
             log.warn("解析 accepted_answers JSON 失败: json={}", json);
             return List.of();
         }
+    }
+
+    /** 写入缓存：超过上限时先清过期项，仍超限则整体清空，保持内存可预测 */
+    private void putAcceptedCache(Long questionId, List<String> values) {
+        long now = System.currentTimeMillis();
+        if (acceptedCache.size() >= acceptedCacheMaxSize) {
+            acceptedCache.entrySet().removeIf(e -> e.getValue().expireAt <= now);
+            if (acceptedCache.size() >= acceptedCacheMaxSize) {
+                acceptedCache.clear();
+            }
+        }
+        long expireAt = now + Math.max(0, acceptedCacheTtlSeconds) * 1000L;
+        acceptedCache.put(questionId, new AcceptedCacheEntry(
+                Collections.unmodifiableList(new ArrayList<>(values)), expireAt));
+    }
+
+    /** 题目 accepted_answers 变更后主动失效，避免脏读 */
+    private void invalidateAcceptedCache(Long questionId) {
+        if (questionId != null) {
+            acceptedCache.remove(questionId);
+        }
+    }
+
+    /** 仅供单测断言缓存规模 */
+    int acceptedCacheSize() {
+        return acceptedCache.size();
     }
 
     private boolean containsAccepted(List<String> acceptedList, String userAnswer) {
@@ -198,7 +295,7 @@ public class JudgmentEngineImpl implements JudgmentEngine {
                     .isCorrect(false)
                     .heuristicHint(spellingHint)
                     .errorType("SPELLING")
-                    .matchedLevel(1)
+                    .matchedLevel(JudgmentLevel.EXACT)
                     .suggestions(suggestions)
                     .build();
         }
@@ -215,7 +312,7 @@ public class JudgmentEngineImpl implements JudgmentEngine {
                     .isCorrect(false)
                     .heuristicHint(prepositionHint)
                     .errorType("PREPOSITION")
-                    .matchedLevel(1)
+                    .matchedLevel(JudgmentLevel.EXACT)
                     .suggestions(suggestions)
                     .build();
         }
@@ -227,7 +324,7 @@ public class JudgmentEngineImpl implements JudgmentEngine {
                     .isCorrect(false)
                     .heuristicHint(tenseHint)
                     .errorType("TENSE")
-                    .matchedLevel(1)
+                    .matchedLevel(JudgmentLevel.EXACT)
                     .suggestions(suggestions)
                     .build();
         }
@@ -237,7 +334,7 @@ public class JudgmentEngineImpl implements JudgmentEngine {
                     .isCorrect(false)
                     .heuristicHint(suggestions.get(0))
                     .errorType("GRAMMAR")
-                    .matchedLevel(1)
+                    .matchedLevel(JudgmentLevel.EXACT)
                     .suggestions(suggestions)
                     .build();
         }
@@ -282,7 +379,7 @@ public class JudgmentEngineImpl implements JudgmentEngine {
                 .isCorrect(false)
                 .heuristicHint(buggyPath.getHeuristicHint())
                 .errorType(buggyPath.getErrorType())
-                .matchedLevel(2)
+                .matchedLevel(JudgmentLevel.SEMANTIC)
                 .suggestions(suggestions)
                 .build();
     }
@@ -296,7 +393,7 @@ public class JudgmentEngineImpl implements JudgmentEngine {
                     .isCorrect(false)
                     .heuristicHint(hint)
                     .errorType("SIMILAR")
-                    .matchedLevel(2)
+                    .matchedLevel(JudgmentLevel.SEMANTIC)
                     .suggestions(List.of(hint))
                     .build();
         }
@@ -358,7 +455,7 @@ public class JudgmentEngineImpl implements JudgmentEngine {
                     .heuristicHint("你的答案 \"" + userAnswer + "\" 也可以用在这里，但最适合这道题的词是 \"" + correctAnswer + "\"。"
                             + (aiReason.isEmpty() ? "" : "（" + aiReason + "）"))
                     .errorType(null)
-                    .matchedLevel(2)
+                    .matchedLevel(JudgmentLevel.SEMANTIC)
                     .suggestions(List.of("近义词/同义表达，语义可接受"))
                     .isSemanticMatch(true)
                     .build();
@@ -394,7 +491,9 @@ public class JudgmentEngineImpl implements JudgmentEngine {
                 info.setAcceptedAnswers(objectMapper.writeValueAsString(acceptedList));
                 info.setAiGenerated(1);
                 questionInfoMapper.updateById(info);
-                log.info("自学习：已保存语义可接受答案 questionId={}, answer={}, total={}", 
+                // 题目数据已变更，立刻失效缓存，避免后续判题读旧值
+                invalidateAcceptedCache(questionId);
+                log.info("自学习：已保存语义可接受答案 questionId={}, answer={}, total={}",
                         questionId, answerToSave, acceptedList.size());
             }
         } catch (Exception e) {
@@ -453,7 +552,7 @@ public class JudgmentEngineImpl implements JudgmentEngine {
                 .isCorrect(false)
                 .heuristicHint(aiHint)
                 .errorType(errorType)
-                .matchedLevel(3)
+                .matchedLevel(JudgmentLevel.AI_FEEDBACK)
                 .suggestions(suggestions)
                 .build();
     }
@@ -494,7 +593,7 @@ public class JudgmentEngineImpl implements JudgmentEngine {
                     .isCorrect(false)
                     .heuristicHint("请输入译文")
                     .errorType("EMPTY")
-                    .matchedLevel(1)
+                    .matchedLevel(JudgmentLevel.EXACT)
                     .suggestions(List.of())
                     .build();
         }
@@ -508,7 +607,7 @@ public class JudgmentEngineImpl implements JudgmentEngine {
             return JudgmentResult.builder()
                     .isCorrect(true)
                     .heuristicHint("翻译正确！")
-                    .matchedLevel(1)
+                    .matchedLevel(JudgmentLevel.EXACT)
                     .suggestions(List.of())
                     .build();
         }
@@ -524,7 +623,7 @@ public class JudgmentEngineImpl implements JudgmentEngine {
                         return JudgmentResult.builder()
                                 .isCorrect(true)
                                 .heuristicHint("译文语义正确，表达地道。")
-                                .matchedLevel(2)
+                                .matchedLevel(JudgmentLevel.SEMANTIC)
                                 .suggestions(List.of("同义表达，语义可接受"))
                                 .isSemanticMatch(true)
                                 .build();
@@ -541,7 +640,7 @@ public class JudgmentEngineImpl implements JudgmentEngine {
                     .isCorrect(false)
                     .heuristicHint("译文与参考译文不一致，请对照参考译文检查表达。")
                     .errorType("MISMATCH")
-                    .matchedLevel(2)
+                    .matchedLevel(JudgmentLevel.SEMANTIC)
                     .suggestions(List.of("对照参考译文，检查关键短语与句式表达。"))
                     .build();
         }
@@ -584,7 +683,7 @@ public class JudgmentEngineImpl implements JudgmentEngine {
                     .isCorrect(true)
                     .heuristicHint("译文语义正确。" + (aiReason.isEmpty() ? "" : "（" + aiReason + "）"))
                     .errorType(null)
-                    .matchedLevel(2)
+                    .matchedLevel(JudgmentLevel.SEMANTIC)
                     .suggestions(List.of("同义表达，语义可接受"))
                     .isSemanticMatch(true)
                     .build();
@@ -595,7 +694,7 @@ public class JudgmentEngineImpl implements JudgmentEngine {
                 .isCorrect(false)
                 .heuristicHint("译文与参考译文存在偏差，请对照参考译文修改。")
                 .errorType("MISMATCH")
-                .matchedLevel(3)
+                .matchedLevel(JudgmentLevel.AI_FEEDBACK)
                 .suggestions(List.of("对照参考译文，检查关键短语、时态与句式。"))
                 .build();
     }

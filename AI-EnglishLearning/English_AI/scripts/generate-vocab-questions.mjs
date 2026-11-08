@@ -1282,9 +1282,17 @@ ${leftovers.length ? `### 7.1 遗留分片（本次未覆盖、**不要导入**�
   if (!opts.dryRun) console.log(`分片：${parts.map((p) => p.file).join(', ')}`)
 }
 
-try {
-  main()
-} catch (err) {
-  console.error(`[error] ${err.message}`)
-  process.exit(1)
+// 仅作为脚本直接运行时才执行；被其他脚本 import 时只导出工具函数
+const isEntryModule =
+  process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+
+if (isEntryModule) {
+  try {
+    main()
+  } catch (err) {
+    console.error(`[error] ${err.message}`)
+    process.exit(1)
+  }
 }
+
+export { buildForms, categoryOf, inflect }

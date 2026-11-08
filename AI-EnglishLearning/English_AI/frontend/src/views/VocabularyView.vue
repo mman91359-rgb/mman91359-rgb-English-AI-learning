@@ -82,7 +82,7 @@
       v-else-if="filteredWords.length === 0"
       icon="bookmark_border"
       :title="emptyHint"
-      description="在上方输入单词开始积累"
+      :description="$t('learning.vocabularyEmptyHint')"
     />
 
     <div v-else class="space-y-3">

@@ -15,13 +15,13 @@ public class SysUser {
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    /** 用户名（登录账号） */
+    /** 昵称（展示用，可空可重复；不再是登录标识） */
     private String username;
 
     /** BCrypt加密密码 */
     private String password;
 
-    /** 昵称 */
+    /** 昵称（冗余展示字段，与 username 保持一致） */
     private String nickname;
 
     /** 头像URL */
@@ -30,8 +30,11 @@ public class SysUser {
     /** 考试级别: CET4 / CET6 */
     private String cetLevel;
 
-    /** 手机号 */
+    /** 手机号（登录标识之一） */
     private String phone;
+
+    /** 邮箱（登录标识之一） */
+    private String email;
 
     /** 角色: ROLE_USER / ROLE_ADMIN */
     private String roles;

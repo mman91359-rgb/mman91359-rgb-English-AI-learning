@@ -60,7 +60,11 @@ public class AdminAuthInterceptor implements HandlerInterceptor {
             return reject(response, HttpServletResponse.SC_FORBIDDEN, "管理员身份已失效");
         }
 
-        AdminContext.set(userId, user.getUsername(), resolveIp(request));
+        // 审计用操作者名称：优先昵称，昵称为空回退用户名
+        String operatorName = user.getNickname() != null && !user.getNickname().isBlank()
+                ? user.getNickname()
+                : user.getUsername();
+        AdminContext.set(userId, operatorName, resolveIp(request));
         return true;
     }
 

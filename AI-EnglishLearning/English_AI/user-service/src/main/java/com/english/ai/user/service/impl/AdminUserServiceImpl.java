@@ -78,7 +78,8 @@ public class AdminUserServiceImpl implements AdminUserService {
         if (keyword != null) {
             wrapper.and(w -> w.like(SysUser::getUsername, keyword)
                     .or().like(SysUser::getNickname, keyword)
-                    .or().like(SysUser::getPhone, keyword));
+                    .or().like(SysUser::getPhone, keyword)
+                    .or().like(SysUser::getEmail, keyword));
         }
         if (trimToNull(query.getRole()) != null) {
             wrapper.eq(SysUser::getRoles, query.getRole().trim());

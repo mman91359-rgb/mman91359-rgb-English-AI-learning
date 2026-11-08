@@ -8,16 +8,18 @@ import lombok.Data;
 @Data
 public class RegisterRequest {
 
-    /** 用户名 */
-    private String username;
+    /** 昵称（可选，为空时自动生成） */
+    private String nickname;
 
     /** 明文密码 */
     private String password;
 
-    /** 手机号 */
+    /** 手机号（登录标识，与邮箱至少一个非空） */
     private String phone;
+
+    /** 邮箱（登录标识，与手机号至少一个非空） */
+    private String email;
 
     /** 考试级别: CET4 / CET6 */
     private String cetLevel;
 }
-

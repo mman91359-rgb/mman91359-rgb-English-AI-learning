@@ -2,7 +2,7 @@ import { post, get, put } from './request'
 import instance from './request'
 
 export interface LoginRequest {
-  username: string
+  account: string
   password: string
 }
 
@@ -13,6 +13,7 @@ export interface LoginResponse {
   nickname: string
   avatarUrl: string
   phone: string
+  email: string
   cetLevel: string
   roles: string
   eloScore: number
@@ -20,9 +21,10 @@ export interface LoginResponse {
 }
 
 export interface RegisterRequest {
-  username: string
+  nickname?: string
   password: string
   phone?: string
+  email?: string
   cetLevel?: string
 }
 

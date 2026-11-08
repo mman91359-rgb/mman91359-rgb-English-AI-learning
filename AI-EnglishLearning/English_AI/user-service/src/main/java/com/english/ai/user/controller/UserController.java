@@ -45,36 +45,42 @@ public class UserController {
 
     @PostMapping("/register")
     public Result<Long> register(@RequestBody RegisterRequest request) {
-        if (request.getUsername() == null || request.getUsername().isBlank()) {
-            return Result.badRequest("用户名不能为空");
-        }
         if (request.getPassword() == null || request.getPassword().length() < 6) {
             return Result.badRequest("密码不能少于6位");
+        }
+        // 手机号与邮箱至少一个非空
+        if (isBlank(request.getPhone()) && isBlank(request.getEmail())) {
+            return Result.badRequest("手机号和邮箱至少填写一个");
+        }
+        // 昵称限长（可选）
+        if (!isBlank(request.getNickname()) && request.getNickname().trim().length() > 20) {
+            return Result.badRequest("昵称长度不能超过20个字符");
         }
         try {
             Long userId = userService.register(request);
             log.info("注册接口调用成功: userId={}", userId);
             return Result.success(userId);
         } catch (RuntimeException e) {
-            log.warn("注册失败: username={}, reason={}", request.getUsername(), e.getMessage());
+            log.warn("注册失败: phone={}, email={}, reason={}",
+                    request.getPhone(), request.getEmail(), e.getMessage());
             return Result.conflict(e.getMessage());
         }
     }
 
     @PostMapping("/login")
     public Result<LoginResponse> login(@RequestBody LoginRequest request) {
-        if (request.getUsername() == null || request.getUsername().isBlank()) {
-            return Result.badRequest("用户名不能为空");
+        if (request.getAccount() == null || request.getAccount().isBlank()) {
+            return Result.badRequest("请输入手机号或邮箱");
         }
         if (request.getPassword() == null || request.getPassword().isBlank()) {
             return Result.badRequest("密码不能为空");
         }
         try {
             LoginResponse response = userService.login(request);
-            log.info("登录接口调用成功: username={}", request.getUsername());
+            log.info("登录接口调用成功: account={}", request.getAccount());
             return Result.success(response);
         } catch (RuntimeException e) {
-            log.warn("登录失败: username={}, reason={}", request.getUsername(), e.getMessage());
+            log.warn("登录失败: account={}, reason={}", request.getAccount(), e.getMessage());
             return Result.unauthorized(e.getMessage());
         }
     }
@@ -370,5 +376,12 @@ public class UserController {
         log.info("定级评估: userId={}, difficulty={}, correct={}, newElo={}",
                 request.getUserId(), request.getDifficultyLevel(), request.getIsCorrect(), newElo);
         return Result.success(data);
+    }
+
+    /**
+     * 判断字符串是否为空或空白
+     */
+    private boolean isBlank(String value) {
+        return value == null || value.isBlank();
     }
 }

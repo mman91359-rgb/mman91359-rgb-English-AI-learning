@@ -16,10 +16,10 @@ public class LoginResponse {
     /** 用户ID */
     private Long userId;
 
-    /** 用户名 */
+    /** 昵称（展示用） */
     private String username;
 
-    /** 昵称 */
+    /** 昵称（与 username 一致，保留兼容） */
     private String nickname;
 
     /** 头像URL */
@@ -27,6 +27,9 @@ public class LoginResponse {
 
     /** 手机号 */
     private String phone;
+
+    /** 邮箱 */
+    private String email;
 
     /** 考试级别 */
     private String cetLevel;

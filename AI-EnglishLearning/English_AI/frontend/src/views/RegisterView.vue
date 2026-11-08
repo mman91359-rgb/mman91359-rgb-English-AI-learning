@@ -69,18 +69,17 @@
             <form class="space-y-5" @submit.prevent="handleRegister">
               <div class="relative group">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <span class="material-symbols-outlined text-secondary group-focus-within:text-primary transition-colors">person</span>
+                  <span class="material-symbols-outlined text-secondary group-focus-within:text-primary transition-colors">badge</span>
                 </div>
                 <input
-                  v-model="form.username"
+                  v-model="form.nickname"
                   class="w-full py-3.5 pl-12 pr-4 bg-background border border-outline-variant rounded-[16px] text-on-surface placeholder-outline font-body-md text-body-md focus:bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all"
-                  :placeholder="$t('auth.username')"
-                  required
+                  :placeholder="$t('auth.nicknamePlaceholder')"
                   type="text"
                 />
-              <p v-if="validationErrors.username" class="mt-1.5 px-1 font-label-sm text-label-sm text-red-500 flex items-center gap-1">
+              <p v-if="validationErrors.nickname" class="mt-1.5 px-1 font-label-sm text-label-sm text-red-500 flex items-center gap-1">
                 <span class="material-symbols-outlined text-sm">error</span>
-                {{ validationErrors.username }}
+                {{ validationErrors.nickname }}
               </p>
             </div>
 
@@ -92,12 +91,27 @@
                   v-model="form.phone"
                   class="w-full py-3.5 pl-12 pr-4 bg-background border border-outline-variant rounded-[16px] text-on-surface placeholder-outline font-body-md text-body-md focus:bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all"
                   :placeholder="$t('auth.phone')"
-                  required
                   type="tel"
                 />
                 <p v-if="validationErrors.phone" class="mt-1.5 px-1 font-label-sm text-label-sm text-red-500 flex items-center gap-1">
                   <span class="material-symbols-outlined text-sm">error</span>
                   {{ validationErrors.phone }}
+                </p>
+              </div>
+
+              <div class="relative group">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <span class="material-symbols-outlined text-secondary group-focus-within:text-primary transition-colors">alternate_email</span>
+                </div>
+                <input
+                  v-model="form.email"
+                  class="w-full py-3.5 pl-12 pr-4 bg-background border border-outline-variant rounded-[16px] text-on-surface placeholder-outline font-body-md text-body-md focus:bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all"
+                  :placeholder="$t('auth.email')"
+                  type="email"
+                />
+                <p v-if="validationErrors.email" class="mt-1.5 px-1 font-label-sm text-label-sm text-red-500 flex items-center gap-1">
+                  <span class="material-symbols-outlined text-sm">error</span>
+                  {{ validationErrors.email }}
                 </p>
               </div>
 
@@ -214,16 +228,18 @@ const { show: toast } = useToast()
 const isLogin = computed(() => route.path === '/login')
 
 const form = ref({
-  username: '',
+  nickname: '',
   phone: '',
+  email: '',
   password: '',
   confirmPassword: '',
   cetLevel: ''
 })
 
 const validationErrors = ref({
-  username: '',
+  nickname: '',
   phone: '',
+  email: '',
   password: '',
   confirmPassword: '',
   cetLevel: ''
@@ -243,15 +259,27 @@ const toggleConfirmPassword = () => {
 }
 
 const validate = (): boolean => {
-  const err = { username: '', phone: '', password: '', confirmPassword: '', cetLevel: '' }
+  const err = { nickname: '', phone: '', email: '', password: '', confirmPassword: '', cetLevel: '' }
   let valid = true
 
-  if (!form.value.username.trim()) {
-    err.username = '请输入用户名'
+  // 昵称可选，但填了则限制长度
+  if (form.value.nickname.trim() && form.value.nickname.trim().length > 20) {
+    err.nickname = '昵称长度不能超过20个字符'
     valid = false
   }
-  if (!/^1[3-9]\d{9}$/.test(form.value.phone.trim())) {
+  // 手机号与邮箱至少填一个
+  const hasPhone = form.value.phone.trim() !== ''
+  const hasEmail = form.value.email.trim() !== ''
+  if (!hasPhone && !hasEmail) {
+    err.phone = '手机号和邮箱至少填写一个'
+    valid = false
+  }
+  if (hasPhone && !/^1[3-9]\d{9}$/.test(form.value.phone.trim())) {
     err.phone = '请输入有效手机号'
+    valid = false
+  }
+  if (hasEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.value.email.trim())) {
+    err.email = '请输入有效邮箱'
     valid = false
   }
   if (!form.value.password || form.value.password.length < 6) {
@@ -277,14 +305,16 @@ const handleRegister = async () => {
   try {
     // 1. 注册
     await userStore.register({
-      username: form.value.username,
-      phone: form.value.phone.trim(),
+      nickname: form.value.nickname.trim() || undefined,
+      phone: form.value.phone.trim() || undefined,
+      email: form.value.email.trim() || undefined,
       password: form.value.password,
       cetLevel: form.value.cetLevel
     })
-    // 2. 直接登录（免去二次输入）
+    // 2. 直接登录（用手机号或邮箱其一）
+    const account = form.value.phone.trim() || form.value.email.trim()
     await userStore.login({
-      username: form.value.username,
+      account,
       password: form.value.password
     })
     toast('注册成功，欢迎加入！', 'success')

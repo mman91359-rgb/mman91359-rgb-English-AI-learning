@@ -8,8 +8,8 @@ import lombok.Data;
 @Data
 public class LoginRequest {
 
-    /** 用户名 */
-    private String username;
+    /** 登录标识：手机号 或 邮箱 */
+    private String account;
 
     /** 明文密码 */
     private String password;

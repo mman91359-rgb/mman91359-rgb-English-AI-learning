@@ -67,12 +67,12 @@
             <form class="space-y-5" @submit.prevent="handleLogin">
               <div class="relative group">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <span class="material-symbols-outlined text-secondary group-focus-within:text-primary transition-colors">person</span>
+                  <span class="material-symbols-outlined text-secondary group-focus-within:text-primary transition-colors">alternate_email</span>
                 </div>
                 <input
-                  v-model="username"
+                  v-model="account"
                   class="w-full py-3.5 pl-12 pr-4 bg-background border border-outline-variant rounded-[16px] text-on-surface placeholder-outline font-body-md text-body-md focus:bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all"
-                  :placeholder="$t('auth.username')"
+                  :placeholder="$t('auth.accountPlaceholder')"
                   required
                   type="text"
                   autocomplete="off"
@@ -147,7 +147,7 @@ const { show: toast } = useToast()
 
 const isLogin = computed(() => route.path === '/login')
 
-const username = ref('')
+const account = ref('')
 const password = ref('')
 const showPassword = ref(false)
 
@@ -158,8 +158,8 @@ const togglePassword = () => {
 }
 
 const handleLogin = async () => {
-  if (!username.value.trim()) {
-    toast(t('auth.username') + '不能为空', 'warning')
+  if (!account.value.trim()) {
+    toast(t('auth.accountEmpty'), 'warning')
     return
   }
   if (!password.value) {
@@ -167,7 +167,7 @@ const handleLogin = async () => {
     return
   }
   try {
-    await userStore.login({ username: username.value, password: password.value })
+    await userStore.login({ account: account.value.trim(), password: password.value })
     toast(t('auth.loginSuccess'), 'success')
     // 等下一个微任务周期确保 store 状态已经更新，再导航
     await new Promise(r => setTimeout(r, 50))

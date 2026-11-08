@@ -26,9 +26,14 @@ public interface UserService {
     SysUser getById(Long userId);
 
     /**
-     * 根据用户名查询用户
+     * 根据用户名查询用户（用户名已降级为昵称，此方法仅用于兼容查询，非登录）
      */
     SysUser getByUsername(String username);
+
+    /**
+     * 根据登录标识（手机号或邮箱）查询用户
+     */
+    SysUser getByAccount(String account);
 
     /**
      * 更新用户头像URL

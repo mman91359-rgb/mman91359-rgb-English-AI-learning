@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Slf4j
 @Service
@@ -33,22 +34,40 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Long register(RegisterRequest request) {
-        SysUser exist = getByUsername(request.getUsername());
-        if (exist != null) {
-            throw new RuntimeException("用户名已存在: " + request.getUsername());
+        // 手机号与邮箱至少一个非空
+        String phone = trimToNull(request.getPhone());
+        String email = trimToNull(request.getEmail());
+        if (phone == null && email == null) {
+            throw new RuntimeException("手机号和邮箱至少填写一个");
+        }
+
+        // 登录标识唯一性校验
+        if (phone != null && getByAccount(phone) != null) {
+            throw new RuntimeException("该手机号已被注册");
+        }
+        if (email != null && getByAccount(email) != null) {
+            throw new RuntimeException("该邮箱已被注册");
+        }
+
+        // 昵称：为空时自动生成
+        String nickname = trimToNull(request.getNickname());
+        if (nickname == null) {
+            nickname = generateNickname();
         }
 
         SysUser user = new SysUser();
-        user.setUsername(request.getUsername());
+        user.setUsername(nickname);
+        user.setNickname(nickname);
         user.setPassword(PasswordUtil.encode(request.getPassword()));
-        user.setNickname(request.getUsername());
         user.setCetLevel(request.getCetLevel());
-        user.setPhone(request.getPhone());
+        user.setPhone(phone);
+        user.setEmail(email);
         user.setRoles("ROLE_USER");
         user.setStatus(1);
 
         userMapper.insert(user);
-        log.info("新用户注册成功: userId={}, username={}", user.getId(), user.getUsername());
+        log.info("新用户注册成功: userId={}, phone={}, email={}, nickname={}",
+                user.getId(), phone, email, nickname);
 
         // 初始化能力雷达记录，ELO=1000
         radarService.initRadar(user.getId(), request.getCetLevel());
@@ -58,9 +77,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public LoginResponse login(LoginRequest request) {
-        SysUser user = getByUsername(request.getUsername());
+        SysUser user = getByAccount(request.getAccount());
         if (user == null) {
-            throw new RuntimeException("用户名或密码错误");
+            throw new RuntimeException("账号或密码错误");
         }
 
         if (user.getStatus() == 0) {
@@ -68,7 +87,7 @@ public class UserServiceImpl implements UserService {
         }
 
         if (!PasswordUtil.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("用户名或密码错误");
+            throw new RuntimeException("账号或密码错误");
         }
 
         // 存量哈希强度与当前配置不一致时，借这次 updateById 一并重编码（仅首次登录触发一次）
@@ -77,14 +96,16 @@ public class UserServiceImpl implements UserService {
             log.info("密码哈希已按当前强度重编码: userId={}", user.getId());
         }
 
+        // 昵称兜底：历史数据可能 username 为空
+        String nickname = user.getNickname() != null ? user.getNickname() : user.getUsername();
         String token = Roles.isAdmin(user.getRoles())
-                ? JwtUtil.generate(user.getId(), user.getUsername(), user.getRoles(), adminExpiration)
-                : JwtUtil.generate(user.getId(), user.getUsername(), user.getRoles());
+                ? JwtUtil.generate(user.getId(), nickname, user.getRoles(), adminExpiration)
+                : JwtUtil.generate(user.getId(), nickname, user.getRoles());
 
         user.setLastLoginAt(LocalDateTime.now());
         userMapper.updateById(user);
 
-        log.info("用户登录成功: userId={}, username={}", user.getId(), user.getUsername());
+        log.info("用户登录成功: userId={}, nickname={}", user.getId(), nickname);
 
         // 查询雷达数据获取ELO
         Integer eloScore = null;
@@ -98,12 +119,11 @@ public class UserServiceImpl implements UserService {
         return LoginResponse.builder()
                 .token(token)
                 .userId(user.getId())
-                .username(user.getUsername(
-
-                ))
-                .nickname(user.getNickname())
+                .username(nickname)
+                .nickname(nickname)
                 .avatarUrl(user.getAvatarUrl())
                 .phone(user.getPhone())
+                .email(user.getEmail())
                 .cetLevel(user.getCetLevel())
                 .roles(user.getRoles())
                 .eloScore(eloScore)
@@ -121,6 +141,37 @@ public class UserServiceImpl implements UserService {
         LambdaQueryWrapper<SysUser> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(SysUser::getUsername, username);
         return userMapper.selectOne(wrapper);
+    }
+
+    @Override
+    public SysUser getByAccount(String account) {
+        if (account == null || account.isBlank()) {
+            return null;
+        }
+        String value = account.trim();
+        LambdaQueryWrapper<SysUser> wrapper = new LambdaQueryWrapper<>();
+        // 按手机号或邮箱精确匹配
+        wrapper.and(w -> w.eq(SysUser::getPhone, value).or().eq(SysUser::getEmail, value));
+        return userMapper.selectOne(wrapper);
+    }
+
+    /**
+     * 昵称为空时自动生成：用户 + 4位随机数字
+     */
+    private String generateNickname() {
+        int suffix = ThreadLocalRandom.current().nextInt(1000, 10000);
+        return "用户" + suffix;
+    }
+
+    /**
+     * 去除空白，空串返回 null
+     */
+    private String trimToNull(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
     }
 
     /**

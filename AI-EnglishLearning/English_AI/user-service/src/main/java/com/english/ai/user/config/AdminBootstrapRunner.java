@@ -48,23 +48,25 @@ public class AdminBootstrapRunner implements ApplicationRunner {
             log.error("管理员初始密码强度不足（至少12位且不能等于用户名），跳过管理员引导");
             return;
         }
+        // 登录标识改为邮箱；管理员引导使用占位邮箱作为登录标识
         SysUser existing = userMapper.selectOne(new LambdaQueryWrapper<SysUser>()
-                .eq(SysUser::getUsername, username));
+                .eq(SysUser::getEmail, username + "@recall.local"));
         if (existing != null) {
-            log.error("用户名 {} 已被占用且不是启用管理员，跳过管理员引导", username);
+            log.error("邮箱 {} 已被占用且不是启用管理员，跳过管理员引导", username + "@recall.local");
             return;
         }
 
         SysUser admin = new SysUser();
         admin.setUsername(username);
-        admin.setPassword(PasswordUtil.encode(adminPassword));
         admin.setNickname("管理员");
+        admin.setEmail(username + "@recall.local");
+        admin.setPassword(PasswordUtil.encode(adminPassword));
         admin.setCetLevel("CET4");
         admin.setRoles(Roles.ADMIN);
         admin.setStatus(1);
         try {
             userMapper.insert(admin);
-            log.info("管理员引导完成: username={}", username);
+            log.info("管理员引导完成: username={}, email={}", username, username + "@recall.local");
         } catch (DuplicateKeyException e) {
             log.info("管理员已由其他实例创建，忽略本次引导");
         }

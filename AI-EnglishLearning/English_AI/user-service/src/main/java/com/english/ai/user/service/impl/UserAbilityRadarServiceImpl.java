@@ -36,6 +36,8 @@ public class UserAbilityRadarServiceImpl implements UserAbilityRadarService {
         radar.setGrammarScore(BigDecimal.ZERO);
         radar.setListeningScore(BigDecimal.ZERO);
         radar.setReadingScore(BigDecimal.ZERO);
+        radar.setTranslationScore(BigDecimal.ZERO);
+        radar.setWritingScore(BigDecimal.ZERO);
         radar.setEloScore(1000);
         radar.setTargetLevel(targetLevel);
         radarMapper.insert(radar);
@@ -69,7 +71,7 @@ public class UserAbilityRadarServiceImpl implements UserAbilityRadarService {
     public void updateModuleScore(Long userId, int moduleType, boolean isCorrect) {
         RadarDimension dimension = ModuleType.radarDimensionOf(moduleType);
         if (dimension == null) {
-            // 写作(6)等暂无雷达列的模块只更新 ELO/日志，不写模块分
+            // 未知模块没有对应雷达列，只更新 ELO/日志，不写模块分
             log.warn("模块无对应雷达维度，跳过模块分更新: userId={}, moduleType={}", userId, moduleType);
             return;
         }
@@ -88,6 +90,33 @@ public class UserAbilityRadarServiceImpl implements UserAbilityRadarService {
                 userId, moduleType, dimension, isCorrect, current, newScore);
     }
 
+    @Override
+    public void updateModuleScoreByValue(Long userId, int moduleType, double score0to100) {
+        RadarDimension dimension = ModuleType.radarDimensionOf(moduleType);
+        if (dimension == null) {
+            log.warn("模块无对应雷达维度，跳过模块分更新: userId={}, moduleType={}", userId, moduleType);
+            return;
+        }
+        double target = Math.max(0, Math.min(100, score0to100));
+        UserAbilityRadar radar = getOrCreateRadar(userId);
+        BigDecimal current = getModuleScore(radar, dimension);
+        BigDecimal newScore = movingWeighted(current, target);
+        setModuleScore(radar, dimension, newScore);
+        radarMapper.updateById(radar);
+        log.info("模块分更新(按分值): userId={}, moduleType={}, dimension={}, target={}, {}→{}",
+                userId, moduleType, dimension, target, current, newScore);
+    }
+
+    /**
+     * 移动加权：向目标值靠近 10%，与对错二值累计保持同一手感。
+     */
+    private BigDecimal movingWeighted(BigDecimal current, double target) {
+        double base = current == null ? 0 : current.doubleValue();
+        double newVal = base + (target - base) * 0.1;
+        newVal = Math.max(0, Math.min(100, newVal));
+        return BigDecimal.valueOf(Math.round(newVal * 10) / 10.0);
+    }
+
     private UserAbilityRadar getOrCreateRadar(Long userId) {
         UserAbilityRadar radar = getByUserId(userId);
         if (radar == null) {
@@ -104,6 +133,8 @@ public class UserAbilityRadarServiceImpl implements UserAbilityRadarService {
             case GRAMMAR -> radar.getGrammarScore();
             case LISTENING -> radar.getListeningScore();
             case READING -> radar.getReadingScore();
+            case TRANSLATION -> radar.getTranslationScore();
+            case WRITING -> radar.getWritingScore();
         };
     }
 
@@ -113,6 +144,8 @@ public class UserAbilityRadarServiceImpl implements UserAbilityRadarService {
             case GRAMMAR -> radar.setGrammarScore(score);
             case LISTENING -> radar.setListeningScore(score);
             case READING -> radar.setReadingScore(score);
+            case TRANSLATION -> radar.setTranslationScore(score);
+            case WRITING -> radar.setWritingScore(score);
         }
     }
 
@@ -137,6 +170,10 @@ public class UserAbilityRadarServiceImpl implements UserAbilityRadarService {
                 ? radar.getListeningScore().setScale(1, RoundingMode.HALF_UP) : BigDecimal.ZERO);
         data.put("readingScore", radar.getReadingScore() != null
                 ? radar.getReadingScore().setScale(1, RoundingMode.HALF_UP) : BigDecimal.ZERO);
+        data.put("translationScore", radar.getTranslationScore() != null
+                ? radar.getTranslationScore().setScale(1, RoundingMode.HALF_UP) : BigDecimal.ZERO);
+        data.put("writingScore", radar.getWritingScore() != null
+                ? radar.getWritingScore().setScale(1, RoundingMode.HALF_UP) : BigDecimal.ZERO);
 
         // 雷达图最大值100，计算归一化比例
         double maxRadar = 100.0;
@@ -144,6 +181,8 @@ public class UserAbilityRadarServiceImpl implements UserAbilityRadarService {
         data.put("grammarPercent", calcPercent(radar.getGrammarScore(), maxRadar));
         data.put("listeningPercent", calcPercent(radar.getListeningScore(), maxRadar));
         data.put("readingPercent", calcPercent(radar.getReadingScore(), maxRadar));
+        data.put("translationPercent", calcPercent(radar.getTranslationScore(), maxRadar));
+        data.put("writingPercent", calcPercent(radar.getWritingScore(), maxRadar));
 
         // ELO等级进度环数据
         int[] range = eloRange(radar.getEloScore());
@@ -162,10 +201,14 @@ public class UserAbilityRadarServiceImpl implements UserAbilityRadarService {
         data.put("grammarScore", 0);
         data.put("listeningScore", 0);
         data.put("readingScore", 0);
+        data.put("translationScore", 0);
+        data.put("writingScore", 0);
         data.put("vocabularyPercent", 0);
         data.put("grammarPercent", 0);
         data.put("listeningPercent", 0);
         data.put("readingPercent", 0);
+        data.put("translationPercent", 0);
+        data.put("writingPercent", 0);
         data.put("eloFloor", 0);
         data.put("eloCeil", 1250);
         data.put("eloProgress", 80);

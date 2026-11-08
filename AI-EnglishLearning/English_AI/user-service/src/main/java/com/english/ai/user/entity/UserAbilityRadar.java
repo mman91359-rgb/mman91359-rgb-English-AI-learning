@@ -31,6 +31,12 @@ public class UserAbilityRadar {
     /** 阅读能力分 */
     private BigDecimal readingScore;
 
+    /** 翻译能力分 */
+    private BigDecimal translationScore;
+
+    /** 写作能力分 */
+    private BigDecimal writingScore;
+
     /** ELO隐藏分 */
     private Integer eloScore;
 

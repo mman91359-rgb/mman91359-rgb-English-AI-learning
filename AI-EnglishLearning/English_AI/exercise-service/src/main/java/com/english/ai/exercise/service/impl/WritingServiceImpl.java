@@ -42,6 +42,9 @@ public class WritingServiceImpl implements WritingService {
     @Value("${service.ai.url}")
     private String aiServiceUrl;
 
+    @Value("${service.user.url:http://localhost:8081}")
+    private String userServiceUrl;
+
     @Override
     public WritingSubmitResponse submit(WritingSubmitRequest request) {
         // 1. 先落库（AI 评分前，保证作文不丢）
@@ -69,6 +72,7 @@ public class WritingServiceImpl implements WritingService {
                 log.warn("评分 JSON 序列化失败: {}", e.getMessage());
             }
             writingEssayMapper.updateById(essay);
+            syncWritingScore(essay, score);
             return buildResponse(essay, score, true, null);
         }
 
@@ -95,6 +99,7 @@ public class WritingServiceImpl implements WritingService {
             log.warn("评分 JSON 序列化失败: {}", e.getMessage());
         }
         writingEssayMapper.updateById(essay);
+        syncWritingScore(essay, score);
         return buildResponse(essay, score, true, null);
     }
 
@@ -114,6 +119,50 @@ public class WritingServiceImpl implements WritingService {
             throw new BusinessException(ErrorCode.NOT_FOUND, "作文不存在");
         }
         return toResponse(essay, essay.getAiScored() != null && essay.getAiScored() == 1);
+    }
+
+    /**
+     * 评分成功后把作文得分率回写到能力雷达的写作维度（moduleType=6）。
+     * 跨服务失败只告警，不影响作文保存与评分结果。
+     */
+    private void syncWritingScore(WritingEssay essay, WritingScoreDTO score) {
+        Double percent = writingPercent(score);
+        if (percent == null || essay.getUserId() == null) {
+            return;
+        }
+        try {
+            String url = userServiceUrl + "/user/radar/update-module-score";
+            Map<String, Object> body = new HashMap<>();
+            body.put("userId", essay.getUserId());
+            body.put("moduleType", 6);
+            body.put("score", Math.round(percent * 10) / 10.0);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+            restTemplate.postForEntity(url, entity, String.class);
+        } catch (Exception e) {
+            log.warn("回写作文能力分失败（不影响作文保存）: essayId={}, reason={}",
+                    essay.getId(), e.getMessage());
+        }
+    }
+
+    /**
+     * 得分率折算到 0~100：优先按原始分/满分，缺失时退回 weightedScore，都没有则返回 null。
+     */
+    private Double writingPercent(WritingScoreDTO score) {
+        if (score == null) {
+            return null;
+        }
+        double percent;
+        if (score.getRawScore() != null && score.getMaxRawScore() != null && score.getMaxRawScore() > 0) {
+            percent = score.getRawScore() * 100.0 / score.getMaxRawScore();
+        } else if (score.getWeightedScore() != null) {
+            percent = score.getWeightedScore();
+        } else {
+            return null;
+        }
+        return Math.max(0, Math.min(100, percent));
     }
 
     /**

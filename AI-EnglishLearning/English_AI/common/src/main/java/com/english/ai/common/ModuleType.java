@@ -11,13 +11,13 @@ public enum ModuleType {
 
     VOCABULARY(1, "词汇", "FILL_BLANK", RadarDimension.VOCABULARY),
     GRAMMAR(2, "语法", "SENTENCE_MAKING", RadarDimension.GRAMMAR),
-    TRANSLATION(3, "翻译", "TRANSLATION", RadarDimension.READING),
+    TRANSLATION(3, "翻译", "TRANSLATION", RadarDimension.TRANSLATION),
     LISTENING(4, "听力", "CHOICE", RadarDimension.LISTENING),
     SENTENCE_MAKING(5, "造句", "SENTENCE_MAKING", RadarDimension.GRAMMAR),
     /**
-     * 写作暂无独立雷达列，模块分不更新；未来新增 writing_score 时只需改此映射。
+     * 写作分由 AI 评分结果按得分率写入（非对错二值），见 updateModuleScoreByValue。
      */
-    WRITING(6, "写作", "WRITING", null),
+    WRITING(6, "写作", "WRITING", RadarDimension.WRITING),
     /**
      * 阅读模块：题型不强制（仔细阅读/信息匹配用 CHOICE，选词填空用 FILL_BLANK），
      * defaultQuestionType 为 null 表示选题时不按题型过滤。
@@ -61,7 +61,8 @@ public enum ModuleType {
     }
 
     /**
-     * 模块对应的雷达维度。未知模块和写作返回 null，表示不更新模块分。
+     * 模块对应的雷达维度。未知模块返回 null，表示不更新模块分。
+     * 六个已知模块均有一一对应的维度；写作分由评分结果回写，不参与对错二值累计。
      */
     public static RadarDimension radarDimensionOf(Integer code) {
         ModuleType type = of(code);

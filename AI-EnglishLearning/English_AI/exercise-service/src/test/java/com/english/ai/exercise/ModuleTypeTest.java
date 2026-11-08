@@ -30,10 +30,10 @@ class ModuleTypeTest {
     void radarDimensionMatchesContract() {
         assertEquals(RadarDimension.VOCABULARY, ModuleType.radarDimensionOf(1));
         assertEquals(RadarDimension.GRAMMAR, ModuleType.radarDimensionOf(2));
-        assertEquals(RadarDimension.READING, ModuleType.radarDimensionOf(3));
+        assertEquals(RadarDimension.TRANSLATION, ModuleType.radarDimensionOf(3));
         assertEquals(RadarDimension.LISTENING, ModuleType.radarDimensionOf(4));
         assertEquals(RadarDimension.GRAMMAR, ModuleType.radarDimensionOf(5));
-        assertNull(ModuleType.radarDimensionOf(6));
+        assertEquals(RadarDimension.WRITING, ModuleType.radarDimensionOf(6));
         assertEquals(RadarDimension.READING, ModuleType.radarDimensionOf(7));
         assertNull(ModuleType.radarDimensionOf(null));
         assertNull(ModuleType.radarDimensionOf(99));

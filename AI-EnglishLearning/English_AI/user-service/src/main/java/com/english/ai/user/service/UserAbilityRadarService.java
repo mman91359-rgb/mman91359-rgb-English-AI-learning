@@ -18,6 +18,13 @@ public interface UserAbilityRadarService {
     /** 更新模块维度分（答题后调用，移动加权平均） */
     void updateModuleScore(Long userId, int moduleType, boolean isCorrect);
 
+    /**
+     * 按百分制得分更新模块维度分（移动加权平均），用于写作等连续分模块。
+     *
+     * @param score0to100 本次得分率折算到 0~100，超出范围会被截断
+     */
+    void updateModuleScoreByValue(Long userId, int moduleType, double score0to100);
+
     /** 获取能力雷达图数据（供前端） */
     Map<String, Object> getRadarData(Long userId);
 }

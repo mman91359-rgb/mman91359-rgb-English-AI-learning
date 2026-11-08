@@ -162,55 +162,93 @@
       </div>
     </section>
 
-    <!-- 积分与设置 -->
+    <!-- 能力画像与设置 -->
     <section class="grid grid-cols-1 md:grid-cols-3 gap-8">
-      <!-- 个人积分 -->
+      <!-- 能力画像：分数 + 雷达图 -->
       <div class="md:col-span-2 bg-surface-container-lowest rounded-[24px] p-8 soft-shadow border border-surface-container-low">
-        <div class="flex justify-between items-center mb-8">
-          <h3 class="font-headline-md text-headline-md text-on-background">{{ $t('profile.title') }}</h3>
+        <div class="flex items-center justify-between gap-4 mb-6">
+          <h3 class="font-headline-md text-headline-md text-on-background">{{ $t('profile.ability.title') }}</h3>
+          <span
+            v-if="radar"
+            class="px-3 py-1 rounded-full bg-primary-container/20 font-label-sm text-label-sm text-primary whitespace-nowrap"
+          >
+            {{ radar.eloLevel || $t('profile.beginner') }}
+          </span>
         </div>
-        <div class="bg-surface-container-low rounded-2xl p-6 text-center mb-8">
-          <p class="font-label-md text-label-md text-on-surface-variant mb-2 uppercase tracking-wider">{{ $t('profile.totalScore') }}</p>
-          <p class="font-display-lg text-display-lg text-primary-fixed-dim">{{ totalScore }}</p>
+
+        <!-- 加载态 -->
+        <div v-if="radarLoading" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div class="space-y-3">
+            <div class="h-3 w-16 rounded-full bg-surface-container animate-pulse"></div>
+            <div class="h-12 w-28 rounded-xl bg-surface-container animate-pulse"></div>
+            <div class="h-1.5 w-full rounded-full bg-surface-container animate-pulse"></div>
+          </div>
+          <div class="h-[280px] w-full rounded-2xl bg-surface-container animate-pulse"></div>
         </div>
-        <div class="space-y-4">
-          <div class="flex items-center justify-between p-4 rounded-xl hover:bg-surface-container-low transition-colors group cursor-default">
-            <div class="flex items-center gap-4">
-              <div class="w-10 h-10 rounded-full bg-primary-fixed-dim/20 flex items-center justify-center text-primary">
-                <span class="material-symbols-outlined">menu_book</span>
-              </div>
-              <span class="font-body-lg text-body-lg text-on-surface">{{ $t('dashboard.moduleVocabulary') }}</span>
-            </div>
-            <span class="font-headline-md text-headline-md text-on-surface">{{ vocabScore }}</span>
-          </div>
-          <div class="flex items-center justify-between p-4 rounded-xl hover:bg-surface-container-low transition-colors group cursor-default">
-            <div class="flex items-center gap-4">
-              <div class="w-10 h-10 rounded-full bg-secondary-fixed-dim/20 flex items-center justify-center text-secondary">
-                <span class="material-symbols-outlined">spellcheck</span>
-              </div>
-              <span class="font-body-lg text-body-lg text-on-surface">{{ $t('dashboard.moduleGrammar') }}</span>
-            </div>
-            <span class="font-headline-md text-headline-md text-on-surface">{{ grammarScore }}</span>
-          </div>
-          <div class="flex items-center justify-between p-4 rounded-xl hover:bg-surface-container-low transition-colors group cursor-default">
-            <div class="flex items-center gap-4">
-              <div class="w-10 h-10 rounded-full bg-tertiary-fixed-dim/20 flex items-center justify-center text-tertiary">
-                <span class="material-symbols-outlined">forum</span>
-              </div>
-              <span class="font-body-lg text-body-lg text-on-surface">{{ $t('dashboard.moduleReading') }}</span>
-            </div>
-            <span class="font-headline-md text-headline-md text-on-surface">{{ readingScore }}</span>
-          </div>
-          <div class="flex items-center justify-between p-4 rounded-xl hover:bg-surface-container-low transition-colors group cursor-default">
-            <div class="flex items-center gap-4">
-              <div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant">
-                <span class="material-symbols-outlined">headphones</span>
-              </div>
-              <span class="font-body-lg text-body-lg text-on-surface">{{ $t('dashboard.moduleListening') }}</span>
-            </div>
-            <span class="font-headline-md text-headline-md text-on-surface">{{ listeningScore }}</span>
-          </div>
+
+        <!-- 错误态 -->
+        <div v-else-if="radarError" class="flex flex-col items-center gap-3 py-12 text-center">
+          <span class="material-symbols-outlined text-4xl text-error">error_outline</span>
+          <p class="font-body-md text-body-md text-on-surface-variant">{{ radarError }}</p>
+          <button
+            type="button"
+            class="mt-1 rounded-full border border-outline-variant px-5 py-2 font-label-sm text-label-sm text-on-surface-variant transition-colors hover:bg-surface-variant"
+            @click="loadRadar"
+          >
+            {{ $t('common.retry') }}
+          </button>
         </div>
+
+        <template v-else>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+            <!-- 左：ELO 总分与等级区间 -->
+            <div class="text-center lg:text-left">
+              <p class="font-label-md text-label-md uppercase tracking-wider text-on-surface-variant">
+                {{ $t('profile.ability.totalScore') }}
+              </p>
+              <p class="mt-1 font-display-lg text-display-lg text-primary tabular-nums">{{ radar?.eloScore ?? 0 }}</p>
+              <div class="mt-5">
+                <div class="flex items-center justify-between font-label-sm text-label-sm text-on-surface-variant tabular-nums">
+                  <span>{{ radar?.eloFloor ?? 0 }}</span>
+                  <span>{{ radar?.eloCeil ?? 0 }}</span>
+                </div>
+                <div class="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-outline-variant/30">
+                  <div
+                    class="h-full rounded-full bg-primary transition-all"
+                    :style="{ width: `${radar?.eloProgress ?? 0}%` }"
+                  ></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 右：六维雷达图 -->
+            <AbilityRadarChart :items="radarAxes" />
+          </div>
+
+          <!-- 六维分数明细 -->
+          <div class="mt-6 grid grid-cols-1 gap-x-8 lg:grid-cols-2 border-t border-outline-variant/20 pt-4">
+            <div v-for="axis in radarAxes" :key="axis.key" class="flex items-center gap-3 py-2">
+              <span class="material-symbols-outlined text-icon-sm text-on-surface-variant">{{ axis.icon }}</span>
+              <span class="w-20 shrink-0 truncate font-body-sm text-body-sm text-on-surface">{{ axis.label }}</span>
+              <div class="h-1 flex-1 overflow-hidden rounded-full bg-outline-variant/30">
+                <div
+                  class="h-full rounded-full bg-primary transition-all"
+                  :style="{ width: `${axis.hasData ? axis.score : 0}%` }"
+                ></div>
+              </div>
+              <span
+                class="w-10 shrink-0 text-right font-label-lg text-label-lg tabular-nums"
+                :class="axis.hasData ? 'text-on-surface' : 'text-on-surface-variant/50'"
+              >
+                {{ axis.hasData ? axis.score : '—' }}
+              </span>
+            </div>
+          </div>
+
+          <p class="mt-4 font-label-sm text-label-sm leading-relaxed text-on-surface-variant/70">
+            {{ $t('profile.ability.footnote') }}
+          </p>
+        </template>
       </div>
 
       <!-- 设置入口 -->
@@ -261,11 +299,12 @@ import { useI18n } from 'vue-i18n'
 import AppLayout from '../components/AppLayout.vue'
 import { useUserStore } from '@/stores/user'
 import { formatNumber } from '@/utils/format'
-import { getRadarData } from '@/api/stats'
+import { getAbilityRadar } from '@/api/stats'
 import { getExerciseStats } from '@/api/exercise'
 import { uploadAvatar, updateNickname } from '@/api/user'
 import { useToast } from '@/composables/useToast'
-import type { RadarData } from '@/api/stats'
+import AbilityRadarChart from '@/components/profile/AbilityRadarChart.vue'
+import type { AbilityDimensionKey, AbilityRadar } from '@/api/stats'
 
 const { t } = useI18n()
 const userStore = useUserStore()
@@ -389,12 +428,55 @@ const submitNickname = async () => {
 const totalStudyTime = ref(`0${t('stats.minutes')}`)
 const activeDays = computed(() => userStore.activeDays)
 
-// ========== 积分数据 ==========
-const totalScore = ref(0)
-const vocabScore = ref(0)
-const grammarScore = ref(0)
-const readingScore = ref(0)
-const listeningScore = ref(0)
+// ========== 能力画像（ELO 总分 + 六维雷达） ==========
+const radar = ref<AbilityRadar | null>(null)
+const radarLoading = ref(true)
+const radarError = ref('')
+
+/** 六个维度的展示元信息：轴顺序与 api/stats.ts 的 dimensions 顺序一致 */
+const DIMENSION_META: ReadonlyArray<{
+  key: AbilityDimensionKey
+  icon: string
+  labelKey: string
+}> = [
+  { key: 'vocabulary', icon: 'menu_book', labelKey: 'dashboard.moduleVocabulary' },
+  { key: 'grammar', icon: 'spellcheck', labelKey: 'dashboard.moduleGrammar' },
+  { key: 'reading', icon: 'auto_stories', labelKey: 'dashboard.moduleReading' },
+  { key: 'listening', icon: 'headphones', labelKey: 'dashboard.moduleListening' },
+  { key: 'translation', icon: 'translate', labelKey: 'dashboard.moduleTranslation' },
+  { key: 'writing', icon: 'edit_note', labelKey: 'dashboard.moduleWriting' },
+]
+
+/** 雷达图与分数明细共用的轴数据；标签在这里统一 i18n 化 */
+const radarAxes = computed(() =>
+  DIMENSION_META.map((meta) => {
+    const dimension = radar.value?.dimensions.find((item) => item.key === meta.key)
+    return {
+      key: meta.key,
+      icon: meta.icon,
+      label: t(meta.labelKey),
+      score: dimension?.score ?? 0,
+      hasData: dimension?.hasData ?? false,
+    }
+  }),
+)
+
+const loadRadar = async () => {
+  const userId = userStore.userId
+  if (!userId) return
+  radarLoading.value = true
+  radarError.value = ''
+  try {
+    const data = await getAbilityRadar(userId)
+    radar.value = data
+    userLevel.value = data.eloLevel || t('profile.beginner')
+  } catch (e) {
+    console.warn('获取能力画像失败', e)
+    radarError.value = e instanceof Error ? e.message : t('profile.ability.loadFailed')
+  } finally {
+    radarLoading.value = false
+  }
+}
 
 // ========== 金币与签到 ==========
 const profileCheckingIn = ref(false)
@@ -422,40 +504,31 @@ const loadProfileData = async () => {
   const userId = userStore.userId
   if (!userId) return
 
-  // 先刷新用户统计数据（累计活跃天数）与签到/金币信息
-  await Promise.all([userStore.loadUserStats(), userStore.loadCoinInfo()])
-
-  try {
-    // 1. 获取能力雷达数据（模块分、ELO等级）
-    const radar: RadarData = await getRadarData(userId)
-    if (radar) {
-      userLevel.value = radar.eloLevel || t('profile.beginner')
-      vocabScore.value = Math.round(radar.vocabularyScore || 0)
-      grammarScore.value = Math.round(radar.grammarScore || 0)
-      listeningScore.value = Math.round(radar.listeningScore || 0)
-      readingScore.value = Math.round(radar.readingScore || 0)
-      // {{ $t('profile.totalScore') }} = ELO分
-      totalScore.value = radar.eloScore || 0
-    }
-  } catch (e) {
-    console.warn('获取雷达数据失败', e)
-  }
-
-  try {
-    // 2. 获取累计学习时长（使用后端真实时长，不再估算）
-    const stats = await getExerciseStats(userId)
-    if (stats) {
-      const hours = Math.floor(stats.totalHours || 0)
-      const mins = stats.totalMinutes || 0
-      if (hours > 0) {
-        totalStudyTime.value = `${hours}${t('stats.hours')}${mins}${t('stats.minutes')}`
-      } else {
-        totalStudyTime.value = `${mins}${t('stats.minutes')}`
+  // 累计学习时长独立于能力画像，失败只打 warn，不阻塞页面
+  const loadStudyTime = async () => {
+    try {
+      const stats = await getExerciseStats(userId)
+      if (stats) {
+        const hours = Math.floor(stats.totalHours || 0)
+        const mins = stats.totalMinutes || 0
+        if (hours > 0) {
+          totalStudyTime.value = `${hours}${t('stats.hours')}${mins}${t('stats.minutes')}`
+        } else {
+          totalStudyTime.value = `${mins}${t('stats.minutes')}`
+        }
       }
+    } catch (e) {
+      console.warn('获取学习时长失败', e)
     }
-  } catch (e) {
-    console.warn('获取学习时长失败', e)
   }
+
+  // 用户统计与金币在后台刷新，能力画像并行拉取，避免串行等待
+  await Promise.all([
+    userStore.loadUserStats(),
+    userStore.loadCoinInfo(),
+    loadRadar(),
+    loadStudyTime(),
+  ])
 }
 
 watch(() => userStore.userId, (newId) => {

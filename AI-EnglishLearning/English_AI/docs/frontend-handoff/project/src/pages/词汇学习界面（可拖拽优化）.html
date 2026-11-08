@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Recall-睿考 - Grammar Learning</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed": "#ebddff",
+                        "secondary-fixed-dim": "#89d0ed",
+                        "on-tertiary-fixed-variant": "#005316",
+                        "tertiary": "#006e20",
+                        "surface-bright": "#f8f9fc",
+                        "surface-tint": "#67558c",
+                        "on-tertiary": "#ffffff",
+                        "on-surface": "#191c1e",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed": "#baeaff",
+                        "inverse-surface": "#2e3133",
+                        "on-primary-container": "#443267",
+                        "on-primary-fixed": "#220f44",
+                        "background": "#f8f9fc",
+                        "tertiary-container": "#57bb5d",
+                        "secondary": "#0c6780",
+                        "primary": "#67558c",
+                        "on-background": "#191c1e",
+                        "error": "#ba1a1a",
+                        "surface-variant": "#e1e2e5",
+                        "outline-variant": "#cbc4d0",
+                        "tertiary-fixed-dim": "#77dc7a",
+                        "tertiary-fixed": "#93f993",
+                        "on-tertiary-fixed": "#002105",
+                        "inverse-on-surface": "#f0f1f4",
+                        "surface": "#f8f9fc",
+                        "surface-dim": "#d9dadd",
+                        "on-secondary-container": "#09657f",
+                        "secondary-container": "#9ae1ff",
+                        "outline": "#7a757f",
+                        "on-tertiary-container": "#004711",
+                        "surface-container-highest": "#e1e2e5",
+                        "on-surface-variant": "#49454f",
+                        "on-secondary-fixed-variant": "#004d62",
+                        "on-primary-fixed-variant": "#4f3d73",
+                        "on-secondary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "surface-container-high": "#e7e8eb",
+                        "primary-container": "#b19cd9",
+                        "on-error": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-primary": "#ffffff",
+                        "inverse-primary": "#d2bcfb",
+                        "on-secondary-fixed": "#001f29",
+                        "surface-container-low": "#f2f3f6",
+                        "surface-container": "#edeef1",
+                        "primary-fixed-dim": "#d2bcfb"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-page": "40px",
+                        "sidebar-width": "280px",
+                        "unit": "8px",
+                        "gutter": "24px",
+                        "container-max": "1200px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "label-lg": ["Inter"],
+                        "label-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-lg": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fc;
+        }
+        ::-webkit-scrollbar {
+            display: none;
+        }
+        .soft-shadow {
+            box-shadow: 0 4px 20px rgba(51, 58, 72, 0.05);
+        }
+        .dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+        .drag-over {
+            background-color: rgba(103, 85, 140, 0.05) !important;
+            border-color: #67558c !important;
+        }
+        .word-chip {
+            cursor: grab;
+            user-select: none;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .word-chip:active {
+            cursor: grabbing;
+        }
+        /* Insertion indicator */
+        .drop-indicator {
+            width: 3px;
+            height: 32px;
+            background-color: #67558c;
+            border-radius: 99px;
+            margin: 0 4px;
+            animation: pulse-indicator 1.5s infinite;
+            display: none;
+        }
+        @keyframes pulse-indicator {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased flex overflow-x-hidden">
+<!-- SideNavBar -->
+<nav class="hidden md:flex flex-col h-screen py-8 px-4 w-sidebar-width fixed left-0 top-0 bg-surface dark:bg-inverse-surface border-r border-outline-variant dark:border-outline z-50">
+<div class="mb-10 px-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-3xl">school</span>
+<h1 class="text-headline-md font-headline-md font-bold text-primary">Recall-睿考</h1>
+</div>
+<div class="mt-2 flex flex-col">
+<span class="text-label-md font-label-md text-on-surface-variant">连续学习天数</span>
+<span class="text-headline-md font-headline-md text-primary font-bold">7 天 🔥</span>
+</div>
+</div>
+<div class="flex-1 flex flex-col gap-2">
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-primary-container/10 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-lg text-label-lg">首页</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-primary-container/10 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-label-lg text-label-lg">学习统计</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-primary border-l-2 border-primary bg-primary-container/10 transition-colors" href="#">
+<span class="material-symbols-outlined" style='font-variation-settings: "FILL" 1;'>school</span>
+<span class="font-label-lg text-label-lg font-bold">学习中心</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-primary-container/10 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-lg text-label-lg">个人资料</span>
+</a>
+</div>
+<div class="mt-auto flex flex-col gap-2 pt-8 border-t border-outline-variant/30">
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-primary-container/10 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-lg text-label-lg">设置</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-error/10 hover:text-error transition-colors" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-lg text-label-lg">退出登录</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 ml-0 md:ml-[280px] min-h-screen flex flex-col relative">
+<!-- TopAppBar -->
+<header class="h-20 sticky top-0 z-40 bg-background/80 backdrop-blur-md dark:bg-background/80 px-gutter w-full max-w-container-max mx-auto flex items-center justify-between border-b border-outline-variant/20">
+<div class="flex items-center gap-4 flex-1">
+<button class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high/50 transition-all">
+<span class="material-symbols-outlined">arrow_back_ios_new</span>
+</button>
+<!-- Progress Bar -->
+<div class="flex-1 max-w-md mx-auto relative flex items-center">
+<div class="absolute left-0 top-1/2 -translate-y-1/2 -ml-6 bg-secondary-fixed shadow-md rounded-full w-12 h-12 flex items-center justify-center z-10 border-4 border-background">
+<span class="material-symbols-outlined text-secondary font-bold" style="font-variation-settings: 'FILL' 1;">emoji_events</span>
+</div>
+<div class="w-full h-8 bg-surface-container rounded-full overflow-hidden ml-4 relative flex items-center">
+<div class="h-full bg-primary-container/60 w-0 transition-all duration-500 ease-out" id="progress-bar" style="width: 5%;"></div>
+<span class="absolute inset-0 flex items-center justify-center font-label-md text-label-md text-primary font-bold" id="progress-text">1/20</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high/50 transition-all">
+<span class="material-symbols-outlined">light_mode</span>
+</button>
+<button class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high/50 transition-all relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<div class="w-8 h-8 rounded-full bg-surface-variant ml-2 overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all">
+<span class="material-symbols-outlined flex items-center justify-center h-full w-full">person</span>
+</div>
+</div>
+</header>
+<!-- Canvas Area -->
+<div class="flex-1 p-gutter flex flex-col items-center justify-center max-w-container-max mx-auto w-full">
+<!-- Main Task Card -->
+<div class="bg-surface-container-lowest rounded-[24px] w-full max-w-3xl soft-shadow overflow-hidden flex flex-col relative mb-8">
+<div class="h-32 bg-gradient-to-b from-[#baeaff]/40 to-transparent absolute top-0 left-0 w-full z-0"></div>
+<div class="p-8 z-10 flex flex-col flex-grow">
+<div class="flex justify-between items-center mb-8">
+<div class="flex items-center gap-2 bg-secondary-container/20 text-secondary px-3 py-1.5 rounded-full">
+<span class="font-label-md text-label-md">15-1级</span>
+<span class="material-symbols-outlined text-sm">help</span>
+</div>
+<div class="bg-[#ff6b6b] text-white px-3 py-1 rounded-full text-xs font-bold shadow-sm flex items-center relative">
+                        New
+                        <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[4px] border-l-transparent border-t-[4px] border-t-[#ff6b6b] border-r-[4px] border-r-transparent"></div>
+</div>
+</div>
+<div class="flex flex-col gap-4 mb-8">
+<div class="flex items-start gap-3">
+<div class="bg-surface-variant text-on-surface-variant px-2 py-1 rounded-md font-label-md text-label-md whitespace-nowrap mt-1">意译</div>
+<p class="font-body-lg text-body-lg text-on-surface">他们被数千粉丝爱着。</p>
+</div>
+<div class="flex items-start gap-3">
+<div class="bg-surface-variant text-on-surface-variant px-2 py-1 rounded-md font-label-md text-label-md whitespace-nowrap mt-1">直译</div>
+<p class="font-body-lg text-body-lg text-on-surface">他们受数千粉丝喜爱。</p>
+</div>
+</div>
+<!-- Drop Target: Answer Area -->
+<div class="bg-surface-bright rounded-xl p-6 min-h-[120px] flex-grow border border-dashed border-surface-variant transition-all relative" id="answer-area">
+<div class="flex flex-wrap gap-2 items-center content-start min-h-[80px]" id="selected-words">
+<!-- Assembled words go here -->
+<div class="drop-indicator" id="drop-indicator"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Drop Target: Word Bank Area -->
+<div class="bg-surface-container-lowest rounded-[24px] w-full max-w-3xl soft-shadow p-8 mb-12">
+<div class="flex flex-wrap justify-center gap-3 transition-all p-2 rounded-xl" id="word-bank">
+<div class="word-chip bg-surface-container-lowest text-on-surface px-5 py-3 rounded-xl font-body-lg text-body-lg soft-shadow border border-outline-variant/20 hover:border-secondary transition-all" data-word="are" draggable="true">are</div>
+<div class="word-chip bg-surface-container-lowest text-on-surface px-5 py-3 rounded-xl font-body-lg text-body-lg soft-shadow border border-outline-variant/20 hover:border-secondary transition-all" data-word="by" draggable="true">by</div>
+<div class="word-chip bg-surface-container-lowest text-on-surface px-5 py-3 rounded-xl font-body-lg text-body-lg soft-shadow border border-outline-variant/20 hover:border-secondary transition-all" data-word="fans" draggable="true">fans</div>
+<div class="word-chip bg-surface-container-lowest text-on-surface px-5 py-3 rounded-xl font-body-lg text-body-lg soft-shadow border border-outline-variant/20 hover:border-secondary transition-all" data-word="love" draggable="true">love</div>
+<div class="word-chip bg-surface-container-lowest text-on-surface px-5 py-3 rounded-xl font-body-lg text-body-lg soft-shadow border border-outline-variant/20 hover:border-secondary transition-all" data-word="loved" draggable="true">loved</div>
+<div class="word-chip bg-surface-container-lowest text-on-surface px-5 py-3 rounded-xl font-body-lg text-body-lg soft-shadow border border-outline-variant/20 hover:border-secondary transition-all" data-word="of" draggable="true">of</div>
+<div class="word-chip bg-surface-container-lowest text-on-surface px-5 py-3 rounded-xl font-body-lg text-body-lg soft-shadow border border-outline-variant/20 hover:border-secondary transition-all" data-word="them" draggable="true">them</div>
+<div class="word-chip bg-surface-container-lowest text-on-surface px-5 py-3 rounded-xl font-body-lg text-body-lg soft-shadow border border-outline-variant/20 hover:border-secondary transition-all" data-word="they" draggable="true">they</div>
+<div class="word-chip bg-surface-container-lowest text-on-surface px-5 py-3 rounded-xl font-body-lg text-body-lg soft-shadow border border-outline-variant/20 hover:border-secondary transition-all" data-word="thousand" draggable="true">thousand</div>
+<div class="word-chip bg-surface-container-lowest text-on-surface px-5 py-3 rounded-xl font-body-lg text-body-lg soft-shadow border border-outline-variant/20 hover:border-secondary transition-all" data-word="thousands" draggable="true">thousands</div>
+</div>
+</div>
+<!-- Bottom Action Bar -->
+<div class="w-full max-w-3xl flex items-center gap-4 mt-auto">
+<div class="flex items-center gap-4">
+<button class="bg-primary-container/20 text-on-primary-container px-6 py-4 rounded-[16px] font-label-lg text-label-lg flex flex-col items-center justify-center hover:bg-primary-container/30 transition-colors w-24">
+<span class="material-symbols-outlined mb-1">done_all</span>
+<span class="text-xs">查看答案</span>
+</button>
+<button class="w-14 h-14 bg-surface-container-lowest rounded-full soft-shadow flex items-center justify-center text-primary hover:scale-105 transition-transform border border-outline-variant/10">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">mic</span>
+</button>
+</div>
+<button class="flex-1 bg-surface-variant text-on-surface-variant py-4 rounded-[16px] font-headline-md text-headline-md transition-all" id="confirm-btn">
+                确认
+            </button>
+</div>
+</div>
+</main>
+<script>
+    const wordBank = document.getElementById('word-bank');
+    const selectedWordsArea = document.getElementById('selected-words');
+    const answerArea = document.getElementById('answer-area');
+    const confirmBtn = document.getElementById('confirm-btn');
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+    const dropIndicator = document.getElementById('drop-indicator');
+
+    let draggedElement = null;
+    let correctCount = 1;
+    const totalCount = 20;
+
+    // Helper to update button state
+    function updateConfirmState() {
+        // Exclude the indicator from the count
+        const hasWords = Array.from(selectedWordsArea.children).filter(el => el.classList.contains('word-chip')).length > 0;
+        if (hasWords) {
+            confirmBtn.classList.remove('bg-surface-variant', 'text-on-surface-variant');
+            confirmBtn.classList.add('bg-primary', 'text-on-primary', 'shadow-lg', 'shadow-primary/20');
+        } else {
+            confirmBtn.classList.remove('bg-primary', 'text-on-primary', 'shadow-lg', 'shadow-primary/20');
+            confirmBtn.classList.add('bg-surface-variant', 'text-on-surface-variant');
+        }
+    }
+
+    // Helper to style a chip based on where it is
+    function styleChip(chip, inAnswer) {
+        if (inAnswer) {
+            chip.className = 'word-chip bg-primary text-white px-4 py-2 rounded-lg font-body-md shadow-sm border border-primary transition-all';
+        } else {
+            chip.className = 'word-chip bg-surface-container-lowest text-on-surface px-5 py-3 rounded-xl font-body-lg text-body-lg soft-shadow border border-outline-variant/20 hover:border-secondary transition-all';
+        }
+    }
+
+    // Calculate nearest insertion point
+    function getInsertionPoint(container, x, y) {
+        const chips = Array.from(container.querySelectorAll('.word-chip:not(.dragging)'));
+        
+        return chips.reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            // Determine if mouse is closer to the beginning or end of this chip
+            const offset = x - (box.left + box.width / 2);
+            
+            if (offset < 0 && offset > closest.offset) {
+                return { offset: offset, element: child };
+            } else {
+                return closest;
+            }
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+
+    // Drag events
+    document.addEventListener('dragstart', (e) => {
+        if (e.target.classList.contains('word-chip')) {
+            draggedElement = e.target;
+            e.target.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', e.target.dataset.word);
+            e.dataTransfer.effectAllowed = 'move';
+        }
+    });
+
+    document.addEventListener('dragend', (e) => {
+        if (e.target.classList.contains('word-chip')) {
+            e.target.classList.remove('dragging');
+            draggedElement = null;
+            dropIndicator.style.display = 'none';
+            document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+        }
+    });
+
+    // Handle Answer Area
+    answerArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        answerArea.classList.add('drag-over');
+        
+        const afterElement = getInsertionPoint(selectedWordsArea, e.clientX, e.clientY);
+        
+        dropIndicator.style.display = 'block';
+        if (afterElement == null) {
+            selectedWordsArea.appendChild(dropIndicator);
+        } else {
+            selectedWordsArea.insertBefore(dropIndicator, afterElement);
+        }
+    });
+
+    answerArea.addEventListener('dragleave', (e) => {
+        // Only hide if we actually left the container
+        if (!answerArea.contains(e.relatedTarget)) {
+            answerArea.classList.remove('drag-over');
+            dropIndicator.style.display = 'none';
+        }
+    });
+
+    answerArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        answerArea.classList.remove('drag-over');
+        dropIndicator.style.display = 'none';
+        
+        if (draggedElement) {
+            styleChip(draggedElement, true);
+            const afterElement = getInsertionPoint(selectedWordsArea, e.clientX, e.clientY);
+            
+            if (afterElement == null) {
+                selectedWordsArea.appendChild(draggedElement);
+            } else {
+                selectedWordsArea.insertBefore(draggedElement, afterElement);
+            }
+            updateConfirmState();
+        }
+    });
+
+    // Word Bank Logic (simple append)
+    wordBank.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        wordBank.classList.add('drag-over');
+    });
+
+    wordBank.addEventListener('dragleave', () => {
+        wordBank.classList.remove('drag-over');
+    });
+
+    wordBank.addEventListener('drop', (e) => {
+        e.preventDefault();
+        wordBank.classList.remove('drag-over');
+        if (draggedElement) {
+            styleChip(draggedElement, false);
+            wordBank.appendChild(draggedElement);
+            updateConfirmState();
+        }
+    });
+
+    // Click-to-move support
+    document.addEventListener('click', (e) => {
+        const chip = e.target.closest('.word-chip');
+        if (!chip) return;
+
+        if (chip.parentElement === wordBank) {
+            styleChip(chip, true);
+            // On click, always append to end
+            selectedWordsArea.appendChild(chip);
+        } else {
+            styleChip(chip, false);
+            wordBank.appendChild(chip);
+        }
+        updateConfirmState();
+    });
+
+    // Confirmation logic
+    confirmBtn.onclick = () => {
+        const currentChips = Array.from(selectedWordsArea.children).filter(el => el.classList.contains('word-chip'));
+        if (currentChips.length > 0) {
+            correctCount++;
+            if (correctCount > totalCount) correctCount = totalCount;
+            const progress = (correctCount / totalCount) * 100;
+            progressBar.style.width = `${progress}%`;
+            progressText.textContent = `${correctCount}/${totalCount}`;
+            
+            // Clear and reset chips
+            currentChips.forEach(chip => {
+                styleChip(chip, false);
+                wordBank.appendChild(chip);
+            });
+            updateConfirmState();
+        }
+    };
+</script>
+</body></html>

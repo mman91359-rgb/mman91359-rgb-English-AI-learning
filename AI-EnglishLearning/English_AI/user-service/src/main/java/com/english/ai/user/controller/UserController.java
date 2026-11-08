@@ -7,6 +7,7 @@ import com.english.ai.common.UserIdentityUtil;
 import com.english.ai.user.dto.AssessSubmitRequest;
 import com.english.ai.user.dto.LoginRequest;
 import com.english.ai.user.dto.LoginResponse;
+import com.english.ai.user.dto.ModuleScoreUpdateRequest;
 import com.english.ai.user.dto.RegisterRequest;
 import com.english.ai.user.entity.SysUser;
 import com.english.ai.user.service.UserAbilityRadarService;
@@ -320,6 +321,27 @@ public class UserController {
         }
         Map<String, Object> data = radarService.getRadarData(request.getUserId());
         log.info("ELO更新: userId={}, newElo={}", request.getUserId(), newElo);
+        return Result.success(data);
+    }
+
+    /**
+     * 按百分制分值更新模块维度分（由 exercise-service 在作文评分成功后调用）
+     * POST /user/radar/update-module-score
+     * Body: {"userId": 1, "moduleType": 6, "score": 80.0}
+     */
+    @PostMapping("/radar/update-module-score")
+    public Result<Map<String, Object>> updateModuleScore(@RequestBody ModuleScoreUpdateRequest request) {
+        if (request.getUserId() == null || request.getModuleType() == null || request.getScore() == null) {
+            return Result.badRequest("userId、moduleType、score不能为空");
+        }
+        if (request.getScore() < 0 || request.getScore() > 100) {
+            return Result.badRequest("score必须在0~100之间");
+        }
+        radarService.updateModuleScoreByValue(
+                request.getUserId(), request.getModuleType(), request.getScore());
+        Map<String, Object> data = radarService.getRadarData(request.getUserId());
+        log.info("模块分更新: userId={}, moduleType={}, score={}",
+                request.getUserId(), request.getModuleType(), request.getScore());
         return Result.success(data);
     }
 

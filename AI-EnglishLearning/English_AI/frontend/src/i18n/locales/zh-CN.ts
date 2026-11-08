@@ -356,6 +356,13 @@ export default {
     accountSettings: '账户设置',
     notificationSettings: '通知设置',
     beginner: '初心者',
+    ability: {
+      title: '能力画像',
+      totalScore: 'ELO 总分',
+      loadFailed: '能力画像加载失败',
+      emptyHint: '完成一次练习后生成能力画像',
+      footnote: '六个维度均由后端能力雷达统一记分：答题模块按对错移动加权，作文按 AI 评分得分率移动加权。「—」表示该维度暂无数据。',
+    },
   },
   settings: {
     title: '设置',

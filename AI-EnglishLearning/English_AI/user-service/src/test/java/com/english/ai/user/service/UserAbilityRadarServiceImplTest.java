@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -50,7 +50,7 @@ class UserAbilityRadarServiceImplTest {
     }
 
     @Test
-    void translationModuleUpdatesReadingScoreOnly() {
+    void translationModuleUpdatesTranslationScoreOnly() {
         UserAbilityRadar radar = radar();
         when(radarMapper.selectOne(any())).thenReturn(radar);
 
@@ -59,15 +59,35 @@ class UserAbilityRadarServiceImplTest {
         ArgumentCaptor<UserAbilityRadar> captor = ArgumentCaptor.forClass(UserAbilityRadar.class);
         verify(radarMapper).updateById(captor.capture());
         UserAbilityRadar updated = captor.getValue();
-        assertTrue(updated.getReadingScore().compareTo(BigDecimal.ZERO) > 0);
+        assertTrue(updated.getTranslationScore().compareTo(BigDecimal.ZERO) > 0);
+        assertEquals(0, updated.getReadingScore().compareTo(BigDecimal.ZERO));
         assertEquals(0, updated.getListeningScore().compareTo(BigDecimal.ZERO));
     }
 
     @Test
-    void writingModuleDoesNotUpdateModuleScore() {
+    void writingModuleUpdatesWritingScore() {
+        UserAbilityRadar radar = radar();
+        when(radarMapper.selectOne(any())).thenReturn(radar);
+
         service.updateModuleScore(1L, 6, true);
 
-        verify(radarMapper, never()).updateById(any());
+        ArgumentCaptor<UserAbilityRadar> captor = ArgumentCaptor.forClass(UserAbilityRadar.class);
+        verify(radarMapper, times(1)).updateById(captor.capture());
+        UserAbilityRadar updated = captor.getValue();
+        assertTrue(updated.getWritingScore().compareTo(BigDecimal.ZERO) > 0);
+    }
+
+    @Test
+    void valueUpdateMovesWritingScoreTowardsTarget() {
+        UserAbilityRadar radar = radar();
+        when(radarMapper.selectOne(any())).thenReturn(radar);
+
+        service.updateModuleScoreByValue(1L, 6, 80.0);
+
+        ArgumentCaptor<UserAbilityRadar> captor = ArgumentCaptor.forClass(UserAbilityRadar.class);
+        verify(radarMapper).updateById(captor.capture());
+        // 0 → 80 的移动加权 10% = 8.0
+        assertEquals(0, captor.getValue().getWritingScore().compareTo(BigDecimal.valueOf(8.0)));
     }
 
     private UserAbilityRadar radar() {
@@ -77,6 +97,8 @@ class UserAbilityRadarServiceImplTest {
         radar.setGrammarScore(BigDecimal.ZERO);
         radar.setListeningScore(BigDecimal.ZERO);
         radar.setReadingScore(BigDecimal.ZERO);
+        radar.setTranslationScore(BigDecimal.ZERO);
+        radar.setWritingScore(BigDecimal.ZERO);
         radar.setEloScore(1000);
         radar.setTargetLevel("CET4");
         return radar;

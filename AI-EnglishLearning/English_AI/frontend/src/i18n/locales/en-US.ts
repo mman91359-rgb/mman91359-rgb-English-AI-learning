@@ -356,6 +356,13 @@ export default {
     accountSettings: 'Account',
     notificationSettings: 'Notifications',
     beginner: 'Beginner',
+    ability: {
+      title: 'Ability Profile',
+      totalScore: 'ELO Score',
+      loadFailed: 'Failed to load the ability profile',
+      emptyHint: 'Complete one practice session to generate your ability profile',
+      footnote: 'All six dimensions are scored by the backend ability radar: quiz modules move by answer correctness, writing moves by the AI score rate. "—" means no data yet.',
+    },
   },
   settings: {
     title: 'Settings',

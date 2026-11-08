@@ -114,6 +114,17 @@ const IRREGULAR = {
   child: ['children'],
   man: ['men'],
   woman: ['women'],
+  salesman: ['salesmen'],
+  fireman: ['firemen'],
+  policeman: ['policemen'],
+  businessman: ['businessmen'],
+  chairman: ['chairmen'],
+  postman: ['postmen'],
+  workman: ['workmen'],
+  gentleman: ['gentlemen'],
+  spokesman: ['spokesmen'],
+  fisherman: ['fishermen'],
+  craftsman: ['craftsmen'],
   foot: ['feet'],
   tooth: ['teeth'],
   mouse: ['mice'],
@@ -147,6 +158,12 @@ const UNCOUNTABLE = new Set([
   'hardware', 'software', 'furniture', 'equipment', 'information', 'advice', 'news',
   'luggage', 'machinery', 'merchandise', 'baggage', 'homework', 'knowledge', 'research',
   'evidence', 'traffic', 'weather', 'clothing', 'jewelry', 'scenery', 'poetry',
+  'welfare', 'mankind',
+])
+
+/** 以 -man 结尾但不做 -men 变化（或本身已是单数形式）的豁免词 */
+const MAN_EXEMPT = new Set([
+  'human', 'german', 'roman', 'shaman', 'talisman', 'caiman', 'ottoman', 'woman', 'man',
 ])
 
 /** CVC 结尾且需要双写的动词白名单（多音节也会双写） */
@@ -161,6 +178,9 @@ const IRREGULAR_NOUNS = new Set([
   'child', 'man', 'woman', 'foot', 'tooth', 'mouse', 'goose', 'criterion',
   'phenomenon', 'datum', 'analysis', 'basis', 'crisis', 'thesis', 'index',
   'leaf', 'life', 'wife', 'knife', 'half', 'shelf', 'thief', 'wolf',
+  // -man 复合词：复数是 -men
+  'salesman', 'fireman', 'policeman', 'businessman', 'chairman', 'postman',
+  'workman', 'gentleman', 'spokesman', 'fisherman', 'craftsman',
 ])
 
 /** IRREGULAR 里属于"不规则比较级"的形容词 */
@@ -283,6 +303,14 @@ function inflect(base, cat, opts = {}) {
   const skipRegularPlural = cat === 'noun' && (opts.uncountable || opts.hasIrregular)
 
   if (wantsPlural && !skipRegularPlural) {
+    // -man 复合词：复数是 -men，-mans 只用于命中
+    const manCompound = cat === 'noun' && base.length > 4 && /man$/.test(base) && !MAN_EXEMPT.has(base)
+    if (manCompound) {
+      add(`${base.slice(0, -3)}men`)
+      addMatch(`${base}s`)
+      return { accepted: [...accepted], matchOnly: [...matchOnly] }
+    }
+
     let plural = null
     if (/(s|x|z|ch|sh)$/.test(base)) plural = base + 'es'
     else if (/[^aeiou]y$/.test(base)) plural = base.slice(0, -1) + 'ies'
@@ -327,8 +355,8 @@ function inflect(base, cat, opts = {}) {
     } else add(base + 'ing')
   }
 
-  // 形容词/副词默认不变形，只有可分级词给比较级/最高级
-  if (cat === 'adj' || cat === 'adv') {
+  // 只有形容词才可能加比较级；副词（thus、very 等）没有 -er/-est
+  if (cat === 'adj') {
     if (isGradable(base)) {
       if (last === 'e') {
         add(base + 'r')
@@ -346,9 +374,9 @@ function inflect(base, cat, opts = {}) {
   return { accepted: [...accepted], matchOnly: [...matchOnly] }
 }
 
-function buildForms(word, pos) {
+function buildForms(word, pos, overrideCat) {
   const w = word.toLowerCase()
-  const cat = categoryOf(pos)
+  const cat = overrideCat || categoryOf(pos)
   const bases = [w]
   // z/s 拼写变体：paralyze→paralyse、organize→organise、analyze→analyse
   if (/ze$/.test(w)) bases.push(w.replace(/ze$/, 'se'))
@@ -489,6 +517,32 @@ function columnExists(mysqlBin, conn, table, column) {
   return n === '1'
 }
 
+/** 读取库里已导入题目当前的 accepted_answers，供 --fix-sql 比对 */
+function loadCurrentAccepted(mysqlBin, conn) {
+  const out = runQuery(
+    mysqlBin,
+    conn,
+    "SELECT `external_key`, `accepted_answers` FROM `question_info` WHERE `external_key` LIKE 'vocab-auto-%'",
+  )
+  const map = new Map()
+  for (const line of out.split('\n')) {
+    if (!line) continue
+    const i = line.indexOf('\t')
+    if (i < 0) continue
+    const key = line.slice(0, i)
+    const raw = unescapeTsv(line.slice(i + 1))
+    let arr = []
+    try {
+      const parsed = JSON.parse(raw)
+      if (Array.isArray(parsed)) arr = parsed.map((x) => String(x))
+    } catch {
+      arr = []
+    }
+    map.set(key, arr)
+  }
+  return map
+}
+
 function loadDifficultyFromJson(file) {
   if (!fs.existsSync(file)) throw new Error(`难度文件不存在: ${file}`)
   const data = JSON.parse(fs.readFileSync(file, 'utf8'))
@@ -532,6 +586,15 @@ function impliedUsage(sentence, start, surface) {
   }
   // 冠词/物主紧邻 → 名词用法（注意 "a brilliant mind" 里冠词修饰的是形容词，冲突判定见调用处）
   if (/\b(a|an|the|my|your|his|her|its|our|their|this|that|these|those)\s+$/.test(before)) return 'noun'
+  // 系动词 + 非变形词 → 形容词用法（is content with / life is hollow）
+  if (
+    !inflected &&
+    /\b(am|is|are|was|were|be|been|being|seem|seems|seemed|look|looks|looked|feel|feels|felt|become|becomes|became|remain|remains|remained|stay|stays|stayed|sound|sounds|sounded)\s+$/.test(
+      before,
+    )
+  ) {
+    return 'adj'
+  }
   // 程度副词紧邻 → 形容词/副词用法
   if (/\b(very|too|so|quite|rather|more|most|less|least)\s+$/.test(before)) return 'adj'
   return null
@@ -583,8 +646,17 @@ function classify(row, opts) {
   if (usage === 'verb' && category === 'noun') return { skip: 'sense-mismatch' }
   // 冠词后接动词/功能词 → 该位置应是名词
   if (usage === 'noun' && (category === 'verb' || category === 'other')) return { skip: 'sense-mismatch' }
-  // very/too 后接动词/名词 → 该位置应是形容词或副词
-  if (usage === 'adj' && (category === 'verb' || category === 'noun')) return { skip: 'sense-mismatch' }
+  // very/too 后接动词 → 该位置应是形容词（名词见下方"按句中词性裁剪"）
+  if (usage === 'adj' && category === 'verb') return { skip: 'sense-mismatch' }
+
+  // 句中作形容词、但词典主词性是名词（content / hollow）：不跳过，
+  // 改用形容词重建变形，避免把名词复数收进答案集
+  let effectiveCategory = category
+  let effectiveAccepted = acceptedForms
+  if (usage === 'adj' && category === 'noun') {
+    effectiveCategory = 'adj'
+    effectiveAccepted = buildForms(word, row.pos, 'adj').acceptedForms
+  }
 
   const stem = `${example.slice(0, hit.start)}____${example.slice(hit.end)}`
 
@@ -595,7 +667,11 @@ function classify(row, opts) {
   // 解析保存"挖空前"的完整原句；服务端会在答题前截断到 "｜ 原句：" 之前（toQuestionVO）
   const analysis = `${row.translation} ｜ 原句：${example}`
 
-  const accepted = [...new Set([lemma, surface, ...acceptedForms])]
+  // 句中要的是变形时（steering / inferred），不再把原形放进 accepted，避免 "He was steer" 判对
+  const formsWithoutLemma = effectiveAccepted.filter((f) => f !== lemma)
+  const accepted = [
+    ...new Set(surface === lemma ? [lemma, ...formsWithoutLemma] : [surface, ...formsWithoutLemma]),
+  ]
 
   return {
     branch: surface === word.toLowerCase() ? 'exact-form' : 'inflected',
@@ -608,7 +684,7 @@ function classify(row, opts) {
       answer: surface,
       analysis,
       accepted,
-      category,
+      category: effectiveCategory,
       pos: row.pos || '',
     },
   }
@@ -702,6 +778,7 @@ function parseArgs(argv) {
     else if (a === '--seed') opts.seed = Number(argv[++i]) || 20261108
     else if (a === '--sample') opts.sample = Number(argv[++i]) || 10
     else if (a === '--explain') opts.explain = String(argv[++i] || '').split(',').filter(Boolean)
+    else if (a === '--fix-sql') opts.fixSql = argv[++i]
     else if (a === '--help' || a === '-h') {
       printUsage()
       process.exit(0)
@@ -796,6 +873,65 @@ function main() {
     if (opts.limit && generated.length >= opts.limit) break
   }
 
+  // --fix-sql：把库里与当前规则不一致的 accepted_answers 生成为一条数据修正迁移
+  if (opts.fixSql) {
+    const current = loadCurrentAccepted(mysqlBin, conn)
+    const updates = []
+    const inserts = []
+    for (const q of generated) {
+      const key = `vocab-auto-${q.wordId}-1`
+      const cur = current.get(key)
+      if (!cur) {
+        // 规则放宽后新出现的题（如句式判为形容词的 content/hollow），库里还没有
+        inserts.push(q)
+        continue
+      }
+      const a = [...new Set(cur)].sort().join('|')
+      const b = [...new Set(q.accepted)].sort().join('|')
+      if (a !== b) updates.push({ key, accepted: [...new Set(q.accepted)].sort() })
+    }
+
+    // 库里存在、但按当前规则不再生成的题：只报告，不自动删除（可能已有答题记录）
+    const generatedKeys = new Set(generated.map((q) => `vocab-auto-${q.wordId}-1`))
+    const staleKeys = [...current.keys()].filter((k) => !generatedKeys.has(k)).sort()
+
+    const version = path.basename(opts.fixSql).split('__')[0] || 'V1.0.22'
+    const lines = [
+      `-- ${path.basename(opts.fixSql)}：词汇题 accepted_answers 修正 + 补齐新增题（由 scripts/generate-vocab-questions.mjs --fix-sql 生成，请勿手改）`,
+      '-- 目标库：exercise_db',
+      '-- 风险：低（UPDATE 只改 accepted_answers；INSERT 复用 NOT EXISTS 双幂等写法）',
+      '-- 回滚：新增题按 external_key 删除；accepted 用导入前的 sql/backup/*_exercise_db_vocab_data.sql 恢复',
+      `-- 生成时间：${new Date().toISOString()}`,
+      `-- 修正行数：${updates.length}    新增题数：${inserts.length}    规则外存量：${staleKeys.length}`,
+      '',
+      '-- ---------- 规则外存量题（不自动删除，需人工决定） ----------',
+      ...(staleKeys.length ? staleKeys.map((k) => `--   ${k}`) : ['--   无']),
+      '',
+    ]
+
+    if (inserts.length) {
+      lines.push('-- ---------- 新增题目 ----------')
+      for (const q of inserts) lines.push(buildSql(q, version))
+    }
+    if (updates.length) {
+      lines.push('-- ---------- 修正 accepted_answers ----------')
+      for (const u of updates) {
+        const arr = u.accepted.map((x) => `'${sqlEscape(x)}'`).join(', ')
+        lines.push(
+          `UPDATE \`question_info\` SET \`accepted_answers\` = JSON_ARRAY(${arr}) WHERE \`external_key\` = '${sqlEscape(u.key)}';`,
+        )
+      }
+    }
+    lines.push('')
+    fs.mkdirSync(path.dirname(opts.fixSql), { recursive: true })
+    fs.writeFileSync(opts.fixSql, lines.join('\n'), 'utf8')
+    console.log(
+      `[fix] 修正 ${updates.length} 行、新增 ${inserts.length} 题、规则外存量 ${staleKeys.length} 题（未删除），已写入 ${opts.fixSql}`,
+    )
+    if (staleKeys.length) console.log(`[fix] 规则外存量：${staleKeys.join(', ')}`)
+    return
+  }
+
   // 幂等指纹：排序后的 external_key 集合
   const keys = generated.map((q) => `vocab-auto-${q.wordId}-1`).sort()
   const digest = crypto.createHash('sha256').update(keys.join('\n')).digest('hex').slice(0, 12)
@@ -837,12 +973,27 @@ function main() {
     }
   }
   const byLemma = new Map(generated.map((q) => [q.lemma, q]))
+  const has = (lemma, form) => {
+    const q = byLemma.get(lemma)
+    return q ? q.accepted.includes(form) : null
+  }
+  const mustNot = (lemma, form) => {
+    const v = has(lemma, form)
+    return v === null ? 'N/A' : v ? 'FAIL' : 'PASS'
+  }
+  const must = (lemma, form) => {
+    const v = has(lemma, form)
+    return v === null ? 'N/A' : v ? 'PASS' : 'FAIL'
+  }
+
   const assertions = {
-    abandonIng: !byLemma.has('abandon')
-      ? 'N/A'
-      : byLemma.get('abandon').accepted.includes('abandoning')
-        ? 'PASS'
-        : 'FAIL',
+    abandonIng: must('abandon', 'abandoning'),
+    salesmanNoS: mustNot('salesman', 'salesmans'),
+    thusNoComparative: mustNot('thus', 'thuser') === 'PASS' && mustNot('thus', 'thusest') === 'PASS' ? 'PASS' : 'FAIL',
+    welfareNoS: mustNot('welfare', 'welfares'),
+    contentNoS: mustNot('content', 'contents'),
+    hollowNoS: mustNot('hollow', 'hollows'),
+    steerNoLemma: mustNot('steer', 'steer'),
     hardwareNoS: !byLemma.has('hardware')
       ? 'N/A'
       : byLemma.get('hardware').accepted.includes('hardwares')
@@ -988,6 +1139,12 @@ ${pseudoForms.slice(0, 20).map((x) => `  - ${x}`).join('\n')}
 | \`abandon\` accepted 含 \`abandoning\` | ${assertions.abandonIng} | PASS |
 | \`hardware\` 不含 \`hardwares\` | ${assertions.hardwareNoS} | PASS |
 | \`criterion\` 不含 \`criterions\` | ${assertions.criterionNoS} | PASS |
+| \`salesman\` 不含 \`salesmans\` | ${assertions.salesmanNoS} | PASS |
+| \`thus\` 不含 \`thuser\`/\`thusest\` | ${assertions.thusNoComparative} | PASS |
+| \`welfare\` 不含 \`welfares\` | ${assertions.welfareNoS} | PASS |
+| \`content\` 不含 \`contents\` | ${assertions.contentNoS} | PASS |
+| \`hollow\` 不含 \`hollows\` | ${assertions.hollowNoS} | PASS |
+| \`steer\`（答案 steering）不含原形 | ${assertions.steerNoLemma} | PASS |
 | 动词 accepted 缺 -ing/-ed（仅统计） | ${formGaps.verbs} | — |
 | 名词 accepted 仅有原形（仅统计） | ${formGaps.nouns} | — |
 

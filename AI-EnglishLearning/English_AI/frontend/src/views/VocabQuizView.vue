@@ -33,12 +33,28 @@
                 style="font-variation-settings: 'FILL' 1;"
               >emoji_events</span>
             </div>
-            <div class="w-full h-12 bg-surface-container-high rounded-full overflow-hidden ml-4 relative flex items-center">
+            <div
+              class="w-full h-12 bg-surface-container-high rounded-full overflow-hidden ml-4 relative"
+              role="progressbar"
+              :aria-valuemin="0"
+              :aria-valuemax="totalCount"
+              :aria-valuenow="answeredCount"
+              :aria-valuetext="`${answeredCount}/${totalCount}`"
+            >
               <div
                 class="h-full bg-primary transition-all duration-500 ease-out"
                 :style="{ width: progressPercent + '%' }"
               ></div>
-              <span class="absolute inset-0 flex items-center justify-center text-lg font-bold text-primary">
+              <!-- 轨道底色层：压在未填充段 -->
+              <span class="absolute inset-0 flex items-center justify-center text-lg font-bold text-on-surface-variant" aria-hidden="true">
+                {{ answeredCount }}/{{ totalCount }}
+              </span>
+              <!-- 填充层反白：按进度横向裁切，与填充色同步过渡 -->
+              <span
+                class="absolute inset-0 flex items-center justify-center text-lg font-bold text-on-primary transition-all duration-500 ease-out"
+                :style="{ clipPath: `inset(0 ${100 - progressPercent}% 0 0)` }"
+                aria-hidden="true"
+              >
                 {{ answeredCount }}/{{ totalCount }}
               </span>
             </div>

@@ -14,18 +14,12 @@
       <p class="font-body-sm text-body-sm leading-relaxed text-on-surface-variant">{{ impact }}</p>
     </div>
     <template #footer>
-      <button
-        type="button"
-        class="rounded-full border border-outline-variant px-5 py-2.5 font-label-lg text-label-lg text-on-surface-variant transition-colors hover:bg-surface-container"
-        :disabled="loading"
-        @click="$emit('cancel')"
-      >
+      <button type="button" :class="btnSecondary" :disabled="loading" @click="$emit('cancel')">
         {{ $t('adminConsole.common.cancel') }}
       </button>
       <button
         type="button"
-        class="rounded-full px-5 py-2.5 font-label-lg text-label-lg text-on-primary transition-colors disabled:opacity-60"
-        :class="danger ? 'bg-error hover:bg-error/90' : 'bg-primary hover:bg-primary/90'"
+        :class="danger ? btnDanger : btnPrimary"
         :disabled="loading"
         @click="$emit('confirm')"
       >
@@ -37,6 +31,7 @@
 
 <script setup lang="ts">
 import BaseDialog from '../ui/BaseDialog.vue'
+import { btnDanger, btnPrimary, btnSecondary } from '../ui/buttonStyles'
 
 withDefaults(defineProps<{
   open: boolean

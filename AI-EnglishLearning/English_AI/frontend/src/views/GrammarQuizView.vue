@@ -315,7 +315,7 @@
         <div v-else class="flex-1 flex flex-col items-center justify-center py-20">
           <span class="material-symbols-outlined text-icon-2xl text-outline">inbox</span>
           <p class="mt-4 text-on-surface-variant font-body-md text-body-md">{{ $t('learning.noGrammarQuestions') }}</p>
-          <button class="mt-4 bg-primary text-on-primary px-6 py-2 rounded-full" @click="goBack">{{ $t('common.back') }}</button>
+          <button :class="['mt-4', btnPrimary]" @click="goBack">{{ $t('common.back') }}</button>
         </div>
       </div>
     </main>
@@ -346,6 +346,7 @@ import { useSpeechRecognition } from '@/composables/useSpeechRecognition'
 import { useAiStore } from '@/stores/ai'
 import { shuffle } from '@/utils/array'
 import type { QuestionVO, SubmitResponse } from '@/api/exercise'
+import { btnPrimary } from '@/components/ui/buttonStyles'
 
 const { t } = useI18n()
 const router = useRouter()

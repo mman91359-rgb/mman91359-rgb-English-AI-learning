@@ -2,7 +2,7 @@
   <div class="flex flex-col gap-6">
     <div class="flex flex-wrap items-center justify-between gap-4">
       <p class="font-body-md text-body-md text-on-surface-variant">{{ $t('adminConsole.activity.subtitle') }}</p>
-      <button type="button" class="flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 font-label-lg text-label-lg text-on-primary" @click="editing = 'create'">
+      <button type="button" :class="btnPrimary" @click="editing = 'create'">
         <span class="material-symbols-outlined text-icon-md">add</span>
         {{ $t('adminConsole.activity.create') }}
       </button>
@@ -144,6 +144,7 @@ import AdminFilterBar from '../../components/admin/AdminFilterBar.vue'
 import AdminFilterField from '../../components/admin/AdminFilterField.vue'
 import AdminFilterSearch from '../../components/admin/AdminFilterSearch.vue'
 import AdminFilterSelect from '../../components/admin/AdminFilterSelect.vue'
+import { btnPrimary } from '@/components/ui/buttonStyles'
 import AdminPagination from '../../components/admin/AdminPagination.vue'
 import ConfirmDialog from '../../components/admin/ConfirmDialog.vue'
 import ActivityEditorDrawer from '../../components/admin/ActivityEditorDrawer.vue'

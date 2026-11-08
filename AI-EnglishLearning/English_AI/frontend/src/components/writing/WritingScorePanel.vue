@@ -71,7 +71,7 @@
           :max="DIMENSION_MAX"
         />
       </div>
-      <button type="button" class="rounded-full bg-primary px-5 py-2.5 font-label-lg text-label-lg text-on-primary" @click="$emit('viewReport')">
+      <button type="button" :class="btnPrimary" @click="$emit('viewReport')">
         {{ $t('writing.report.title') }}
       </button>
     </template>
@@ -80,6 +80,7 @@
 
 <script setup lang="ts">
 import WritingDimensionBar from './WritingDimensionBar.vue'
+import { btnPrimary } from '@/components/ui/buttonStyles'
 import type { WritingScore } from '../../types/writing'
 import {
   DIMENSION_LABEL_KEYS,

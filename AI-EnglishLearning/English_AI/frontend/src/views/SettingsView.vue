@@ -164,10 +164,10 @@
       </div>
       <template #footer>
         <div class="flex w-full gap-3">
-          <button type="button" :class="dialogSecondaryButton" @click="closePasswordDialog">
+          <button type="button" :class="btnDialogSecondary" @click="closePasswordDialog">
             {{ $t('profile.cancel') }}
           </button>
-          <button type="button" :disabled="passwordSubmitting" :class="dialogPrimaryButton" @click="submitPassword">
+          <button type="button" :disabled="passwordSubmitting" :class="btnDialogPrimary" @click="submitPassword">
             {{ passwordSubmitting ? $t('settings.saving') : $t('profile.confirm') }}
           </button>
         </div>
@@ -193,10 +193,10 @@
       />
       <template #footer>
         <div class="flex w-full gap-3">
-          <button type="button" :class="dialogSecondaryButton" @click="closePhoneDialog">
+          <button type="button" :class="btnDialogSecondary" @click="closePhoneDialog">
             {{ $t('profile.cancel') }}
           </button>
-          <button type="button" :disabled="phoneSubmitting" :class="dialogPrimaryButton" @click="submitPhone">
+          <button type="button" :disabled="phoneSubmitting" :class="btnDialogPrimary" @click="submitPhone">
             {{ phoneSubmitting ? $t('settings.saving') : $t('profile.confirm') }}
           </button>
         </div>
@@ -215,12 +215,8 @@ import { useUserStore } from '@/stores/user'
 import { useToast } from '@/composables/useToast'
 import { updatePassword, updatePhone } from '@/api/user'
 import { inputClassLg } from '@/components/ui/formStyles'
+import { btnDialogPrimary, btnDialogSecondary } from '@/components/ui/buttonStyles'
 import BaseDialog from '@/components/ui/BaseDialog.vue'
-
-const dialogSecondaryButton =
-  'flex-1 rounded-full bg-surface-container-low py-3 font-label-lg text-label-lg text-on-surface transition-colors hover:bg-surface-container-high active:bg-surface-container focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
-const dialogPrimaryButton =
-  'flex-1 rounded-full bg-primary py-3 font-label-lg text-label-lg text-on-primary transition-colors hover:bg-primary/90 active:bg-primary/80 focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-50'
 
 const router = useRouter()
 const { t } = useI18n()

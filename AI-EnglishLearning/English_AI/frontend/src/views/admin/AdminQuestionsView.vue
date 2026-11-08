@@ -4,7 +4,7 @@
       <p class="font-body-md text-body-md text-on-surface-variant">{{ $t('adminConsole.question.subtitle') }}</p>
       <button
         type="button"
-        class="flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 font-label-lg text-label-lg text-on-primary"
+        :class="btnPrimary"
         @click="generateOpen = true"
       >
         <span class="material-symbols-outlined text-icon-md">add_notes</span>
@@ -179,6 +179,7 @@ import RejectQuestionDialog from '../../components/admin/RejectQuestionDialog.vu
 import StatusBadge from '../../components/admin/StatusBadge.vue'
 import ErrorState from '../../components/ui/ErrorState.vue'
 import { inputClass } from '@/components/ui/formStyles'
+import { btnPrimary } from '@/components/ui/buttonStyles'
 import type { TableColumn } from '../../components/admin/tableTypes'
 import { useAsyncData } from '../../composables/useAsyncData'
 import { useToast } from '../../composables/useToast'

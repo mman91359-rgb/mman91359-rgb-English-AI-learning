@@ -396,7 +396,7 @@
           <span class="material-symbols-outlined text-icon-2xl text-outline">inbox</span>
           <p class="mt-4 text-on-surface-variant">{{ $t('learning.noQuestions') }}</p>
           <button
-            class="mt-4 bg-primary text-on-primary px-6 py-2 rounded-full"
+            :class="['mt-4', btnPrimary]"
             @click="goBack"
           >
             {{ $t('learning.backToHub') }}
@@ -461,6 +461,7 @@ import { useSpeechRecognition } from '@/composables/useSpeechRecognition'
 import { useAiStore } from '@/stores/ai'
 import { shuffle } from '@/utils/array'
 import type { QuestionVO, SubmitResponse, VocabularyVO } from '@/api/exercise'
+import { btnPrimary } from '@/components/ui/buttonStyles'
 
 const router = useRouter()
 const { t } = useI18n()

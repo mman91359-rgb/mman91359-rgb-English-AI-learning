@@ -58,7 +58,7 @@
             <div class="flex w-full gap-3">
               <button
                 type="button"
-                class="flex-1 rounded-full bg-surface-container-low py-3 font-label-lg text-label-lg text-on-surface transition-colors hover:bg-surface-container-high active:bg-surface-container focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                :class="btnDialogSecondary"
                 @click="closeNicknameDialog"
               >
                 {{ $t('profile.cancel') }}
@@ -66,7 +66,7 @@
               <button
                 type="button"
                 :disabled="nicknameSubmitting || !nicknameInput.trim()"
-                class="flex-1 rounded-full bg-primary py-3 font-label-lg text-label-lg text-on-primary transition-colors hover:bg-primary/90 active:bg-primary/80 focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-50"
+                :class="btnDialogPrimary"
                 @click="submitNickname"
               >
                 {{ nicknameSubmitting ? $t('profile.saving') : $t('profile.save') }}
@@ -301,6 +301,7 @@ import { useToast } from '@/composables/useToast'
 import AbilityRadarChart from '@/components/profile/AbilityRadarChart.vue'
 import BaseDialog from '@/components/ui/BaseDialog.vue'
 import { inputClassLg } from '@/components/ui/formStyles'
+import { btnDialogPrimary, btnDialogSecondary } from '@/components/ui/buttonStyles'
 import type { AbilityDimensionKey, AbilityRadar } from '@/api/stats'
 
 const { t } = useI18n()

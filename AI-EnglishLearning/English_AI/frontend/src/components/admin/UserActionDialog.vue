@@ -53,7 +53,7 @@
         <span class="material-symbols-outlined text-icon-sm">content_copy</span>
         {{ $t('adminConsole.common.copy') }}
       </button>
-      <button type="button" class="rounded-full bg-primary px-5 py-2.5 font-label-lg text-label-lg text-on-primary" @click="close">
+      <button type="button" :class="btnPrimary" @click="close">
         {{ $t('adminConsole.common.done') }}
       </button>
     </template>
@@ -96,7 +96,7 @@
     <template #footer>
       <button
         type="button"
-        class="rounded-full border border-outline-variant px-5 py-2.5 font-label-lg text-label-lg text-on-surface-variant"
+        :class="btnSecondary"
         :disabled="submitting"
         @click="close"
       >
@@ -104,7 +104,7 @@
       </button>
       <button
         type="button"
-        class="rounded-full bg-primary px-5 py-2.5 font-label-lg text-label-lg text-on-primary disabled:opacity-60"
+        :class="btnPrimary"
         :disabled="submitting"
         @click="runSetPassword"
       >
@@ -135,7 +135,7 @@
     <template #footer>
       <button
         type="button"
-        class="rounded-full border border-outline-variant px-5 py-2.5 font-label-lg text-label-lg text-on-surface-variant"
+        :class="btnSecondary"
         :disabled="submitting"
         @click="close"
       >
@@ -143,7 +143,7 @@
       </button>
       <button
         type="button"
-        class="rounded-full bg-primary px-5 py-2.5 font-label-lg text-label-lg text-on-primary disabled:opacity-60"
+        :class="btnPrimary"
         :disabled="submitting || role === currentRole"
         @click="roleConfirmOpen = true"
       >
@@ -174,6 +174,7 @@ import BaseDialog from '../ui/BaseDialog.vue'
 import ConfirmDialog from './ConfirmDialog.vue'
 import FormField from './FormField.vue'
 import { inputClass } from '@/components/ui/formStyles'
+import { btnPrimary, btnSecondary } from '@/components/ui/buttonStyles'
 import { useToast } from '../../composables/useToast'
 import {
   getAdminErrorKey,

@@ -99,10 +99,10 @@
     >
       <p class="font-body-md text-body-md text-on-surface-variant">{{ $t('writing.practice.draftRestoreDesc') }}</p>
       <template #footer>
-        <button type="button" class="rounded-full border border-outline-variant px-5 py-2.5 font-label-lg text-label-lg text-on-surface-variant" @click="discardDraft">
+        <button type="button" :class="btnSecondary" @click="discardDraft">
           {{ $t('writing.practice.discard') }}
         </button>
-        <button type="button" class="rounded-full bg-primary px-5 py-2.5 font-label-lg text-label-lg text-on-primary" @click="restoreDraft">
+        <button type="button" :class="btnPrimary" @click="restoreDraft">
           {{ $t('writing.practice.restore') }}
         </button>
       </template>
@@ -129,6 +129,7 @@ import QuizProgressBar from '../../components/quiz/QuizProgressBar.vue'
 import BaseDialog from '../../components/ui/BaseDialog.vue'
 import ConfirmDialog from '../../components/admin/ConfirmDialog.vue'
 import EmptyState from '../../components/ui/EmptyState.vue'
+import { btnPrimary, btnSecondary } from '../../components/ui/buttonStyles'
 import ErrorState from '../../components/ui/ErrorState.vue'
 import LoadingState from '../../components/ui/LoadingState.vue'
 import WritingAnswerSheet from '../../components/writing/WritingAnswerSheet.vue'

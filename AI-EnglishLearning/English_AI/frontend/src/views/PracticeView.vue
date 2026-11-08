@@ -148,7 +148,7 @@
       <div v-else class="text-center py-20">
         <span class="material-symbols-outlined text-icon-2xl text-outline">inbox</span>
         <p class="mt-4 text-on-surface-variant">{{ $t('learning.noQuestions') }}</p>
-        <button class="mt-4 bg-primary text-on-primary px-6 py-2 rounded-full" @click="$router.back()">
+        <button :class="['mt-4', btnPrimary]" @click="$router.back()">
           {{ $t('learning.backToHub') }}
         </button>
       </div>
@@ -234,6 +234,7 @@ import { useUserStore } from '@/stores/user'
 import { moduleName as moduleLabel } from '@/config/modules'
 import { selectQuestions, submitAnswer, addFavorite } from '@/api/exercise'
 import type { QuestionVO, SubmitResponse } from '@/api/exercise'
+import { btnPrimary } from '@/components/ui/buttonStyles'
 
 const route = useRoute()
 const router = useRouter()

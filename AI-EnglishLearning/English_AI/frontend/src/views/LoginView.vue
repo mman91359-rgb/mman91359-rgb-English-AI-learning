@@ -114,7 +114,7 @@
               <div class="pt-2">
                 <button
                   :disabled="isLoading"
-                  class="w-full py-3.5 px-4 bg-primary hover:bg-on-primary-fixed-variant text-on-primary font-label-lg text-label-lg rounded-full shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 active:scale-95 disabled:opacity-80 disabled:cursor-not-allowed"
+                  :class="btnPrimaryBlock"
                   type="submit"
                 >
                   <span>{{ isLoading ? $t('auth.login') + '...' : $t('auth.login') }}</span>
@@ -143,6 +143,7 @@ import { useI18n } from 'vue-i18n'
 import { useUserStore } from '@/stores/user'
 import { useToast } from '@/composables/useToast'
 import { inputClassLg } from '@/components/ui/formStyles'
+import { btnPrimaryBlock } from '@/components/ui/buttonStyles'
 
 const { t } = useI18n()
 const route = useRoute()

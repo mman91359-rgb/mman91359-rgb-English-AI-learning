@@ -65,20 +65,10 @@
     </form>
 
     <template #footer>
-      <button
-        type="button"
-        class="rounded-full border border-outline-variant px-5 py-2.5 font-label-lg text-label-lg text-on-surface-variant"
-        :disabled="submitting"
-        @click="emitClose"
-      >
+      <button type="button" :class="btnSecondary" :disabled="submitting" @click="emitClose">
         {{ $t('adminConsole.common.cancel') }}
       </button>
-      <button
-        type="button"
-        class="rounded-full bg-primary px-5 py-2.5 font-label-lg text-label-lg text-on-primary disabled:opacity-60"
-        :disabled="submitting"
-        @click="handleSubmit"
-      >
+      <button type="button" :class="btnPrimary" :disabled="submitting" @click="handleSubmit">
         {{ submitting ? $t('adminConsole.common.loading') : $t('adminConsole.notice.saveDraft') }}
       </button>
     </template>
@@ -91,6 +81,7 @@ import { useI18n } from 'vue-i18n'
 import BaseDrawer from './BaseDrawer.vue'
 import FormField from './FormField.vue'
 import { inputClass } from '@/components/ui/formStyles'
+import { btnPrimary, btnSecondary } from '@/components/ui/buttonStyles'
 import { useToast } from '../../composables/useToast'
 import { createNotice, getAdminErrorKey, updateNotice, type AdminNotice, type NoticePayload, type NoticeType, type TargetAudience } from '../../api/admin'
 import { AUDIENCE_META, NOTICE_TYPE_META } from '../../utils/adminEnums'

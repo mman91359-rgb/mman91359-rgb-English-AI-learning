@@ -109,13 +109,13 @@
                   <div class="mt-7 flex gap-3">
                     <button
                       type="button"
-                      class="flex-1 rounded-full border border-error/30 bg-error/5 px-4 py-3 font-label-lg text-label-lg text-error transition-colors hover:bg-error/10 disabled:opacity-50"
+                      class="flex-1 rounded-full border border-error/30 bg-error/5 px-4 py-3 font-label-lg text-label-lg text-error transition-all duration-200 hover:bg-error/10 active:bg-error/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-error disabled:pointer-events-none disabled:opacity-50"
                       :disabled="checking || !!feedback"
                       @click="submitReview(false)"
                     >{{ $t('wordReview.forgot') }}</button>
                     <button
                       type="button"
-                      class="flex-1 rounded-full bg-tertiary px-4 py-3 font-label-lg text-label-lg text-on-tertiary transition-colors hover:bg-tertiary/90 disabled:opacity-50"
+                      class="flex-1 rounded-full bg-tertiary px-4 py-3 font-label-lg text-label-lg text-on-tertiary transition-all duration-200 hover:bg-tertiary/90 active:bg-tertiary/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-tertiary disabled:pointer-events-none disabled:opacity-50"
                       :disabled="checking || !!feedback"
                       @click="submitReview(true)"
                     >{{ $t('wordReview.remembered') }}</button>

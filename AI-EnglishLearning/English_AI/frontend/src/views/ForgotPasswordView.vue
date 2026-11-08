@@ -114,7 +114,7 @@
               <button
                 type="submit"
                 :disabled="submitting"
-                class="flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-3.5 font-label-lg text-label-lg text-on-primary shadow-md transition-all duration-200 hover:bg-on-primary-fixed-variant hover:shadow-lg active:scale-95 disabled:cursor-not-allowed disabled:opacity-80"
+                :class="btnPrimaryBlock"
               >
                 <span>{{ submitting ? $t('common.loading') : $t('auth.resetPassword') }}</span>
                 <span v-if="submitting" class="material-symbols-outlined animate-spin">progress_activity</span>
@@ -141,6 +141,7 @@ import { useToast } from '../composables/useToast'
 import { useCountdown } from '../composables/useCountdown'
 import { resetPasswordByPhone } from '../api/user'
 import { inputClassLg } from '@/components/ui/formStyles'
+import { btnPrimaryBlock } from '@/components/ui/buttonStyles'
 
 const router = useRouter()
 const { t } = useI18n()

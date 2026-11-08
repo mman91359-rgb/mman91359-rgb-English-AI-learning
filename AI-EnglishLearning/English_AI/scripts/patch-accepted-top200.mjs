@@ -435,4 +435,21 @@ function main() {
   console.log(`\n[ok] 已生成 ${opts.out}（${sql.length} 字节）`)
 }
 
-main()
+// 仅作为脚本直接运行时才执行；被巡检脚本 import 时只导出工具函数
+const isEntryModule =
+  process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+
+if (isEntryModule) {
+  main()
+}
+
+export {
+  resolveLemma,
+  britishAmericanForms,
+  parseAccepted,
+  resolveMysql,
+  runQuery,
+  unescapeTsv,
+  loadDictionary,
+  loadByKeys,
+}

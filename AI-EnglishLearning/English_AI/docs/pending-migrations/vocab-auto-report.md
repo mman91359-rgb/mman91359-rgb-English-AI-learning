@@ -1,6 +1,6 @@
 # 词汇填空题生成报告
 
-- 生成时间：2026-11-08T13:49:03.217Z
+- 生成时间：2026-11-08T14:04:41.489Z
 - 模式：dry-run（未写 SQL）
 - 词条范围：ALL
 - 例句长度区间：20~160
@@ -29,10 +29,10 @@
 | `length` | 178 |
 | `no-form-match` | 47 |
 | `fixed-phrase` | 37 |
-| `sense-mismatch` | 27 |
 | `multi-occurrence` | 26 |
+| `sense-mismatch` | 25 |
+| `blocklist` | 5 |
 | `not-single-word` | 3 |
-| `blocklist` | 3 |
 
 ### 3.1 跳过样本（每类最多 10 个，便于核对判定是否过严）
 
@@ -40,15 +40,17 @@
 - **length**：add、adverb、advice、ambulance、amplify、angel、auto、bachelor、badly、balcony
 - **no-form-match**：boast、coordinate、distress、dive、drain、drip、elect、elimination、erect、flare
 - **fixed-phrase**：against、although、amongst、anyone、beneath、besides、beyond、billion、concerning、eighteen
-- **sense-mismatch**：discharge、drawing、exclude、feeling、follow、found、handwriting、heading、landing、opening
 - **multi-occurrence**：activity、atom、connect、conquest、doubt、happiness、ice-cream、lantern、living、medal
-- **not-single-word**：B.C.、i.e.、P.M.
+- **sense-mismatch**：discharge、drawing、exclude、feeling、follow、handwriting、heading、landing、opening、painting
 - **blocklist**：
+- **not-single-word**：B.C.、i.e.、P.M.
 
 ### 3.2 敏感内容过滤（只列 external_key，不复述原句）
 
-- 命中数量：**3**
+- 命中数量：**5**
+  - `vocab-auto-7190-1`
   - `vocab-auto-7576-1`
+  - `vocab-auto-8727-1`
   - `vocab-auto-10765-1`
   - `vocab-auto-11034-1`
 

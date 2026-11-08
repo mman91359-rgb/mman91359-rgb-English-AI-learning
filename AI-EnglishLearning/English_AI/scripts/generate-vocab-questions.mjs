@@ -46,6 +46,8 @@ const IRREGULAR = {
   buy: ['bought', 'buys', 'buying'],
   bring: ['brought', 'brings', 'bringing'],
   teach: ['taught', 'teaches', 'teaching'],
+  shrink: ['shrank', 'shrunk', 'shrinks', 'shrinking'],
+  tear: ['tore', 'torn', 'tears', 'tearing'],
   catch: ['caught', 'catches', 'catching'],
   build: ['built', 'builds', 'building'],
   send: ['sent', 'sends', 'sending'],
@@ -187,7 +189,29 @@ const IRREGULAR_NOUNS = new Set([
 const IRREGULAR_ADJS = new Set(['good', 'bad', 'far', 'little', 'many', 'much'])
 
 /** 精确屏蔽的 external_key（例句涉及敏感政治事件，报告中不复述原句） */
-const EXACT_BLOCKED_KEYS = new Set(['vocab-auto-10765-1'])
+const EXACT_BLOCKED_KEYS = new Set([
+  'vocab-auto-10765-1', // massacre：例句涉及政治事件
+  'vocab-auto-11034-1', // premature：例句含性暗示
+  'vocab-auto-7576-1', // insult：与 premature 同一例句
+  'vocab-auto-8727-1', // rose：名词词条被用在动词过去式位置（同形异义）
+  'vocab-auto-7190-1', // found：例句涉及婴儿死亡
+])
+
+/**
+ * 过去式不规则的动词：命中时不再生成规则 -ed/-d/-ied，完全依赖 IRREGULAR 提供的形态。
+ * 否则会产出 goed / eated / taked / shrinked / teared 这类伪形态。
+ */
+const IRREGULAR_PAST_VERBS = new Set([
+  'be', 'go', 'have', 'do', 'make', 'take', 'come', 'see', 'get', 'give', 'know',
+  'think', 'buy', 'bring', 'teach', 'catch', 'build', 'send', 'spend', 'find',
+  'tell', 'say', 'pay', 'meet', 'keep', 'sleep', 'feel', 'leave', 'lose', 'win',
+  'sit', 'stand', 'understand', 'write', 'speak', 'break', 'choose', 'freeze',
+  'hide', 'ride', 'rise', 'drive', 'eat', 'fall', 'forget', 'begin', 'drink',
+  'sing', 'swim', 'run', 'become', 'hold', 'lead', 'grow', 'throw', 'draw',
+  'fly', 'wear', 'bear', 'beat', 'bite', 'blow', 'deal', 'dig', 'fight', 'hang',
+  'hit', 'hurt', 'lend', 'lie', 'mean', 'put', 'read', 'ring', 'seek', 'sell',
+  'shut', 'sink', 'steal', 'shrink', 'tear',
+])
 
 /**
  * 同形异义导致不可修的 external_key：句中表面形其实是另一个词的变形，
@@ -324,8 +348,10 @@ function inflect(base, cat, opts = {}) {
 
   // 名词复数：不可数名词与不规则名词都不加规则复数
   const skipRegularPlural = cat === 'noun' && (opts.uncountable || opts.hasIrregular)
+  // 过去式不规则的动词：规则形态一律不生成（goed / shrinked / teared），完全依赖 IRREGULAR
+  const skipAllRegular = cat === 'verb' && opts.irregularVerb
 
-  if (wantsPlural && !skipRegularPlural) {
+  if (wantsPlural && !skipRegularPlural && !skipAllRegular) {
     // -man 复合词：复数是 -men，-mans 只用于命中
     const manCompound = cat === 'noun' && base.length > 4 && /man$/.test(base) && !MAN_EXEMPT.has(base)
     if (manCompound) {
@@ -352,7 +378,7 @@ function inflect(base, cat, opts = {}) {
   const syllables = (base.match(/[aeiouy]+/g) || []).length
   const doublingAccepted = DOUBLING_WHITELIST.has(base) || syllables <= 1
 
-  if (wantsVerb) {
+  if (wantsVerb && !skipAllRegular) {
     if (last === 'e') add(base + 'd')
     else if (/[^aeiou]y$/.test(base)) add(base.slice(0, -1) + 'ied')
     else if (cvc) {
@@ -408,9 +434,10 @@ function buildForms(word, pos, overrideCat) {
   const accepted = new Set([w])
   const uncountable = UNCOUNTABLE.has(w) || /ware$/.test(w)
   const hasIrregular = Object.prototype.hasOwnProperty.call(IRREGULAR, w)
+  const irregularVerb = IRREGULAR_PAST_VERBS.has(w)
 
   for (const base of bases) {
-    const { accepted: ok, matchOnly } = inflect(base, cat, { uncountable, hasIrregular })
+    const { accepted: ok, matchOnly } = inflect(base, cat, { uncountable, hasIrregular, irregularVerb })
     ok.forEach((f) => {
       match.add(f)
       accepted.add(f)
@@ -545,15 +572,20 @@ function loadCurrentAccepted(mysqlBin, conn) {
   const out = runQuery(
     mysqlBin,
     conn,
-    "SELECT `external_key`, `accepted_answers` FROM `question_info` WHERE `external_key` LIKE 'vocab-auto-%'",
+    "SELECT `external_key`, `accepted_answers`, `is_deleted` FROM `question_info` WHERE `external_key` LIKE 'vocab-auto-%'",
   )
   const map = new Map()
   for (const line of out.split('\n')) {
     if (!line) continue
-    const i = line.indexOf('\t')
-    if (i < 0) continue
-    const key = line.slice(0, i)
-    const raw = unescapeTsv(line.slice(i + 1))
+    // 从右往左切两刀：JSON 里不会出现真实制表符
+    const lastTab = line.lastIndexOf('\t')
+    if (lastTab < 0) continue
+    const deleted = line.slice(lastTab + 1).trim() === '1'
+    const rest = line.slice(0, lastTab)
+    const firstTab = rest.indexOf('\t')
+    if (firstTab < 0) continue
+    const key = rest.slice(0, firstTab)
+    const raw = unescapeTsv(rest.slice(firstTab + 1))
     let arr = []
     try {
       const parsed = JSON.parse(raw)
@@ -561,7 +593,7 @@ function loadCurrentAccepted(mysqlBin, conn) {
     } catch {
       arr = []
     }
-    map.set(key, arr)
+    map.set(key, { accepted: arr, deleted })
   }
   return map
 }
@@ -928,14 +960,22 @@ function main() {
         inserts.push(q)
         continue
       }
-      const a = [...new Set(cur)].sort().join('|')
+      if (cur.deleted) continue // 已软删的题不再改 accepted
+      const a = [...new Set(cur.accepted)].sort().join('|')
       const b = [...new Set(q.accepted)].sort().join('|')
       if (a !== b) updates.push({ key, accepted: [...new Set(q.accepted)].sort() })
     }
 
+    // 精确屏蔽键：库内还在且未软删的，生成软删语句
+    const softDeletes = [...EXACT_BLOCKED_KEYS]
+      .filter((k) => current.has(k) && !current.get(k).deleted)
+      .sort()
+
     // 库里存在、但按当前规则不再生成的题：只报告，不自动删除（可能已有答题记录）
     const generatedKeys = new Set(generated.map((q) => `vocab-auto-${q.wordId}-1`))
-    const staleKeys = [...current.keys()].filter((k) => !generatedKeys.has(k)).sort()
+    const staleKeys = [...current.keys()]
+      .filter((k) => !generatedKeys.has(k) && !EXACT_BLOCKED_KEYS.has(k))
+      .sort()
 
     const version = path.basename(opts.fixSql).split('__')[0] || 'V1.0.22'
     const lines = [
@@ -944,13 +984,22 @@ function main() {
       '-- 风险：低（UPDATE 只改 accepted_answers；INSERT 复用 NOT EXISTS 双幂等写法）',
       '-- 回滚：新增题按 external_key 删除；accepted 用导入前的 sql/backup/*_exercise_db_vocab_data.sql 恢复',
       `-- 生成时间：${new Date().toISOString()}`,
-      `-- 修正行数：${updates.length}    新增题数：${inserts.length}    规则外存量：${staleKeys.length}`,
+      `-- 修正行数：${updates.length}    新增题数：${inserts.length}    软删题数：${softDeletes.length}    规则外存量：${staleKeys.length}`,
       '',
       '-- ---------- 规则外存量题（不自动删除，需人工决定） ----------',
       ...(staleKeys.length ? staleKeys.map((k) => `--   ${k}`) : ['--   无']),
       '',
     ]
 
+    if (softDeletes.length) {
+      lines.push('-- ---------- 内容屏蔽（软删，保留 question_content） ----------')
+      for (const k of softDeletes) {
+        lines.push(
+          `UPDATE \`question_info\` SET \`is_deleted\` = 1 WHERE \`external_key\` = '${sqlEscape(k)}' AND \`is_deleted\` = 0;`,
+        )
+      }
+      lines.push('')
+    }
     if (inserts.length) {
       lines.push('-- ---------- 新增题目 ----------')
       for (const q of inserts) lines.push(buildSql(q, version))
@@ -968,7 +1017,7 @@ function main() {
     fs.mkdirSync(path.dirname(opts.fixSql), { recursive: true })
     fs.writeFileSync(opts.fixSql, lines.join('\n'), 'utf8')
     console.log(
-      `[fix] 修正 ${updates.length} 行、新增 ${inserts.length} 题、规则外存量 ${staleKeys.length} 题（未删除），已写入 ${opts.fixSql}`,
+      `[fix] 修正 ${updates.length} 行、新增 ${inserts.length} 题、软删 ${softDeletes.length} 题、规则外存量 ${staleKeys.length} 题（未删除），已写入 ${opts.fixSql}`,
     )
     if (staleKeys.length) console.log(`[fix] 规则外存量：${staleKeys.join(', ')}`)
     return

@@ -2,16 +2,18 @@
 -- 目标库：exercise_db
 -- 风险：低（UPDATE 只改 accepted_answers；INSERT 复用 NOT EXISTS 双幂等写法）
 -- 回滚：新增题按 external_key 删除；accepted 用导入前的 sql/backup/*_exercise_db_vocab_data.sql 恢复
--- 生成时间：2026-11-08T13:47:58.970Z
--- 修正行数：34    新增题数：3    规则外存量：6
+-- 生成时间：2026-11-08T14:03:52.213Z
+-- 修正行数：40    新增题数：3    软删题数：4    规则外存量：2
 
 -- ---------- 规则外存量题（不自动删除，需人工决定） ----------
 --   vocab-auto-10695-1
---   vocab-auto-11034-1
 --   vocab-auto-7165-1
---   vocab-auto-7190-1
---   vocab-auto-7576-1
---   vocab-auto-8727-1
+
+-- ---------- 内容屏蔽（软删，保留 question_content） ----------
+UPDATE `question_info` SET `is_deleted` = 1 WHERE `external_key` = 'vocab-auto-11034-1' AND `is_deleted` = 0;
+UPDATE `question_info` SET `is_deleted` = 1 WHERE `external_key` = 'vocab-auto-7190-1' AND `is_deleted` = 0;
+UPDATE `question_info` SET `is_deleted` = 1 WHERE `external_key` = 'vocab-auto-7576-1' AND `is_deleted` = 0;
+UPDATE `question_info` SET `is_deleted` = 1 WHERE `external_key` = 'vocab-auto-8727-1' AND `is_deleted` = 0;
 
 -- ---------- 新增题目 ----------
 -- V1.0.23 · breed (CET4, 难度 6)
@@ -90,6 +92,7 @@ UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('bark', 'barked', 'ba
 UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('bore', 'bored', 'bores', 'boring') WHERE `external_key` = 'vocab-auto-6197-1';
 UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('cancel', 'canceled', 'canceling', 'cancels') WHERE `external_key` = 'vocab-auto-6278-1';
 UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('cause', 'caused', 'causes', 'causing') WHERE `external_key` = 'vocab-auto-6313-1';
+UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('choose', 'chooses', 'choosing', 'chose', 'chosen') WHERE `external_key` = 'vocab-auto-6379-1';
 UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('chop', 'chopped', 'chopping', 'chops') WHERE `external_key` = 'vocab-auto-6380-1';
 UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('conserve', 'conserved', 'conserves', 'conserving') WHERE `external_key` = 'vocab-auto-6535-1';
 UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('control', 'controlled', 'controlling', 'controls') WHERE `external_key` = 'vocab-auto-6567-1';
@@ -97,8 +100,10 @@ UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('cure', 'cured', 'cur
 UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('decrease', 'decreased', 'decreases', 'decreasing') WHERE `external_key` = 'vocab-auto-6689-1';
 UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('fetch', 'fetched', 'fetches', 'fetching') WHERE `external_key` = 'vocab-auto-7123-1';
 UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('force', 'forced', 'forces', 'forcing') WHERE `external_key` = 'vocab-auto-7172-1';
+UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('freeze', 'freezes', 'freezing', 'froze', 'frozen') WHERE `external_key` = 'vocab-auto-7202-1';
 UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('gather', 'gathered', 'gathering', 'gathers') WHERE `external_key` = 'vocab-auto-7244-1';
 UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('highlight', 'highlighted', 'highlighting', 'highlights') WHERE `external_key` = 'vocab-auto-7415-1';
+UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('lose', 'loses', 'losing', 'lost') WHERE `external_key` = 'vocab-auto-7800-1';
 UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('melt', 'melted', 'melting', 'melts') WHERE `external_key` = 'vocab-auto-7885-1';
 UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('permit', 'permits', 'permitted', 'permitting') WHERE `external_key` = 'vocab-auto-8239-1';
 UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('plenty') WHERE `external_key` = 'vocab-auto-8291-1';
@@ -106,26 +111,18 @@ UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('praise', 'praised', 
 UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('quote', 'quoted', 'quotes', 'quoting') WHERE `external_key` = 'vocab-auto-8494-1';
 UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('revise', 'revised', 'revises', 'revising') WHERE `external_key` = 'vocab-auto-8689-1';
 UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('rust', 'rusted', 'rusting', 'rusts') WHERE `external_key` = 'vocab-auto-8752-1';
-UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('shrink', 'shrinked', 'shrinking', 'shrinks') WHERE `external_key` = 'vocab-auto-8902-1';
+UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('seek', 'seeking', 'seeks', 'sought') WHERE `external_key` = 'vocab-auto-8827-1';
+UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('shrank', 'shrink', 'shrinking', 'shrinks', 'shrunk') WHERE `external_key` = 'vocab-auto-8902-1';
 UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('signal', 'signaled', 'signaling', 'signals') WHERE `external_key` = 'vocab-auto-8913-1';
 UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('spur', 'spurred', 'spurring', 'spurs') WHERE `external_key` = 'vocab-auto-9054-1';
 UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('startle', 'startled', 'startles', 'startling') WHERE `external_key` = 'vocab-auto-9074-1';
-UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('tear', 'teared', 'tearing', 'tears') WHERE `external_key` = 'vocab-auto-9246-1';
+UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('steal', 'stealing', 'steals', 'stole', 'stolen') WHERE `external_key` = 'vocab-auto-9088-1';
+UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('tear', 'tearing', 'tears', 'tore', 'torn') WHERE `external_key` = 'vocab-auto-9246-1';
 UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('trifle', 'trifled', 'trifles', 'trifling') WHERE `external_key` = 'vocab-auto-9390-1';
 UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('triumph', 'triumphed', 'triumphing', 'triumphs') WHERE `external_key` = 'vocab-auto-9392-1';
 UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('vote', 'voted', 'votes', 'voting') WHERE `external_key` = 'vocab-auto-9568-1';
+UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('win', 'winning', 'wins', 'won') WHERE `external_key` = 'vocab-auto-9631-1';
 UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('wonder', 'wondered', 'wondering', 'wonders') WHERE `external_key` = 'vocab-auto-9646-1';
 UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('wrap', 'wrapped', 'wrapping', 'wraps') WHERE `external_key` = 'vocab-auto-9664-1';
 UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('endeavour', 'endeavoured', 'endeavouring', 'endeavours') WHERE `external_key` = 'vocab-auto-10258-1';
 UPDATE `question_info` SET `accepted_answers` = JSON_ARRAY('tackle', 'tackled', 'tackles', 'tackling') WHERE `external_key` = 'vocab-auto-11425-1';
-
--- ---------- 停用题目（人工追加段，规则外且不可修，软删保留数据） ----------
--- 上方自动生成段只做 UPDATE / INSERT，不会删任何行；以下三条按当前规则已不出题，
--- 且库内数据本身有问题（敏感 / 同形异义），因此软删而非继续保留：
---   vocab-auto-11034-1  premature  例句含性敏感情节，已加入 CONTENT_PATTERNS
---   vocab-auto-7576-1   insult     同一例句（premature ejaculation），整句连带拦截
---   vocab-auto-8727-1   rose       同形异义：句中为 rise 的过去式，词形规则无法区分，精确屏蔽
--- 幂等：仅在 is_deleted = 0 时更新，重复执行无副作用。
-UPDATE `question_info` SET `is_deleted` = 1 WHERE `external_key` = 'vocab-auto-11034-1' AND `is_deleted` = 0;
-UPDATE `question_info` SET `is_deleted` = 1 WHERE `external_key` = 'vocab-auto-7576-1' AND `is_deleted` = 0;
-UPDATE `question_info` SET `is_deleted` = 1 WHERE `external_key` = 'vocab-auto-8727-1' AND `is_deleted` = 0;

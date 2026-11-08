@@ -18,6 +18,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -191,6 +192,56 @@ class JudgmentEngineImplTest {
         JudgmentResult result = engine.judge(request("Ａｂａｎｄｏｎ"), "abandon", "____");
 
         assertFalse(result.getIsCorrect());
+    }
+
+    // ===== P1-1：翻译题归一化对齐 =====
+
+    @Test
+    void translationAcceptsFullWidthAndCaseDifferences() {
+        SubmitRequest req = request("ＡＢＣ　ＤＥＦ。");
+        req.setModuleType(3);
+
+        JudgmentResult result = engine.judgeTranslation(req, "ABC DEF.", "中文题干", null, false);
+
+        assertTrue(result.getIsCorrect());
+        assertEquals(1, result.getMatchedLevel());
+        verifyNoInteractions(restTemplate);
+    }
+
+    @Test
+    void translationAcceptedVariantIsNormalized() {
+        SubmitRequest req = request("abc def");
+        req.setModuleType(3);
+
+        JudgmentResult result = engine.judgeTranslation(
+                req, "xyz uvw", "中文题干", "[\"ＡＢＣ　ＤＥＦ！\"]", false);
+
+        assertTrue(result.getIsCorrect());
+        assertEquals(2, result.getMatchedLevel());
+        assertTrue(result.getIsSemanticMatch());
+        verifyNoInteractions(restTemplate);
+    }
+
+    // ===== P1-1：错因表查询侧归一化兜底 =====
+
+    @Test
+    void legacyBuggyPathWithTrailingPunctuationStillMatches() {
+        when(questionInfoMapper.selectById(QID)).thenReturn(question("FILL_BLANK", null));
+
+        QuestionBuggyPath legacy = new QuestionBuggyPath();
+        legacy.setQuestionId(QID);
+        legacy.setWrongAnswer("meal."); // 历史脏数据：保留了尾部标点
+        legacy.setHeuristicHint("这里应该用 have a meal。");
+        legacy.setErrorType("USAGE");
+        legacy.setOccurrenceCount(1);
+        when(buggyPathMapper.findByQuestionId(QID)).thenReturn(List.of(legacy));
+
+        JudgmentResult result = engine.judge(request("meal"), "have a meal", "I want to ____.");
+
+        assertFalse(result.getIsCorrect());
+        assertEquals("这里应该用 have a meal。", result.getHeuristicHint());
+        assertEquals(2, result.getMatchedLevel());
+        verifyNoInteractions(restTemplate);
     }
 
     private ResponseEntity<Map> mapResponse(boolean acceptable, String reason) {

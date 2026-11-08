@@ -62,6 +62,14 @@ class AnswerNormalizerTest {
     }
 
     @Test
+    void toHalfWidthIsReusableInIsolation() {
+        // 选择题等局部归一化场景直接复用，不做大小写/去标点
+        assertEquals("A. Text", AnswerNormalizer.toHalfWidth("Ａ． Text"));
+        assertEquals("abc 123", AnswerNormalizer.toHalfWidth("ａｂｃ　１２３"));
+        assertEquals("", AnswerNormalizer.toHalfWidth(null));
+    }
+
+    @Test
     void fullWidthPunctuationHandled() {
         // ！全角感叹号先转半角再剥除
         assertEquals("abandon", AnswerNormalizer.normalize("abandon！"));

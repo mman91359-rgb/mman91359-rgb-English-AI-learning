@@ -1,5 +1,6 @@
 package com.english.ai.exercise.util;
 
+import com.english.ai.common.util.AnswerNormalizer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -28,15 +29,22 @@ public final class ChoiceAnswerUtil {
             return false;
         }
 
+        String correctKey = extractKey(correctAnswer);
+        // 字母优先，但只对"纯字母/字母+标点"这类短输入生效（长度 ≤ 2）。
+        // 否则 "A bus stop" 这种以冠词 A 开头的选项文本会被误当成字母 A。
+        String halfWidthUser = AnswerNormalizer.toHalfWidth(userAnswer).trim();
+        if (halfWidthUser.length() <= 2) {
+            String userKey = extractKey(userAnswer);
+            if (!correctKey.isEmpty() && correctKey.equalsIgnoreCase(userKey)) {
+                return true;
+            }
+        }
+
         String user = normalizeOptionText(userAnswer);
         String correct = normalizeOptionText(correctAnswer);
-        String correctKey = extractKey(correctAnswer);
         String correctText = normalizeOptionText(extractOptionText(correctAnswer));
 
         if (user.equals(correct)) {
-            return true;
-        }
-        if (!correctKey.isEmpty() && user.equals(correctKey.toLowerCase(Locale.ROOT))) {
             return true;
         }
         if (!correctText.isEmpty() && user.equals(correctText)) {
@@ -53,7 +61,8 @@ public final class ChoiceAnswerUtil {
         if (isBlank(answer)) {
             return "";
         }
-        String text = answer.trim();
+        // 全角字母/全角标点先转半角，否则 "Ａ．" 无法提取出选项字母
+        String text = AnswerNormalizer.toHalfWidth(answer).trim();
         if (text.length() >= 2) {
             char second = text.charAt(1);
             if (second == '.' || second == '、' || second == ')' || second == '）' || Character.isWhitespace(second)) {
@@ -76,11 +85,13 @@ public final class ChoiceAnswerUtil {
         if (text == null) {
             return "";
         }
-        String normalized = text.trim()
-                .replaceFirst("^[A-Da-d]\\s*[.、)）]\\s*", "")
+        // 全角转半角 → 剥选项前缀 → 统一走 AnswerNormalizer（小写/折叠空白/剥首尾标点）
+        // 尾部句号等由 AnswerNormalizer 处理，避免 "Her train was delayed." 与不带句号的输入对不上
+        String withoutPrefix = AnswerNormalizer.toHalfWidth(text)
                 .trim()
-                .toLowerCase(Locale.ROOT);
-        return normalized.replaceAll("\\s+", " ");
+                .replaceFirst("^[A-Da-d]\\s*[.、)）]\\s*", "")
+                .trim();
+        return AnswerNormalizer.normalize(withoutPrefix);
     }
 
     /**
@@ -90,7 +101,7 @@ public final class ChoiceAnswerUtil {
         if (isBlank(answer)) {
             return "";
         }
-        String text = answer.trim();
+        String text = AnswerNormalizer.toHalfWidth(answer).trim();
         if (text.length() >= 2) {
             char second = text.charAt(1);
             if (second == '.' || second == '、' || second == ')' || second == '）' || Character.isWhitespace(second)) {
@@ -124,7 +135,7 @@ public final class ChoiceAnswerUtil {
                 Iterator<Map.Entry<String, JsonNode>> fields = root.fields();
                 while (fields.hasNext()) {
                     Map.Entry<String, JsonNode> entry = fields.next();
-                    String optionKey = entry.getKey().trim().toUpperCase(Locale.ROOT);
+                    String optionKey = AnswerNormalizer.toHalfWidth(entry.getKey()).trim().toUpperCase(Locale.ROOT);
                     String optionText = normalizeOptionText(entry.getValue().asText(""));
                     if (matchesOption(user, correctKey, correctText, optionKey, optionText)) {
                         return true;

@@ -255,6 +255,19 @@ public class JudgmentEngineImpl implements JudgmentEngine {
         if (buggyPath == null && !legacyAnswer.equals(normalizedAnswer)) {
             buggyPath = buggyPathMapper.findByQuestionAndAnswer(questionId, legacyAnswer);
         }
+        // 第三级兜底：历史行可能保留了尾部标点等未归一化写法（如 "meal."），
+        // 两次精确查询都落空时，拉该题全部错因行做查询侧归一化比对（不批量改历史数据）
+        if (buggyPath == null) {
+            List<QuestionBuggyPath> candidates = buggyPathMapper.findByQuestionId(questionId);
+            if (candidates != null) {
+                for (QuestionBuggyPath candidate : candidates) {
+                    if (normalizedAnswer.equals(AnswerNormalizer.normalize(candidate.getWrongAnswer()))) {
+                        buggyPath = candidate;
+                        break;
+                    }
+                }
+            }
+        }
         if (buggyPath == null) {
             return null;
         }
@@ -588,14 +601,11 @@ public class JudgmentEngineImpl implements JudgmentEngine {
     }
 
     /**
-     * 翻译归一化：去除标点（含中英文标点）、去多余空格、统一小写。
-     * 与词汇题 normalizeSentence 逻辑一致，但保留用于翻译判题的独立实现。
+     * 翻译归一化：全角转半角 → 折叠空白 → 统一小写 → 剥首尾标点。
+     * <p>与填空题共用 {@link AnswerNormalizer}，保证全题型口径一致；
+     * 句子内部标点予以保留（逗号、分号承载语义），也不做语序调整。</p>
      */
     private String normalizeForTranslation(String s) {
-        if (s == null) return "";
-        return s.toLowerCase()
-                .replaceAll("[\\p{Punct}。？！，；：、\u201c\u201d\u2018\u2019（）【】《》…—]", "")
-                .replaceAll("\\s+", " ")
-                .trim();
+        return AnswerNormalizer.normalize(s);
     }
 }

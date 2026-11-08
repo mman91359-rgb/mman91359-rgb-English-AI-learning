@@ -38,8 +38,14 @@ public final class AnswerNormalizer {
         return stripEdges(lower).trim();
     }
 
-    /** 全角 ASCII 区（U+FF01–U+FF5E）与全角空格转半角 */
-    private static String toHalfWidth(String s) {
+    /**
+     * 全角 ASCII 区（U+FF01–U+FF5E）与全角空格转半角。
+     * <p>选择题等只做局部归一化的场景可直接复用，避免规则分叉。</p>
+     */
+    public static String toHalfWidth(String s) {
+        if (s == null) {
+            return "";
+        }
         StringBuilder sb = new StringBuilder(s.length());
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);

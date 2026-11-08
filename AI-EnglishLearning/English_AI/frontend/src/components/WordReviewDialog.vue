@@ -11,7 +11,7 @@
             </div>
             <button
               type="button"
-              class="rounded-full p-2 text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-on-surface"
+              :class="btnIcon"
               :aria-label="$t('common.close')"
               @click="skip"
             >
@@ -174,6 +174,7 @@ import { reviewWord, type VocabularyVO } from '@/api/exercise'
 import { useToast } from '@/composables/useToast'
 import { shuffle } from '@/utils/array'
 import { formatShortDate } from '@/utils/format'
+import { btnIcon } from '@/components/ui/buttonStyles'
 
 interface Props {
   visible: boolean

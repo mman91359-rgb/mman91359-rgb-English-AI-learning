@@ -1,7 +1,7 @@
 <template>
   <AppLayout>
     <div class="flex items-center gap-4 mb-8">
-      <button class="p-2 hover:bg-surface-variant rounded-full transition-colors" @click="$router.back()">
+      <button :class="btnIcon" @click="$router.back()">
         <span class="material-symbols-outlined text-on-surface">arrow_back</span>
       </button>
       <h2 class="font-headline-lg text-headline-lg text-on-surface">{{ $t('app.title') }} - {{ $t('learning.myFavorites') }}</h2>
@@ -84,7 +84,7 @@
             {{ $t('learning.retry') }}
           </button>
           <button
-            class="p-2 hover:bg-error-container/20 rounded-full transition-colors shrink-0"
+            :class="btnIconDanger"
             @click="handleRemove(fav)"
           >
             <span class="material-symbols-outlined text-error">delete</span>
@@ -107,6 +107,7 @@ import { useUserStore } from '@/stores/user'
 import { moduleName, moduleTypeFromSource } from '@/config/modules'
 import { formatDate } from '@/utils/format'
 import { getFavorites, removeFavorite, type FavoriteVO } from '@/api/exercise'
+import { btnIcon, btnIconDanger } from '@/components/ui/buttonStyles'
 
 const { t, locale } = useI18n()
 const router = useRouter()

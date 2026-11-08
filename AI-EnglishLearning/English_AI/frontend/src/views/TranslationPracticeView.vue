@@ -3,7 +3,7 @@
     <template #topbar>
       <header class="h-20 sticky top-0 z-40 bg-background/80 backdrop-blur-md flex items-center justify-between px-gutter w-full max-w-[1192px] mx-auto">
         <div class="flex items-center gap-4 flex-1">
-          <button type="button" class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high/50 transition-all" :aria-label="$t('common.back')" @click="router.push({ path: '/learning', query: { tab: 'translation' } })">
+          <button type="button" :class="btnIcon" :aria-label="$t('common.back')" @click="router.push({ path: '/learning', query: { tab: 'translation' } })">
             <span class="material-symbols-outlined">arrow_back_ios_new</span>
           </button>
           <QuizProgressBar :answered="answeredCount" :total="questions.length" />
@@ -168,6 +168,7 @@ import { selectTranslationQuestions, submitTranslation, isPassageTranslation } f
 import { addFavorite } from '../api/exercise'
 import type { QuestionVO } from '../api/exercise'
 import type { SubmitResponse } from '../api/exercise'
+import { btnIcon } from '@/components/ui/buttonStyles'
 
 const router = useRouter()
 const { t } = useI18n()

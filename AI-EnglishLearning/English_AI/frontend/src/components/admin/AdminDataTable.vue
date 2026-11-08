@@ -30,7 +30,7 @@
             <td v-if="hasExpanded" class="px-4">
               <button
                 type="button"
-                class="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant transition-transform duration-200 hover:bg-surface-container-high"
+                :class="btnIconSm"
                 :aria-expanded="expandedKey === rowKey(row)"
                 :aria-label="$t('adminConsole.table.expand')"
                 @click="toggleExpanded(rowKey(row))"
@@ -70,6 +70,7 @@ import { computed, ref, useSlots } from 'vue'
 import EmptyState from '../ui/EmptyState.vue'
 import LoadingState from '../ui/LoadingState.vue'
 import type { TableColumn } from './tableTypes'
+import { btnIconSm } from '@/components/ui/buttonStyles'
 
 withDefaults(defineProps<{
   columns: TableColumn[]

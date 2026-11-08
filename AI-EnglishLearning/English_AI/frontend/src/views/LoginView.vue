@@ -49,7 +49,7 @@
           </div>
         </div>
         <div class="flex items-center gap-4">
-          <button class="p-2 text-on-surface-variant hover:bg-surface-container-high/50 rounded-full transition-all"></button>
+          <button :class="btnIcon"></button>
         </div>
       </header>
 
@@ -143,7 +143,7 @@ import { useI18n } from 'vue-i18n'
 import { useUserStore } from '@/stores/user'
 import { useToast } from '@/composables/useToast'
 import { inputClassLg } from '@/components/ui/formStyles'
-import { btnPrimaryBlock } from '@/components/ui/buttonStyles'
+import { btnIcon, btnPrimaryBlock } from '@/components/ui/buttonStyles'
 
 const { t } = useI18n()
 const route = useRoute()

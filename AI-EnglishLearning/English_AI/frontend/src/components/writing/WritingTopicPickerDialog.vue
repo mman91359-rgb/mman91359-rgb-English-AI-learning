@@ -27,7 +27,7 @@
         <div class="flex items-center gap-2">
           <button
             type="button"
-            class="flex h-9 w-9 items-center justify-center rounded-full transition-colors"
+            class="flex h-9 w-9 items-center justify-center rounded-full transition-all duration-200 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             :class="favoriteIds.includes(topic.id) ? 'text-error' : 'text-outline hover:bg-surface-container-high'"
             :aria-label="favoriteIds.includes(topic.id) ? $t('writing.entry.unfavorite') : $t('writing.entry.favorite')"
             @click="$emit('toggleFavorite', topic.id)"

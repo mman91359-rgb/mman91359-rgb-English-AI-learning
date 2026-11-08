@@ -18,7 +18,7 @@
         <button
           v-if="aiStore.messages.length > 0"
           type="button"
-          class="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-surface-container-high"
+          :class="btnIconSm"
           :title="$t('ai.clearChat')"
           :aria-label="$t('ai.clearChat')"
           @click="aiStore.clearMessages()"
@@ -27,7 +27,7 @@
         </button>
         <button
           type="button"
-          class="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-surface-container-high"
+          :class="btnIconSm"
           :aria-label="$t('ai.close')"
           @click="$emit('close')"
         >
@@ -179,6 +179,7 @@ import { ref, watch, nextTick, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAiStore } from '@/stores/ai'
 import { useToast } from '@/composables/useToast'
+import { btnIconSm } from '@/components/ui/buttonStyles'
 
 const { t } = useI18n()
 const { show: toast } = useToast()

@@ -4,7 +4,7 @@
     <div class="flex items-center gap-4 mb-6">
       <button
         v-if="!showResults"
-        class="p-2 hover:bg-surface-variant rounded-full transition-colors"
+        :class="btnIcon"
         @click="$router.back()"
       >
         <span class="material-symbols-outlined text-on-surface">arrow_back</span>
@@ -234,7 +234,7 @@ import { useUserStore } from '@/stores/user'
 import { moduleName as moduleLabel } from '@/config/modules'
 import { selectQuestions, submitAnswer, addFavorite } from '@/api/exercise'
 import type { QuestionVO, SubmitResponse } from '@/api/exercise'
-import { btnPrimary } from '@/components/ui/buttonStyles'
+import { btnIcon, btnPrimary } from '@/components/ui/buttonStyles'
 
 const route = useRoute()
 const router = useRouter()

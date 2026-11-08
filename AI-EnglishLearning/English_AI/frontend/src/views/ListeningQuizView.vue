@@ -5,7 +5,7 @@
         <div class="flex items-center gap-4 flex-1">
           <button
             type="button"
-            class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high/50 transition-all"
+            :class="btnIcon"
             :aria-label="$t('common.back')"
             @click="goBack"
           >
@@ -16,7 +16,7 @@
         <div class="flex items-center gap-2">
           <button
             type="button"
-            class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high/50 transition-all"
+            :class="btnIcon"
             :aria-label="appStore.isDark ? $t('topbar.switchToLight') : $t('topbar.switchToDark')"
             @click="appStore.toggleTheme"
           >
@@ -24,7 +24,7 @@
           </button>
           <button
             type="button"
-            class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high/50 transition-all"
+            :class="btnIcon"
             :aria-label="$t('nav.settings')"
             @click="toast($t('common.comingSoon'), 'info')"
           >
@@ -237,6 +237,7 @@ import {
   type QuestionVO,
   type SubmitResponse,
 } from '../api/exercise'
+import { btnIcon } from '@/components/ui/buttonStyles'
 
 interface ParsedOption {
   key: string

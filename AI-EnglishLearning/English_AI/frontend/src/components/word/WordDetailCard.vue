@@ -37,7 +37,7 @@
               <div class="-mr-1.5 flex shrink-0 items-start">
                 <button
                   type="button"
-                  class="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-surface/15 dark:hover:bg-on-primary-container/15"
+                  class="flex h-8 w-8 items-center justify-center rounded-full transition-all duration-200 hover:bg-surface/15 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-surface dark:hover:bg-on-primary-container/15"
                   :class="
                     favorited
                       ? 'text-warning-container dark:text-warning'
@@ -53,7 +53,7 @@
                 </button>
                 <button
                   type="button"
-                  class="flex h-8 w-8 items-center justify-center rounded-full text-primary-container/85 transition-colors hover:bg-surface/15 hover:text-surface dark:text-on-primary-container/80 dark:hover:bg-on-primary-container/15"
+                  class="flex h-8 w-8 items-center justify-center rounded-full text-primary-container/85 transition-all duration-200 hover:bg-surface/15 hover:text-surface active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-surface dark:text-on-primary-container/80 dark:hover:bg-on-primary-container/15"
                   :aria-label="$t('word.close')"
                   @click="emit('close')"
                 >
@@ -65,7 +65,7 @@
             <div v-if="supported" class="mt-2 flex items-center gap-2">
               <button
                 type="button"
-                class="flex h-8 w-8 items-center justify-center rounded-full bg-surface/15 text-surface transition-colors hover:bg-primary-container hover:text-on-primary-container dark:bg-on-primary-container/15 dark:text-on-primary-container dark:hover:bg-on-primary-container dark:hover:text-primary-container"
+                class="flex h-8 w-8 items-center justify-center rounded-full bg-surface/15 text-surface transition-all duration-200 hover:bg-primary-container hover:text-on-primary-container active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-surface dark:bg-on-primary-container/15 dark:text-on-primary-container dark:hover:bg-on-primary-container dark:hover:text-primary-container"
                 :aria-label="$t('word.speak')"
                 @click="speak(word)"
               >

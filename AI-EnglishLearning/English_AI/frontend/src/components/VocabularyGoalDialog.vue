@@ -12,7 +12,7 @@
               </div>
             </div>
             <button
-              class="rounded-full p-2 text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-on-surface"
+              :class="btnIcon"
               type="button"
               :aria-label="$t('common.close')"
               @click="close"
@@ -34,7 +34,7 @@
               <div class="flex items-center justify-between rounded-2xl bg-surface px-3 py-2 border border-outline-variant/60">
                 <button
                   type="button"
-                  class="flex h-9 w-9 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-primary disabled:opacity-40"
+                  class="flex h-9 w-9 items-center justify-center rounded-full text-on-surface-variant transition-all duration-200 hover:bg-surface-container-high hover:text-primary disabled:opacity-40 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:pointer-events-none"
                   :disabled="newInput <= minNew"
                   @click="adjustNew(-1)"
                 >
@@ -53,7 +53,7 @@
                 </div>
                 <button
                   type="button"
-                  class="flex h-9 w-9 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-primary disabled:opacity-40"
+                  class="flex h-9 w-9 items-center justify-center rounded-full text-on-surface-variant transition-all duration-200 hover:bg-surface-container-high hover:text-primary disabled:opacity-40 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:pointer-events-none"
                   :disabled="newInput >= maxNew"
                   @click="adjustNew(1)"
                 >
@@ -89,7 +89,7 @@
               <div class="flex items-center justify-between rounded-2xl bg-surface px-3 py-2 border border-outline-variant/60">
                 <button
                   type="button"
-                  class="flex h-9 w-9 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-tertiary disabled:opacity-40"
+                  class="flex h-9 w-9 items-center justify-center rounded-full text-on-surface-variant transition-all duration-200 hover:bg-surface-container-high hover:text-tertiary disabled:opacity-40 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:pointer-events-none"
                   :disabled="reviewInput <= minReview"
                   @click="adjustReview(-1)"
                 >
@@ -108,7 +108,7 @@
                 </div>
                 <button
                   type="button"
-                  class="flex h-9 w-9 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-tertiary disabled:opacity-40"
+                  class="flex h-9 w-9 items-center justify-center rounded-full text-on-surface-variant transition-all duration-200 hover:bg-surface-container-high hover:text-tertiary disabled:opacity-40 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:pointer-events-none"
                   :disabled="reviewInput >= maxReview"
                   @click="adjustReview(1)"
                 >
@@ -167,6 +167,7 @@
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import BaseDialog from './ui/BaseDialog.vue'
+import { btnIcon } from '@/components/ui/buttonStyles'
 
 interface Props {
   visible: boolean

@@ -23,7 +23,7 @@
     <button
       v-if="showFavorite"
       type="button"
-      class="flex-shrink-0 p-2 rounded-full transition-colors"
+      class="flex-shrink-0 p-2 rounded-full transition-all duration-200 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
       :class="favoriteClass"
       :aria-label="$t('listening.favorite')"
       @click="$emit('favorite')"

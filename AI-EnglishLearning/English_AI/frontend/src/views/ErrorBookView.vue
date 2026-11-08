@@ -1,7 +1,7 @@
 <template>
   <AppLayout>
     <div class="flex items-center gap-4 mb-8">
-      <button class="p-2 hover:bg-surface-variant rounded-full transition-colors" @click="$router.back()">
+      <button :class="btnIcon" @click="$router.back()">
         <span class="material-symbols-outlined text-on-surface">arrow_back</span>
       </button>
       <h2 class="font-headline-lg text-headline-lg text-on-surface">{{ $t('app.title') }} - {{ $t('learning.myErrorBook') }}</h2>
@@ -303,7 +303,7 @@
             </h3>
             <button
               type="button"
-              class="rounded-full p-2 transition-colors hover:bg-surface-variant focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              :class="btnIcon"
               :aria-label="$t('common.close')"
               @click="closeSimilarModal"
             >
@@ -433,6 +433,7 @@ import { useToast } from '@/composables/useToast'
 import { useModalBehavior } from '@/composables/useModalBehavior'
 import { moduleName } from '@/config/modules'
 import { shuffle } from '@/utils/array'
+import { btnIcon } from '@/components/ui/buttonStyles'
 
 const { t } = useI18n()
 const userStore = useUserStore()

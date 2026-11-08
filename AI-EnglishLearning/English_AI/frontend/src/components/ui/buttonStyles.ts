@@ -37,8 +37,15 @@ export const btnGhost = `${base} px-4 py-2 text-on-surface-variant hover:bg-surf
 const iconBase =
   'inline-flex shrink-0 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-on-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:pointer-events-none disabled:opacity-50'
 
-/** 图标按钮 · 40px：弹窗关闭、列表行操作 */
+/** 图标按钮 · 40px：页面返回、独立浮层关闭（图标 24px） */
 export const btnIcon = `${iconBase} h-10 w-10`
 
-/** 图标按钮 · 32px：卡片角标、紧凑工具条 */
+/** 图标按钮 · 36px：顶栏、弹窗工具条（图标 20px） */
+export const btnIconMd = `${iconBase} h-9 w-9`
+
+/** 图标按钮 · 32px：表格行内操作、卡片角标 */
 export const btnIconSm = `${iconBase} h-8 w-8`
+
+/** 图标按钮 · 危险 40px：删除、移除收藏等负向操作 */
+export const btnIconDanger =
+  'inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-error-container/40 hover:text-error focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-error disabled:pointer-events-none disabled:opacity-50'

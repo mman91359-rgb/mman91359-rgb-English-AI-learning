@@ -2,7 +2,7 @@
   <AppLayout>
     <!-- 顶部标题栏 -->
     <div class="flex items-center gap-4 mb-6">
-      <button class="p-2 hover:bg-surface-variant rounded-full transition-colors" @click="$router.back()">
+      <button :class="btnIcon" @click="$router.back()">
         <span class="material-symbols-outlined text-on-surface">arrow_back</span>
       </button>
       <h2 class="font-headline-lg text-headline-lg text-on-surface">{{ $t('app.title') }} - {{ $t('learning.learningHistory') }}</h2>
@@ -277,6 +277,7 @@ import { useUserStore } from '@/stores/user'
 import { moduleName } from '@/config/modules'
 import { formatDateTime } from '@/utils/format'
 import { getExerciseHistory, type ExerciseHistoryVO } from '@/api/exercise'
+import { btnIcon } from '@/components/ui/buttonStyles'
 
 const { t, locale } = useI18n()
 const userStore = useUserStore()

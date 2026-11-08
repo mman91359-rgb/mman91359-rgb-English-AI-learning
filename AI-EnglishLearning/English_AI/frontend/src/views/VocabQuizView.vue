@@ -18,7 +18,7 @@
         <div class="flex items-center gap-4 flex-1">
           <!-- 返回按钮 -->
           <button
-            class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high/50 transition-all"
+            :class="btnIcon"
             :aria-label="$t('common.back')"
             @click="goBack"
           >
@@ -48,7 +48,7 @@
         <!-- 右侧操作按钮组 -->
         <div class="flex items-center gap-2">
           <button
-            class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high/50 transition-all"
+            :class="btnIcon"
             :aria-label="appStore.isDark ? $t('topbar.switchToLight') : $t('topbar.switchToDark')"
             @click="appStore.toggleTheme"
           >
@@ -57,14 +57,14 @@
             </span>
           </button>
           <button
-            class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high/50 transition-all relative"
+            :class="['relative', btnIcon]"
             :aria-label="$t('topbar.notifications')"
           >
             <span class="material-symbols-outlined">notifications</span>
             <span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
           </button>
           <button
-            class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high/50 transition-all"
+            :class="btnIcon"
             :aria-label="$t('topbar.currentLanguage')"
             @click="cycleLanguage"
           >
@@ -461,7 +461,7 @@ import { useSpeechRecognition } from '@/composables/useSpeechRecognition'
 import { useAiStore } from '@/stores/ai'
 import { shuffle } from '@/utils/array'
 import type { QuestionVO, SubmitResponse, VocabularyVO } from '@/api/exercise'
-import { btnPrimary } from '@/components/ui/buttonStyles'
+import { btnIcon, btnPrimary } from '@/components/ui/buttonStyles'
 
 const router = useRouter()
 const { t } = useI18n()

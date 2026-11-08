@@ -5,7 +5,7 @@
         <div class="flex flex-1 items-center gap-4">
           <button
             type="button"
-            class="rounded-full p-2 text-on-surface-variant transition-all hover:bg-surface-container-high/50"
+            :class="btnIcon"
             :aria-label="$t('writing.practice.backToLearning')"
             @click="router.push({ path: '/learning', query: { tab: 'writing' } })"
           >
@@ -28,7 +28,7 @@
           </button>
           <button
             type="button"
-            class="rounded-full p-2 text-on-surface-variant transition-all hover:bg-surface-container-high/50"
+            :class="btnIcon"
             :aria-label="$t('topbar.notifications')"
             @click="toast($t('common.comingSoon'), 'info')"
           >
@@ -36,7 +36,7 @@
           </button>
           <button
             type="button"
-            class="rounded-full p-2 text-on-surface-variant transition-all hover:bg-surface-container-high/50"
+            :class="btnIcon"
             :aria-label="appStore.isDark ? $t('topbar.switchToLight') : $t('topbar.switchToDark')"
             @click="appStore.toggleTheme"
           >
@@ -129,7 +129,7 @@ import QuizProgressBar from '../../components/quiz/QuizProgressBar.vue'
 import BaseDialog from '../../components/ui/BaseDialog.vue'
 import ConfirmDialog from '../../components/admin/ConfirmDialog.vue'
 import EmptyState from '../../components/ui/EmptyState.vue'
-import { btnPrimary, btnSecondary } from '../../components/ui/buttonStyles'
+import { btnIcon, btnPrimary, btnSecondary } from '@/components/ui/buttonStyles'
 import ErrorState from '../../components/ui/ErrorState.vue'
 import LoadingState from '../../components/ui/LoadingState.vue'
 import WritingAnswerSheet from '../../components/writing/WritingAnswerSheet.vue'

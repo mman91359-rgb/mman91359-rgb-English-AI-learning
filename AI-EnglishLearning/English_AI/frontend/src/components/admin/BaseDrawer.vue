@@ -15,7 +15,7 @@
             <h2 :id="titleId" class="font-headline-sm text-headline-sm text-on-surface">{{ title }}</h2>
             <button
               type="button"
-              class="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-surface-container-high focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-50"
+              :class="btnIconSm"
               :disabled="closeDisabled"
               :aria-label="$t('common.close')"
               @click="close"
@@ -38,6 +38,7 @@
 <script setup lang="ts">
 import { ref, useId } from 'vue'
 import { useModalBehavior } from '@/composables/useModalBehavior'
+import { btnIconSm } from '@/components/ui/buttonStyles'
 
 const props = withDefaults(defineProps<{
   open: boolean

@@ -1,7 +1,7 @@
 <template>
   <AppLayout>
     <div class="flex items-center gap-4 mb-6">
-      <button class="p-2 hover:bg-surface-variant rounded-full transition-colors" @click="$router.back()">
+      <button :class="btnIcon" @click="$router.back()">
         <span class="material-symbols-outlined text-on-surface">arrow_back</span>
       </button>
       <h2 class="font-headline-lg text-headline-lg text-on-surface">{{ $t('app.title') }} - {{ $t('learning.myVocabulary') }}</h2>
@@ -150,7 +150,7 @@
           </div>
 
           <button
-            class="p-2 hover:bg-error-container/20 rounded-full transition-colors shrink-0"
+            :class="btnIconDanger"
             @click="handleRemove(w)"
           >
             <span class="material-symbols-outlined text-error">delete</span>
@@ -180,7 +180,7 @@
           </div>
           <button
             type="button"
-            class="rounded-full p-2 transition-colors hover:bg-surface-variant focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            :class="btnIcon"
             :aria-label="$t('common.close')"
             @click="exitReview"
           >
@@ -291,6 +291,7 @@ import {
   reviewWord,
   type VocabularyVO,
 } from '@/api/exercise'
+import { btnIcon, btnIconDanger } from '@/components/ui/buttonStyles'
 
 const userStore = useUserStore()
 const words = ref<VocabularyVO[]>([])

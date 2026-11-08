@@ -11,7 +11,7 @@
       <slot name="right">
         <!-- 通知按钮：铃铛 -->
         <button
-          class="p-2 text-on-surface-variant hover:bg-surface-container-high/50 rounded-full transition-all relative"
+          :class="['relative', btnIcon]"
           aria-label="通知"
           @click="showNotificationPopup = !showNotificationPopup"
         >
@@ -66,7 +66,7 @@
 
         <!-- 主题切换按钮：太阳/月亮 -->
         <button
-          class="p-2 text-on-surface-variant hover:bg-surface-container-high/50 rounded-full transition-all"
+          :class="btnIcon"
           :aria-label="appStore.isDark ? $t('topbar.switchToLight') : $t('topbar.switchToDark')"
           @click="appStore.toggleTheme"
         >
@@ -77,7 +77,7 @@
 
         <!-- 语言切换按钮：地球网格图标 -->
         <button
-          class="p-2 text-on-surface-variant hover:bg-surface-container-high/50 rounded-full transition-all"
+          :class="btnIcon"
           :aria-label="$t('topbar.currentLanguage') + ': ' + currentLanguageLabel"
           @click="cycleLanguage"
         >
@@ -115,6 +115,7 @@ import { useAppStore } from '@/stores/app'
 import { useUserStore } from '@/stores/user'
 import { useNotifications } from '@/composables/useNotifications'
 import CoinBadge from '@/components/CoinBadge.vue'
+import { btnIcon } from '@/components/ui/buttonStyles'
 
 defineEmits(['userClick'])
 

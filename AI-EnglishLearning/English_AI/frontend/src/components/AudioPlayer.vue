@@ -51,7 +51,7 @@
         </div>
         <button
           type="button"
-          class="p-2 rounded-full text-tertiary hover:bg-tertiary/10 transition-colors flex-shrink-0 disabled:opacity-50"
+          class="p-2 rounded-full text-tertiary hover:bg-tertiary/10 transition-all duration-200 flex-shrink-0 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-tertiary disabled:pointer-events-none disabled:opacity-50"
           :disabled="disabled || hasError"
           :aria-label="$t('listening.replay')"
           @click="replayRange('article')"
@@ -99,7 +99,7 @@
         </div>
         <button
           type="button"
-          class="p-2 rounded-full text-secondary hover:bg-secondary/10 transition-colors flex-shrink-0 disabled:opacity-50"
+          class="p-2 rounded-full text-secondary hover:bg-secondary/10 transition-all duration-200 flex-shrink-0 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary disabled:pointer-events-none disabled:opacity-50"
           :disabled="disabled || hasError"
           :aria-label="$t('listening.replay')"
           @click="replayRange('question')"

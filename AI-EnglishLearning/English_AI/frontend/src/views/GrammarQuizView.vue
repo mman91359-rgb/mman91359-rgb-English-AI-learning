@@ -11,7 +11,7 @@
       <header class="h-20 sticky top-0 z-40 bg-background/80 backdrop-blur-md flex items-center justify-between px-gutter w-full">
         <div class="flex items-center gap-4 flex-1">
           <button
-            class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high/50 transition-all"
+            :class="btnIcon"
             :aria-label="$t('common.back')"
             @click="goBack"
           >
@@ -33,21 +33,21 @@
 
         <div class="flex items-center gap-2">
           <button
-            class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high/50 transition-all"
+            :class="btnIcon"
             :aria-label="appStore.isDark ? $t('topbar.switchToLight') : $t('topbar.switchToDark')"
             @click="appStore.toggleTheme"
           >
             <span class="material-symbols-outlined text-xl">{{ appStore.isDark ? 'light_mode' : 'dark_mode' }}</span>
           </button>
           <button
-            class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high/50 transition-all relative"
+            :class="['relative', btnIcon]"
             :aria-label="$t('topbar.notifications')"
           >
             <span class="material-symbols-outlined text-xl">notifications</span>
             <span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
           </button>
           <button
-            class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high/50 transition-all"
+            :class="btnIcon"
             :aria-label="$t('topbar.currentLanguage')"
             @click="cycleLanguage"
           >
@@ -346,7 +346,7 @@ import { useSpeechRecognition } from '@/composables/useSpeechRecognition'
 import { useAiStore } from '@/stores/ai'
 import { shuffle } from '@/utils/array'
 import type { QuestionVO, SubmitResponse } from '@/api/exercise'
-import { btnPrimary } from '@/components/ui/buttonStyles'
+import { btnIcon, btnPrimary } from '@/components/ui/buttonStyles'
 
 const { t } = useI18n()
 const router = useRouter()

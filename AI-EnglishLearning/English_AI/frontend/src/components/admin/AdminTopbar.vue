@@ -17,7 +17,7 @@
 
     <button
       type="button"
-      class="flex h-9 w-9 items-center justify-center rounded-full text-on-surface-variant transition-all duration-200 hover:rotate-12 hover:bg-surface-container-high"
+      class="flex h-9 w-9 items-center justify-center rounded-full text-on-surface-variant transition-all duration-200 hover:rotate-12 hover:bg-surface-container-high active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
       :aria-label="$t('adminConsole.topbar.toggleTheme')"
       @click="appStore.toggleTheme"
     >
@@ -35,7 +35,7 @@
       </div>
       <button
         type="button"
-        class="flex h-9 w-9 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-error-container hover:text-on-error-container"
+        class="flex h-9 w-9 items-center justify-center rounded-full text-on-surface-variant transition-all duration-200 hover:bg-error-container hover:text-on-error-container active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-error"
         :aria-label="$t('adminConsole.topbar.logout')"
         :title="$t('adminConsole.topbar.logout')"
         @click="logout"

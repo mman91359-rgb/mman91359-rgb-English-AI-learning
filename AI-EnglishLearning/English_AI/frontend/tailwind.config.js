@@ -30,6 +30,7 @@ export default {
         "surface-dim": "rgb(var(--color-surface-dim) / <alpha-value>)",
         "surface-bright": "rgb(var(--color-surface-bright) / <alpha-value>)",
         "inverse-surface": "rgb(var(--color-inverse-surface) / <alpha-value>)",
+        scrim: "rgb(var(--color-scrim) / <alpha-value>)",
         "inverse-on-surface": "rgb(var(--color-inverse-on-surface) / <alpha-value>)",
 
         outline: "rgb(var(--color-outline) / <alpha-value>)",

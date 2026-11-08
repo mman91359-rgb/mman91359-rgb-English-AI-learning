@@ -82,6 +82,9 @@ button, .material-symbols-outlined {
   --color-outline: 122 117 127;
   --color-outline-variant: 203 196 208;
 
+  /* 遮罩（M3 scrim，不随主题变化，始终纯黑） */
+  --color-scrim: 0 0 0;
+
   /* 次要/第三色 */
   --color-secondary: 12 103 128;
   --color-secondary-container: 154 225 255;
@@ -150,6 +153,9 @@ html.dark {
 
   --color-outline: 148 143 153;
   --color-outline-variant: 73 69 79;
+
+  /* 遮罩（M3 scrim，不随主题变化，始终纯黑） */
+  --color-scrim: 0 0 0;
 
   --color-secondary: 137 208 237;
   --color-secondary-container: 9 101 127;

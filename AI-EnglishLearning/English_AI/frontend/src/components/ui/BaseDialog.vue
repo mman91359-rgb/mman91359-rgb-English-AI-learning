@@ -3,29 +3,32 @@
     <Transition name="modal-fade">
       <div
         v-if="visible"
-        class="fixed inset-0 z-[120] flex items-center justify-center bg-black/45 px-4 backdrop-blur-[2px]"
+        class="fixed inset-0 z-[120] flex items-center justify-center bg-scrim/45 px-4 backdrop-blur-[2px]"
         role="dialog"
         aria-modal="true"
+        :aria-labelledby="title ? titleId : undefined"
         @click.self="onBackdrop"
       >
         <div
-          class="modal-card flex max-h-[90vh] w-full flex-col rounded-[28px] bg-surface soft-shadow"
+          ref="panelRef"
+          tabindex="-1"
+          class="modal-card flex max-h-[90dvh] w-full flex-col rounded-3xl bg-surface soft-shadow focus:outline-none"
           :class="maxWidth"
           @click.stop
         >
           <template v-if="title || $slots.header">
             <header class="flex items-center justify-between gap-4 border-b border-outline-variant/40 px-6 py-4">
               <slot name="header">
-                <h2 class="font-headline-sm text-headline-sm text-on-surface">{{ title }}</h2>
+                <h2 :id="titleId" class="font-headline-sm text-headline-sm text-on-surface">{{ title }}</h2>
               </slot>
               <button
                 type="button"
-                class="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-surface-container-high disabled:opacity-50"
+                class="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-surface-container-high focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-50"
                 :disabled="closeDisabled"
-                :aria-label="$t('adminConsole.common.close')"
+                :aria-label="$t('common.close')"
                 @click="close"
               >
-                <span class="material-symbols-outlined text-icon-md">close</span>
+                <span class="material-symbols-outlined text-icon-md" aria-hidden="true">close</span>
               </button>
             </header>
             <div class="overflow-y-auto px-6 py-6">
@@ -45,7 +48,8 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, watch } from 'vue'
+import { ref, useId } from 'vue'
+import { useModalBehavior } from '@/composables/useModalBehavior'
 
 interface Props {
   visible: boolean
@@ -69,8 +73,8 @@ const emit = defineEmits<{
   (e: 'close'): void
 }>()
 
-let previousOverflow = ''
-let listening = false
+const panelRef = ref<HTMLElement | null>(null)
+const titleId = `dialog-title-${useId()}`
 
 const close = () => {
   if (!props.visible || props.closeDisabled) return
@@ -82,33 +86,10 @@ const onBackdrop = () => {
   if (props.closeOnBackdrop) close()
 }
 
-const onKeydown = (event: KeyboardEvent) => {
-  if (event.key === 'Escape' && props.closeOnEsc) close()
-}
-
-const start = () => {
-  if (listening) return
-  previousOverflow = document.body.style.overflow
-  document.body.style.overflow = 'hidden'
-  window.addEventListener('keydown', onKeydown)
-  listening = true
-}
-
-const stop = () => {
-  if (!listening) return
-  document.body.style.overflow = previousOverflow
-  window.removeEventListener('keydown', onKeydown)
-  listening = false
-}
-
-watch(
-  () => props.visible,
-  (visible) => {
-    if (visible) start()
-    else stop()
-  },
-  { immediate: true },
-)
-
-onBeforeUnmount(stop)
+useModalBehavior({
+  isOpen: () => props.visible,
+  container: panelRef,
+  onEscape: close,
+  canEscape: () => props.closeOnEsc,
+})
 </script>

@@ -71,7 +71,7 @@
                 </div>
                 <button
                   type="button"
-                  class="h-[52px] shrink-0 rounded-[16px] border border-primary/30 bg-primary-container/20 px-4 font-label-lg text-label-lg text-primary disabled:cursor-not-allowed disabled:opacity-50"
+                  class="h-[52px] shrink-0 rounded-2xl border border-primary/30 bg-primary-container/20 px-4 font-label-lg text-label-lg text-primary disabled:cursor-not-allowed disabled:opacity-50"
                   :disabled="codeSent && remaining > 0"
                   @click="sendCode"
                 >

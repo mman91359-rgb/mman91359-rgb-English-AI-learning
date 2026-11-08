@@ -1,17 +1,19 @@
 <template>
-  <label class="flex flex-col gap-2" :class="{ 'is-invalid': !!error }">
+  <label ref="rootRef" class="flex flex-col gap-2" :class="{ 'is-invalid': !!error }">
     <span class="flex items-center gap-1 font-label-lg text-label-lg text-on-surface">
       {{ label }}
       <span v-if="required" class="text-error">*</span>
     </span>
     <slot />
-    <span v-if="error" class="font-label-md text-label-md text-error" role="alert">{{ error }}</span>
+    <span v-if="error" :id="errorId" class="font-label-md text-label-md text-error" role="alert">{{ error }}</span>
     <span v-else-if="hint" class="font-label-md text-label-md text-on-surface-variant">{{ hint }}</span>
   </label>
 </template>
 
 <script setup lang="ts">
-withDefaults(defineProps<{
+import { onMounted, ref, useId, watch } from 'vue'
+
+const props = withDefaults(defineProps<{
   label: string
   required?: boolean
   hint?: string
@@ -19,6 +21,30 @@ withDefaults(defineProps<{
 }>(), {
   required: false,
 })
+
+const rootRef = ref<HTMLElement | null>(null)
+const errorId = `form-field-error-${useId()}`
+
+/**
+ * 将校验状态同步到插槽内的原生控件。
+ * 控件由调用方经 slot 传入，组件拿不到元素引用，因此挂载后按 DOM 反射写入 ARIA 属性，
+ * 所有调用方无需改动即可获得 aria-invalid 与 aria-describedby 关联。
+ */
+const syncAria = (invalid: boolean) => {
+  const controls = rootRef.value?.querySelectorAll<HTMLElement>('input, select, textarea')
+  if (!controls) return
+  controls.forEach((el) => {
+    el.setAttribute('aria-invalid', invalid ? 'true' : 'false')
+    if (invalid) {
+      el.setAttribute('aria-describedby', errorId)
+    } else if (el.getAttribute('aria-describedby') === errorId) {
+      el.removeAttribute('aria-describedby')
+    }
+  })
+}
+
+onMounted(() => syncAria(!!props.error))
+watch(() => props.error, (val) => syncAria(!!val), { flush: 'post' })
 </script>
 
 <style scoped>

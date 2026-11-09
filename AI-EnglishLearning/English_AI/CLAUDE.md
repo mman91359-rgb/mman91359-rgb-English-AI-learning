@@ -158,6 +158,12 @@ frontend/
 | `backup-schema.sh` | 迁移前结构备份（输出到 `sql/backup/`，已 gitignore） |
 | `with-env.sh` | 注入 `.env` 后启动服务；**user-service 与 api-gateway 必须用它启动**，否则 JWT_SECRET 不一致会全站 401 |
 | `import-listening.mjs` | 听力导入范式：`check` / `build` → 生成 Flyway SQL 到 `docs/pending-migrations/` |
+| `import-words.mjs` | 词库导入：读 `6.26.sql` 的 `book_word`（只认 CET4=7 / CET6=8）→ 生成 `word_dictionary` 迁移 |
+| `generate-vocab-questions.mjs` | 词汇填空题生成器：导出 `buildForms` / `categoryOf` / `inflect`；含不可数名词、CVC 双写、敏感过滤规则 |
+| `patch-accepted-top200.mjs` | accepted 定点/批量补丁：`--top` / `--only-keys` / `--keys-file` / `--dry-run` → 生成纯 UPDATE 迁移 |
+| `audit-accepted-coverage.mjs` | accepted 覆盖度**只读**巡检：`--out` 出报告、`--json-out` 出机器可读缺口清单、`--db` 指定库 |
+| `clean-buggy-paths.mjs` | 错因表**只读**扫描 + 生成清洗迁移（只处理首尾标点/全角/多余空白等结构性脏数据） |
+| `mvn.sh` / `mvn.cmd` | 自动挑选 JDK 17+ 后调用 Maven（bash / Windows 批处理两版） |
 
 ### 前端关键目录
 
@@ -250,7 +256,7 @@ npm run build
 
 ## 核心业务约定（禁止擅自修改核心逻辑）
 
-1. **三级判题引擎**：L1 精确匹配 → L2 归一化容错 → L2.5 AI 语义判对 → L3 AI 启发反馈，策略模式扩展新题型，不改原有 Handler
+1. **判题引擎（六层顺序，前置命中即短路）**：accepted_answers/正确答案精确匹配 → `question_buggy_path` 错因拦截 → L1 规则（拼写/语法）→ L2 相似度模糊 → L2.5 AI 语义判对 → L3 AI 启发反馈；`accepted_answers` 非空时 L2 未命中直接返回 `MISMATCH`，**禁止调用 AI**；填空类用户答案与 `correct_answer` 均经 `AnswerNormalizer` 归一化。策略模式扩展新题型，不改原有 Handler
 2. **ELO 定级算法**：初始分 1000，定级 K=40，常规答题按难度分档，更新用户能力雷达
 3. **艾宾浩斯记忆曲线**：掌握度 1-5 级，间隔 1/3/7/15/30 天，答对升级答错降级
 4. **智能选题**：按用户 ELO 匹配难度区间，去重近 7 天已做题，优先低使用量题目
@@ -806,3 +812,81 @@ npm run build
 3. **accepted_answers 偏宽松**：收录全部规则变形，填错词形也可能判对——这是"答案取表面词形"方案的既定取舍，不改。
 4. **8082 实例已重启验证（2026-11-08 20:34）**：进程 24208 启动晚于类文件编译时间，接口实测题目 510（`vocab-auto-2-1`）——`showAnswer=false` 时 `analysis` 只返回释义，`showAnswer=true` 返回「释义 ｜ 原句：…」，截断逻辑已生效。
 5. `docs/pending-migrations/_stale/V1.0.22__seed_vocab_auto_part10.sql` 确认无用后可物理删除。
+
+---
+
+## 变更记录（2026-11-08 · 第四轮）
+
+> 主题：**判题链路前置 accepted/buggy、填空答案归一化对称、AI 调用收紧**。
+> 提交：`199a514`（链路重排）、`57ee80a`（correct_answer 归一化 + `scripts/mvn.sh`）。
+
+### 一、核心契约变化（先记住）
+
+1. **六层判题顺序，前置命中即短路**：accepted_answers/正确答案精确匹配 → `question_buggy_path` 错因拦截 → L1 规则（拼写/语法）→ L2 相似度模糊 → L2.5 AI 语义判对 → L3 AI 启发反馈。
+2. **AI 调用红线**：`question_info.accepted_answers` 非空且 L2 未命中时，直接返回 `errorType=MISMATCH`（`matchedLevel=2`），**不调 AI、不写错因表**；`accepted_answers` 为空才走 L2.5/L3。`moduleType=2`（连词成句）跳过 L2.5 语义判对。
+3. **归一化两侧对称**：`FILL_BLANK` 的用户答案与 `correct_answer` 都经 `AnswerNormalizer.normalize`（全角转半角 → 空白折叠 → 小写 → 剥首尾标点，**保留词内 `-`**，如 `well-being`）；`accepted_answers` 逐条同样归一化。非填空类仍为 `trim + toLowerCase`，不做全角转换。
+4. **错因表口径**：写入的 `wrong_answer` 已是归一化值；查询侧保留"原值兜底"第二次查询以兼容历史行（如带尾部标点的 `meal.`）。
+
+### 二、修改文件
+
+- `common/src/main/java/com/english/ai/common/util/AnswerNormalizer.java`（新增，纯函数、无状态）
+- `exercise-service/.../service/impl/JudgmentEngineImpl.java`（判题编排重排、归一化接入、MISMATCH 短路）
+- `exercise-service/.../service/JudgmentEngine.java`（javadoc 改为六层 + AI 调用控制说明）
+- `exercise-service/src/test/.../JudgmentEngineImplTest.java`、`.../util/AnswerNormalizerTest.java`（新增用例）
+- `scripts/mvn.sh`（新增，自动挑选 JDK 17+）
+
+### 三、验证结果（2026-11-08 复核）
+
+- `scripts/mvn.sh -pl exercise-service -am test` → **Tests run: 61, Failures: 0, Errors: 0, Skipped: 0，BUILD SUCCESS**。
+- 回归用例：`correctAnswer="abandon."` + 用户填 `abandon` → 判对、`matchedLevel=1`、`verifyNoInteractions(restTemplate)`（零 AI 调用）。
+- 端到端（8082 用新代码重启）：正确答案 / accepted 变体 / 全角输入均 `level=1`；accepted 非空错答 `MISMATCH level=2` 且不调 AI；错因表命中优先于 L1 与 AI；accepted 为空才走 AI。
+- 影响面：全库 19 条带标点或全角的 `correct_answer`（5 条词内连字符、10 条翻译题走 `judgeTranslation`、4 条选择题走 `ChoiceAnswerUtil`），当前真实命中 0 条；缺陷此前是潜伏状态，已修。
+
+### 四、遗留风险 / 待办（已定级，勿顺手改）
+
+1. **`matchedLevel` 编号不自洽**：`0` 与 `1/2/3` 并存，需先定义对外契约再统一，勿零散改。
+2. **accepted 非空命中错答时无 AI 反馈**：只给固定文案，是否补个性化提示待产品确认。
+3. **`judgeTranslation` 未纳入本次归一化**：独立链路（`moduleType=3`），延后处理。
+4. **`parseAcceptedAnswers` 每次判题都反序列化**：需要时加有界缓存，注意缓存键必须带 `questionId`，不可跨题复用。
+5. **本地 8082 实例由开发终端后台启动**：IDE 里 Run/Debug 前先停掉，避免端口与类版本冲突。
+
+---
+
+## 变更记录（2026-11-08 · 第五轮）
+
+> 主题：**P1 全链路收口**（判题口径统一、成本收敛、数据治理）+ 四条数据迁移落地。
+> 提交：`60e2c23`（P1-1 归一化对齐）、`738f8dc`（P1 第二轮）、`39347fe`（P1-4 数据治理）、`07d8e42`（V1.0.26~28 执行与覆盖度补全）。
+
+### 一、当前可对外依赖的现状（先记住）
+
+1. 填空题 `accepted_answers` 覆盖率 **100%**（4537 题，缺失 0）；判题六层顺序未变。
+2. `judgment.accepted-cache.enabled` 默认 **false**：缓存代码与埋点已就位，等 `aiRate` 与耗时基线观察后再评估开启。
+3. `judge_review_queue` 已建表、`POST /internal/judge/review` 可用（幂等 `INSERT IGNORE`），但**判题链路零调用**，是否入队由调用方决定。
+4. `matchedLevel` 取值仍为 0/1/2/3，已收敛到 `common/src/main/java/com/english/ai/common/JudgmentLevel`，对外契约尚未文档化。
+
+### 二、迁移执行
+
+| 版本 | 内容 | 实际影响 |
+|---|---|---|
+| V1.0.25 | 8 词补全（生成期并集 + 执行期整体替换） | 3 行 |
+| V1.0.26 | `question_buggy_path` 清洗（`meal.` → `meal`） | 1 行 |
+| V1.0.27 | `judge_review_queue` 建表 | 1 表 / 3 索引 |
+| V1.0.28 | accepted 覆盖度补全 | 111 行 / 112 变体 |
+
+全部按「备份 → `flyway_verify_exercise_db2` 预演 → 生产执行 → validate」落地，`flyway_schema_history` 均 success=1。
+
+### 三、脚本
+
+`generate-vocab-questions.mjs`、`patch-accepted-top200.mjs`（`--only-keys` / `--keys-file`）、`audit-accepted-coverage.mjs`（`--json-out` / `--db`）、`clean-buggy-paths.mjs`、`mvn.sh` / `mvn.cmd`，用途见「仓库文件地图 → scripts」。
+
+### 四、本轮修正的口径
+
+补丁脚本原先把词干原形无条件加入候选，与生成器/巡检的"句中需变形时不收原形"不一致，实测多出 6 条伪变体（generalization / paralyze / stabilize / organize / seize / specialize）；已对齐后与巡检清单 **0 多 0 少**。三条生成规则与词库缺口结论见 `docs/数据库迁移规范.md` 2.4。
+
+### 五、遗留风险 / 待办
+
+1. **伪形态清洗**：存量 accepted 有早期伪形态（如 `fiber` 的 `fiberer` / `fiberest`，名词被按形容词比较级处理）。下一轮先只读出清单（受影响题数 + 每题伪形态），人工确认删除白名单后再单独一条迁移，**本轮不动**。
+2. **审核队列只有写入能力**：列表/审核接口与前端未做（按"仅预留"约定）。
+3. **缓存未开启**：等 1~2 天埋点基线。
+4. **词库缺 8 词**：已定口径「不补词库」，以 `docs/数据库迁移规范.md` 2.4-D 为准。
+5. **`matchedLevel` 对外契约未文档化**：前端 `L${matchedLevel}` 仍依赖 0/1/2/3 取值，改动需先定义契约。

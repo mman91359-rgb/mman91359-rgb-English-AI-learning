@@ -126,6 +126,8 @@ class JudgmentEngineImplTest {
 
         assertFalse(result.getIsCorrect());
         assertEquals(3, result.getMatchedLevel());
+        // AI 返回的 errorType 必须透传到判题结果，否则错因表会全落 UNKNOWN
+        assertEquals("SPELLING", result.getErrorType());
         verify(restTemplate, times(2)).postForEntity(anyString(), any(), eq(Map.class));
     }
 
@@ -280,7 +282,7 @@ class JudgmentEngineImplTest {
     private ResponseEntity<Map> feedbackResponse(String hint) {
         Map<String, Object> body = new HashMap<>();
         body.put("hint", hint);
-        body.put("errorType", "USAGE");
+        body.put("errorType", "SPELLING");
         return new ResponseEntity<>(body, HttpStatus.OK);
     }
 }

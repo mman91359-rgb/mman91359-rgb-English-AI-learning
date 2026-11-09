@@ -163,7 +163,6 @@ frontend/
 | `patch-accepted-top200.mjs` | accepted 定点/批量补丁：`--top` / `--only-keys` / `--keys-file` / `--dry-run` → 生成纯 UPDATE 迁移 |
 | `audit-accepted-coverage.mjs` | accepted 覆盖度**只读**巡检：`--out` 出报告、`--json-out` 出机器可读缺口清单、`--db` 指定库 |
 | `clean-buggy-paths.mjs` | 错因表**只读**扫描 + 生成清洗迁移（只处理首尾标点/全角/多余空白等结构性脏数据） |
-| `check-answer-slots.mjs` | 答案槽位**只读**校验：伪形态/词性/搭配/重复，输出 CSV 到 `docs/review/`；见 `docs/review/README.md` |
 | `mvn.sh` / `mvn.cmd` | 自动挑选 JDK 17+ 后调用 Maven（bash / Windows 批处理两版） |
 
 ### 前端关键目录
@@ -908,18 +907,17 @@ npm run build
 | 词性校验粒度 | 统一标准（词库只有 CET4/CET6，无 TOEFL 数据） |
 | 首扫去向 | 仅出 CSV 人工筛选，不直接入队 |
 
-### 二、交付
+### 二、交付（脚本与记录已撤回）
 
-- `scripts/check-answer-slots.mjs`（只读）：`--dry-run` / `--question-id` / `--db` / `--limit` / `--only-types`
-- `docs/review/README.md`：用法、五条规则、CSV 字段、对接队列映射
-- `docs/review/answer-slot-audit-20261109.{csv,md}`：首次全库扫描
-- `docs/2026-11-09-P2质量兜底记录.md`：完整记录
+- **已撤回**：`scripts/check-answer-slots.mjs`、`docs/2026-11-09-P2质量兜底记录.md`（同日删除，见第七轮）。
+- **保留**：`docs/review/answer-slot-audit-20261109.{csv,md}` 首次扫描报告、`docs/review/README.md`（规则与字段口径说明，顶部已标注脚本已撤回）。
 
 ### 三、首次扫描结论
 
-4537 题 / 9440 个变体 → **934 个问题项**：`PSEUDO_FORM` 12（如 `fiberer`/`fiberest`、`kneer`/`kneest`）、`COLLOCATION_CONFLICT` 922、其余三类均为 0。
+4537 题 / 9440 个变体 → **934 个问题项**。但**净数只有 12 条**：`PSEUDO_FORM` 12（如 `fiberer`/`fiberest`、`kneer`/`kneest`）、`COLLOCATION_CONFLICT` 922、其余三类均为 0。
 
-> `COLLOCATION_CONFLICT` 是「accepted 偏宽松」既定设计的体现（题干只容得下一种形态，accepted 收了全部变形），不是错题。
+> `COLLOCATION_CONFLICT`（`to + 空格` 541、`a/an + 空格` 381，涉及 595 题）是「accepted 偏宽松」既定设计的体现，不是错题，**不计入待修数**。
+> 另三条规则 0 命中且线索覆盖率仅 5.9%，属于**未验证**而非「已验证干净」。
 
 ### 四、模块2 的前置条件
 
@@ -932,5 +930,41 @@ npm run build
 
 1. 12 条伪形态待清理（清单 → 白名单 → 单独迁移，accepted 只增不减的例外需单独评审）。
 2. 922 条形态冲突待评估，属产品决策。
-3. 槽位线索覆盖率仅 5.9%（266/4537），无 NLP 依赖只能靠强线索。
-4. `ai-service` 两处待修：`application.yml` 模型名末尾多了 `nt`；`/ai/judge-feedback` 的 `errorType` 恒为 `UNKNOWN`。
+3. 槽位线索覆盖率仅 5.9%（266/4537），无 NLP 依赖只能靠强线索；脚本已撤回，重新启用需从 `f6a0c17` 取回。
+4. `ai-service` 两处问题的定级与修复见第七轮：模型名笔误属**潜伏**（`.env` 注入后不触发），`errorType` 恒为 `UNKNOWN` 属**线上活跃**（已修）。
+
+---
+
+## 变更记录（2026-11-09 · 第七轮）
+
+> 主题：**ai-service 判题反馈补 errorType + 模型名默认值笔误**，以及 P2 模块1 的撤回。
+
+### 一、两个问题的定级（此前的描述有误，以此为准）
+
+| 问题 | 定级 | 说明 |
+|---|---|---|
+| `model: ${DASHSCOPE_MODEL:qwen-plus}nt` | **潜伏缺陷** | `.env` 注入了 `DASHSCOPE_MODEL=qwen-plus`，默认值不生效，当前运行正常；只有**不加载 .env 裸启动**时才会拿到 `qwen-plusnt` 这个不存在的模型名 |
+| `/ai/judge-feedback` 的 `errorType` 恒为 `UNKNOWN` | **线上活跃缺陷** | 硬编码在 `AiService.judgeFeedback` 初始化处，AI 返回里根本没有该字段可覆盖 |
+
+`errorType` 的影响链：`AiService.judgeFeedback`（初始化时硬编码 `UNKNOWN`，AI 返回值从未覆盖）→ `JudgmentEngineImpl.level3AiFallback`（读取并覆盖局部变量）→ `saveBuggyPath`（落库）→ `JudgmentResult`（返回前端）。
+实测 `question_buggy_path` 21 行：`GRAMMAR 6 / UNKNOWN 5 / PREPOSITION 4 / ARTICLE 2 / TENSE 2 / SPELLING 1 / VOCABULARY 1`——其中 5 条 `UNKNOWN` 就是 L3 兜底产生的。
+
+### 二、修复
+
+1. **`application.yml`**：`${DASHSCOPE_MODEL:qwen-plus}nt` → `${DASHSCOPE_MODEL:qwen-plus}`。
+2. **`AiService.judgeFeedback`**：
+   - system prompt 改为要求返回 JSON：`{"hint":"...","errorType":"GRAMMAR|TENSE|PREPOSITION|ARTICLE|SPELLING|VOCABULARY"}`；
+   - 新增包级静态 `parseJudgeFeedbackJson`：去 ``` 包裹 → 截 `{`..`}` → Jackson 读树；`errorType` 不在白名单一律落 `UNKNOWN`；没有 `hint` 或模型返回纯文本时，整段原文当提示（**保持改造前的行为**）；
+   - 无 apiKey / 非 200 / 异常的兜底分支维持 `UNKNOWN`。
+3. **判题链路零改动**：exercise-service 只是读取 `errorType`，本次未动。
+
+### 三、验证
+
+- `scripts/mvn.sh -pl ai-service -am test` → 新增 `JudgeFeedbackParseTest` **7 用例全绿**。
+- `scripts/mvn.sh -pl exercise-service -am test` → **80 用例全绿**（L3 用例补了 `errorType` 透传断言）。
+- 历史的 5 条 `UNKNOWN` 不回溯清洗，修复只对后续产生的新行生效。
+
+### 四、P2 模块1 撤回
+
+`scripts/check-answer-slots.mjs`、`docs/2026-11-08-P1第四轮数据治理记录.md`、`docs/2026-11-09-P2质量兜底记录.md` 同日删除；`docs/review/` 的扫描报告保留为一次性结论（净数：12 条伪形态）。
+

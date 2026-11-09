@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -859,7 +860,9 @@ public class AiService {
             String prompt = buildJudgePrompt(userAnswer, correctAnswer, context);
             List<Map<String, String>> messages = new ArrayList<>();
             messages.add(Map.of("role", "system", "content",
-                "你是一位英语判题助手。根据用户错误答案和正确答案，用中文给出简短启发式提示（30字以内），引导学生思考。只返回提示文本，不要任何额外内容。"));
+                "你是一位英语判题助手。请分析用户错误原因，只返回 JSON，不要任何额外内容：" +
+                "{\"hint\":\"30字以内的中文启发提示\",\"errorType\":\"GRAMMAR|TENSE|PREPOSITION|ARTICLE|SPELLING|VOCABULARY\"}。" +
+                "errorType 必须是这六个值之一。"));
             messages.add(Map.of("role", "user", "content", prompt));
 
             String requestBody = buildRequestBodySync(messages);
@@ -881,10 +884,12 @@ public class AiService {
                 while ((line = reader.readLine()) != null) sb.append(line);
                 respBody = sb.toString();
             }
-            String aiHint = extractContentFromSync(respBody);
-            if (aiHint != null && !aiHint.isBlank()) {
-                result.put("hint", aiHint);
-                result.put("suggestions", List.of(aiHint));
+            String aiContent = extractContentFromSync(respBody);
+            FeedbackPayload payload = parseJudgeFeedbackJson(aiContent);
+            if (payload != null && !payload.hint.isBlank()) {
+                result.put("hint", payload.hint);
+                result.put("suggestions", List.of(payload.hint));
+                result.put("errorType", payload.errorType);
             } else {
                 String hint = generateJudgeHint(userAnswer, correctAnswer, context);
                 result.put("hint", hint);
@@ -897,6 +902,66 @@ public class AiService {
             result.put("suggestions", List.of(hint));
         }
         return result;
+    }
+
+    /** 判题反馈允许的错因类型；与 exercise-service 的 question_buggy_path.error_type 取值一致 */
+    private static final Set<String> FEEDBACK_ERROR_TYPES = Set.of(
+        "GRAMMAR", "TENSE", "PREPOSITION", "ARTICLE", "SPELLING", "VOCABULARY");
+
+    /** 判题反馈解析结果 */
+    static final class FeedbackPayload {
+        final String hint;
+        final String errorType;
+
+        FeedbackPayload(String hint, String errorType) {
+            this.hint = hint;
+            this.errorType = errorType;
+        }
+    }
+
+    /**
+     * 解析判题反馈的 AI 返回。
+     *
+     * <p>兼容三种情况：</p>
+     * <ol>
+     *   <li>标准 JSON（可能被 ``` 包裹）：取 hint 与 errorType；</li>
+     *   <li>JSON 里没有 hint：整段原文当提示，类型记为 UNKNOWN；</li>
+     *   <li>模型不按格式返回纯文本：整段原文当提示，类型记为 UNKNOWN（与改造前行为一致）。</li>
+     * </ol>
+     *
+     * <p>包级可见，便于单测直接覆盖解析逻辑。</p>
+     */
+    static FeedbackPayload parseJudgeFeedbackJson(String content) {
+        if (content == null || content.isBlank()) {
+            return null;
+        }
+        String text = content.trim();
+        String body = text;
+        if (body.startsWith("```")) {
+            int start = body.indexOf('\n');
+            int end = body.lastIndexOf("```");
+            if (start > 0 && end > start) {
+                body = body.substring(start + 1, end).trim();
+            }
+        }
+        int li = body.indexOf('{');
+        int ri = body.lastIndexOf('}');
+        if (li < 0 || ri <= li) {
+            return new FeedbackPayload(text, "UNKNOWN");
+        }
+        try {
+            com.fasterxml.jackson.databind.JsonNode node =
+                new com.fasterxml.jackson.databind.ObjectMapper().readTree(body.substring(li, ri + 1));
+            String hint = node.path("hint").asText("").trim();
+            String errorType = node.path("errorType").asText("").trim().toUpperCase(java.util.Locale.ROOT);
+            if (!FEEDBACK_ERROR_TYPES.contains(errorType)) {
+                errorType = "UNKNOWN";
+            }
+            return new FeedbackPayload(hint.isEmpty() ? text : hint, errorType);
+        } catch (Exception e) {
+            log.warn("解析判题反馈 JSON 失败: {}", e.getMessage());
+            return new FeedbackPayload(text, "UNKNOWN");
+        }
     }
 
     private String buildJudgePrompt(String userAnswer, String correctAnswer, String context) {

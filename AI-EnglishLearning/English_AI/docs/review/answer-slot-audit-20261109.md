@@ -4,6 +4,8 @@
 - 数据来源：`exercise_db.question_info` + `question_content`（只读）
 - CSV：`docs/review/answer-slot-audit-20261109.csv`
 
+> **净数结论：934 条中仅 12 条属数据缺陷（`PSEUDO_FORM`）；922 条为 accepted 宽松设计的呈现，仅供人工参考，不计入待修数。**
+
 ## 汇总
 
 | 指标 | 数值 |
@@ -22,6 +24,21 @@
 | UNEXPECTED_VARIANT | 0 | 0.60 | REVIEW |
 | SLOT_POS_MISMATCH | 0 | 0.60 | REVIEW |
 | COLLOCATION_CONFLICT | 922 | 0.50 | REVIEW |
+
+`COLLOCATION_CONFLICT` 的构成（从 CSV 实际统计）：
+
+| 线索 | 条数 |
+|---|---|
+| `to + 空格` | 541 |
+| `a/an + 空格` | 381 |
+| 合计 | 922，涉及 **595 道题**（占 4537 的 13%） |
+
+## 规则有效性
+
+`SLOT_POS_MISMATCH` / `UNEXPECTED_VARIANT` / `DUPLICATE_VARIANT` 三条**全部 0 命中**。
+
+在槽位线索覆盖率仅 **5.9%（266/4537）** 的情况下，这只能说明"跑通了、没报错"，**不能说明规则已验证有效**。
+后续若要依赖这三条规则，需要另造一批带已知问题的样本做回归，否则无法区分"数据干净"和"规则失灵"。
 
 ## 槽位线索覆盖
 

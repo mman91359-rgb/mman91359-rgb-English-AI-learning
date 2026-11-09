@@ -1,8 +1,12 @@
 # 答案槽位离线校验（scripts/check-answer-slots.mjs）
 
+> ⚠️ **本文对应的脚本 `scripts/check-answer-slots.mjs` 已在 2026-11-09 撤回**，报告无法再生成。
+> 以下内容保留作为判定规则、置信度与 CSV 字段口径的说明；重新启用需从 git 历史 `f6a0c17` 取回脚本。
+> 首次扫描结果见同目录 `answer-slot-audit-20261109.{md,csv}`（净数结论：934 条中仅 12 条属数据缺陷）。
+
 只读扫描全量填空题的 `accepted_answers`，输出可筛选的 CSV 问题清单。**不写库、不自动改数据、不生成迁移。**
 
-## 用法
+## 用法（脚本已撤回，以下命令需先从 `f6a0c17` 取回脚本后才可用）
 
 ```bash
 # 全量扫描，写 docs/review/answer-slot-audit-YYYYMMDD.csv + 同名 .md

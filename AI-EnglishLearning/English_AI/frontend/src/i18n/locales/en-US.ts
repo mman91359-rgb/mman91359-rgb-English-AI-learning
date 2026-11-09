@@ -41,6 +41,7 @@ export default {
     copied: 'Copied',
     clearChat: 'Clear chat',
     close: 'Close',
+    backToQuestion: 'Back to question',
     disclaimer: 'AI-generated content may contain errors. Please verify important information.',
     fallbackVocab: 'Please explain the usage and collocations of the core vocabulary.',
     fallbackGrammar: 'Please analyze the grammar structure of the sentence.',
@@ -49,6 +50,16 @@ export default {
     panel: {
       title: 'AI Feedback',
       loading: 'AI is analyzing…',
+    },
+    card: {
+      typeVocab: 'Vocabulary',
+      typeGrammar: 'Grammar',
+      typeReview: 'Feedback',
+      generating: 'Building structured card…',
+      expandAll: 'Show all ({n} sections)',
+      expandFull: 'Show full text',
+      collapseFull: 'Collapse',
+      sections: '{n} sections',
     },
     action: {
       copy: 'Copy',

@@ -90,42 +90,66 @@
       <!-- 消息列表 -->
       <div v-else class="space-y-4">
         <div
-          v-for="msg in aiStore.messages"
+          v-for="{ msg, card } in rendered"
           :key="msg.id"
           class="flex"
           :class="msg.role === 'user' ? 'justify-end' : 'justify-start'"
         >
+          <!-- 用户消息：保持气泡与 85% 宽度，发言语义靠颜色与右对齐承载 -->
           <div
-            class="max-w-[85%] rounded-2xl px-4 py-3"
-            :class="msg.role === 'user'
-              ? 'rounded-br-md bg-primary text-on-primary'
-              : 'select-text rounded-bl-md border border-outline-variant/10 bg-surface-container-lowest text-on-surface shadow-sm dark:bg-surface'"
+            v-if="msg.role === 'user'"
+            class="max-w-[85%] rounded-2xl rounded-br-md bg-primary px-4 py-3 text-on-primary"
           >
-            <div v-if="msg.role === 'ai'" class="mb-1.5 flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-icon-sm text-primary">forum</span>
-                <span class="font-label-sm text-label-sm text-primary">{{ $t('ai.badge') }}</span>
+            <div class="select-text whitespace-pre-wrap break-words font-body-sm text-body-sm leading-relaxed">{{ msg.content }}</div>
+          </div>
+
+          <!-- AI 消息：满宽。流式态与卡片态共用同一列宽，完成瞬间不会出现横向跳变 -->
+          <div v-else class="group w-full">
+            <!--
+              流式气泡 → 结构化卡片 是一次"换帧"：两者高度差可达数百像素。
+              out-in 让旧元素先退出（120ms）再让卡片进入（200ms），
+              避免两帧叠加时消息流同时容纳两份高度造成的夹挤。
+            -->
+            <Transition name="ai-swap" mode="out-in">
+              <AiCard
+                v-if="card"
+                key="card"
+                :sections="card.sections"
+                :card-type="card.type"
+                :expanded="aiStore.expandedCardId === msg.id"
+                :avail-height="availHeight"
+                @toggle="aiStore.toggleCard(msg.id)"
+              />
+
+              <div
+                v-else
+                key="bubble"
+                class="select-text rounded-2xl rounded-bl-md border border-outline-variant/10 bg-surface-container-lowest px-4 py-3 text-on-surface shadow-sm dark:bg-surface"
+              >
+                <!-- AI 内容：formatAiContent 先转义再做白名单格式化，禁止注入 -->
+                <div class="break-words font-body-sm text-body-sm leading-relaxed" v-html="formatAiContent(msg.content)"></div>
+                <div
+                  v-if="msg.isStreaming"
+                  class="mt-2 flex items-center gap-1.5 font-body-xs text-body-xs text-on-surface-variant"
+                >
+                  <span class="material-symbols-outlined animate-spin text-icon-sm" aria-hidden="true">progress_activity</span>
+                  <span>{{ t('ai.card.generating') }}</span>
+                </div>
               </div>
+            </Transition>
+
+            <!-- 复制按钮：槽位高度常驻（h-8），只切透明度。显隐若同时改高度会让消息流再重排一次 -->
+            <div v-if="msg.content && !msg.isStreaming" class="mt-2 flex h-8 items-center justify-end">
               <button
-                v-if="msg.content && !msg.isStreaming"
                 type="button"
-                class="rounded-md p-1 text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-primary"
+                class="flex h-8 items-center gap-1 rounded-md px-2 font-label-md text-label-md text-on-surface-variant opacity-0 transition-opacity hover:bg-surface-container-high hover:text-primary focus-visible:opacity-100 group-hover:opacity-100"
                 :title="$t('ai.copy')"
                 :aria-label="$t('ai.copy')"
                 @click="copyMessage(msg.content)"
               >
-                <span class="material-symbols-outlined text-icon-md">content_copy</span>
+                <span class="material-symbols-outlined text-icon-sm" aria-hidden="true">content_copy</span>
+                <span>{{ $t('ai.copy') }}</span>
               </button>
-            </div>
-            <div class="select-text font-body-sm text-body-sm leading-relaxed break-words">
-              <!-- AI 内容：formatAiContent 先转义再做白名单格式化，禁止注入 -->
-              <span v-if="msg.role === 'ai'" v-html="formatAiContent(msg.content)"></span>
-              <!-- 用户内容：纯插值，永不进入 v-html -->
-              <span v-else>{{ msg.content }}</span>
-              <span
-                v-if="msg.isStreaming"
-                class="ml-0.5 inline-block h-4 w-1.5 animate-pulse bg-primary align-text-bottom"
-              ></span>
             </div>
           </div>
         </div>
@@ -175,142 +199,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick, computed } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useAiStore } from '@/stores/ai'
+import { useAiStore, type ChatMessage } from '@/stores/ai'
 import { useToast } from '@/composables/useToast'
 import { btnIconSm } from '@/components/ui/buttonStyles'
+import AiCard from '@/components/ai/AiCard.vue'
+import { formatAiContent, splitSections, type AiCardType, type AiSection } from '@/utils/aiContent'
 
 const { t } = useI18n()
 const { show: toast } = useToast()
-
-/** HTML 转义：所有进入 v-html 的内容必须先经过它，杜绝注入 */
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;')
-}
-
-function formatAiContent(text: string): string {
-  if (!text) return ''
-
-  // 先整体转义，再做白名单格式化；插入的标签全部来自本函数
-  let result = escapeHtml(text)
-
-  // 规范化 ## 标题：确保每个 ## 在新行开始
-  result = result.replace(/([^\n])##\s*/g, '$1\n## ')
-  result = result.replace(/^\s*##\s*/gm, '## ')
-
-  // 按 ## 标题分割
-  const sections = result.split(/\n(?=##\s)/)
-  const formattedSections: string[] = []
-
-  for (const section of sections) {
-    const trimmed = section.trim()
-    if (!trimmed) continue
-
-    // 解析标题和内容
-    const firstLineEnd = trimmed.indexOf('\n')
-    let title = ''
-    let content = ''
-
-    if (firstLineEnd > 0) {
-      const firstLine = trimmed.substring(0, firstLineEnd).trim()
-      if (firstLine.startsWith('## ')) {
-        title = firstLine.substring(3).trim()
-      } else {
-        title = firstLine
-      }
-      content = trimmed.substring(firstLineEnd + 1).trim()
-    } else {
-      if (trimmed.startsWith('## ')) {
-        title = trimmed.substring(3).trim()
-      } else {
-        content = trimmed
-      }
-    }
-
-    // 渲染标题（加粗为白名单标签）
-    if (title) {
-      const renderedTitle = title.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-      formattedSections.push(`<h3 class="ai-title">${renderedTitle}</h3>`)
-    }
-    if (content) {
-      formattedSections.push(formatSection(content))
-    }
-  }
-
-  return formattedSections.join('<div class="ai-section-gap"></div>')
-}
-
-function formatSection(content: string): string {
-  if (!content) return ''
-
-  const lines = content.split('\n')
-  const formattedLines: string[] = []
-  let inList = false
-  let listType = ''
-
-  function closeList() {
-    if (inList) {
-      formattedLines.push(listType === 'ol' ? '</ol>' : '</ul>')
-      inList = false
-      listType = ''
-    }
-  }
-
-  /** 行内白名单格式：加粗 / 斜体 / 行内代码 / 音标，输入已转义 */
-  function inlineFormat(s: string): string {
-    return s
-      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.+?)\*/g, '<em>$1</em>')
-      .replace(/`([^`]+)`/g, '<code class="ai-code">$1</code>')
-      .replace(/\b(\/[^/]+\/)\b/g, '<span class="ai-phonetic">$1</span>')
-  }
-
-  for (const rawLine of lines) {
-    const line = rawLine.trim()
-    if (!line) {
-      closeList()
-      formattedLines.push('<div class="ai-spacer"></div>')
-      continue
-    }
-
-    // 编号列表：1. / 2. / 1、/ 2、
-    if (/^\d+[.、\)]\s/.test(line)) {
-      if (!inList || listType !== 'ol') {
-        closeList()
-        formattedLines.push('<ol class="ai-ordered-list">')
-        inList = true
-        listType = 'ol'
-      }
-      formattedLines.push(`<li>${inlineFormat(line.replace(/^\d+[.、\)]\s*/, ''))}</li>`)
-      continue
-    }
-
-    // 无序列表：- / * / •
-    if (line.startsWith('- ') || line.startsWith('* ') || line.startsWith('• ')) {
-      if (!inList || listType !== 'ul') {
-        closeList()
-        formattedLines.push('<ul class="ai-unordered-list">')
-        inList = true
-        listType = 'ul'
-      }
-      formattedLines.push(`<li>${inlineFormat(line.replace(/^[-*•]\s*/, ''))}</li>`)
-      continue
-    }
-
-    // 普通段落
-    closeList()
-    formattedLines.push(`<div class="ai-paragraph">${inlineFormat(line)}</div>`)
-  }
-
-  closeList()
-  return formattedLines.join('')
-}
 
 const emit = defineEmits<{
   (e: 'close'): void
@@ -320,6 +218,62 @@ const aiStore = useAiStore()
 
 const inputText = ref('')
 const msgContainer = ref<HTMLDivElement>()
+
+/**
+ * 卡片门槛：结构化回答（≥2 节且 ≥200 字符）才建卡，
+ * 避免把"你好""这个我不确定"这类散文硬塞进卡框。
+ */
+function cardOf(msg: ChatMessage): { sections: AiSection[]; type: AiCardType } | null {
+  if (msg.role !== 'ai' || msg.isStreaming || !msg.content) return null
+  const sections = splitSections(msg.content)
+  if (sections.length < 2) return null
+  const chars = sections.reduce((n, s) => n + s.title.length + s.body.length, 0)
+  if (chars < 200) return null
+
+  const text = sections.map((s) => `${s.title} ${s.body}`).join(' ')
+  let type: AiCardType = 'vocab'
+  if (/语法|成分|时态|从句|句式|主谓/.test(text)) type = 'grammar'
+  else if (/评分|得分|批改|维度|总分/.test(text)) type = 'review'
+  return { sections, type }
+}
+
+/** 消息与卡片的配对缓存，避免模板里反复 splitSections */
+const rendered = computed(() =>
+  aiStore.messages.map((msg) => ({ msg, card: cardOf(msg) })),
+)
+
+/**
+ * 消息区可用高度。
+ * 必须 clamp 到视口：侧栏父级只有 min-h-screen，列高会被内容撑大，
+ * 直接用 clientHeight 会让截断永不触发，且用户要滚整页才看得到输入框。
+ */
+const availHeight = ref(600)
+
+function computeAvailHeight() {
+  const el = msgContainer.value
+  if (!el) return
+  const vh = window.visualViewport?.height ?? window.innerHeight
+  // 侧栏头部约 72 + 输入区约 76 + 可能的「返回题目」条 44
+  availHeight.value = Math.max(320, Math.min(el.clientHeight, vh - 72 - 76 - 44))
+}
+
+onMounted(() => {
+  computeAvailHeight()
+  window.addEventListener('resize', computeAvailHeight)
+  window.visualViewport?.addEventListener('resize', computeAvailHeight)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', computeAvailHeight)
+  window.visualViewport?.removeEventListener('resize', computeAvailHeight)
+})
+
+watch(
+  () => aiStore.isOpen,
+  (open) => {
+    if (open) nextTick(computeAvailHeight)
+  },
+)
 
 const contextLabel = computed(() => {
   if (aiStore.contextType === 'vocab') return t('ai.contextVocab')
@@ -409,6 +363,21 @@ watch(
 <style scoped>
 input {
   min-height: 24px;
+}
+
+/* 流式气泡 ⇄ 结构化卡片 换帧：短退 + 稍长入，方向感来自轻微上移 */
+.ai-swap-leave-active {
+  transition: opacity 0.12s ease;
+}
+.ai-swap-leave-to {
+  opacity: 0;
+}
+.ai-swap-enter-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.ai-swap-enter-from {
+  opacity: 0;
+  transform: translateY(4px);
 }
 
 /* 深度渲染内容字号对齐 body-md/label 令牌（AI 富文本无法套用 Tailwind 类） */

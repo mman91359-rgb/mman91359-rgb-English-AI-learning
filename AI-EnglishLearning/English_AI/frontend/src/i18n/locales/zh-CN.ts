@@ -41,6 +41,7 @@ export default {
     copied: '已复制',
     clearChat: '清空对话',
     close: '关闭',
+    backToQuestion: '返回题目',
     disclaimer: 'AI 生成内容可能存在误差，请以实际为准',
     fallbackVocab: '请帮我精解核心词汇的用法和搭配',
     fallbackGrammar: '请帮我分析句子语法结构',
@@ -49,6 +50,16 @@ export default {
     panel: {
       title: 'AI 反馈',
       loading: 'AI 正在分析…',
+    },
+    card: {
+      typeVocab: '词汇精解',
+      typeGrammar: '语法解析',
+      typeReview: '批改反馈',
+      generating: '正在生成结构化卡片…',
+      expandAll: '展开全部（共 {n} 节）',
+      expandFull: '展开全文',
+      collapseFull: '收起全文',
+      sections: '共 {n} 节',
     },
     action: {
       copy: '复制',

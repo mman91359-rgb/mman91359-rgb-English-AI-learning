@@ -383,7 +383,20 @@ button, a {
   .modal-fade-enter-active,
   .modal-fade-leave-active,
   .icon-fade-enter-active,
-  .icon-fade-leave-active {
+  .icon-fade-leave-active,
+  .sidebar-inline-enter-active,
+  .sidebar-inline-leave-active,
+  .ai-card-expand-enter-active,
+  .ai-card-expand-leave-active,
+  .ai-swap-enter-active,
+  .ai-swap-leave-active {
     transition: none !important;
+  }
+  /* AiCard 内容测量期为 visibility: hidden，禁止其内部骨架/进度环继续动 */
+  .ai-card-body *,
+  .ai-card-body *::before,
+  .ai-card-body *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
   }
 }

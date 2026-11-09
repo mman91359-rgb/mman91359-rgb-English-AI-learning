@@ -23,6 +23,12 @@ export const useAiStore = defineStore('ai', () => {
   const contextType = ref('general')
   const questionContent = ref('')
   const userAnswer = ref('')
+  /** 当前展开的卡片消息 id；null 表示全部收起，保证同一时间只展开一张 */
+  const expandedCardId = ref<string | null>(null)
+
+  function toggleCard(id: string) {
+    expandedCardId.value = expandedCardId.value === id ? null : id
+  }
 
   function open(context?: { contextType?: string; questionContent?: string; userAnswer?: string }) {
     if (context) {
@@ -31,6 +37,7 @@ export const useAiStore = defineStore('ai', () => {
       userAnswer.value = context.userAnswer || ''
       // 切题时清除上一题的对话记录，确保AI聚焦当前题目
       messages.value = []
+      expandedCardId.value = null
     }
     isOpen.value = true
   }
@@ -56,7 +63,9 @@ export const useAiStore = defineStore('ai', () => {
       timestamp: Date.now(),
     }
     messages.value.push(msg)
-    return msg
+    // 必须返回数组里的响应式代理：直接返回 msg 会拿到原始对象，
+    // 后续 msg.content += token 绕过 proxy，视图不会更新。
+    return messages.value[messages.value.length - 1]
   }
 
   async function sendMessage(text: string) {
@@ -66,6 +75,8 @@ export const useAiStore = defineStore('ai', () => {
     const aiMsg = addMessage('ai', '')
     aiMsg.isStreaming = true
     isLoading.value = true
+    // 新提问时自动折叠上一张卡片，保持同时只有一张展开
+    expandedCardId.value = null
 
     const ctx: ChatRequest = {
       message: text.trim(),
@@ -74,16 +85,34 @@ export const useAiStore = defineStore('ai', () => {
       userAnswer: userAnswer.value || undefined,
     }
 
+    // token 合并：流式回调每秒可达 10-40 次，逐 token 写入会触发整段富文本重解析，
+    // 按帧合并后每帧最多更新一次。
+    let pending = ''
+    let rafId: number | null = null
+
+    const flushTokens = () => {
+      rafId = null
+      if (!pending) return
+      aiMsg.content += pending
+      pending = ''
+    }
+
     await chatStream(
       ctx,
       (token) => {
-        aiMsg.content += token
+        pending += token
+        if (rafId === null) rafId = requestAnimationFrame(flushTokens)
       },
       () => {
+        // 收尾必须冲刷，否则最后不足一帧的 token 会丢失
+        if (rafId !== null) cancelAnimationFrame(rafId)
+        flushTokens()
         aiMsg.isStreaming = false
         isLoading.value = false
       },
       (err) => {
+        if (rafId !== null) cancelAnimationFrame(rafId)
+        flushTokens()
         aiMsg.content = '抱歉，AI服务暂时不可用：' + err
         aiMsg.isStreaming = false
         isLoading.value = false
@@ -93,6 +122,7 @@ export const useAiStore = defineStore('ai', () => {
 
   function clearMessages() {
     messages.value = []
+    expandedCardId.value = null
   }
 
   function sendScoreRequest(content: string, scoreType: 'speaking' | 'writing') {
@@ -110,9 +140,11 @@ export const useAiStore = defineStore('ai', () => {
     contextType,
     questionContent,
     userAnswer,
+    expandedCardId,
     open,
     close,
     toggle,
+    toggleCard,
     setInlineMode,
     sendMessage,
     clearMessages,

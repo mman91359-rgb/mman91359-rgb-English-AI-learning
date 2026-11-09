@@ -253,8 +253,9 @@ function computeAvailHeight() {
   const el = msgContainer.value
   if (!el) return
   const vh = window.visualViewport?.height ?? window.innerHeight
-  // 侧栏头部约 72 + 输入区约 76 + 可能的「返回题目」条 44
-  availHeight.value = Math.max(320, Math.min(el.clientHeight, vh - 72 - 76 - 44))
+  // 侧栏头部 72 + 输入区 76；「返回题目」条 44 仅窄屏（<md）渲染，桌面端不预留
+  const bar = window.innerWidth < 768 ? 44 : 0
+  availHeight.value = Math.max(320, Math.min(el.clientHeight, vh - 72 - 76 - bar))
 }
 
 onMounted(() => {

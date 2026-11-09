@@ -1,28 +1,29 @@
-# 答案槽位离线校验（scripts/check-answer-slots.mjs）
+# 答案槽位离线校验（docs/review/tools/check-answer-slots.mjs）
 
-> ⚠️ **本文对应的脚本 `scripts/check-answer-slots.mjs` 已在 2026-11-09 撤回**，报告无法再生成。
-> 以下内容保留作为判定规则、置信度与 CSV 字段口径的说明；重新启用需从 git 历史 `f6a0c17` 取回脚本。
-> 首次扫描结果见同目录 `answer-slot-audit-20261109.{md,csv}`（净数结论：934 条中仅 12 条属数据缺陷）。
+> 📦 **脚本已归档到 `docs/review/tools/check-answer-slots.mjs`**（2026-11-09）。
+> 它是**实验性工具，不纳入常规流程**，只用于复核 accepted 伪形态与槽位冲突；放在报告目录里，
+> 保证"报告 → 结论"可复现，又不会被当成日常工具误用。
+> 首次扫描结果见同目录 `answer-slot-audit-20261109.{md,csv}`（净数结论：934 条中仅 12 条属数据缺陷，已在 `V1.0.29` 删除）。
 
 只读扫描全量填空题的 `accepted_answers`，输出可筛选的 CSV 问题清单。**不写库、不自动改数据、不生成迁移。**
 
-## 用法（脚本已撤回，以下命令需先从 `f6a0c17` 取回脚本后才可用）
+## 用法（在仓库模块根 `English_AI` 下执行）
 
 ```bash
 # 全量扫描，写 docs/review/answer-slot-audit-YYYYMMDD.csv + 同名 .md
-node scripts/check-answer-slots.mjs
+node docs/review/tools/check-answer-slots.mjs
 
 # 只看统计，不落盘
-node scripts/check-answer-slots.mjs --dry-run
+node docs/review/tools/check-answer-slots.mjs --dry-run
 
 # 单题调试：逐条打印每个变体的判定依据
-node scripts/check-answer-slots.mjs --question-id 4987
+node docs/review/tools/check-answer-slots.mjs --question-id 4987
 
 # 只跑某几类规则（便于分批处理）
-node scripts/check-answer-slots.mjs --only-types PSEUDO_FORM,DUPLICATE_VARIANT
+node docs/review/tools/check-answer-slots.mjs --only-types PSEUDO_FORM,DUPLICATE_VARIANT
 
 # 对验证库跑（默认 exercise_db）
-node scripts/check-answer-slots.mjs --db flyway_verify_exercise_db2
+node docs/review/tools/check-answer-slots.mjs --db flyway_verify_exercise_db2
 ```
 
 | 参数 | 说明 |

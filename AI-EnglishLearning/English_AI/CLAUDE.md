@@ -872,6 +872,7 @@ npm run build
 | V1.0.26 | `question_buggy_path` 清洗（`meal.` → `meal`） | 1 行 |
 | V1.0.27 | `judge_review_queue` 建表 | 1 表 / 3 索引 |
 | V1.0.28 | accepted 覆盖度补全 | 111 行 / 112 变体 |
+| V1.0.29 | 删除伪形态变体（`JSON_REMOVE` 定向摘除） | 6 行 / 12 变体 |
 
 全部按「备份 → `flyway_verify_exercise_db2` 预演 → 生产执行 → validate」落地，`flyway_schema_history` 均 success=1。
 
@@ -907,10 +908,11 @@ npm run build
 | 词性校验粒度 | 统一标准（词库只有 CET4/CET6，无 TOEFL 数据） |
 | 首扫去向 | 仅出 CSV 人工筛选，不直接入队 |
 
-### 二、交付（脚本与记录已撤回）
+### 二、交付（脚本已归档、记录已删）
 
-- **已撤回**：`scripts/check-answer-slots.mjs`、`docs/2026-11-09-P2质量兜底记录.md`（同日删除，见第七轮）。
-- **保留**：`docs/review/answer-slot-audit-20261109.{csv,md}` 首次扫描报告、`docs/review/README.md`（规则与字段口径说明，顶部已标注脚本已撤回）。
+- **已归档**：`docs/review/tools/check-answer-slots.mjs`（2026-11-09 从 `scripts/` 移入，**实验性，不纳入常规流程**）。
+- **已删除**：`docs/2026-11-09-P2质量兜底记录.md`。
+- **保留**：`docs/review/answer-slot-audit-20261109.{csv,md}` 首次扫描报告、`docs/review/README.md`（规则与字段口径说明）。
 
 ### 三、首次扫描结论
 
@@ -928,9 +930,9 @@ npm run build
 
 ### 五、遗留
 
-1. 12 条伪形态待清理（清单 → 白名单 → 单独迁移，accepted 只增不减的例外需单独评审）。
+1. ~~12 条伪形态待清理~~ → **已在 V1.0.29 删除**（白名单 12 条，`JSON_REMOVE` 定向摘除，见 `docs/数据库迁移规范.md` 2.4-E）。
 2. 922 条形态冲突待评估，属产品决策。
-3. 槽位线索覆盖率仅 5.9%（266/4537），无 NLP 依赖只能靠强线索；脚本已撤回，重新启用需从 `f6a0c17` 取回。
+3. 槽位线索覆盖率仅 5.9%（266/4537），无 NLP 依赖只能靠强线索；工具归档在 `docs/review/tools/`。
 4. `ai-service` 两处问题的定级与修复见第七轮：模型名笔误属**潜伏**（`.env` 注入后不触发），`errorType` 恒为 `UNKNOWN` 属**线上活跃**（已修）。
 
 ---
@@ -964,7 +966,10 @@ npm run build
 - `scripts/mvn.sh -pl exercise-service -am test` → **80 用例全绿**（L3 用例补了 `errorType` 透传断言）。
 - 历史的 5 条 `UNKNOWN` 不回溯清洗，修复只对后续产生的新行生效。
 
-### 四、P2 模块1 撤回
+### 四、P2 模块1 归档与数据清理
 
-`scripts/check-answer-slots.mjs`、`docs/2026-11-08-P1第四轮数据治理记录.md`、`docs/2026-11-09-P2质量兜底记录.md` 同日删除；`docs/review/` 的扫描报告保留为一次性结论（净数：12 条伪形态）。
+- `scripts/check-answer-slots.mjs` 于 2026-11-09 移至 `docs/review/tools/`，标注**实验性、不纳入常规流程**；报告与工具同目录，保证结论可复现。
+- `docs/2026-11-08-P1第四轮数据治理记录.md`、`docs/2026-11-09-P2质量兜底记录.md` 同日删除。
+- `V1.0.29__remove_pseudo_forms.sql`：按 12 条白名单删除 `furer/furest`、`kneer/kneest`、`poetrier/poetriest`、`cheerer/cheerest`、`harmer/harmest`、`fiberer/fiberest`（6 行）。复核后 `PSEUDO_FORM` 归零，变体数 9440 → 9428。
+- 例外条款（accepted 只增不减的唯一破例）写入 `docs/数据库迁移规范.md` 2.4-E。
 

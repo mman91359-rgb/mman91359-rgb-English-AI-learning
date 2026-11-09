@@ -1,0 +1,935 @@
+﻿question_id,answer,issue_type,confidence,suggestion,external_key,answer_word,lemma_pos,target_level,evidence,stem_excerpt
+294,reduces,COLLOCATION_CONFLICT,0.50,REVIEW,seed-vocab-cet4-11,,vt,CET4,to + 空格要求动词原形，但变体是 reduces,The government is taking measures to ___ unemployment.
+294,reduced,COLLOCATION_CONFLICT,0.50,REVIEW,seed-vocab-cet4-11,,vt,CET4,to + 空格要求动词原形，但变体是 reduced,The government is taking measures to ___ unemployment.
+294,reducing,COLLOCATION_CONFLICT,0.50,REVIEW,seed-vocab-cet4-11,,vt,CET4,to + 空格要求动词原形，但变体是 reducing,The government is taking measures to ___ unemployment.
+298,adapts,COLLOCATION_CONFLICT,0.50,REVIEW,seed-vocab-cet4-15,,vt,CET4,to + 空格要求动词原形，但变体是 adapts,Many students find it difficult to ___ to college life.
+298,adapted,COLLOCATION_CONFLICT,0.50,REVIEW,seed-vocab-cet4-15,,vt,CET4,to + 空格要求动词原形，但变体是 adapted,Many students find it difficult to ___ to college life.
+298,adapting,COLLOCATION_CONFLICT,0.50,REVIEW,seed-vocab-cet4-15,,vt,CET4,to + 空格要求动词原形，但变体是 adapting,Many students find it difficult to ___ to college life.
+302,expands,COLLOCATION_CONFLICT,0.50,REVIEW,seed-vocab-cet4-19,,vt,CET4,to + 空格要求动词原形，但变体是 expands,The company plans to ___ its business to overseas markets.
+302,expanded,COLLOCATION_CONFLICT,0.50,REVIEW,seed-vocab-cet4-19,,vt,CET4,to + 空格要求动词原形，但变体是 expanded,The company plans to ___ its business to overseas markets.
+302,expanding,COLLOCATION_CONFLICT,0.50,REVIEW,seed-vocab-cet4-19,,vt,CET4,to + 空格要求动词原形，但变体是 expanding,The company plans to ___ its business to overseas markets.
+307,enriches,COLLOCATION_CONFLICT,0.50,REVIEW,seed-vocab-cet4-24,,vt,CET4,to + 空格要求动词原形，但变体是 enriches,Reading can help to ___ your vocabulary significantly.
+307,enriched,COLLOCATION_CONFLICT,0.50,REVIEW,seed-vocab-cet4-24,,vt,CET4,to + 空格要求动词原形，但变体是 enriched,Reading can help to ___ your vocabulary significantly.
+307,enriching,COLLOCATION_CONFLICT,0.50,REVIEW,seed-vocab-cet4-24,,vt,CET4,to + 空格要求动词原形，但变体是 enriching,Reading can help to ___ your vocabulary significantly.
+314,generalizes,COLLOCATION_CONFLICT,0.50,REVIEW,seed-vocab-cet6-01,,vt,CET6,to + 空格要求动词原形，但变体是 generalizes,The researchers sought to ___ their findings to a broader population.
+314,generalized,COLLOCATION_CONFLICT,0.50,REVIEW,seed-vocab-cet6-01,,vt,CET6,to + 空格要求动词原形，但变体是 generalized,The researchers sought to ___ their findings to a broader population.
+314,generalizing,COLLOCATION_CONFLICT,0.50,REVIEW,seed-vocab-cet6-01,,vt,CET6,to + 空格要求动词原形，但变体是 generalizing,The researchers sought to ___ their findings to a broader population.
+314,generalises,COLLOCATION_CONFLICT,0.50,REVIEW,seed-vocab-cet6-01,,vt,CET6,to + 空格要求动词原形，但变体是 generalises,The researchers sought to ___ their findings to a broader population.
+314,generalised,COLLOCATION_CONFLICT,0.50,REVIEW,seed-vocab-cet6-01,,vt,CET6,to + 空格要求动词原形，但变体是 generalised,The researchers sought to ___ their findings to a broader population.
+314,generalising,COLLOCATION_CONFLICT,0.50,REVIEW,seed-vocab-cet6-01,,vt,CET6,to + 空格要求动词原形，但变体是 generalising,The researchers sought to ___ their findings to a broader population.
+314,generalise,COLLOCATION_CONFLICT,0.50,REVIEW,seed-vocab-cet6-01,,vt,CET6,to + 空格要求动词原形，但变体是 generalise,The researchers sought to ___ their findings to a broader population.
+318,overestimates,COLLOCATION_CONFLICT,0.50,REVIEW,seed-vocab-cet6-05,,vt,CET6,to + 空格要求动词原形，但变体是 overestimates,Many people tend to ___ their own achievements in the workplace.
+318,overestimated,COLLOCATION_CONFLICT,0.50,REVIEW,seed-vocab-cet6-05,,vt,CET6,to + 空格要求动词原形，但变体是 overestimated,Many people tend to ___ their own achievements in the workplace.
+318,overestimating,COLLOCATION_CONFLICT,0.50,REVIEW,seed-vocab-cet6-05,,vt,CET6,to + 空格要求动词原形，但变体是 overestimating,Many people tend to ___ their own achievements in the workplace.
+337,explains,COLLOCATION_CONFLICT,0.50,REVIEW,seed-vocab-cet6-24,,v,CET6,to + 空格要求动词原形，但变体是 explains,A good teacher should be able to ___ complex ideas simply.
+337,explained,COLLOCATION_CONFLICT,0.50,REVIEW,seed-vocab-cet6-24,,v,CET6,to + 空格要求动词原形，但变体是 explained,A good teacher should be able to ___ complex ideas simply.
+337,explaining,COLLOCATION_CONFLICT,0.50,REVIEW,seed-vocab-cet6-24,,v,CET6,to + 空格要求动词原形，但变体是 explaining,A good teacher should be able to ___ complex ideas simply.
+339,became,COLLOCATION_CONFLICT,0.50,REVIEW,seed-vocab-cet6-26,,v,CET6,to + 空格要求动词原形，但变体是 became,Her dream is to ___ a famous writer one day.
+339,becomes,COLLOCATION_CONFLICT,0.50,REVIEW,seed-vocab-cet6-26,,v,CET6,to + 空格要求动词原形，但变体是 becomes,Her dream is to ___ a famous writer one day.
+339,becoming,COLLOCATION_CONFLICT,0.50,REVIEW,seed-vocab-cet6-26,,v,CET6,to + 空格要求动词原形，但变体是 becoming,Her dream is to ___ a famous writer one day.
+537,flourishes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-29-1,flourish,verb,CET6,to + 空格要求动词原形，但变体是 flourishes,The arts began to ____ in the city.
+537,flourished,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-29-1,flourish,verb,CET6,to + 空格要求动词原形，但变体是 flourished,The arts began to ____ in the city.
+537,flourishing,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-29-1,flourish,verb,CET6,to + 空格要求动词原形，但变体是 flourishing,The arts began to ____ in the city.
+552,accelerations,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5850-1,acceleration,n,CET4,a/an + 空格要求单数，但变体是 accelerations,an ____ in the rate of inflation
+566,accounts,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5865-1,account,n,CET4,a/an + 空格要求单数，但变体是 accounts,I do not have an ____ in these forums.
+567,accumulates,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5866-1,accumulate,v,CET4,to + 空格要求动词原形，但变体是 accumulates,It is unjust that a privileged few should continue to ____ wealth.
+567,accumulated,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5866-1,accumulate,v,CET4,to + 空格要求动词原形，但变体是 accumulated,It is unjust that a privileged few should continue to ____ wealth.
+567,accumulating,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5866-1,accumulate,v,CET4,to + 空格要求动词原形，但变体是 accumulating,It is unjust that a privileged few should continue to ____ wealth.
+571,accustoms,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5870-1,accustom,vt,CET4,to + 空格要求动词原形，但变体是 accustoms,You have to ____ yourself to the crowded trains in Tokyo.
+571,accustomed,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5870-1,accustom,vt,CET4,to + 空格要求动词原形，但变体是 accustomed,You have to ____ yourself to the crowded trains in Tokyo.
+571,accustoming,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5870-1,accustom,vt,CET4,to + 空格要求动词原形，但变体是 accustoming,You have to ____ yourself to the crowded trains in Tokyo.
+579,acquires,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5878-1,acquire,vt,CET4,to + 空格要求动词原形，但变体是 acquires,They sent their son to Europe to ____ culture.
+579,acquired,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5878-1,acquire,vt,CET4,to + 空格要求动词原形，但变体是 acquired,They sent their son to Europe to ____ culture.
+579,acquiring,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5878-1,acquire,vt,CET4,to + 空格要求动词原形，但变体是 acquiring,They sent their son to Europe to ____ culture.
+581,acts,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5881-1,act,n,CET4,to + 空格要求动词原形，但变体是 acts,You are old enough to know better than to ____ like that.
+585,actresses,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5886-1,actress,n,CET4,a/an + 空格要求单数，但变体是 actresses,He married an ____.
+596,adjusts,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5899-1,adjust,vt,CET4,to + 空格要求动词原形，但变体是 adjusts,Our eyes take time to ____ to the darkness.
+596,adjusted,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5899-1,adjust,vt,CET4,to + 空格要求动词原形，但变体是 adjusted,Our eyes take time to ____ to the darkness.
+596,adjusting,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5899-1,adjust,vt,CET4,to + 空格要求动词原形，但变体是 adjusting,Our eyes take time to ____ to the darkness.
+602,adults,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5905-1,adult,n,CET4,a/an + 空格要求单数，但变体是 adults,You are now an ____.
+637,alloys,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5944-1,alloy,n,CET4,a/an + 空格要求单数，但变体是 alloys,Brass is an ____ of copper and zinc.
+643,altitudes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5951-1,altitude,n,CET4,a/an + 空格要求单数，但变体是 altitudes,"The plane flew at an ____ of 3,000 meters."
+650,amperes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5960-1,ampere,n,CET4,a/an + 空格要求单数，但变体是 amperes,And I prefer to an ____ meter being made of aluminum even though it has analog to another one.
+651,amuses,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5962-1,amuse,vt,CET4,to + 空格要求动词原形，但变体是 amuses,He made funny faces to ____ the children.
+651,amused,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5962-1,amuse,vt,CET4,to + 空格要求动词原形，但变体是 amused,He made funny faces to ____ the children.
+651,amusing,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5962-1,amuse,vt,CET4,to + 空格要求动词原形，但变体是 amusing,He made funny faces to ____ the children.
+652,analyses,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5963-1,analyse,vt,CET4,to + 空格要求动词原形，但变体是 analyses,She still needs to ____ the data.
+652,analysed,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5963-1,analyse,vt,CET4,to + 空格要求动词原形，但变体是 analysed,She still needs to ____ the data.
+652,analysing,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5963-1,analyse,vt,CET4,to + 空格要求动词原形，但变体是 analysing,She still needs to ____ the data.
+654,analyzes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5965-1,analyze,vt,CET4,to + 空格要求动词原形，但变体是 analyzes,We want to ____ your urine.
+654,analyzed,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5965-1,analyze,vt,CET4,to + 空格要求动词原形，但变体是 analyzed,We want to ____ your urine.
+654,analyzing,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5965-1,analyze,vt,CET4,to + 空格要求动词原形，但变体是 analyzing,We want to ____ your urine.
+654,analyses,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5965-1,analyze,vt,CET4,to + 空格要求动词原形，但变体是 analyses,We want to ____ your urine.
+654,analysed,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5965-1,analyze,vt,CET4,to + 空格要求动词原形，但变体是 analysed,We want to ____ your urine.
+654,analysing,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5965-1,analyze,vt,CET4,to + 空格要求动词原形，但变体是 analysing,We want to ____ your urine.
+654,analyse,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5965-1,analyze,vt,CET4,to + 空格要求动词原形，但变体是 analyse,We want to ____ your urine.
+673,apologizes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5986-1,apologize,vi,CET4,to + 空格要求动词原形，但变体是 apologizes,I think that you ought to ____ to her.
+673,apologized,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5986-1,apologize,vi,CET4,to + 空格要求动词原形，但变体是 apologized,I think that you ought to ____ to her.
+673,apologizing,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5986-1,apologize,vi,CET4,to + 空格要求动词原形，但变体是 apologizing,I think that you ought to ____ to her.
+673,apologises,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5986-1,apologize,vi,CET4,to + 空格要求动词原形，但变体是 apologises,I think that you ought to ____ to her.
+673,apologised,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5986-1,apologize,vi,CET4,to + 空格要求动词原形，但变体是 apologised,I think that you ought to ____ to her.
+673,apologising,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5986-1,apologize,vi,CET4,to + 空格要求动词原形，但变体是 apologising,I think that you ought to ____ to her.
+673,apologise,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5986-1,apologize,vi,CET4,to + 空格要求动词原形，但变体是 apologise,I think that you ought to ____ to her.
+674,apologies,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5987-1,apology,n,CET4,a/an + 空格要求单数，但变体是 apologies,You owe me an ____ for that.
+682,appliances,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-5995-1,appliance,n,CET4,a/an + 空格要求单数，但变体是 appliances,This is an ____ for drying clothes.
+706,arouses,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6019-1,arouse,vt,CET4,to + 空格要求动词原形，但变体是 arouses,How to ____ a woman's desire?
+706,aroused,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6019-1,arouse,vt,CET4,to + 空格要求动词原形，但变体是 aroused,How to ____ a woman's desire?
+706,arousing,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6019-1,arouse,vt,CET4,to + 空格要求动词原形，但变体是 arousing,How to ____ a woman's desire?
+711,arrows,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6024-1,arrow,n,CET4,a/an + 空格要求单数，但变体是 arrows,He shot an ____ at the deer.
+727,assists,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6041-1,assist,n,CET4,to + 空格要求动词原形，但变体是 assists,I would like you to ____ me with my gardening.
+731,assumes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6045-1,assume,vt,CET4,to + 空格要求动词原形，但变体是 assumes,It's presumptuous for humans to ____ that our task is to do what only God can do.
+731,assumed,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6045-1,assume,vt,CET4,to + 空格要求动词原形，但变体是 assumed,It's presumptuous for humans to ____ that our task is to do what only God can do.
+731,assuming,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6045-1,assume,vt,CET4,to + 空格要求动词原形，但变体是 assuming,It's presumptuous for humans to ____ that our task is to do what only God can do.
+735,astronauts,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6049-1,astronaut,n,CET4,a/an + 空格要求单数，但变体是 astronauts,The man whom she is going to marry is an ____.
+741,attaches,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6056-1,attach,vt,CET4,to + 空格要求动词原形，但变体是 attaches,I forgot to ____ a stamp to the envelope.
+741,attached,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6056-1,attach,vt,CET4,to + 空格要求动词原形，但变体是 attached,I forgot to ____ a stamp to the envelope.
+741,attaching,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6056-1,attach,vt,CET4,to + 空格要求动词原形，但变体是 attaching,I forgot to ____ a stamp to the envelope.
+743,attains,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6058-1,attain,vt,CET4,to + 空格要求动词原形，但变体是 attains,That aim is impossible to ____.
+743,attained,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6058-1,attain,vt,CET4,to + 空格要求动词原形，但变体是 attained,That aim is impossible to ____.
+743,attaining,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6058-1,attain,vt,CET4,to + 空格要求动词原形，但变体是 attaining,That aim is impossible to ____.
+749,attracts,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6064-1,attract,vt,CET4,to + 空格要求动词原形，但变体是 attracts,"After business came to a halt, many bathhouses added new facilities, such as saunas and exercise equipment, in an effort"
+749,attracted,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6064-1,attract,vt,CET4,to + 空格要求动词原形，但变体是 attracted,"After business came to a halt, many bathhouses added new facilities, such as saunas and exercise equipment, in an effort"
+749,attracting,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6064-1,attract,vt,CET4,to + 空格要求动词原形，但变体是 attracting,"After business came to a halt, many bathhouses added new facilities, such as saunas and exercise equipment, in an effort"
+752,attributes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6067-1,attribute,n,CET4,to + 空格要求动词原形，但变体是 attributes,It's not fair to ____ your failure to your parents.
+763,auxiliaries,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6079-1,auxiliary,n,CET4,a/an + 空格要求单数，但变体是 auxiliaries,"'can' is an ____ verb, so in question sentences it is brought to the start of the phrase."
+768,avoids,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6084-1,avoid,vt,CET4,to + 空格要求动词原形，但变体是 avoids,"If a high hill stood between A and B, it was important to decide whether the line should climb over it, pierce it with a"
+768,avoided,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6084-1,avoid,vt,CET4,to + 空格要求动词原形，但变体是 avoided,"If a high hill stood between A and B, it was important to decide whether the line should climb over it, pierce it with a"
+768,avoiding,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6084-1,avoid,vt,CET4,to + 空格要求动词原形，但变体是 avoiding,"If a high hill stood between A and B, it was important to decide whether the line should climb over it, pierce it with a"
+783,bakes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6102-1,bake,vt,CET4,to + 空格要求动词原形，但变体是 bakes,There is an oven to ____ bread in the kitchen.
+783,baked,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6102-1,bake,vt,CET4,to + 空格要求动词原形，但变体是 baked,There is an oven to ____ bread in the kitchen.
+783,baking,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6102-1,bake,vt,CET4,to + 空格要求动词原形，但变体是 baking,There is an oven to ____ bread in the kitchen.
+786,bans,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6106-1,ban,n,CET4,to + 空格要求动词原形，但变体是 bans,Germany is to ____ employers from snooping on Facebook.
+803,baths,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6126-1,bath,n,CET4,a/an + 空格要求单数，但变体是 baths,I'm going to take a ____.
+804,bathes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6127-1,bathe,vt,CET4,to + 空格要求动词原形，但变体是 bathes,It is dangerous to ____ in this river.
+804,bathed,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6127-1,bathe,vt,CET4,to + 空格要求动词原形，但变体是 bathed,It is dangerous to ____ in this river.
+804,bathing,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6127-1,bathe,vt,CET4,to + 空格要求动词原形，但变体是 bathing,It is dangerous to ____ in this river.
+813,bees,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6138-1,bee,n,CET4,a/an + 空格要求单数，但变体是 bees,You are always as busy as a ____.
+815,beggars,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6141-1,beggar,n,CET4,a/an + 空格要求单数，但变体是 beggars,He is rich yet he lives like a ____.
+816,beginners,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6142-1,beginner,n,CET4,a/an + 空格要求单数，但变体是 beginners,"Tom's a ____, but he catches on fast."
+819,behaves,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6145-1,behave,vi,CET4,to + 空格要求动词原形，但变体是 behaves,You should try to ____ better.
+819,behaved,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6145-1,behave,vi,CET4,to + 空格要求动词原形，但变体是 behaved,You should try to ____ better.
+819,behaving,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6145-1,behave,vi,CET4,to + 空格要求动词原形，但变体是 behaving,You should try to ____ better.
+829,berries,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6156-1,berry,n,CET4,a/an + 空格要求单数，但变体是 berries,"Acai is a ____ that comes from the state of Pará, Brazil."
+833,bicycles,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6162-1,bicycle,n,CET4,a/an + 空格要求单数，但变体是 bicycles,I will give you a ____ for your birthday.
+838,biscuits,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6168-1,biscuit,n,CET4,a/an + 空格要求单数，但变体是 biscuits,"Mum, can I have a ____? ""No, you shouldn't eat between meals."""
+842,blames,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6173-1,blame,n,CET4,to + 空格要求动词原形，但变体是 blames,You have no one but yourself to ____.
+855,bombs,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6190-1,bomb,n,CET4,a/an + 空格要求单数，但变体是 bombs,"In London, the police are always worried about finding a ____ on the train or subway."
+870,bowls,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6207-1,bowl,n,CET4,a/an + 空格要求单数，但变体是 bowls,A ____ of rice is about 180 grams.
+875,brasses,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6213-1,brass,n,CET4,to + 空格要求动词原形，但变体是 brasses,Gold is similar in color to ____.
+881,bricks,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6221-1,brick,n,CET4,a/an + 空格要求单数，但变体是 bricks,A cold wave of fear hit me like a ____.
+883,brightens,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6223-1,brighten,vi,CET4,to + 空格要求动词原形，但变体是 brightens,Use blonde highlights to ____ your hair.
+883,brightened,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6223-1,brighten,vi,CET4,to + 空格要求动词原形，但变体是 brightened,Use blonde highlights to ____ your hair.
+883,brightening,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6223-1,brighten,vi,CET4,to + 空格要求动词原形，但变体是 brightening,Use blonde highlights to ____ your hair.
+890,bronzes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6231-1,bronze,n,CET4,a/an + 空格要求单数，但变体是 bronzes,"In Olympic competitions, a gold medal is for first place, a silver medal for second, and a ____ medal is for third place"
+904,bunches,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6246-1,bunch,n,CET4,a/an + 空格要求单数，但变体是 bunches,The young man saved the girl from a ____ of hoodlums.
+906,burdens,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6248-1,burden,n,CET4,a/an + 空格要求单数，但变体是 burdens,That responsibility is a ____ to him.
+915,butterflies,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6257-1,butterfly,n,CET4,a/an + 空格要求单数，但变体是 butterflies,"Oh, there's a ____!"
+920,cables,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6262-1,cable,n,CET4,a/an + 空格要求单数，但变体是 cables,The miners rode a conveyance attached to a ____ made of braided steel wire.
+921,cafeterias,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6264-1,cafeteria,n,CET4,a/an + 空格要求单数，但变体是 cafeterias,A ____ is a self-service style restaurant.
+928,camels,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6272-1,camel,n,CET4,a/an + 空格要求单数，但变体是 camels,"A ____ is, so to speak, a ship on the desert."
+931,campaigns,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6275-1,campaign,n,CET4,a/an + 空格要求单数，但变体是 campaigns,We started a ____ against smoking.
+939,cannons,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6283-1,cannon,n,CET4,a/an + 空格要求单数，但变体是 cannons,Never use a ____ to kill a fly.
+948,captures,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6293-1,capture,n,CET4,to + 空格要求动词原形，但变体是 captures,"To be honest, we came to ____ you."
+953,carpenters,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6298-1,carpenter,n,CET4,a/an + 空格要求单数，但变体是 carpenters,My grandfather is a ____.
+960,cashes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6305-1,cash,n,CET4,to + 空格要求动词原形，但变体是 cashes,I'd like to ____ a travelers' check.
+973,cells,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6319-1,cell,n,CET4,a/an + 空格要求单数，但变体是 cells,Every person in this community is like a ____ in the immune system of a healthy human body.
+985,certificates,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6331-1,certificate,n,CET4,a/an + 空格要求单数，但变体是 certificates,Please attach a ____ of quality.
+1004,cheats,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6356-1,cheat,n,CET4,to + 空格要求动词原形，但变体是 cheats,It is wrong to ____ at cards.
+1009,chemists,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6362-1,chemist,n,CET4,a/an + 空格要求单数，但变体是 chemists,"Johnny was a ____; now Johnny is no more. For what he thought was water, was H2SO4."
+1010,cheques,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6364-1,cheque,n,CET4,a/an + 空格要求单数，但变体是 cheques,I haven't got any cash. Can I write a ____?
+1018,chills,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6373-1,chill,n,CET4,to + 空格要求动词原形，但变体是 chills,It's better to ____ white wine before you serve it.
+1040,claps,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6396-1,clap,n,CET4,to + 空格要求动词原形，但变体是 claps,"One man began to ____, and others joined in."
+1043,classics,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6399-1,classic,n,CET4,a/an + 空格要求单数，但变体是 classics,The qipao is a ____ female garment that originated in 17th century China.
+1050,clerks,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6407-1,clerk,n,CET4,a/an + 空格要求单数，但变体是 clerks,Bob worked as a ____ in the grocery store on Saturday.
+1054,climbs,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6411-1,climb,v,CET4,to + 空格要求动词原形，但变体是 climbs,It is easy for a monkey to ____ a tree.
+1054,climbed,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6411-1,climb,v,CET4,to + 空格要求动词原形，但变体是 climbed,It is easy for a monkey to ____ a tree.
+1054,climbing,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6411-1,climb,v,CET4,to + 空格要求动词原形，但变体是 climbing,It is easy for a monkey to ____ a tree.
+1062,clues,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6419-1,clue,n,CET4,a/an + 空格要求单数，但变体是 clues,I haven't got a ____ as to why he quit so suddenly.
+1072,coins,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6429-1,coin,n,CET4,a/an + 空格要求单数，但变体是 coins,One side of a ____ is called 'heads' and the other side is called 'tails'.
+1077,colleagues,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6434-1,colleague,n,CET4,a/an + 空格要求单数，但变体是 colleagues,He and a ____ who went to China later translated The New Testament into Chinese.
+1081,collisions,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6438-1,collision,n,CET4,a/an + 空格要求单数，但变体是 collisions,a ____ between the two countries over fishing rights
+1087,combinations,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6444-1,combination,n,CET4,a/an + 空格要求单数，但变体是 combinations,Jazz fusion is a ____ of rock and jazz.
+1103,communicates,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6460-1,communicate,vt,CET4,to + 空格要求动词原形，但变体是 communicates,"Knowing their languages is not enough to ____ effectively, because the methods of communication are determined by their "
+1103,communicated,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6460-1,communicate,vt,CET4,to + 空格要求动词原形，但变体是 communicated,"Knowing their languages is not enough to ____ effectively, because the methods of communication are determined by their "
+1103,communicating,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6460-1,communicate,vt,CET4,to + 空格要求动词原形，但变体是 communicating,"Knowing their languages is not enough to ____ effectively, because the methods of communication are determined by their "
+1114,competes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6473-1,compete,vi,CET4,to + 空格要求动词原形，但变体是 competes,The stores have to ____ for customers in the Christmas season.
+1114,competed,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6473-1,compete,vi,CET4,to + 空格要求动词原形，但变体是 competed,The stores have to ____ for customers in the Christmas season.
+1114,competing,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6473-1,compete,vi,CET4,to + 空格要求动词原形，但变体是 competing,The stores have to ____ for customers in the Christmas season.
+1123,complexes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6482-1,complex,n,CET4,a/an + 空格要求单数，但变体是 complexes,A computer is a ____ machine.
+1124,complicates,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6483-1,complicate,vt,CET4,to + 空格要求动词原形，但变体是 complicates,I do not wish to ____ the task more than is necessary.
+1124,complicated,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6483-1,complicate,vt,CET4,to + 空格要求动词原形，但变体是 complicated,I do not wish to ____ the task more than is necessary.
+1124,complicating,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6483-1,complicate,vt,CET4,to + 空格要求动词原形，但变体是 complicating,I do not wish to ____ the task more than is necessary.
+1133,compromises,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6492-1,compromise,n,CET4,a/an + 空格要求单数，但变体是 compromises,Can we effect a ____?
+1137,concentrates,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6496-1,concentrate,n,CET4,to + 空格要求动词原形，但变体是 concentrates,"Why did you wake me up to tell me something that big? Now, I'll never be able to ____ on my work!"
+1145,condemns,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6505-1,condemn,vt,CET4,to + 空格要求动词原形，但变体是 condemns,"It is important to ____ racism, but that alone is not enough."
+1145,condemned,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6505-1,condemn,vt,CET4,to + 空格要求动词原形，但变体是 condemned,"It is important to ____ racism, but that alone is not enough."
+1145,condemning,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6505-1,condemn,vt,CET4,to + 空格要求动词原形，但变体是 condemning,"It is important to ____ racism, but that alone is not enough."
+1163,connections,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6524-1,connection,n,CET4,a/an + 空格要求单数，但变体是 connections,The telephone operator asked the caller to hold on until a ____ was made.
+1164,conquers,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6525-1,conquer,vt,CET4,to + 空格要求动词原形，但变体是 conquers,The Romans would never have had the chance to ____ the world if they had first been required to study Latin.
+1164,conquered,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6525-1,conquer,vt,CET4,to + 空格要求动词原形，但变体是 conquered,The Romans would never have had the chance to ____ the world if they had first been required to study Latin.
+1164,conquering,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6525-1,conquer,vt,CET4,to + 空格要求动词原形，但变体是 conquering,The Romans would never have had the chance to ____ the world if they had first been required to study Latin.
+1195,continents,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6557-1,continent,n,CET4,a/an + 空格要求单数，但变体是 continents,Africa is a ____; Greenland is not.
+1203,contributes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6565-1,contribute,vt,CET4,to + 空格要求动词原形，但变体是 contributes,And everyone has the ability to ____.
+1203,contributed,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6565-1,contribute,vt,CET4,to + 空格要求动词原形，但变体是 contributed,And everyone has the ability to ____.
+1203,contributing,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6565-1,contribute,vt,CET4,to + 空格要求动词原形，但变体是 contributing,And everyone has the ability to ____.
+1215,cooperates,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6577-1,cooperate,vi,CET4,to + 空格要求动词原形，但变体是 cooperates,We are working hard to ____ more.
+1215,cooperated,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6577-1,cooperate,vi,CET4,to + 空格要求动词原形，但变体是 cooperated,We are working hard to ____ more.
+1215,cooperating,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6577-1,cooperate,vi,CET4,to + 空格要求动词原形，但变体是 cooperating,We are working hard to ____ more.
+1216,copes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6579-1,cope,vi,CET4,to + 空格要求动词原形，但变体是 copes,We have to ____ with hosts of difficulties.
+1216,coped,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6579-1,cope,vi,CET4,to + 空格要求动词原形，但变体是 coped,We have to ____ with hosts of difficulties.
+1216,coping,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6579-1,cope,vi,CET4,to + 空格要求动词原形，但变体是 coping,We have to ____ with hosts of difficulties.
+1219,cordials,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6582-1,cordial,n,CET4,a/an + 空格要求单数，但变体是 cordials,The talks were conducted in a ____ atmosphere.
+1230,cottages,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6593-1,cottage,n,CET4,a/an + 空格要求单数，但变体是 cottages,There is a ____ beyond the bridge.
+1231,cottons,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6594-1,cotton,n,CET4,a/an + 空格要求单数，但变体是 cottons,Someday I will buy a ____ candy machine.
+1243,cowards,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6606-1,coward,n,CET4,a/an + 空格要求单数，但变体是 cowards,"To tell you the truth, I am scared of heights. ""You are a ____!"""
+1245,crafts,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6608-1,craft,n,CET4,a/an + 空格要求单数，但变体是 crafts,I greatly recommend reading it to anybody thinking of learning a ____.
+1251,creates,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6614-1,create,vt,CET4,to + 空格要求动词原形，但变体是 creates,Most developers hate debugging; it's more fun to ____ bugs than to correct them.
+1251,created,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6614-1,create,vt,CET4,to + 空格要求动词原形，但变体是 created,Most developers hate debugging; it's more fun to ____ bugs than to correct them.
+1251,creating,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6614-1,create,vt,CET4,to + 空格要求动词原形，但变体是 creating,Most developers hate debugging; it's more fun to ____ bugs than to correct them.
+1254,creeps,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6617-1,creep,n,CET4,to + 空格要求动词原形，但变体是 creeps,Sometimes it's fun to ____ yourself out thinking about it.
+1258,criminals,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6621-1,criminal,n,CET4,a/an + 空格要求单数，但变体是 criminals,"That is a ____ offense, and you will surely be punished!"
+1259,cripples,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6622-1,cripple,n,CET4,a/an + 空格要求单数，但变体是 cripples,"She has gone from being a healthy, fit, and sporty young woman to being a ____."
+1261,critics,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6624-1,critic,n,CET4,a/an + 空格要求单数，但变体是 critics,This famous mountain climber is a ____ of mass tourism.
+1270,crushes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6636-1,crush,n,CET4,a/an + 空格要求单数，但变体是 crushes,He has had a ____ on her.
+1275,cultivates,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6643-1,cultivate,vt,CET4,to + 空格要求动词原形，但变体是 cultivates,Try to ____ a more relaxed and positive approach to life.
+1275,cultivated,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6643-1,cultivate,vt,CET4,to + 空格要求动词原形，但变体是 cultivated,Try to ____ a more relaxed and positive approach to life.
+1275,cultivating,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6643-1,cultivate,vt,CET4,to + 空格要求动词原形，但变体是 cultivating,Try to ____ a more relaxed and positive approach to life.
+1292,damps,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6663-1,damp,n,CET4,a/an + 空格要求单数，但变体是 damps,Clean the window with a ____ cloth.
+1313,declines,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6687-1,decline,n,CET4,a/an + 空格要求单数，但变体是 declines,An increase in customer complaints could signal a ____ in business.
+1318,deepens,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6692-1,deepen,vi,CET4,to + 空格要求动词原形，但变体是 deepens,The recession continues to ____.
+1318,deepened,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6692-1,deepen,vi,CET4,to + 空格要求动词原形，但变体是 deepened,The recession continues to ____.
+1318,deepening,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6692-1,deepen,vi,CET4,to + 空格要求动词原形，但变体是 deepening,The recession continues to ____.
+1327,definitions,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6701-1,definition,n,CET4,a/an + 空格要求单数，但变体是 definitions,To give a ____ of a word is more difficult than to give an illustration of its usage.
+1350,deposits,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6725-1,deposit,n,CET4,to + 空格要求动词原形，但变体是 deposits,Some people do not like to ____ their money in banks.
+1364,despairs,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6739-1,despair,n,CET4,to + 空格要求动词原形，但变体是 despairs,The student gave himself up to ____.
+1375,determinations,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6750-1,determination,n,CET4,a/an + 空格要求单数，但变体是 determinations,He made a ____ to be a doctor.
+1380,devotes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6755-1,devote,vt,CET4,to + 空格要求动词原形，但变体是 devotes,I intend to ____ a few hours a day to the study of English.
+1380,devoted,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6755-1,devote,vt,CET4,to + 空格要求动词原形，但变体是 devoted,I intend to ____ a few hours a day to the study of English.
+1380,devoting,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6755-1,devote,vt,CET4,to + 空格要求动词原形，但变体是 devoting,I intend to ____ a few hours a day to the study of English.
+1382,diagrams,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6757-1,diagram,n,CET4,a/an + 空格要求单数，但变体是 diagrams,Let me explain it with a ____.
+1384,dialects,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6759-1,dialect,n,CET4,a/an + 空格要求单数，但变体是 dialects,He speaks in a ____.
+1388,diaries,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6763-1,diary,n,CET4,a/an + 空格要求单数，但变体是 diaries,Do you keep a ____?
+1403,directors,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6778-1,director,n,CET4,a/an + 空格要求单数，但变体是 directors,They appointed him as a ____.
+1405,disables,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6780-1,disable,vt,CET4,to + 空格要求动词原形，但变体是 disables,I wish I could figure out how to ____ comments on my blog.
+1405,disabled,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6780-1,disable,vt,CET4,to + 空格要求动词原形，但变体是 disabled,I wish I could figure out how to ____ comments on my blog.
+1405,disabling,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6780-1,disable,vt,CET4,to + 空格要求动词原形，但变体是 disabling,I wish I could figure out how to ____ comments on my blog.
+1413,discounts,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6791-1,discount,n,CET4,a/an + 空格要求单数，但变体是 discounts,Can you give me a ____?
+1415,discovers,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6793-1,discover,vt,CET4,to + 空格要求动词原形，但变体是 discovers,How foolish I was not to ____ that simple lie!
+1415,discovered,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6793-1,discover,vt,CET4,to + 空格要求动词原形，但变体是 discovered,How foolish I was not to ____ that simple lie!
+1415,discovering,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6793-1,discover,vt,CET4,to + 空格要求动词原形，但变体是 discovering,How foolish I was not to ____ that simple lie!
+1442,disturbs,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6821-1,disturb,vt,CET4,to + 空格要求动词原形，但变体是 disturbs,I'll do my best not to ____ your studying.
+1442,disturbed,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6821-1,disturb,vt,CET4,to + 空格要求动词原形，但变体是 disturbed,I'll do my best not to ____ your studying.
+1442,disturbing,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6821-1,disturb,vt,CET4,to + 空格要求动词原形，但变体是 disturbing,I'll do my best not to ____ your studying.
+1461,dozens,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6846-1,dozen,n,CET4,a/an + 空格要求单数，但变体是 dozens,I bought a ____ pencils today.
+1462,drafts,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6847-1,draft,n,CET4,a/an + 空格要求单数，但变体是 drafts,I am writing a ____ of the speech.
+1474,drowns,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6862-1,drown,vi,CET4,to + 空格要求动词原形，但变体是 drowns,I have to wear earplugs to ____ out all the noise from the construction site next door.
+1474,drowned,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6862-1,drown,vi,CET4,to + 空格要求动词原形，但变体是 drowned,I have to wear earplugs to ____ out all the noise from the construction site next door.
+1474,drowning,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6862-1,drown,vi,CET4,to + 空格要求动词原形，但变体是 drowning,I have to wear earplugs to ____ out all the noise from the construction site next door.
+1478,ducks,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6866-1,duck,n,CET4,a/an + 空格要求单数，但变体是 ducks,It looks like a ____.
+1489,dyes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6877-1,dye,n,CET4,a/an + 空格要求单数，但变体是 dyes,India ink produces an interesting pattern when used as a ____.
+1494,earns,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6882-1,earn,vt,CET4,to + 空格要求动词原形，但变体是 earns,"Money takes a long time to ____, but you can spend it in no time."
+1494,earned,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6882-1,earn,vt,CET4,to + 空格要求动词原形，但变体是 earned,"Money takes a long time to ____, but you can spend it in no time."
+1494,earning,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6882-1,earn,vt,CET4,to + 空格要求动词原形，但变体是 earning,"Money takes a long time to ____, but you can spend it in no time."
+1507,editors,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6895-1,editor,n,CET4,a/an + 空格要求单数，但变体是 editors,You don't want to be an ____?
+1529,elephants,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6921-1,elephant,n,CET4,a/an + 空格要求单数，但变体是 elephants,"Seen from a distance, the hill looks like an ____."
+1542,emphasizes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6935-1,emphasize,vt,CET4,to + 空格要求动词原形，但变体是 emphasizes,I want to ____ this point in particular.
+1542,emphasized,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6935-1,emphasize,vt,CET4,to + 空格要求动词原形，但变体是 emphasized,I want to ____ this point in particular.
+1542,emphasizing,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6935-1,emphasize,vt,CET4,to + 空格要求动词原形，但变体是 emphasizing,I want to ____ this point in particular.
+1542,emphasises,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6935-1,emphasize,vt,CET4,to + 空格要求动词原形，但变体是 emphasises,I want to ____ this point in particular.
+1542,emphasised,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6935-1,emphasize,vt,CET4,to + 空格要求动词原形，但变体是 emphasised,I want to ____ this point in particular.
+1542,emphasising,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6935-1,emphasize,vt,CET4,to + 空格要求动词原形，但变体是 emphasising,I want to ____ this point in particular.
+1542,emphasise,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6935-1,emphasize,vt,CET4,to + 空格要求动词原形，但变体是 emphasise,I want to ____ this point in particular.
+1544,employs,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6937-1,employ,n,CET4,to + 空格要求动词原形，但变体是 employs,His age didn't enter into our decision not to ____ him.
+1566,enrolls,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6959-1,enroll,vt,CET4,to + 空格要求动词原形，但变体是 enrolls,I want to ____ at graduate school.
+1566,enrolled,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6959-1,enroll,vt,CET4,to + 空格要求动词原形，但变体是 enrolled,I want to ____ at graduate school.
+1566,enrolling,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6959-1,enroll,vt,CET4,to + 空格要求动词原形，但变体是 enrolling,I want to ____ at graduate school.
+1569,entertains,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6962-1,entertain,vt,CET4,to + 空格要求动词原形，但变体是 entertains,A museum should aim to ____ as well as educate.
+1569,entertained,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6962-1,entertain,vt,CET4,to + 空格要求动词原形，但变体是 entertained,A museum should aim to ____ as well as educate.
+1569,entertaining,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6962-1,entertain,vt,CET4,to + 空格要求动词原形，但变体是 entertaining,A museum should aim to ____ as well as educate.
+1572,entires,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6965-1,entire,n,CET4,a/an + 空格要求单数，但变体是 entires,Jane could not believe it when her date polished off an ____ chocolate cake.
+1583,equips,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6976-1,equip,vt,CET4,to + 空格要求动词原形，但变体是 equips,They try to ____ their vehicles with gadgets to deal with every possible contingency.
+1583,equiped,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6976-1,equip,vt,CET4,to + 空格要求动词原形，但变体是 equiped,They try to ____ their vehicles with gadgets to deal with every possible contingency.
+1583,equiping,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6976-1,equip,vt,CET4,to + 空格要求动词原形，但变体是 equiping,They try to ____ their vehicles with gadgets to deal with every possible contingency.
+1590,establishes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6985-1,establish,vt,CET4,to + 空格要求动词原形，但变体是 establishes,Our ultimate goal is to ____ world peace.
+1590,established,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6985-1,establish,vt,CET4,to + 空格要求动词原形，但变体是 established,Our ultimate goal is to ____ world peace.
+1590,establishing,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6985-1,establish,vt,CET4,to + 空格要求动词原形，但变体是 establishing,Our ultimate goal is to ____ world peace.
+1592,estimates,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6988-1,estimate,n,CET4,to + 空格要求动词原形，但变体是 estimates,Try to ____ how much you spent on books.
+1593,evacuates,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6989-1,evacuate,v,CET4,to + 空格要求动词原形，但变体是 evacuates,We have less than five minutes to ____ the whole building.
+1593,evacuated,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6989-1,evacuate,v,CET4,to + 空格要求动词原形，但变体是 evacuated,We have less than five minutes to ____ the whole building.
+1593,evacuating,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6989-1,evacuate,v,CET4,to + 空格要求动词原形，但变体是 evacuating,We have less than five minutes to ____ the whole building.
+1602,evils,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-6998-1,evil,n,CET4,a/an + 空格要求单数，但变体是 evils,That was an ____ bunny.
+1607,exaggerates,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7003-1,exaggerate,v,CET4,to + 空格要求动词原形，但变体是 exaggerates,It seems to me that she has a tendency to ____.
+1607,exaggerated,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7003-1,exaggerate,v,CET4,to + 空格要求动词原形，但变体是 exaggerated,It seems to me that she has a tendency to ____.
+1607,exaggerating,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7003-1,exaggerate,v,CET4,to + 空格要求动词原形，但变体是 exaggerating,It seems to me that she has a tendency to ____.
+1608,examinations,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7004-1,examination,n,CET4,a/an + 空格要求单数，但变体是 examinations,You should have known better than to take an ____ without preparing for it.
+1609,examines,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7005-1,examine,v,CET4,to + 空格要求动词原形，但变体是 examines,The doctor used X-rays to ____ my stomach.
+1609,examined,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7005-1,examine,v,CET4,to + 空格要求动词原形，但变体是 examined,The doctor used X-rays to ____ my stomach.
+1609,examining,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7005-1,examine,v,CET4,to + 空格要求动词原形，但变体是 examining,The doctor used X-rays to ____ my stomach.
+1622,excursions,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7020-1,excursion,n,CET4,a/an + 空格要求单数，但变体是 excursions,A travel agent will arrange an ____ to Andalusia for you.
+1632,expands,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7031-1,expand,vt,CET4,to + 空格要求动词原形，但变体是 expands,He really needs to ____ his Berber vocabulary.
+1632,expanded,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7031-1,expand,vt,CET4,to + 空格要求动词原形，但变体是 expanded,He really needs to ____ his Berber vocabulary.
+1632,expanding,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7031-1,expand,vt,CET4,to + 空格要求动词原形，但变体是 expanding,He really needs to ____ his Berber vocabulary.
+1636,expends,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7035-1,expend,vt,CET4,to + 空格要求动词原形，但变体是 expends,I knew since middle school that only because I was so lonely was I able to ____ so much energy on studying.
+1636,expended,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7035-1,expend,vt,CET4,to + 空格要求动词原形，但变体是 expended,I knew since middle school that only because I was so lonely was I able to ____ so much energy on studying.
+1636,expending,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7035-1,expend,vt,CET4,to + 空格要求动词原形，但变体是 expending,I knew since middle school that only because I was so lonely was I able to ____ so much energy on studying.
+1643,explains,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7042-1,explain,v,CET4,to + 空格要求动词原形，但变体是 explains,It would take forever for me to ____ everything.
+1643,explained,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7042-1,explain,v,CET4,to + 空格要求动词原形，但变体是 explained,It would take forever for me to ____ everything.
+1643,explaining,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7042-1,explain,v,CET4,to + 空格要求动词原形，但变体是 explaining,It would take forever for me to ____ everything.
+1645,explodes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7044-1,explode,vi,CET4,to + 空格要求动词原形，但变体是 explodes,The aim of this game is to ____ all the bombs on the screen.
+1645,exploded,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7044-1,explode,vi,CET4,to + 空格要求动词原形，但变体是 exploded,The aim of this game is to ____ all the bombs on the screen.
+1645,exploding,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7044-1,explode,vi,CET4,to + 空格要求动词原形，但变体是 exploding,The aim of this game is to ____ all the bombs on the screen.
+1647,explores,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7046-1,explore,v,CET4,to + 空格要求动词原形，但变体是 explores,I want to ____ the world. It’s my dream.
+1647,explored,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7046-1,explore,v,CET4,to + 空格要求动词原形，但变体是 explored,I want to ____ the world. It’s my dream.
+1647,exploring,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7046-1,explore,v,CET4,to + 空格要求动词原形，但变体是 exploring,I want to ____ the world. It’s my dream.
+1655,extends,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7054-1,extend,v,CET4,to + 空格要求动词原形，但变体是 extends,I want to ____ my stay here for a few more days.
+1655,extended,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7054-1,extend,v,CET4,to + 空格要求动词原形，但变体是 extended,I want to ____ my stay here for a few more days.
+1655,extending,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7054-1,extend,v,CET4,to + 空格要求动词原形，但变体是 extending,I want to ____ my stay here for a few more days.
+1687,farewells,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7087-1,farewell,n,CET4,a/an + 空格要求单数，但变体是 farewells,I got a ____ present from everyone.
+1700,favours,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7102-1,favour,n,CET4,a/an + 空格要求单数，但变体是 favours,Could you do me a ____ please?
+1705,feathers,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7109-1,feather,n,CET4,a/an + 空格要求单数，但变体是 feathers,Birds of a ____ flock together.
+1743,floats,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7152-1,float,n,CET4,to + 空格要求动词原形，但变体是 floats,The substance is light enough to ____ on the water.
+1751,flushes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7160-1,flush,n,CET4,to + 空格要求动词原形，但变体是 flushes,Don't forget to ____ the toilet.
+1758,fools,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7168-1,fool,n,CET4,a/an + 空格要求单数，但变体是 fools,Do you take me for a ____?
+1765,foreigners,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7175-1,foreigner,n,CET4,a/an + 空格要求单数，但变体是 foreigners,His accent suggests he is a ____.
+1769,forgives,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7179-1,forgive,vt,CET4,to + 空格要求动词原形，但变体是 forgives,"To err is human, to ____ divine."
+1769,forgived,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7179-1,forgive,vt,CET4,to + 空格要求动词原形，但变体是 forgived,"To err is human, to ____ divine."
+1769,forgiving,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7179-1,forgive,vt,CET4,to + 空格要求动词原形，但变体是 forgiving,"To err is human, to ____ divine."
+1770,forks,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7180-1,fork,n,CET4,a/an + 空格要求单数，但变体是 forks,A ____ fell off the table.
+1776,fortnights,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7186-1,fortnight,n,CET4,a/an + 空格要求单数，但变体是 fortnights,We want to go to the Alps for a ____.
+1783,foxes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7193-1,fox,n,CET4,a/an + 空格要求单数，但变体是 foxes,A ____ is not caught twice in the same snare.
+1784,fractions,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7194-1,fraction,n,CET4,a/an + 空格要求单数，但变体是 fractions,I got these shoes at a ____ of the original price.
+1798,frogs,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7211-1,frog,n,CET4,a/an + 空格要求单数，但变体是 frogs,I've got a ____ in my throat.
+1808,funerals,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7223-1,funeral,n,CET4,a/an + 空格要求单数，但变体是 funerals,"At lunchtime today, our usual restaurant was closed because of a ____ in the family."
+1810,furer,PSEUDO_FORM,0.90,DELETE_VARIANT,vocab-auto-7225-1,fur,n,CET4,名词误加比较级/最高级后缀,Her coat is ____ on the inside.
+1810,furest,PSEUDO_FORM,0.90,DELETE_VARIANT,vocab-auto-7225-1,fur,n,CET4,名词误加比较级/最高级后缀,Her coat is ____ on the inside.
+1812,furnaces,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7227-1,furnace,n,CET4,a/an + 空格要求单数，但变体是 furnaces,It's like a ____ (= very hot) in here!
+1821,garages,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7237-1,garage,n,CET4,a/an + 空格要求单数，但变体是 garages,I rented a house with a ____.
+1849,ghosts,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7268-1,ghost,n,CET4,a/an + 空格要求单数，但变体是 ghosts,John felt the presence of a ____ in the dark room.
+1852,glimpses,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7273-1,glimpse,n,CET4,a/an + 空格要求单数，但变体是 glimpses,I caught a ____ of Mt. Fuji from the window of the train.
+1870,governs,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7292-1,govern,v,CET4,to + 空格要求动词原形，但变体是 governs,To ____ a country is no easy job.
+1870,governed,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7292-1,govern,v,CET4,to + 空格要求动词原形，但变体是 governed,To ____ a country is no easy job.
+1870,governing,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7292-1,govern,v,CET4,to + 空格要求动词原形，但变体是 governing,To ____ a country is no easy job.
+1882,grammes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7305-1,gramme,n,CET4,a/an + 空格要求单数，但变体是 grammes,A few twentieths of a ____ can be critical.
+1889,graphs,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7313-1,graph,n,CET4,a/an + 空格要求单数，但变体是 graphs,Martin showed me a ____ of their recent sales.
+1900,grieves,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7326-1,grieve,vt,CET4,to + 空格要求动词原形，但变体是 grieves,People need time to ____ after the death of a loved one.
+1900,grieved,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7326-1,grieve,vt,CET4,to + 空格要求动词原形，但变体是 grieved,People need time to ____ after the death of a loved one.
+1900,grieving,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7326-1,grieve,vt,CET4,to + 空格要求动词原形，但变体是 grieving,People need time to ____ after the death of a loved one.
+1901,grips,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7328-1,grip,n,CET4,a/an + 空格要求单数，但变体是 grips,Get a ____ on yourself!
+1903,groceries,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7331-1,grocery,n,CET4,a/an + 空格要求单数，但变体是 groceries,Please tell us where there is a ____ store.
+1908,guides,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7343-1,guide,n,CET4,a/an + 空格要求单数，但变体是 guides,I'll act as a ____ for you.
+1912,guns,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7347-1,gun,n,CET4,a/an + 空格要求单数，但变体是 guns,They heard a ____ go off in the distance.
+1918,haircuts,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7353-1,haircut,n,CET4,a/an + 空格要求单数，但变体是 haircuts,The barber gave him a ____.
+1920,halts,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7355-1,halt,n,CET4,a/an + 空格要求单数，但变体是 halts,"After business came to a ____, many bathhouses added new facilities, such as saunas and exercise equipment, in an effort"
+1921,hamburgers,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7356-1,hamburger,n,CET4,a/an + 空格要求单数，但变体是 hamburgers,Please give me a ____.
+1922,hammers,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7357-1,hammer,n,CET4,a/an + 空格要求单数，但变体是 hammers,"To the man who only has a ____ in the toolkit, every problem looks like a nail."
+1923,handfuls,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7358-1,handful,n,CET4,a/an + 空格要求单数，但变体是 handfuls,Only a ____ of people know the fact.
+1928,harbours,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7367-1,harbour,n,CET4,to + 空格要求动词原形，但变体是 harbours,The lost fishing boat made a safe return to ____.
+1928,harbor,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7367-1,harbour,n,CET4,to + 空格要求动词原形，但变体是 harbor,The lost fishing boat made a safe return to ____.
+1929,hardens,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7368-1,harden,vt,CET4,to + 空格要求动词原形，但变体是 hardens,It will take about 24 hours for the glue to ____.
+1929,hardened,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7368-1,harden,vt,CET4,to + 空格要求动词原形，但变体是 hardened,It will take about 24 hours for the glue to ____.
+1929,hardening,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7368-1,harden,vt,CET4,to + 空格要求动词原形，但变体是 hardening,It will take about 24 hours for the glue to ____.
+1941,hatches,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7381-1,hatch,n,CET4,to + 空格要求动词原形，但变体是 hatches,The eggs take three days to ____.
+1944,hawks,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7385-1,hawk,n,CET4,a/an + 空格要求单数，但变体是 hawks,The bird was half the size of a ____.
+1946,headaches,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7388-1,headache,n,CET4,a/an + 空格要求单数，但变体是 headaches,So annoying... Now I get a ____ whenever I use the computer!
+1961,helmets,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7405-1,helmet,n,CET4,a/an + 空格要求单数，但变体是 helmets,It is dangerous to ride a motorbike without a ____.
+1975,hires,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7420-1,hire,n,CET4,to + 空格要求动词原形，但变体是 hires,I would like to ____ a car.
+1979,holes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7424-1,hole,n,CET4,a/an + 空格要求单数，但变体是 holes,There is a ____ in your sock.
+1994,horrors,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7440-1,horror,n,CET4,a/an + 空格要求单数，但变体是 horrors,I'm going to see a ____ film.
+2018,idioms,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7467-1,idiom,n,CET4,a/an + 空格要求单数，但变体是 idioms,Having a clear conscience is an ____.
+2025,illustrates,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7474-1,illustrate,vt,CET4,to + 空格要求动词原形，但变体是 illustrates,He likes to ____.
+2025,illustrated,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7474-1,illustrate,vt,CET4,to + 空格要求动词原形，但变体是 illustrated,He likes to ____.
+2025,illustrating,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7474-1,illustrate,vt,CET4,to + 空格要求动词原形，但变体是 illustrating,He likes to ____.
+2026,illustrations,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7475-1,illustration,n,CET4,a/an + 空格要求单数，但变体是 illustrations,To give a definition of a word is more difficult than to give an ____ of its usage.
+2046,impresses,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7495-1,impress,n,CET4,to + 空格要求动词原形，但变体是 impresses,Parents try to ____ upon their children the importance of honesty and hard work.
+2050,improves,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7499-1,improve,vt,CET4,to + 空格要求动词原形，但变体是 improves,It seems that the purpose of his study abroad was to ____ his ability to speak English.
+2050,improved,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7499-1,improve,vt,CET4,to + 空格要求动词原形，但变体是 improved,It seems that the purpose of his study abroad was to ____ his ability to speak English.
+2050,improving,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7499-1,improve,vt,CET4,to + 空格要求动词原形，但变体是 improving,It seems that the purpose of his study abroad was to ____ his ability to speak English.
+2052,inches,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7501-1,inch,n,CET4,a/an + 空格要求单数，但变体是 inches,Give him an ____ and he'll take a yard.
+2075,industrializes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7526-1,industrialize,vt,CET4,to + 空格要求动词原形，但变体是 industrializes,The southern part of the country was slow to ____.
+2075,industrialized,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7526-1,industrialize,vt,CET4,to + 空格要求动词原形，但变体是 industrialized,The southern part of the country was slow to ____.
+2075,industrializing,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7526-1,industrialize,vt,CET4,to + 空格要求动词原形，但变体是 industrializing,The southern part of the country was slow to ____.
+2075,industrialises,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7526-1,industrialize,vt,CET4,to + 空格要求动词原形，但变体是 industrialises,The southern part of the country was slow to ____.
+2075,industrialised,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7526-1,industrialize,vt,CET4,to + 空格要求动词原形，但变体是 industrialised,The southern part of the country was slow to ____.
+2075,industrialising,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7526-1,industrialize,vt,CET4,to + 空格要求动词原形，但变体是 industrialising,The southern part of the country was slow to ____.
+2075,industrialise,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7526-1,industrialize,vt,CET4,to + 空格要求动词原形，但变体是 industrialise,The southern part of the country was slow to ____.
+2079,infants,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7531-1,infant,n,CET4,a/an + 空格要求单数，但变体是 infants,The young woman was carrying an ____ in her arms.
+2084,influences,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7536-1,influence,n,CET4,a/an + 空格要求单数，但变体是 influences,Do you think our climate has an ____ on our character?
+2106,inspects,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7561-1,inspect,vt,CET4,to + 空格要求动词原形，但变体是 inspects,Hey! There's an American who speaks Uyghur here! Hurry up and get over here to ____ his computer!
+2106,inspected,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7561-1,inspect,vt,CET4,to + 空格要求动词原形，但变体是 inspected,Hey! There's an American who speaks Uyghur here! Hurry up and get over here to ____ his computer!
+2106,inspecting,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7561-1,inspect,vt,CET4,to + 空格要求动词原形，但变体是 inspecting,Hey! There's an American who speaks Uyghur here! Hurry up and get over here to ____ his computer!
+2107,inspections,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7562-1,inspection,n,CET4,a/an + 空格要求单数，但变体是 inspections,Korea allowed an ____ by the IAEA.
+2124,integrates,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7579-1,integrate,vt,CET4,to + 空格要求动词原形，但变体是 integrates,They refuse to ____.
+2124,integrated,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7579-1,integrate,vt,CET4,to + 空格要求动词原形，但变体是 integrated,They refuse to ____.
+2124,integrating,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7579-1,integrate,vt,CET4,to + 空格要求动词原形，但变体是 integrating,They refuse to ____.
+2125,intellectuals,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7580-1,intellectual,n,CET4,a/an + 空格要求单数，但变体是 intellectuals,An ____ is a person who has discovered something more interesting than sex.
+2136,interferes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7591-1,interfere,vi,CET4,to + 空格要求动词原形，但变体是 interferes,You have no right to ____ in other people's affairs.
+2136,interfered,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7591-1,interfere,vi,CET4,to + 空格要求动词原形，但变体是 interfered,You have no right to ____ in other people's affairs.
+2136,interfering,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7591-1,interfere,vi,CET4,to + 空格要求动词原形，但变体是 interfering,You have no right to ____ in other people's affairs.
+2139,intermediates,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7594-1,intermediate,n,CET4,a/an + 空格要求单数，但变体是 intermediates,an ____ coursebook
+2140,interns,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7595-1,intern,n,CET4,a/an + 空格要求单数，但变体是 interns,Tom is just an ____.
+2152,intimidates,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7607-1,intimidate,vt,CET4,to + 空格要求动词原形，但变体是 intimidates,Don't try to ____ me.
+2152,intimidated,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7607-1,intimidate,vt,CET4,to + 空格要求动词原形，但变体是 intimidated,Don't try to ____ me.
+2152,intimidating,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7607-1,intimidate,vt,CET4,to + 空格要求动词原形，但变体是 intimidating,Don't try to ____ me.
+2153,introduces,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7608-1,introduce,vt,CET4,to + 空格要求动词原形，但变体是 introduces,Allow me to ____ Mayuko to you.
+2153,introduced,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7608-1,introduce,vt,CET4,to + 空格要求动词原形，但变体是 introduced,Allow me to ____ Mayuko to you.
+2153,introducing,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7608-1,introduce,vt,CET4,to + 空格要求动词原形，但变体是 introducing,Allow me to ____ Mayuko to you.
+2161,invests,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7616-1,invest,vt,CET4,to + 空格要求动词原形，但变体是 invests,Don't be afraid to ____ time and energy.
+2161,invested,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7616-1,invest,vt,CET4,to + 空格要求动词原形，但变体是 invested,Don't be afraid to ____ time and energy.
+2161,investing,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7616-1,invest,vt,CET4,to + 空格要求动词原形，但变体是 investing,Don't be afraid to ____ time and energy.
+2167,invites,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7622-1,invite,vt,CET4,to + 空格要求动词原形，但变体是 invites,I'd like to ____ you to the party.
+2167,invited,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7622-1,invite,vt,CET4,to + 空格要求动词原形，但变体是 invited,I'd like to ____ you to the party.
+2167,inviting,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7622-1,invite,vt,CET4,to + 空格要求动词原形，但变体是 inviting,I'd like to ____ you to the party.
+2187,joints,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7643-1,joint,n,CET4,a/an + 空格要求单数，但变体是 joints,The two ministers have issued a ____ statement.
+2189,journals,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7646-1,journal,n,CET4,a/an + 空格要求单数，但变体是 journals,My dad keeps a ____ every day.
+2190,journalists,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7647-1,journalist,n,CET4,a/an + 空格要求单数，但变体是 journalists,My boyfriend is a ____.
+2191,journeys,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7648-1,journey,n,CET4,a/an + 空格要求单数，但变体是 journeys,I want to go on a ____ around the world if possible.
+2204,kicks,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7662-1,kick,n,CET4,to + 空格要求动词原形，但变体是 kicks,You don't have to ____ yourself.
+2205,kids,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7663-1,kid,n,CET4,a/an + 空格要求单数，但变体是 kids,We had a ____ just last year.
+2213,kneer,PSEUDO_FORM,0.90,DELETE_VARIANT,vocab-auto-7672-1,knee,n,CET4,名词误加比较级/最高级后缀,The snow was ____ deep.
+2213,kneest,PSEUDO_FORM,0.90,DELETE_VARIANT,vocab-auto-7672-1,knee,n,CET4,名词误加比较级/最高级后缀,The snow was ____ deep.
+2224,ladies,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7685-1,lady,n,CET4,a/an + 空格要求单数，但变体是 ladies,You should know better than to ask a ____ her age.
+2225,lags,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7686-1,lag,n,CET4,to + 空格要求动词原形，但变体是 lags,We should read the newspaper so as not to ____ behind the times.
+2251,leadings,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7716-1,leading,n,CET4,a/an + 空格要求单数，但变体是 leadings,The prosecutor asked me a ____ question.
+2271,liars,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7740-1,liar,n,CET4,a/an + 空格要求单数，但变体是 liars,That just goes to prove that you are a ____.
+2282,lifts,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7752-1,lift,n,CET4,a/an + 空格要求单数，但变体是 lifts,Let me give you a ____ as far as the station.
+2307,loafs,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7783-1,loaf,n,CET4,a/an + 空格要求单数，但变体是 loafs,A ____ of bread is better than the songs of birds.
+2308,loans,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7784-1,loan,n,CET4,a/an + 空格要求单数，但变体是 loans,You can get a ____ from a bank.
+2312,locks,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7788-1,lock,n,CET4,to + 空格要求动词原形，但变体是 locks,They forgot to ____ the door.
+2314,logs,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7791-1,log,n,CET4,a/an + 空格要求单数，但变体是 logs,The writer is living in a ____ cabin.
+2318,loops,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7795-1,loop,n,CET4,a/an + 空格要求单数，但变体是 loops,Mrs. Morrell reached for a ____ of garden hose.
+2320,loosens,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7797-1,loosen,vt,CET4,to + 空格要求动词原形，但变体是 loosens,You’ll need a spanner to ____ that bolt.
+2320,loosened,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7797-1,loosen,vt,CET4,to + 空格要求动词原形，但变体是 loosened,You’ll need a spanner to ____ that bolt.
+2320,loosening,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7797-1,loosen,vt,CET4,to + 空格要求动词原形，但变体是 loosening,You’ll need a spanner to ____ that bolt.
+2322,lorries,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7799-1,lorry,n,CET4,a/an + 空格要求单数，但变体是 lorries,In Britain a truck is referred to as a ____.
+2323,loses,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7800-1,lose,vt,CET4,to + 空格要求动词原形，但变体是 loses,"I don't want to ____ my ideas, even though some of them are a bit extreme."
+2323,losing,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7800-1,lose,vt,CET4,to + 空格要求动词原形，但变体是 losing,"I don't want to ____ my ideas, even though some of them are a bit extreme."
+2323,lost,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7800-1,lose,vt,CET4,to + 空格要求动词原形，但变体是 lost,"I don't want to ____ my ideas, even though some of them are a bit extreme."
+2324,losses,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7801-1,loss,n,CET4,a/an + 空格要求单数，但变体是 losses,I'm at a ____ for words.
+2327,lovers,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7804-1,lover,n,CET4,a/an + 空格要求单数，但变体是 lovers,He is a ____ of sports.
+2335,lumps,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7813-1,lump,n,CET4,a/an + 空格要求单数，但变体是 lumps,I bumped my head against the door and got a ____.
+2338,luxuries,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7816-1,luxury,n,CET4,a/an + 空格要求单数，但变体是 luxuries,In the United States the automobile is a necessity and not a ____.
+2341,magazines,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7819-1,magazine,n,CET4,a/an + 空格要求单数，但变体是 magazines,Mick killed time by reading a ____ while waiting for his date.
+2343,magnets,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7821-1,magnet,n,CET4,a/an + 空格要求单数，但变体是 magnets,It's possible to hang a nail from a ____ and then use that nail to pick up another nail.
+2349,maintains,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7827-1,maintain,vt,CET4,to + 空格要求动词原形，但变体是 maintains,It is hard to ____ one's reputation.
+2349,maintained,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7827-1,maintain,vt,CET4,to + 空格要求动词原形，但变体是 maintained,It is hard to ____ one's reputation.
+2349,maintaining,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7827-1,maintain,vt,CET4,to + 空格要求动词原形，但变体是 maintaining,It is hard to ____ one's reputation.
+2360,manufactures,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7842-1,manufacture,n,CET4,to + 空格要求动词原形，但变体是 manufactures,You'll have to ____ some kind of excuse.
+2364,marines,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7846-1,marine,n,CET4,a/an + 空格要求单数，但变体是 marines,Tom is studying to become a ____ biologist.
+2371,masks,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7853-1,mask,n,CET4,a/an + 空格要求单数，但变体是 masks,The man wore a ____ of a tiger.
+2372,masses,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7854-1,mass,n,CET4,a/an + 空格要求单数，但变体是 masses,There is a ____ of dark clouds in the sky.
+2374,masters,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7856-1,master,n,CET4,to + 空格要求动词原形，但变体是 masters,It's quite difficult to ____ French in 2 or 3 years.
+2399,mediums,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7883-1,medium,n,CET4,a/an + 空格要求单数，但变体是 mediums,"And even outside these nations, English is perhaps more widely used as a ____ of international communication than any ot"
+2402,memorials,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7886-1,memorial,n,CET4,a/an + 空格要求单数，但变体是 memorials,A ____ service will be held at 7 pm on Saturday.
+2408,meres,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7892-1,mere,n,CET4,a/an + 空格要求单数，但变体是 meres,"I'm not a real fish, I'm just a ____ plushy."
+2412,messes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7896-1,mess,n,CET4,a/an + 空格要求单数，但变体是 messes,The principal severely reproved the students whenever they made a ____ in the hallway.
+2413,messages,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7897-1,message,n,CET4,a/an + 空格要求单数，但变体是 messages,Would you like to leave a ____?
+2414,messengers,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7898-1,messenger,n,CET4,a/an + 空格要求单数，但变体是 messengers,There will be a ____ at the airport to collect the photographs from our courier.
+2426,miles,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7911-1,mile,n,CET4,a/an + 空格要求单数，但变体是 miles,My house is only a ____ from here.
+2427,militaries,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7912-1,military,n,CET4,a/an + 空格要求单数，但变体是 militaries,There is a ____ base near here.
+2429,miners,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7915-1,miner,n,CET4,a/an + 空格要求单数，但变体是 miners,"Therefore, we should be more like a ____ to stand in reality, excavate off wastes, and get gold mines."
+2433,minors,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7919-1,minor,n,CET4,a/an + 空格要求单数，但变体是 minors,A couple of flights were delayed on account of a ____ accident.
+2436,miracles,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7922-1,miracle,n,CET4,a/an + 空格要求单数，但变体是 miracles,All Sadako could do now was to make paper cranes and hope for a ____.
+2439,misleads,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7925-1,mislead,vt,CET4,to + 空格要求动词原形，但变体是 misleads,I didn't want to ____ anyone.
+2439,misleaded,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7925-1,mislead,vt,CET4,to + 空格要求动词原形，但变体是 misleaded,I didn't want to ____ anyone.
+2439,misleading,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7925-1,mislead,vt,CET4,to + 空格要求动词原形，但变体是 misleading,I didn't want to ____ anyone.
+2445,mixes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7933-1,mix,n,CET4,to + 空格要求动词原形，但变体是 mixes,I don't like to ____ business with pleasure.
+2446,mixtures,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7934-1,mixture,n,CET4,a/an + 空格要求单数，但变体是 mixtures,Every opinion is a ____ of truth and mistakes.
+2450,models,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7938-1,model,n,CET4,a/an + 空格要求单数，但变体是 models,Mike has been making a ____ plane since breakfast.
+2453,modifies,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7941-1,modify,vt,CET4,to + 空格要求动词原形，但变体是 modifies,We want to ____ the regulations of our school.
+2453,modified,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7941-1,modify,vt,CET4,to + 空格要求动词原形，但变体是 modified,We want to ____ the regulations of our school.
+2453,modifying,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7941-1,modify,vt,CET4,to + 空格要求动词原形，但变体是 modifying,We want to ____ the regulations of our school.
+2468,motivates,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7957-1,motivate,vt,CET4,to + 空格要求动词原形，但变体是 motivates,A good teacher has to be able to ____ her students.
+2468,motivated,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7957-1,motivate,vt,CET4,to + 空格要求动词原形，但变体是 motivated,A good teacher has to be able to ____ her students.
+2468,motivating,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7957-1,motivate,vt,CET4,to + 空格要求动词原形，但变体是 motivating,A good teacher has to be able to ____ her students.
+2471,moulds,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7960-1,mould,n,CET4,a/an + 空格要求单数，但变体是 moulds,"Another method, used especially for figures, was to pour the clay into a ____."
+2482,multiplies,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7971-1,multiply,v,CET4,to + 空格要求动词原形，但变体是 multiplies,Children will learn to ____ in the second grade.
+2482,multiplied,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7971-1,multiply,v,CET4,to + 空格要求动词原形，但变体是 multiplied,Children will learn to ____ in the second grade.
+2482,multiplying,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7971-1,multiply,v,CET4,to + 空格要求动词原形，但变体是 multiplying,Children will learn to ____ in the second grade.
+2485,muscles,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7974-1,muscle,n,CET4,a/an + 空格要求单数，但变体是 muscles,The cat didn't move a ____.
+2488,musicals,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7977-1,musical,n,CET4,a/an + 空格要求单数，但变体是 musicals,Do you play a ____ instrument?
+2493,mysteries,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7984-1,mystery,n,CET4,a/an + 空格要求单数，但变体是 mysteries,Whether Shakespeare wrote this poem or not will probably remain a ____.
+2494,nails,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7985-1,nail,n,CET4,a/an + 空格要求单数，但变体是 nails,"To the man who only has a hammer in the toolkit, every problem looks like a ____."
+2516,needles,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8008-1,needle,n,CET4,a/an + 空格要求单数，但变体是 needles,It is like looking for a ____ in a haystack.
+2519,neglects,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8011-1,neglect,n,CET4,to + 空格要求动词原形，但变体是 neglects,You are not to ____ your duty.
+2529,neutrals,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8022-1,neutral,n,CET4,a/an + 空格要求单数，但变体是 neutrals,Switzerland is a ____ country.
+2543,notices,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8038-1,notice,n,CET4,a/an + 空格要求单数，但变体是 notices,Stick a ____ on the board.
+2552,nuisances,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8048-1,nuisance,n,CET4,a/an + 空格要求单数，但变体是 nuisances,He could be a bit of a ____ when he was drunk.
+2565,obtains,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8063-1,obtain,vt,CET4,to + 空格要求动词原形，但变体是 obtains,It is necessary to ____ the sanction of the authorities to enter this building.
+2565,obtained,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8063-1,obtain,vt,CET4,to + 空格要求动词原形，但变体是 obtained,It is necessary to ____ the sanction of the authorities to enter this building.
+2565,obtaining,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8063-1,obtain,vt,CET4,to + 空格要求动词原形，但变体是 obtaining,It is necessary to ____ the sanction of the authorities to enter this building.
+2575,oceans,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8073-1,ocean,n,CET4,a/an + 空格要求单数，但变体是 oceans,My eyes are an ____ in which my dreams are reflected.
+2586,operas,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8088-1,opera,n,CET4,a/an + 空格要求单数，但变体是 operas,This is an ____ in five acts.
+2619,ounces,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8124-1,ounce,n,CET4,a/an + 空格要求单数，但变体是 ounces,An ____ of prevention is worth a pound of cure.
+2633,ovals,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8138-1,oval,n,CET4,a/an + 空格要求单数，但变体是 ovals,She has an ____ face.
+2637,overcomes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8142-1,overcome,vt,CET4,to + 空格要求动词原形，但变体是 overcomes,You have to ____ the difficulties.
+2637,overcomed,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8142-1,overcome,vt,CET4,to + 空格要求动词原形，但变体是 overcomed,You have to ____ the difficulties.
+2637,overcoming,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8142-1,overcome,vt,CET4,to + 空格要求动词原形，但变体是 overcoming,You have to ____ the difficulties.
+2654,packets,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8162-1,packet,n,CET4,a/an + 空格要求单数，但变体是 packets,She opened a ____ of biscuits.
+2660,pans,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8172-1,pan,n,CET4,a/an + 空格要求单数，但变体是 pans,Here is a ____ without handles.
+2661,pandas,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8173-1,panda,n,CET4,a/an + 空格要求单数，但变体是 pandas,Have you ever seen a ____?
+2663,panels,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8175-1,panel,n,CET4,a/an + 空格要求单数，但变体是 panels,A ____ of experts discussed the plan.
+2665,parades,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8178-1,parade,n,CET4,a/an + 空格要求单数，但变体是 parades,I caught sight of a ____ on my way home.
+2666,paradises,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8179-1,paradise,n,CET4,a/an + 空格要求单数，但变体是 paradises,The island is a ____ for children.
+2675,participates,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8188-1,participate,vi,CET4,to + 空格要求动词原形，但变体是 participates,I don't want to ____ in the ceremony.
+2675,participated,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8188-1,participate,vi,CET4,to + 空格要求动词原形，但变体是 participated,I don't want to ____ in the ceremony.
+2675,participating,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8188-1,participate,vi,CET4,to + 空格要求动词原形，但变体是 participating,I don't want to ____ in the ceremony.
+2690,pauses,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8205-1,pause,n,CET4,a/an + 空格要求单数，但变体是 pauses,He spoke for ten minutes without a ____.
+2693,peas,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8210-1,pea,n,CET4,a/an + 空格要求单数，但变体是 peas,There's a ____ in my right nostril.
+2701,pebbles,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8218-1,pebble,n,CET4,a/an + 空格要求单数，但变体是 pebbles,She stooped to pick up a ____.
+2706,pensions,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8225-1,pension,n,CET4,a/an + 空格要求单数，但变体是 pensions,People over 65 can receive a ____ from the government.
+2740,picnics,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8261-1,picnic,n,CET4,a/an + 空格要求单数，但变体是 picnics,How come Mary is going on a ____ with him?
+2743,pigs,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8264-1,pig,n,CET4,a/an + 空格要求单数，但变体是 pigs,Don't eat like a ____.
+2745,piles,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8266-1,pile,n,CET4,a/an + 空格要求单数，但变体是 piles,I haven't had time to do the dishes for two days; they are in a ____ in the kitchen sink.
+2748,pillows,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8269-1,pillow,n,CET4,a/an + 空格要求单数，但变体是 pillows,Could I have a ____ and blanket?
+2749,pilots,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8270-1,pilot,n,CET4,a/an + 空格要求单数，但变体是 pilots,Tom wants to be a ____.
+2750,pins,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8271-1,pin,n,CET4,a/an + 空格要求单数，但变体是 pins,It was so still that you would have heard a ____ drop.
+2756,pistols,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8278-1,pistol,n,CET4,a/an + 空格要求单数，但变体是 pistols,Never trust a woman with a ____ in hand.
+2759,planets,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8282-1,planet,n,CET4,a/an + 空格要求单数，但变体是 planets,"When I was your age, Pluto was a ____."
+2760,plastics,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8285-1,plastic,n,CET4,a/an + 空格要求单数，但变体是 plastics,"On May 18, a young Japanese couple was arrested after their one-year-old baby was found wrapped in a ____ bag and dumped"
+2769,plucks,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8294-1,pluck,n,CET4,to + 空格要求动词原形，但变体是 plucks,I want to ____ your facial hair.
+2771,plunges,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8296-1,plunge,n,CET4,to + 空格要求动词原形，但变体是 plunges,The government's political and economic reforms threaten to ____ the country into chaos.
+2775,poetrier,PSEUDO_FORM,0.90,DELETE_VARIANT,vocab-auto-8302-1,poetry,n,CET4,名词误加比较级/最高级后缀,Wine is ____ in bottles.
+2775,poetriest,PSEUDO_FORM,0.90,DELETE_VARIANT,vocab-auto-8302-1,poetry,n,CET4,名词误加比较级/最高级后缀,Wine is ____ in bottles.
+2785,pollutes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8315-1,pollute,vt,CET4,to + 空格要求动词原形，但变体是 pollutes,We ought to do our best not to ____ our environment.
+2785,polluted,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8315-1,pollute,vt,CET4,to + 空格要求动词原形，但变体是 polluted,We ought to do our best not to ____ our environment.
+2785,polluting,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8315-1,pollute,vt,CET4,to + 空格要求动词原形，但变体是 polluting,We ought to do our best not to ____ our environment.
+2795,porters,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8326-1,porter,n,CET4,a/an + 空格要求单数，但变体是 porters,Our taxi pulled up at Old Delhi station and a ____ sprinted to the door.
+2796,portions,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8327-1,portion,n,CET4,a/an + 空格要求单数，但变体是 portions,A ____ of the proceeds will go to benefit children with disabilities.
+2797,portraits,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8328-1,portrait,n,CET4,a/an + 空格要求单数，但变体是 portraits,There is a ____ of Bob on the wall.
+2809,potentials,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8343-1,potential,n,CET4,a/an + 空格要求单数，但变体是 potentials,If you are a ____ employee then you should be aware of what the company stands for and how it treats its employees befor
+2810,pounds,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8344-1,pound,n,CET4,a/an + 空格要求单数，但变体是 pounds,We bought a ____ of tea.
+2818,practises,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8353-1,practise,v,CET4,to + 空格要求动词原形，但变体是 practises,"It's not that I don't like your English, but for me it's important to use every opportunity to ____ Russian."
+2818,practised,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8353-1,practise,v,CET4,to + 空格要求动词原形，但变体是 practised,"It's not that I don't like your English, but for me it's important to use every opportunity to ____ Russian."
+2818,practising,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8353-1,practise,v,CET4,to + 空格要求动词原形，但变体是 practising,"It's not that I don't like your English, but for me it's important to use every opportunity to ____ Russian."
+2818,practice,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8353-1,practise,v,CET4,to + 空格要求动词原形，但变体是 practice,"It's not that I don't like your English, but for me it's important to use every opportunity to ____ Russian."
+2820,prays,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8355-1,pray,v,CET4,to + 空格要求动词原形，但变体是 prays,We all knelt down to ____.
+2820,prayed,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8355-1,pray,v,CET4,to + 空格要求动词原形，但变体是 prayed,We all knelt down to ____.
+2820,praying,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8355-1,pray,v,CET4,to + 空格要求动词原形，但变体是 praying,We all knelt down to ____.
+2826,predicts,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8362-1,predict,v,CET4,to + 空格要求动词原形，但变体是 predicts,It's hard to ____ what the weather will be like tomorrow.
+2826,predicted,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8362-1,predict,v,CET4,to + 空格要求动词原形，但变体是 predicted,It's hard to ____ what the weather will be like tomorrow.
+2826,predicting,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8362-1,predict,v,CET4,to + 空格要求动词原形，但变体是 predicting,It's hard to ____ what the weather will be like tomorrow.
+2831,prejudices,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8367-1,prejudice,n,CET4,a/an + 空格要求单数，但变体是 prejudices,I don't have a ____ against foreign workers.
+2836,prepositions,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8372-1,preposition,n,CET4,a/an + 空格要求单数，但变体是 prepositions,In is a ____.
+2840,preserves,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8376-1,preserve,vt,CET4,to + 空格要求动词原形，但变体是 preserves,Salt helps to ____ food from decay.
+2840,preserved,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8376-1,preserve,vt,CET4,to + 空格要求动词原形，但变体是 preserved,Salt helps to ____ food from decay.
+2840,preserving,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8376-1,preserve,vt,CET4,to + 空格要求动词原形，但变体是 preserving,Salt helps to ____ food from decay.
+2847,prevents,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8384-1,prevent,v,CET4,to + 空格要求动词原形，但变体是 prevents,We took strong measures to ____ it.
+2847,prevented,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8384-1,prevent,v,CET4,to + 空格要求动词原形，但变体是 prevented,We took strong measures to ____ it.
+2847,preventing,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8384-1,prevent,v,CET4,to + 空格要求动词原形，但变体是 preventing,We took strong measures to ____ it.
+2857,princesses,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8394-1,princess,n,CET4,a/an + 空格要求单数，但变体是 princesses,Your sister looks as noble as if she were a ____.
+2875,produces,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8413-1,produce,n,CET4,to + 空格要求动词原形，但变体是 produces,Any universe simple enough to be understood is too simple to ____ a mind able to understand it.
+2879,professions,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8417-1,profession,n,CET4,a/an + 空格要求单数，但变体是 professions,Teaching is a ____ of my own choosing.
+2892,promotes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8430-1,promote,vt,CET4,to + 空格要求动词原形，但变体是 promotes,They implemented a communication policy so as to ____ their new concept.
+2892,promoted,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8430-1,promote,vt,CET4,to + 空格要求动词原形，但变体是 promoted,They implemented a communication policy so as to ____ their new concept.
+2892,promoting,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8430-1,promote,vt,CET4,to + 空格要求动词原形，但变体是 promoting,They implemented a communication policy so as to ____ their new concept.
+2893,prompts,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8431-1,prompt,n,CET4,a/an + 空格要求单数，但变体是 prompts,He pressed me for a ____ reply.
+2895,pronounces,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8433-1,pronounce,v,CET4,to + 空格要求动词原形，但变体是 pronounces,I'm not sure how to ____ the word.
+2895,pronounced,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8433-1,pronounce,v,CET4,to + 空格要求动词原形，但变体是 pronounced,I'm not sure how to ____ the word.
+2895,pronouncing,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8433-1,pronounce,v,CET4,to + 空格要求动词原形，但变体是 pronouncing,I'm not sure how to ____ the word.
+2907,protects,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8445-1,protect,vt,CET4,to + 空格要求动词原形，但变体是 protects,You have to ____ your family.
+2907,protected,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8445-1,protect,vt,CET4,to + 空格要求动词原形，但变体是 protected,You have to ____ your family.
+2907,protecting,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8445-1,protect,vt,CET4,to + 空格要求动词原形，但变体是 protecting,You have to ____ your family.
+2919,publishes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8459-1,publish,vt,CET4,to + 空格要求动词原形，但变体是 publishes,"He has written a book, however, he has no money to ____ it."
+2919,published,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8459-1,publish,vt,CET4,to + 空格要求动词原形，但变体是 published,"He has written a book, however, he has no money to ____ it."
+2919,publishing,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8459-1,publish,vt,CET4,to + 空格要求动词原形，但变体是 publishing,"He has written a book, however, he has no money to ____ it."
+2924,punishes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8466-1,punish,vt,CET4,to + 空格要求动词原形，但变体是 punishes,"In Singapore, one way to ____ a criminal is to whip him or her."
+2924,punished,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8466-1,punish,vt,CET4,to + 空格要求动词原形，但变体是 punished,"In Singapore, one way to ____ a criminal is to whip him or her."
+2924,punishing,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8466-1,punish,vt,CET4,to + 空格要求动词原形，但变体是 punishing,"In Singapore, one way to ____ a criminal is to whip him or her."
+2926,puppets,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8468-1,puppet,n,CET4,a/an + 空格要求单数，但变体是 puppets,The Foreign Minister was a ____.
+2927,purchases,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8469-1,purchase,n,CET4,to + 空格要求动词原形，但变体是 purchases,I would like to ____ some boots.
+2931,purposes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8475-1,purpose,n,CET4,a/an + 空格要求单数，但变体是 purposes,Many people drift through life without a ____.
+2939,quarrels,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8483-1,quarrel,n,CET4,a/an + 空格要求单数，但变体是 quarrels,Our conversation always ends in a ____.
+2940,quarts,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8484-1,quart,n,CET4,a/an + 空格要求单数，但变体是 quarts,I want a ____ of milk.
+2948,rabbits,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8495-1,rabbit,n,CET4,a/an + 空格要求单数，但变体是 rabbits,A ____ has long ears and a short tail.
+2978,reacts,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8532-1,react,vi,CET4,to + 空格要求动词原形，但变体是 reacts,"If someone irritates you, it is best not to ____ immediately."
+2978,reacted,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8532-1,react,vi,CET4,to + 空格要求动词原形，但变体是 reacted,"If someone irritates you, it is best not to ____ immediately."
+2978,reacting,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8532-1,react,vi,CET4,to + 空格要求动词原形，但变体是 reacting,"If someone irritates you, it is best not to ____ immediately."
+2988,rebels,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8544-1,rebel,n,CET4,a/an + 空格要求单数，但变体是 rebels,Who doesn't love a ____?
+2995,recites,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8551-1,recite,v,CET4,to + 空格要求动词原形，但变体是 recites,His daughter is able to ____ a lot of poems.
+2995,recited,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8551-1,recite,v,CET4,to + 空格要求动词原形，但变体是 recited,His daughter is able to ____ a lot of poems.
+2995,reciting,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8551-1,recite,v,CET4,to + 空格要求动词原形，但变体是 reciting,His daughter is able to ____ a lot of poems.
+3000,records,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8557-1,record,n,CET4,a/an + 空格要求单数，但变体是 records,Stock prices plunged to a ____ low.
+3005,recruits,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8562-1,recruit,n,CET4,to + 空格要求动词原形，但变体是 recruits,The plan is to ____ 5 Java engineers before the end of next month.
+3018,refusals,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8578-1,refusal,n,CET4,a/an + 空格要求单数，但变体是 refusals,I interpreted her silence as a ____.
+3020,refutes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8580-1,refute,vt,CET4,to + 空格要求动词原形，但变体是 refutes,I won't try to ____ your theses.
+3020,refuted,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8580-1,refute,vt,CET4,to + 空格要求动词原形，但变体是 refuted,I won't try to ____ your theses.
+3020,refuting,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8580-1,refute,vt,CET4,to + 空格要求动词原形，但变体是 refuting,I won't try to ____ your theses.
+3023,regions,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8584-1,region,n,CET4,a/an + 空格要求单数，但变体是 regions,Pollution has a disastrous effect on the ecology of a ____.
+3033,relates,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8597-1,relate,vt,CET4,to + 空格要求动词原形，但变体是 relates,The report seeks to ____ the rise in crime to an increase in unemployment.
+3033,related,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8597-1,relate,vt,CET4,to + 空格要求动词原形，但变体是 related,The report seeks to ____ the rise in crime to an increase in unemployment.
+3033,relating,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8597-1,relate,vt,CET4,to + 空格要求动词原形，但变体是 relating,The report seeks to ____ the rise in crime to an increase in unemployment.
+3058,renders,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8623-1,render,vt,CET4,to + 空格要求动词原形，但变体是 renders,an obligation to ____ assistance to those in need
+3058,rendered,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8623-1,render,vt,CET4,to + 空格要求动词原形，但变体是 rendered,an obligation to ____ assistance to those in need
+3058,rendering,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8623-1,render,vt,CET4,to + 空格要求动词原形，但变体是 rendering,an obligation to ____ assistance to those in need
+3071,republics,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8638-1,republic,n,CET4,a/an + 空格要求单数，但变体是 republics,"After the revolution, France became a ____."
+3081,reserves,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8649-1,reserve,n,CET4,to + 空格要求动词原形，但变体是 reserves,I'd like to ____ a flight to Vancouver.
+3103,restrains,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8672-1,restrain,vt,CET4,to + 空格要求动词原形，但变体是 restrains,You should learn to ____ yourself.
+3103,restrained,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8672-1,restrain,vt,CET4,to + 空格要求动词原形，但变体是 restrained,You should learn to ____ yourself.
+3103,restraining,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8672-1,restrain,vt,CET4,to + 空格要求动词原形，但变体是 restraining,You should learn to ____ yourself.
+3109,retains,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8679-1,retain,vt,CET4,to + 空格要求动词原形，但变体是 retains,You have the right to ____ possession of the goods.
+3109,retained,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8679-1,retain,vt,CET4,to + 空格要求动词原形，但变体是 retained,You have the right to ____ possession of the goods.
+3109,retaining,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8679-1,retain,vt,CET4,to + 空格要求动词原形，但变体是 retaining,You have the right to ____ possession of the goods.
+3110,retells,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8680-1,retell,vt,CET4,to + 空格要求动词原形，但变体是 retells,Use your own words to ____ the content of the lesson.
+3110,retelled,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8680-1,retell,vt,CET4,to + 空格要求动词原形，但变体是 retelled,Use your own words to ____ the content of the lesson.
+3110,retelling,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8680-1,retell,vt,CET4,to + 空格要求动词原形，但变体是 retelling,Use your own words to ____ the content of the lesson.
+3112,retreats,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8682-1,retreat,n,CET4,to + 空格要求动词原形，但变体是 retreats,I was uncertain whether to advance or to ____.
+3113,reveals,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8684-1,reveal,vt,CET4,to + 空格要求动词原形，但变体是 reveals,Who is able to ____ the mysteries of the sea?
+3113,revealed,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8684-1,reveal,vt,CET4,to + 空格要求动词原形，但变体是 revealed,Who is able to ____ the mysteries of the sea?
+3113,revealing,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8684-1,reveal,vt,CET4,to + 空格要求动词原形，但变体是 revealing,Who is able to ____ the mysteries of the sea?
+3117,reviews,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8688-1,review,n,CET4,a/an + 空格要求单数，但变体是 reviews,a ____ of the year
+3125,ribbons,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8696-1,ribbon,n,CET4,a/an + 空格要求单数，但变体是 ribbons,The cat had a ____ around its neck.
+3130,rifles,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8702-1,rifle,n,CET4,a/an + 空格要求单数，但变体是 rifles,Benjamin shot a bear with a ____.
+3152,rots,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8728-1,rot,n,CET4,to + 空格要求动词原形，但变体是 rots,Fruits tend to ____ quickly.
+3156,roughs,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8733-1,rough,n,CET4,a/an + 空格要求单数，但变体是 roughs,Boxing is not always a ____ sport.
+3160,rows,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8738-1,row,n,CET4,a/an + 空格要求单数，但变体是 rows,That athlete won three times in a ____ in this tournament.
+3163,rubbers,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8741-1,rubber,n,CET4,a/an + 空格要求单数，但变体是 rubbers,"Sorry, I won't do it without a ____."
+3165,rugs,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8744-1,rug,n,CET4,a/an + 空格要求单数，但变体是 rugs,"When I didn't have any money, I only had a ____ for a bed."
+3176,sacrifices,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8756-1,sacrifice,n,CET4,to + 空格要求动词原形，但变体是 sacrifices,Would it be ethical to ____ one person to save many?
+3177,saddles,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8757-1,saddle,n,CET4,a/an + 空格要求单数，但变体是 saddles,It looks like a ____.
+3180,safes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8760-1,safe,n,CET4,a/an + 空格要求单数，但变体是 safes,You are in a ____ place.
+3194,satisfies,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8780-1,satisfy,vt,CET4,to + 空格要求动词原形，但变体是 satisfies,It is difficult to ____ everyone.
+3194,satisfied,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8780-1,satisfy,vt,CET4,to + 空格要求动词原形，但变体是 satisfied,It is difficult to ____ everyone.
+3194,satisfying,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8780-1,satisfy,vt,CET4,to + 空格要求动词原形，但变体是 satisfying,It is difficult to ____ everyone.
+3213,scholars,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8801-1,scholar,n,CET4,a/an + 空格要求单数，但变体是 scholars,He is something of a ____.
+3216,scientists,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8804-1,scientist,n,CET4,a/an + 空格要求单数，但变体是 scientists,I am determined to be a ____.
+3230,secrets,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8822-1,secret,n,CET4,a/an + 空格要求单数，但变体是 secrets,There's a ____ path on the left.
+3246,seniors,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8842-1,senior,n,CET4,a/an + 空格要求单数，但变体是 seniors,Are you a ____ high school student?
+3247,senses,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8843-1,sense,n,CET4,to + 空格要求动词原形，但变体是 senses,Blind people sometimes develop a compensatory ability to ____ the proximity of objects around them.
+3253,separations,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8849-1,separation,n,CET4,a/an + 空格要求单数，但变体是 separations,One day apart seems like a ____ of three years.
+3260,settles,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8857-1,settle,n,CET4,to + 空格要求动词原形，但变体是 settles,"Eventually I'd like to ____ down and have a family, but not yet."
+3270,shallows,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8870-1,shallow,n,CET4,a/an + 空格要求单数，但变体是 shallows,"Between you and me, he's a ____ thinker."
+3271,shames,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8871-1,shame,n,CET4,to + 空格要求动词原形，但变体是 shames,I think death is preferable to ____.
+3274,shares,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8874-1,share,n,CET4,to + 空格要求动词原形，但变体是 shares,To ____ one's passion is to live it fully.
+3277,shears,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8879-1,shear,n,CET4,to + 空格要求动词原形，但变体是 shears,Competitors have six minutes to ____ four sheep.
+3279,sheets,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8881-1,sheet,n,CET4,a/an + 空格要求单数，但变体是 sheets,You are as white as a ____.
+3283,shepherds,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8885-1,shepherd,n,CET4,a/an + 空格要求单数，但变体是 shepherds,A ____ drove his snow-covered goat into an abandoned cave to take shelter from the blizzard.
+3290,shores,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8894-1,shore,n,CET4,to + 空格要求动词原形，但变体是 shores,"Now, get off the boat and swim to ____."
+3295,showers,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8900-1,shower,n,CET4,a/an + 空格要求单数，但变体是 showers,I usually take a ____ in the evening.
+3302,sighs,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8909-1,sigh,n,CET4,a/an + 空格要求单数，但变体是 sighs,She gave out a ____ of relief.
+3316,simplifies,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8923-1,simplify,vt,CET4,to + 空格要求动词原形，但变体是 simplifies,an attempt to ____ the tax system
+3316,simplified,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8923-1,simplify,vt,CET4,to + 空格要求动词原形，但变体是 simplified,an attempt to ____ the tax system
+3316,simplifying,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8923-1,simplify,vt,CET4,to + 空格要求动词原形，但变体是 simplifying,an attempt to ____ the tax system
+3317,sins,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8924-1,sin,n,CET4,a/an + 空格要求单数，但变体是 sins,Is it always a ____ to tell a lie?
+3324,sketches,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8933-1,sketch,n,CET4,a/an + 空格要求单数，但变体是 sketches,Jiro made a ____ of Mt. Fuji.
+3332,slaves,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8941-1,slave,n,CET4,a/an + 空格要求单数，但变体是 slaves,I refuse to be treated like a ____ by you.
+3346,slums,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8957-1,slum,n,CET4,a/an + 空格要求单数，但变体是 slums,Tom lives in a ____.
+3354,snaps,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8965-1,snap,vt,CET4,to + 空格要求动词原形，但变体是 snaps,"Sorry, I didn't mean to ____ at you."
+3354,snapped,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8965-1,snap,vt,CET4,to + 空格要求动词原形，但变体是 snapped,"Sorry, I didn't mean to ____ at you."
+3354,snapping,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8965-1,snap,vt,CET4,to + 空格要求动词原形，但变体是 snapping,"Sorry, I didn't mean to ____ at you."
+3361,socialists,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8976-1,socialist,n,CET4,a/an + 空格要求单数，但变体是 socialists,"He claims to be a ____, and yet he has two houses and a Rolls Royce."
+3372,solids,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8988-1,solid,n,CET4,a/an + 空格要求单数，但变体是 solids,"Cheese is a ____ food made from the milk of cows, goats, sheep, and other mammals."
+3381,souls,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-8998-1,soul,n,CET4,a/an + 空格要求单数，但变体是 souls,There wasn't a ____ in sight.
+3391,sparks,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9013-1,spark,n,CET4,a/an + 空格要求单数，但变体是 sparks,A ____ caused the gunpowder to explode.
+3393,sparrows,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9015-1,sparrow,n,CET4,a/an + 空格要求单数，但变体是 sparrows,"I aimed at a ____, but shot down a goose."
+3397,specialists,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9019-1,specialist,n,CET4,a/an + 空格要求单数，但变体是 specialists,He's a ____ in economics.
+3402,specifics,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9024-1,specific,n,CET4,a/an + 空格要求单数，但变体是 specifics,Let's study a ____ example.
+3410,spiders,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9033-1,spider,n,CET4,a/an + 空格要求单数，但变体是 spiders,She shrieked whenever she saw a ____.
+3415,spits,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9038-1,spit,n,CET4,to + 空格要求动词原形，但变体是 spits,"In Singapore, it is a crime to ____ on the ground."
+3418,spoils,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9043-1,spoil,n,CET4,to + 空格要求动词原形，但变体是 spoils,I don't want to ____ the ending for you.
+3419,sponges,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9044-1,sponge,n,CET4,a/an + 空格要求单数，但变体是 sponges,A ____ absorbs water.
+3433,stabs,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9059-1,stab,n,CET4,a/an + 空格要求单数，但变体是 stabs,I'll take a ____ at it.
+3435,stables,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9061-1,stable,n,CET4,a/an + 空格要求单数，但变体是 stables,A ____ economy is the aim of every government.
+3436,stacks,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9062-1,stack,n,CET4,a/an + 空格要求单数，但变体是 stacks,Tom put a ____ of letters on Mary's desk.
+3444,stares,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9073-1,stare,vi,CET4,to + 空格要求动词原形，但变体是 stares,It is rude to ____ at strangers.
+3444,stared,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9073-1,stare,vi,CET4,to + 空格要求动词原形，但变体是 stared,It is rude to ____ at strangers.
+3444,staring,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9073-1,stare,vi,CET4,to + 空格要求动词原形，但变体是 staring,It is rude to ____ at strangers.
+3456,stealing,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9088-1,steal,vt,CET4,to + 空格要求动词原形，但变体是 stealing,The two men were seen to ____ into the house.
+3456,steals,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9088-1,steal,vt,CET4,to + 空格要求动词原形，但变体是 steals,The two men were seen to ____ into the house.
+3456,stole,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9088-1,steal,vt,CET4,to + 空格要求动词原形，但变体是 stole,The two men were seen to ____ into the house.
+3456,stolen,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9088-1,steal,vt,CET4,to + 空格要求动词原形，但变体是 stolen,The two men were seen to ____ into the house.
+3463,steps,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9095-1,step,n,CET4,to + 空格要求动词原形，但变体是 steps,We've really got to ____ on it.
+3464,sterns,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9096-1,stern,n,CET4,a/an + 空格要求单数，但变体是 sterns,The teacher gave his pupils a ____ telling-off.
+3465,stewardesses,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9098-1,stewardess,n,CET4,a/an + 空格要求单数，但变体是 stewardesses,A ____ was rescued from the wreck.
+3469,stimulates,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9103-1,stimulate,vt,CET4,to + 空格要求动词原形，但变体是 stimulates,Tax cuts are often used as a major fiscal tool to ____ the economy.
+3469,stimulated,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9103-1,stimulate,vt,CET4,to + 空格要求动词原形，但变体是 stimulated,Tax cuts are often used as a major fiscal tool to ____ the economy.
+3469,stimulating,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9103-1,stimulate,vt,CET4,to + 空格要求动词原形，但变体是 stimulating,Tax cuts are often used as a major fiscal tool to ____ the economy.
+3470,stitches,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9106-1,stitch,n,CET4,a/an + 空格要求单数，但变体是 stitches,A ____ in time saves nine.
+3476,stoops,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9113-1,stoop,n,CET4,to + 空格要求动词原形，但变体是 stoops,We had to ____ to pass through the low entrance.
+3479,storms,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9116-1,storm,n,CET4,a/an + 空格要求单数，但变体是 storms,The strong wind indicates that a ____ is coming.
+3483,strangers,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9120-1,stranger,n,CET4,a/an + 空格要求单数，但变体是 strangers,"When Mary was spoken to by a ____, she was at a loss for words."
+3485,strategies,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9123-1,strategy,n,CET4,a/an + 空格要求单数，但变体是 strategies,Hope is not a ____.
+3490,strengthens,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9128-1,strengthen,vt,CET4,to + 空格要求动词原形，但变体是 strengthens,It will also help to ____ the city's economy.
+3490,strengthened,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9128-1,strengthen,vt,CET4,to + 空格要求动词原形，但变体是 strengthened,It will also help to ____ the city's economy.
+3490,strengthening,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9128-1,strengthen,vt,CET4,to + 空格要求动词原形，但变体是 strengthening,It will also help to ____ the city's economy.
+3492,stretches,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9130-1,stretch,n,CET4,a/an + 空格要求单数，但变体是 stretches,"On the border, there is a ____ of agricultural land."
+3508,submerges,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9147-1,submerge,vt,CET4,to + 空格要求动词原形，但变体是 submerges,"I want to ____ myself in the ocean depths, and to disappear there so as to never be seen again."
+3508,submerged,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9147-1,submerge,vt,CET4,to + 空格要求动词原形，但变体是 submerged,"I want to ____ myself in the ocean depths, and to disappear there so as to never be seen again."
+3508,submerging,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9147-1,submerge,vt,CET4,to + 空格要求动词原形，但变体是 submerging,"I want to ____ myself in the ocean depths, and to disappear there so as to never be seen again."
+3513,substantials,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9152-1,substantial,n,CET4,a/an + 空格要求单数，但变体是 substantials,We have the support of a ____ number of parents.
+3516,suburbs,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9155-1,suburb,n,CET4,a/an + 空格要求单数，但变体是 suburbs,Helen and Kathy rented an apartment in a ____ of Tokyo.
+3518,succeeds,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9157-1,succeed,vi,CET4,to + 空格要求动词原形，但变体是 succeeds,You deserve to ____.
+3518,succeeded,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9157-1,succeed,vi,CET4,to + 空格要求动词原形，但变体是 succeeded,You deserve to ____.
+3518,succeeding,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9157-1,succeed,vi,CET4,to + 空格要求动词原形，但变体是 succeeding,You deserve to ____.
+3525,suddens,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9164-1,sudden,n,CET4,a/an + 空格要求单数，但变体是 suddens,There was a ____ change in her tone.
+3534,summaries,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9174-1,summary,n,CET4,a/an + 空格要求单数，但变体是 summaries,The following is a ____ of the President's speech.
+3540,superficials,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9181-1,superficial,n,CET4,a/an + 空格要求单数，但变体是 superficials,"His essay gave only a ____ analysis of the problem, so it was a real surprise to him when he got the highest grade in th"
+3544,supports,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9185-1,support,n,CET4,to + 空格要求动词原形，但变体是 supports,You are now old enough to ____ yourself.
+3548,surgeons,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9189-1,surgeon,n,CET4,a/an + 空格要求单数，但变体是 surgeons,"There are two doctors in his circle of friends, a ____ and an ophthalmologist."
+3555,survives,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9200-1,survive,vt,CET4,to + 空格要求动词原形，但变体是 survives,Why do they say you have to learn English to ____?
+3555,survived,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9200-1,survive,vt,CET4,to + 空格要求动词原形，但变体是 survived,Why do they say you have to learn English to ____?
+3555,surviving,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9200-1,survive,vt,CET4,to + 空格要求动词原形，但变体是 surviving,Why do they say you have to learn English to ____?
+3558,suspicions,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9203-1,suspicion,n,CET4,a/an + 空格要求单数，但变体是 suspicions,I have a ____ about his death.
+3561,swallows,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9206-1,swallow,n,CET4,a/an + 空格要求单数，但变体是 swallows,A ____ flies very swiftly.
+3563,swarms,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9209-1,swarm,n,CET4,a/an + 空格要求单数，但变体是 swarms,A ____ of hornets attacked the children.
+3564,sways,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9210-1,sway,n,CET4,to + 空格要求动词原形，但变体是 sways,"From the time he got up, his beliefs began to ____."
+3569,switches,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9219-1,switch,n,CET4,a/an + 空格要求单数，但变体是 switches,This device is actuated by a ____.
+3575,synthetics,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9225-1,synthetic,n,CET4,a/an + 空格要求单数，但变体是 synthetics,German is a ____ language.
+3598,teenagers,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9252-1,teenager,n,CET4,a/an + 空格要求单数，但变体是 teenagers,When I was a ____ I had lots of hair on my head and none on my chest. Now it's just the opposite.
+3599,telegrams,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9253-1,telegram,n,CET4,a/an + 空格要求单数，但变体是 telegrams,"When you send a ____, brevity is essential because you will be charged for every word."
+3601,telescopes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9255-1,telescope,n,CET4,a/an + 空格要求单数，但变体是 telescopes,"You can see the stars with your naked eye, and even better through a ____."
+3609,tendencies,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9264-1,tendency,n,CET4,a/an + 空格要求单数，但变体是 tendencies,There is a ____ for people to think that hang gliding is dangerous.
+3628,thermometers,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9284-1,thermometer,n,CET4,a/an + 空格要求单数，但变体是 thermometers,The nurse took his temperature with a ____.
+3639,threats,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9295-1,threat,n,CET4,a/an + 空格要求单数，但变体是 threats,Air pollution will be a ____ to our survival.
+3644,throngs,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9301-1,throng,n,CET4,a/an + 空格要求单数，但变体是 throngs,He was surrounded by a ____ of reporters.
+3657,timetables,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9314-1,timetable,n,CET4,a/an + 空格要求单数，但变体是 timetables,Is there a ____?
+3661,tips,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9318-1,tip,n,CET4,a/an + 空格要求单数，但变体是 tips,Did you leave a ____?
+3663,tissues,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9320-1,tissue,n,CET4,a/an + 空格要求单数，但变体是 tissues,I think I'm gonna sneeze. Give me a ____.
+3668,toilets,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9325-1,toilet,n,CET4,a/an + 空格要求单数，但变体是 toilets,Does it have a ____?
+3673,tons,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9330-1,ton,n,CET4,a/an + 空格要求单数，但变体是 tons,This grizzly bear weighs half a ____.
+3679,torches,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9336-1,torch,n,CET4,a/an + 空格要求单数，但变体是 torches,You won't see a thing without a ____.
+3685,toughs,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9344-1,tough,n,CET4,a/an + 空格要求单数，但变体是 toughs,"He won't be easily discouraged, because he's a ____ guy."
+3686,tours,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9345-1,tour,n,CET4,a/an + 空格要求单数，但变体是 tours,The old couple embarked on a ____ around the world.
+3690,traces,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9351-1,trace,n,CET4,a/an + 空格要求单数，但变体是 traces,He disappeared without a ____.
+3693,trades,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9354-1,trade,n,CET4,to + 空格要求动词原形，但变体是 trades,John likes to ____ stamps with his friends.
+3697,tragedies,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9358-1,tragedy,n,CET4,a/an + 空格要求单数，但变体是 tragedies,"Shakespeare's ""Macbeth"" is a ____."
+3700,traitors,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9361-1,traitor,n,CET4,a/an + 空格要求单数，但变体是 traitors,We have a ____ among us.
+3707,translates,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9369-1,translate,vt,CET4,to + 空格要求动词原形，但变体是 translates,It took me more than two hours to ____ a few pages of English.
+3707,translated,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9369-1,translate,vt,CET4,to + 空格要求动词原形，但变体是 translated,It took me more than two hours to ____ a few pages of English.
+3707,translating,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9369-1,translate,vt,CET4,to + 空格要求动词原形，但变体是 translating,It took me more than two hours to ____ a few pages of English.
+3714,traps,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9377-1,trap,n,CET4,a/an + 空格要求单数，但变体是 traps,We set a ____ to catch a fox.
+3725,tricks,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9389-1,trick,n,CET4,a/an + 空格要求单数，但变体是 tricks,The phone call was a ____ to get him out of the house.
+3740,tubes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9404-1,tube,n,CET4,a/an + 空格要求单数，但变体是 tubes,Please buy a ____ of toothpaste.
+3748,tutors,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9415-1,tutor,n,CET4,a/an + 空格要求单数，但变体是 tutors,He is a ____ for the math department.
+3749,twins,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9416-1,twin,n,CET4,to + 空格要求动词原形，但变体是 twins,His wife gave birth to ____ boys.
+3750,twists,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9418-1,twist,n,CET4,to + 空格要求动词原形，但变体是 twists,Her hands began to ____ the handles of the bag she carried.
+3755,typists,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9423-1,typist,n,CET4,a/an + 空格要求单数，但变体是 typists,She found employment as a ____.
+3768,undertakes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9438-1,undertake,vt,CET4,to + 空格要求动词原形，但变体是 undertakes,He is too young to ____ this work.
+3768,undertaked,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9438-1,undertake,vt,CET4,to + 空格要求动词原形，但变体是 undertaked,He is too young to ____ this work.
+3768,undertaking,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9438-1,undertake,vt,CET4,to + 空格要求动词原形，但变体是 undertaking,He is too young to ____ this work.
+3780,units,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9451-1,unit,n,CET4,a/an + 空格要求单数，但变体是 units,A vector is a ____ vector if its norm is 1.
+3812,utilizes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9493-1,utilize,vt,CET4,to + 空格要求动词原形，但变体是 utilizes,We must consider how best to ____ what resources we have.
+3812,utilized,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9493-1,utilize,vt,CET4,to + 空格要求动词原形，但变体是 utilized,We must consider how best to ____ what resources we have.
+3812,utilizing,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9493-1,utilize,vt,CET4,to + 空格要求动词原形，但变体是 utilizing,We must consider how best to ____ what resources we have.
+3812,utilises,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9493-1,utilize,vt,CET4,to + 空格要求动词原形，但变体是 utilises,We must consider how best to ____ what resources we have.
+3812,utilised,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9493-1,utilize,vt,CET4,to + 空格要求动词原形，但变体是 utilised,We must consider how best to ____ what resources we have.
+3812,utilising,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9493-1,utilize,vt,CET4,to + 空格要求动词原形，但变体是 utilising,We must consider how best to ____ what resources we have.
+3812,utilise,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9493-1,utilize,vt,CET4,to + 空格要求动词原形，但变体是 utilise,We must consider how best to ____ what resources we have.
+3828,varieties,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9511-1,variety,n,CET4,a/an + 空格要求单数，但变体是 varieties,The explanation below was achieved by comparing and contrasting a ____ of different theories.
+3841,vibrates,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9530-1,vibrate,vi,CET4,to + 空格要求动词原形，但变体是 vibrates,Passengers became nervous when the plane began to ____.
+3841,vibrated,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9530-1,vibrate,vi,CET4,to + 空格要求动词原形，但变体是 vibrated,Passengers became nervous when the plane began to ____.
+3841,vibrating,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9530-1,vibrate,vi,CET4,to + 空格要求动词原形，但变体是 vibrating,Passengers became nervous when the plane began to ____.
+3860,viruses,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9550-1,virus,n,CET4,a/an + 空格要求单数，但变体是 viruses,"In short, it is because the 'plan.doc' file I attached in the previous email was infected with a ____."
+3889,wastes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9581-1,waste,n,CET4,a/an + 空格要求单数，但变体是 wastes,This day was just a ____ of time and money.
+3900,weaves,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9594-1,weave,n,CET4,to + 空格要求动词原形，但变体是 weaves,Spiders like to ____ webs.
+3903,weeklies,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9598-1,weekly,n,CET4,a/an + 空格要求单数，但变体是 weeklies,My dad gives me a ____ allowance that I use to buy comics and ice cream.
+3908,whales,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9605-1,whale,n,CET4,a/an + 空格要求单数，但变体是 whales,Throw a sprat to catch a ____.
+3912,whips,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9615-1,whip,n,CET4,to + 空格要求动词原形，但变体是 whips,"In Singapore, one way to punish a criminal is to ____ him or her."
+3915,whistles,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9619-1,whistle,n,CET4,a/an + 空格要求单数，但变体是 whistles,"A ____ blew, and the boat slowly began to pull out of port."
+3925,winning,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9631-1,win,vt,CET4,to + 空格要求动词原形，但变体是 winning,"To ____ his audience, the speaker resorted to using rhetorical techniques he learned from his communication courses."
+3925,wins,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9631-1,win,vt,CET4,to + 空格要求动词原形，但变体是 wins,"To ____ his audience, the speaker resorted to using rhetorical techniques he learned from his communication courses."
+3925,won,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9631-1,win,vt,CET4,to + 空格要求动词原形，但变体是 won,"To ____ his audience, the speaker resorted to using rhetorical techniques he learned from his communication courses."
+3928,winners,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9634-1,winner,n,CET4,a/an + 空格要求单数，但变体是 winners,It is good to be a ____.
+3930,wires,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9636-1,wire,n,CET4,a/an + 空格要求单数，但变体是 wires,"Having forgotten his key, he was able to open the door by inserting a ____ in the keyhole."
+3931,wirelesses,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9637-1,wireless,n,CET4,a/an + 空格要求单数，但变体是 wirelesses,Should I buy a ____ mouse?
+3936,withstands,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9643-1,withstand,vt,CET4,to + 空格要求动词原形，但变体是 withstands,She is unable to ____ the pressure.
+3936,withstanded,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9643-1,withstand,vt,CET4,to + 空格要求动词原形，但变体是 withstanded,She is unable to ____ the pressure.
+3936,withstanding,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9643-1,withstand,vt,CET4,to + 空格要求动词原形，但变体是 withstanding,She is unable to ____ the pressure.
+3938,wolves,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9645-1,wolf,n,CET4,a/an + 空格要求单数，但变体是 wolves,The boy said a ____ would come.
+3945,workshops,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9653-1,workshop,n,CET4,a/an + 空格要求单数，但变体是 workshops,I adapted the garage for use as a ____.
+3963,yards,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9672-1,yard,n,CET4,a/an + 空格要求单数，但变体是 yards,Give him an inch and he'll take a ____.
+3967,youths,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9678-1,youth,n,CET4,a/an + 空格要求单数，但变体是 youths,Is there a ____ hostel near here?
+3972,abides,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9688-1,abide,vi,CET6,to + 空格要求动词原形，但变体是 abides,You have to ____ by the laws.
+3972,abided,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9688-1,abide,vi,CET6,to + 空格要求动词原形，但变体是 abided,You have to ____ by the laws.
+3972,abiding,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9688-1,abide,vi,CET6,to + 空格要求动词原形，但变体是 abiding,You have to ____ by the laws.
+3984,aerospaces,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9710-1,aerospace,n,CET6,a/an + 空格要求单数，但变体是 aerospaces,His dream is to become an ____ engineer.
+3986,affirms,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9714-1,affirm,v,CET6,to + 空格要求动词原形，但变体是 affirms,It doesn't matter how others see you. What is important is to be sure to ____ your own self.
+3986,affirmed,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9714-1,affirm,v,CET6,to + 空格要求动词原形，但变体是 affirmed,It doesn't matter how others see you. What is important is to be sure to ____ your own self.
+3986,affirming,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9714-1,affirm,v,CET6,to + 空格要求动词原形，但变体是 affirming,It doesn't matter how others see you. What is important is to be sure to ____ your own self.
+3991,aliens,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9723-1,alien,n,CET6,a/an + 空格要求单数，但变体是 aliens,"If we ever came in contact with an ____ race, how would we communicate with it?"
+3993,alleviates,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9728-1,alleviate,vt,CET6,to + 空格要求动词原形，但变体是 alleviates,"In order to ____ employment pressures, the nation has established a series of relevant policies."
+3993,alleviated,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9728-1,alleviate,vt,CET6,to + 空格要求动词原形，但变体是 alleviated,"In order to ____ employment pressures, the nation has established a series of relevant policies."
+3993,alleviating,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9728-1,alleviate,vt,CET6,to + 空格要求动词原形，但变体是 alleviating,"In order to ____ employment pressures, the nation has established a series of relevant policies."
+3996,allies,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9733-1,ally,n,CET6,a/an + 空格要求单数，但变体是 allies,Germany was once an ____ of Italy.
+4000,ambassadors,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9738-1,ambassador,n,CET6,a/an + 空格要求单数，但变体是 ambassadors,An ____ is an honest man sent to lie abroad for the good of his country.
+4019,arrays,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9773-1,array,n,CET6,a/an + 空格要求单数，但变体是 arrays,"Behind every animal on the Chinese zodiac lies an ____ of proverbs, sayings and stories."
+4048,bandages,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9816-1,bandage,n,CET6,a/an + 空格要求单数，但变体是 bandages,The nurse gently put a ____ around my head.
+4060,blacksmiths,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9845-1,blacksmith,n,CET6,a/an + 空格要求单数，但变体是 blacksmiths,It's by smithing that one becomes a ____.
+4063,blouses,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9850-1,blouse,n,CET6,a/an + 空格要求单数，但变体是 blouses,Janet bought a skirt and a ____.
+4067,bribes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9862-1,bribe,n,CET6,a/an + 空格要求单数，但变体是 bribes,The mayor denied having taken a ____.
+4068,broadens,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9866-1,broaden,vi,CET6,to + 空格要求动词原形，但变体是 broadens,"To ____ your view, go see the underground shopping mall beneath People's Square."
+4068,broadened,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9866-1,broaden,vi,CET6,to + 空格要求动词原形，但变体是 broadened,"To ____ your view, go see the underground shopping mall beneath People's Square."
+4068,broadening,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9866-1,broaden,vi,CET6,to + 空格要求动词原形，但变体是 broadening,"To ____ your view, go see the underground shopping mall beneath People's Square."
+4075,bushels,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9879-1,bushel,n,CET6,a/an + 空格要求单数，但变体是 bushels,Hide not your light under a ____.
+4077,canes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9886-1,cane,n,CET6,a/an + 空格要求单数，但变体是 canes,"Thoreau coveted the plant's strong purple stalk for a ____, and the robins eat its dark crimson-juiced berries."
+4079,capsules,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9891-1,capsule,n,CET6,a/an + 空格要求单数，但变体是 capsules,This building is a ____ hotel lodging men and women.
+4087,censors,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9904-1,censor,n,CET6,to + 空格要求动词原形，但变体是 censors,I wonder which country will be the first to ____ Tatoeba.
+4096,circuses,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9924-1,circus,n,CET6,a/an + 空格要求单数，但变体是 circuses,"At the age of six, I was taken to a ____ for the first time."
+4109,coincidences,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9949-1,coincidence,n,CET6,a/an + 空格要求单数，但变体是 coincidences,Tom doesn't think this is a ____.
+4128,comprehends,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9980-1,comprehend,vt,CET6,to + 空格要求动词原形，但变体是 comprehends,The professor was unable to ____ what I meant.
+4128,comprehended,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9980-1,comprehend,vt,CET6,to + 空格要求动词原形，但变体是 comprehended,The professor was unable to ____ what I meant.
+4128,comprehending,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-9980-1,comprehend,vt,CET6,to + 空格要求动词原形，但变体是 comprehending,The professor was unable to ____ what I meant.
+4158,converses,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10029-1,converse,n,CET6,to + 空格要求动词原形，但变体是 converses,It was nice to ____ with her.
+4167,couches,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10046-1,couch,n,CET6,a/an + 空格要求单数，但变体是 couches,A ____ potato is something that I don't want to be.
+4178,cuckoos,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10066-1,cuckoo,n,CET6,a/an + 空格要求单数，但变体是 cuckoos,People call this kind of bird a ____.
+4180,curbs,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10070-1,curb,n,CET6,to + 空格要求动词原形，但变体是 curbs,measures to ____ the spread of the virus
+4200,dentists,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10117-1,dentist,n,CET6,a/an + 空格要求单数，但变体是 dentists,You ought to see a ____.
+4201,depicts,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10119-1,depict,vt,CET6,to + 空格要求动词原形，但变体是 depicts,I'm not a poet; I couldn't write a single line to ____ its beauty.
+4201,depicted,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10119-1,depict,vt,CET6,to + 空格要求动词原形，但变体是 depicted,I'm not a poet; I couldn't write a single line to ____ its beauty.
+4201,depicting,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10119-1,depict,vt,CET6,to + 空格要求动词原形，但变体是 depicting,I'm not a poet; I couldn't write a single line to ____ its beauty.
+4219,dines,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10153-1,dine,vi,CET6,to + 空格要求动词原形，但变体是 dines,"Even if they have a good wine menu, I will not want to ____ here."
+4219,dined,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10153-1,dine,vi,CET6,to + 空格要求动词原形，但变体是 dined,"Even if they have a good wine menu, I will not want to ____ here."
+4219,dining,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10153-1,dine,vi,CET6,to + 空格要求动词原形，但变体是 dining,"Even if they have a good wine menu, I will not want to ____ here."
+4227,discerns,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10162-1,discern,v,CET6,to + 空格要求动词原形，但变体是 discerns,You need a long series of data to be able to ____ such a trend.
+4227,discerned,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10162-1,discern,v,CET6,to + 空格要求动词原形，但变体是 discerned,You need a long series of data to be able to ____ such a trend.
+4227,discerning,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10162-1,discern,v,CET6,to + 空格要求动词原形，但变体是 discerning,You need a long series of data to be able to ____ such a trend.
+4236,disservices,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10184-1,disservice,n,CET6,a/an + 空格要求单数，但变体是 disservices,He said the protesters were doing a ____ to the nation.
+4260,eclipses,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10225-1,eclipse,n,CET6,a/an + 空格要求单数，但变体是 eclipses,An ____ of the moon is a rare phenomenon.
+4267,electricians,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10235-1,electrician,n,CET6,a/an + 空格要求单数，但变体是 electricians,I am an ____.
+4270,elevations,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10240-1,elevation,n,CET6,a/an + 空格要求单数，但变体是 elevations,The treeline in the German alps lies at an ____ of about 1800 meters.
+4288,entrepreneurs,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10271-1,entrepreneur,n,CET6,a/an + 空格要求单数，但变体是 entrepreneurs,Everyone is an ____.
+4295,eradicates,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10281-1,eradicate,vt,CET6,to + 空格要求动词原形，但变体是 eradicates,an attempt to ____ inflation
+4295,eradicated,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10281-1,eradicate,vt,CET6,to + 空格要求动词原形，但变体是 eradicated,an attempt to ____ inflation
+4295,eradicating,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10281-1,eradicate,vt,CET6,to + 空格要求动词原形，但变体是 eradicating,an attempt to ____ inflation
+4296,errands,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10283-1,errand,n,CET6,a/an + 空格要求单数，但变体是 errands,Tom is out on an ____.
+4310,exclamations,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10303-1,exclamation,n,CET6,a/an + 空格要求单数，但变体是 exclamations,An ____ mark is a punctuation mark.
+4319,extinguishes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10321-1,extinguish,vt,CET6,to + 空格要求动词原形，但变体是 extinguishes,Don't forget to ____ your cigarette.
+4319,extinguished,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10321-1,extinguish,vt,CET6,to + 空格要求动词原形，但变体是 extinguished,Don't forget to ____ your cigarette.
+4319,extinguishing,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10321-1,extinguish,vt,CET6,to + 空格要求动词原形，但变体是 extinguishing,Don't forget to ____ your cigarette.
+4323,fables,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10327-1,fable,n,CET6,a/an + 空格要求单数，但变体是 fables,Drawing dragons and dotting in the eyes is a ____.
+4325,fakes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10333-1,fake,n,CET6,a/an + 空格要求单数，但变体是 fakes,I think Tom is going to be pretty mad when he finds out that the painting he bought is a ____.
+4346,fossils,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10389-1,fossil,n,CET6,a/an + 空格要求单数，但变体是 fossils,What I have in my hand is a ____ seashell.
+4358,fusses,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10409-1,fuss,n,CET6,a/an + 空格要求单数，但变体是 fusses,James said he’d better be getting back or there’d be a ____ .
+4359,galaxies,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10410-1,galaxy,n,CET6,a/an + 空格要求单数，但变体是 galaxies,Astronomers have discovered a ____ that has almost no dark matter.
+4360,gambles,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10411-1,gamble,n,CET6,to + 空格要求动词原形，但变体是 gambles,Do you like to ____?
+4367,goddesses,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10431-1,goddess,n,CET6,a/an + 空格要求单数，但变体是 goddesses,Pachamama is a ____ of earth and fertility revered by the indigenous peoples of the Andes.
+4372,grasshoppers,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10441-1,grasshopper,n,CET6,a/an + 空格要求单数，但变体是 grasshoppers,That's not a ____. It's a locust!
+4376,grins,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10449-1,grin,n,CET6,to + 空格要求动词原形，但变体是 grins,We just have to ____ and bear it.
+4381,gutters,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10459-1,gutter,n,CET6,a/an + 空格要求单数，但变体是 gutters,"On May 18, a young Japanese couple was arrested after their one-year-old baby was found wrapped in a plastic bag and dum"
+4382,hails,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10460-1,hail,n,CET6,a/an + 空格要求单数，但变体是 hails,We marched under a ____ of bullets.
+4387,hassles,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10471-1,hassle,n,CET6,a/an + 空格要求单数，但变体是 hassles,It's become a ____ to keep on dyeing my hair.
+4390,heaters,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10479-1,heater,n,CET6,a/an + 空格要求单数，但变体是 heaters,Don't let the cops find a ____ on you.
+4396,hips,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10492-1,hip,n,CET6,a/an + 空格要求单数，但变体是 hips,He got a ____ ultrasound.
+4403,hugs,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10510-1,hug,n,CET6,to + 空格要求动词原形，但变体是 hugs,She wants to ____ him.
+4411,idiots,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10532-1,idiot,n,CET6,a/an + 空格要求单数，但变体是 idiots,Thanks for having explained to me at last why people take me for an ____.
+4421,imparts,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10546-1,impart,vt,CET6,to + 空格要求动词原形，但变体是 imparts,She had information that she couldn’t wait to ____.
+4421,imparted,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10546-1,impart,vt,CET6,to + 空格要求动词原形，但变体是 imparted,She had information that she couldn’t wait to ____.
+4421,imparting,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10546-1,impart,vt,CET6,to + 空格要求动词原形，但变体是 imparting,She had information that she couldn’t wait to ____.
+4426,impulses,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10555-1,impulse,n,CET6,a/an + 空格要求单数，但变体是 impulses,I felt an ____ to cry out loud.
+4433,incurs,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10574-1,incur,vt,CET6,to + 空格要求动词原形，但变体是 incurs,She wondered what she’d done to ____ his displeasure this time.
+4433,incured,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10574-1,incur,vt,CET6,to + 空格要求动词原形，但变体是 incured,She wondered what she’d done to ____ his displeasure this time.
+4433,incuring,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10574-1,incur,vt,CET6,to + 空格要求动词原形，但变体是 incuring,She wondered what she’d done to ____ his displeasure this time.
+4444,inflates,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10591-1,inflate,vt,CET6,to + 空格要求动词原形，但变体是 inflates,It took us half an hour to ____ the dinghy.
+4444,inflated,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10591-1,inflate,vt,CET6,to + 空格要求动词原形，但变体是 inflated,It took us half an hour to ____ the dinghy.
+4444,inflating,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10591-1,inflate,vt,CET6,to + 空格要求动词原形，但变体是 inflating,It took us half an hour to ____ the dinghy.
+4492,jogs,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10673-1,jog,n,CET6,a/an + 空格要求单数，但变体是 jogs,The man next door said he goes for a ____ every morning.
+4500,lawsuits,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10694-1,lawsuit,n,CET6,a/an + 空格要求单数，但变体是 lawsuits,The dispute culminated last week in a ____ against the government.
+4503,leopards,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10703-1,leopard,n,CET6,a/an + 空格要求单数，但变体是 leopards,A ____ never changes its spots.
+4516,locusts,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10721-1,locust,n,CET6,a/an + 空格要求单数，但变体是 locusts,That's not a grasshopper. It's a ____!
+4534,manipulates,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10748-1,manipulate,vt,CET6,to + 空格要求动词原形，但变体是 manipulates,Some teachers instinctively know how to play “favorites” to ____ the other students.
+4534,manipulated,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10748-1,manipulate,vt,CET6,to + 空格要求动词原形，但变体是 manipulated,Some teachers instinctively know how to play “favorites” to ____ the other students.
+4534,manipulating,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10748-1,manipulate,vt,CET6,to + 空格要求动词原形，但变体是 manipulating,Some teachers instinctively know how to play “favorites” to ____ the other students.
+4536,mansions,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10750-1,mansion,n,CET6,a/an + 空格要求单数，但变体是 mansions,"Compared to our house, yours is a ____."
+4553,metropolitans,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10788-1,metropolitan,n,CET6,a/an + 空格要求单数，但变体是 metropolitans,a ____ area of South Australia
+4558,millionaires,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10797-1,millionaire,n,CET6,a/an + 空格要求单数，但变体是 millionaires,I'd like to be a ____.
+4560,misers,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10804-1,miser,n,CET6,a/an + 空格要求单数，但变体是 misers,A ____ hoards money not because he is prudent but because he is greedy.
+4565,mocks,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10813-1,mock,n,CET6,a/an + 空格要求单数，但变体是 mocks,The future pilot is trained in a ____ cockpit.
+4572,monks,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10824-1,monk,n,CET6,a/an + 空格要求单数，但变体是 monks,Tom decided to become a ____.
+4574,monsters,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10826-1,monster,n,CET6,a/an + 空格要求单数，但变体是 monsters,There's a ____ under my bed.
+4577,mosques,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10833-1,mosque,n,CET6,a/an + 空格要求单数，但变体是 mosques,This is a house and that is a ____.
+4581,multitudes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10838-1,multitude,n,CET6,a/an + 空格要求单数，但变体是 multitudes,It is a great joy to see your own sentences translated into a ____ of other languages.
+4586,myths,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10844-1,myth,n,CET6,a/an + 空格要求单数，但变体是 myths,Paul's success was a ____.
+4588,napkins,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10846-1,napkin,n,CET6,a/an + 空格要求单数，但变体是 napkins,"May I have a ____, please?"
+4597,nourishes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10873-1,nourish,vt,CET6,to + 空格要求动词原形，但变体是 nourishes,The role of the placenta is to ____ the foetus.
+4597,nourished,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10873-1,nourish,vt,CET6,to + 空格要求动词原形，但变体是 nourished,The role of the placenta is to ____ the foetus.
+4597,nourishing,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10873-1,nourish,vt,CET6,to + 空格要求动词原形，但变体是 nourishing,The role of the placenta is to ____ the foetus.
+4602,oaths,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10883-1,oath,n,CET6,a/an + 空格要求单数，但变体是 oaths,The knight swore an ____ of allegiance to the king.
+4635,pecks,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10950-1,peck,n,CET6,a/an + 空格要求单数，但变体是 pecks,He gave her a ____ on the cheek.
+4651,pickles,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10989-1,pickle,n,CET6,a/an + 空格要求单数，但变体是 pickles,"Did you know that if you plug a ____ into an electrical outlet, it glows and makes buzzing noises?"
+4652,pineapples,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-10992-1,pineapple,n,CET6,a/an + 空格要求单数，但变体是 pineapples,You can decorate the cocktail with a cherry or a ____.
+4665,preaches,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11021-1,preach,v,CET6,to + 空格要求动词原形，但变体是 preaches,The main duty of a priest is to ____ in church.
+4665,preached,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11021-1,preach,v,CET6,to + 空格要求动词原形，但变体是 preached,The main duty of a priest is to ____ in church.
+4665,preaching,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11021-1,preach,v,CET6,to + 空格要求动词原形，但变体是 preaching,The main duty of a priest is to ____ in church.
+4675,prescriptions,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11038-1,prescription,n,CET6,a/an + 空格要求单数，但变体是 prescriptions,I'll give you a ____.
+4698,prolongs,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11069-1,prolong,vt,CET6,to + 空格要求动词原形，但变体是 prolongs,I was trying to think of some way to ____ the conversation.
+4698,prolonged,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11069-1,prolong,vt,CET6,to + 空格要求动词原形，但变体是 prolonged,I was trying to think of some way to ____ the conversation.
+4698,prolonging,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11069-1,prolong,vt,CET6,to + 空格要求动词原形，但变体是 prolonging,I was trying to think of some way to ____ the conversation.
+4705,proses,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11083-1,prose,n,CET6,a/an + 空格要求单数，但变体是 proses,He isn't a poet; he's a ____ writer.
+4706,proverbs,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11088-1,proverb,n,CET6,a/an + 空格要求单数，但变体是 proverbs,A rolling stone gathers no moss is a ____.
+4729,rectangles,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11140-1,rectangle,n,CET6,a/an + 空格要求单数，但变体是 rectangles,Roll the pastry into a ____.
+4730,recurrences,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11144-1,recurrence,n,CET6,a/an + 空格要求单数，但变体是 recurrences,Police are out in force to prevent a ____ of the violence.
+4731,recycles,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11145-1,recycle,vt,CET6,to + 空格要求动词原形，但变体是 recycles,"We must make the utmost effort to reduce the use of plastic packaging, and also to ____ all waste plastic."
+4731,recycled,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11145-1,recycle,vt,CET6,to + 空格要求动词原形，但变体是 recycled,"We must make the utmost effort to reduce the use of plastic packaging, and also to ____ all waste plastic."
+4731,recycling,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11145-1,recycle,vt,CET6,to + 空格要求动词原形，但变体是 recycling,"We must make the utmost effort to reduce the use of plastic packaging, and also to ____ all waste plastic."
+4736,reimburses,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11157-1,reimburse,vt,CET6,to + 空格要求动词原形，但变体是 reimburses,Your school is so kind to ____ you for the return airfare.
+4736,reimbursed,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11157-1,reimburse,vt,CET6,to + 空格要求动词原形，但变体是 reimbursed,Your school is so kind to ____ you for the return airfare.
+4736,reimbursing,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11157-1,reimburse,vt,CET6,to + 空格要求动词原形，但变体是 reimbursing,Your school is so kind to ____ you for the return airfare.
+4750,revives,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11195-1,revive,vt,CET6,to + 空格要求动词原形，但变体是 revives,You'll never be able to ____ someone who is only pretending to be dead.
+4750,revived,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11195-1,revive,vt,CET6,to + 空格要求动词原形，但变体是 revived,You'll never be able to ____ someone who is only pretending to be dead.
+4750,reviving,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11195-1,revive,vt,CET6,to + 空格要求动词原形，但变体是 reviving,You'll never be able to ____ someone who is only pretending to be dead.
+4757,romances,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11208-1,romance,n,CET6,a/an + 空格要求单数，但变体是 romances,Can you recommend a ____ novel for me?
+4764,scraps,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11231-1,scrap,n,CET6,a/an + 空格要求单数，但变体是 scraps,There is not a ____ of truth in his words.
+4773,sensations,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11246-1,sensation,n,CET6,a/an + 空格要求单数，但变体是 sensations,The hair style of the Beatles created a ____.
+4777,serpents,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11252-1,serpent,n,CET6,a/an + 空格要求单数，但变体是 serpents,"It had the head of a woman, the body of a lion, the wings of a bird, and the tail of a ____."
+4781,sharks,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11260-1,shark,n,CET6,a/an + 空格要求单数，但变体是 sharks,The skin of a ____ is much rougher than that of a tuna fish.
+4784,shortcuts,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11267-1,shortcut,n,CET6,a/an + 空格要求单数，但变体是 shortcuts,I created a ____ on the desktop.
+4788,shrills,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11274-1,shrill,n,CET6,a/an + 空格要求单数，但变体是 shrills,I was walking along the crowded street when all at once I heard a ____ cry.
+4791,signifies,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11281-1,signify,vt,CET6,to + 空格要求动词原形，但变体是 signifies,"This is because you approach everything as a total person, with no loose ends hanging out to ____ divided intentions."
+4791,signified,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11281-1,signify,vt,CET6,to + 空格要求动词原形，但变体是 signified,"This is because you approach everything as a total person, with no loose ends hanging out to ____ divided intentions."
+4791,signifying,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11281-1,signify,vt,CET6,to + 空格要求动词原形，但变体是 signifying,"This is because you approach everything as a total person, with no loose ends hanging out to ____ divided intentions."
+4795,skeletons,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11291-1,skeleton,n,CET6,a/an + 空格要求单数，但变体是 skeletons,The explorers discovered a ____ in the cave.
+4798,skyscrapers,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11294-1,skyscraper,n,CET6,a/an + 空格要求单数，但变体是 skyscrapers,The elevators in a ____ are vital systems.
+4801,slaps,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11298-1,slap,n,CET6,a/an + 空格要求单数，但变体是 slaps,She gave him a ____ in the face.
+4804,smuggles,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11303-1,smuggle,vt,CET6,to + 空格要求动词原形，但变体是 smuggles,"My message is ""If you try to ____ drugs you are stupid."""
+4804,smuggled,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11303-1,smuggle,vt,CET6,to + 空格要求动词原形，但变体是 smuggled,"My message is ""If you try to ____ drugs you are stupid."""
+4804,smuggling,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11303-1,smuggle,vt,CET6,to + 空格要求动词原形，但变体是 smuggling,"My message is ""If you try to ____ drugs you are stupid."""
+4814,sofas,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11317-1,sofa,n,CET6,a/an + 空格要求单数，但变体是 sofas,We would like to buy a ____.
+4816,solitaries,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11322-1,solitary,n,CET6,a/an + 空格要求单数，但变体是 solitaries,I like a ____ walk.
+4819,sovereigns,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11329-1,sovereign,n,CET6,a/an + 空格要求单数，但变体是 sovereigns,Puerto Rico is not a ____ state.
+4833,standardizes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11354-1,standardize,vt,CET6,to + 空格要求动词原形，但变体是 standardizes,Attempts to ____ English spelling have never been successful.
+4833,standardized,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11354-1,standardize,vt,CET6,to + 空格要求动词原形，但变体是 standardized,Attempts to ____ English spelling have never been successful.
+4833,standardizing,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11354-1,standardize,vt,CET6,to + 空格要求动词原形，但变体是 standardizing,Attempts to ____ English spelling have never been successful.
+4833,standardises,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11354-1,standardize,vt,CET6,to + 空格要求动词原形，但变体是 standardises,Attempts to ____ English spelling have never been successful.
+4833,standardised,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11354-1,standardize,vt,CET6,to + 空格要求动词原形，但变体是 standardised,Attempts to ____ English spelling have never been successful.
+4833,standardising,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11354-1,standardize,vt,CET6,to + 空格要求动词原形，但变体是 standardising,Attempts to ____ English spelling have never been successful.
+4833,standardise,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11354-1,standardize,vt,CET6,to + 空格要求动词原形，但变体是 standardise,Attempts to ____ English spelling have never been successful.
+4837,stereotypes,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11359-1,stereotype,n,CET6,a/an + 空格要求单数，但变体是 stereotypes,It is a ____ that police officers always eat doughnuts.
+4847,strolls,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11376-1,stroll,n,CET6,to + 空格要求动词原形，但变体是 strolls,Spaniards love to ____ around in the evening cool.
+4851,subordinates,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11385-1,subordinate,n,CET6,a/an + 空格要求单数，但变体是 subordinates,a ____ officer
+4860,summons,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11399-1,summon,vt,CET6,to + 空格要求动词原形，但变体是 summons,He gained the power to ____ ghost trains.
+4860,summoned,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11399-1,summon,vt,CET6,to + 空格要求动词原形，但变体是 summoned,He gained the power to ____ ghost trains.
+4860,summoning,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11399-1,summon,vt,CET6,to + 空格要求动词原形，但变体是 summoning,He gained the power to ____ ghost trains.
+4864,surpasses,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11410-1,surpass,vt,CET6,to + 空格要求动词原形，但变体是 surpasses,The reason the Northern and Southern Dynasties had failed in their rule was that they allowed literary splendor to ____ 
+4864,surpassed,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11410-1,surpass,vt,CET6,to + 空格要求动词原形，但变体是 surpassed,The reason the Northern and Southern Dynasties had failed in their rule was that they allowed literary splendor to ____ 
+4864,surpassing,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11410-1,surpass,vt,CET6,to + 空格要求动词原形，但变体是 surpassing,The reason the Northern and Southern Dynasties had failed in their rule was that they allowed literary splendor to ____ 
+4885,thickens,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11458-1,thicken,vi,CET6,to + 空格要求动词原形，但变体是 thickens,"This braised pork is still too watery. Cook it for another ten minutes to ____ the sauce, so the flavor sticks to the me"
+4885,thickened,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11458-1,thicken,vi,CET6,to + 空格要求动词原形，但变体是 thickened,"This braised pork is still too watery. Cook it for another ten minutes to ____ the sauce, so the flavor sticks to the me"
+4885,thickening,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11458-1,thicken,vi,CET6,to + 空格要求动词原形，但变体是 thickening,"This braised pork is still too watery. Cook it for another ten minutes to ____ the sauce, so the flavor sticks to the me"
+4889,tightens,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11467-1,tighten,vt,CET6,to + 空格要求动词原形，但变体是 tightens,Small businesses will have to ____ their belts to survive.
+4889,tightened,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11467-1,tighten,vt,CET6,to + 空格要求动词原形，但变体是 tightened,Small businesses will have to ____ their belts to survive.
+4889,tightening,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11467-1,tighten,vt,CET6,to + 空格要求动词原形，但变体是 tightening,Small businesses will have to ____ their belts to survive.
+4893,toads,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11473-1,toad,n,CET6,a/an + 空格要求单数，但变体是 toads,I can't distinguish a frog from a ____.
+4894,tokens,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11474-1,token,n,CET6,a/an + 空格要求单数，但变体是 tokens,"On leaving school, we presented him with a table clock as a ____ of our thanks."
+4905,treads,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11497-1,tread,n,CET6,to + 空格要求动词原形，但变体是 treads,Fools rush in where angels fear to ____.
+4911,tunas,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11513-1,tuna,n,CET6,a/an + 空格要求单数，但变体是 tunas,The skin of a shark is much rougher than that of a ____ fish.
+4913,tyrants,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11519-1,tyrant,n,CET6,a/an + 空格要求单数，但变体是 tyrants,The depravity of the king's deeds led the people to believe he was nothing more than a ____ that needed to be overthrown
+4919,undermines,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11527-1,undermine,vt,CET6,to + 空格要求动词原形，但变体是 undermines,The continued fighting threatens to ____ efforts to negotiate an agreement.
+4919,undermined,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11527-1,undermine,vt,CET6,to + 空格要求动词原形，但变体是 undermined,The continued fighting threatens to ____ efforts to negotiate an agreement.
+4919,undermining,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11527-1,undermine,vt,CET6,to + 空格要求动词原形，但变体是 undermining,The continued fighting threatens to ____ efforts to negotiate an agreement.
+4929,updates,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11544-1,update,vt,CET6,to + 空格要求动词原形，但变体是 updates,Could I get you to ____ this data for me?
+4929,updated,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11544-1,update,vt,CET6,to + 空格要求动词原形，但变体是 updated,Could I get you to ____ this data for me?
+4929,updating,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11544-1,update,vt,CET6,to + 空格要求动词原形，但变体是 updating,Could I get you to ____ this data for me?
+4931,uproars,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11547-1,uproar,n,CET6,a/an + 空格要求单数，但变体是 uproars,"On the day of my birthday, my friends made me drink and I caused quite an ____."
+4935,vents,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11559-1,vent,n,CET6,to + 空格要求动词原形，但变体是 vents,"I am really extremely angry, so I plan to smash things to ____ my anger."
+4941,vetos,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11568-1,veto,n,CET6,to + 空格要求动词原形，但变体是 vetos,The President of the United States has the power to ____ and send back legislation.
+4948,virgins,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11577-1,virgin,n,CET6,a/an + 空格要求单数，但变体是 virgins,Are you still a ____?
+4960,warrants,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11600-1,warrant,n,CET6,a/an + 空格要求单数，但变体是 warrants,We have a ____ to search your apartment.
+4962,webs,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11609-1,web,n,CET6,a/an + 空格要求单数，但变体是 webs,More than 90 percent of visits to a ____ page are from search engines.
+4965,windmills,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11619-1,windmill,n,CET6,a/an + 空格要求单数，但变体是 windmills,I had never seen a ____ until I visited the Netherlands.
+4967,winks,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-11621-1,wink,n,CET6,a/an + 空格要求单数，但变体是 winks,I didn't sleep a ____ last night.
+4976,cheerer,PSEUDO_FORM,0.90,DELETE_VARIANT,vocab-auto-6358-1,cheer,n,CET4,名词误加比较级/最高级后缀,"The situation is improving, so ____ up!"
+4976,cheerest,PSEUDO_FORM,0.90,DELETE_VARIANT,vocab-auto-6358-1,cheer,n,CET4,名词误加比较级/最高级后缀,"The situation is improving, so ____ up!"
+4977,harmer,PSEUDO_FORM,0.90,DELETE_VARIANT,vocab-auto-7373-1,harm,n,CET4,名词误加比较级/最高级后缀,This book will do more ____ than good.
+4977,harmest,PSEUDO_FORM,0.90,DELETE_VARIANT,vocab-auto-7373-1,harm,n,CET4,名词误加比较级/最高级后缀,This book will do more ____ than good.
+4987,fiberer,PSEUDO_FORM,0.90,DELETE_VARIANT,vocab-auto-10345-1,fiber,n,CET6,名词误加比较级/最高级后缀,You need to eat more ____.
+4987,fiberest,PSEUDO_FORM,0.90,DELETE_VARIANT,vocab-auto-10345-1,fiber,n,CET6,名词误加比较级/最高级后缀,You need to eat more ____.
+4989,kings,COLLOCATION_CONFLICT,0.50,REVIEW,vocab-auto-7668-1,king,n,CET4,a/an + 空格要求单数，但变体是 kings,"When I grow up, I want to be a ____."

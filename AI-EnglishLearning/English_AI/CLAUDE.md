@@ -163,6 +163,7 @@ frontend/
 | `patch-accepted-top200.mjs` | accepted 定点/批量补丁：`--top` / `--only-keys` / `--keys-file` / `--dry-run` → 生成纯 UPDATE 迁移 |
 | `audit-accepted-coverage.mjs` | accepted 覆盖度**只读**巡检：`--out` 出报告、`--json-out` 出机器可读缺口清单、`--db` 指定库 |
 | `clean-buggy-paths.mjs` | 错因表**只读**扫描 + 生成清洗迁移（只处理首尾标点/全角/多余空白等结构性脏数据） |
+| `check-answer-slots.mjs` | 答案槽位**只读**校验：伪形态/词性/搭配/重复，输出 CSV 到 `docs/review/`；见 `docs/review/README.md` |
 | `mvn.sh` / `mvn.cmd` | 自动挑选 JDK 17+ 后调用 Maven（bash / Windows 批处理两版） |
 
 ### 前端关键目录
@@ -890,3 +891,46 @@ npm run build
 3. **缓存未开启**：等 1~2 天埋点基线。
 4. **词库缺 8 词**：已定口径「不补词库」，以 `docs/数据库迁移规范.md` 2.4-D 为准。
 5. **`matchedLevel` 对外契约未文档化**：前端 `L${matchedLevel}` 仍依赖 0/1/2/3 取值，改动需先定义契约。
+
+---
+
+## 变更记录（2026-11-09 · 第六轮）
+
+> 主题：**P2 质量兜底（模块1）—— 答案槽位离线校验**。
+> 本轮无 Java 代码改动、无 Flyway 迁移。
+
+### 一、范围决策
+
+| 决策点 | 结论 |
+|---|---|
+| 范围 | 只做模块1（离线校验）；模块2（AI 低置信入队）推迟 |
+| 低置信阈值 | 0.6，**仅预留配置，不接线**（`judge.ai.review-*`，无代码读取） |
+| 词性校验粒度 | 统一标准（词库只有 CET4/CET6，无 TOEFL 数据） |
+| 首扫去向 | 仅出 CSV 人工筛选，不直接入队 |
+
+### 二、交付
+
+- `scripts/check-answer-slots.mjs`（只读）：`--dry-run` / `--question-id` / `--db` / `--limit` / `--only-types`
+- `docs/review/README.md`：用法、五条规则、CSV 字段、对接队列映射
+- `docs/review/answer-slot-audit-20261109.{csv,md}`：首次全库扫描
+- `docs/2026-11-09-P2质量兜底记录.md`：完整记录
+
+### 三、首次扫描结论
+
+4537 题 / 9440 个变体 → **934 个问题项**：`PSEUDO_FORM` 12（如 `fiberer`/`fiberest`、`kneer`/`kneest`）、`COLLOCATION_CONFLICT` 922、其余三类均为 0。
+
+> `COLLOCATION_CONFLICT` 是「accepted 偏宽松」既定设计的体现（题干只容得下一种形态，accepted 收了全部变形），不是错题。
+
+### 四、模块2 的前置条件
+
+1. 先用 `JudgmentMetrics` 的 `aiRate` 埋点确认真实 AI 触发量；
+2. 再决定是否改 `ai-service` 的 prompt 让它返回 `confidence`（当前两条判题链路都不返回）；
+3. 接线时走 `V1.0.29` 给 `judge_review_queue` 加 `ai_confidence` / `ai_result` / `judge_context`；
+4. exercise-service 目前**没有异步能力**（无 `@EnableAsync`），需自建有界线程池。
+
+### 五、遗留
+
+1. 12 条伪形态待清理（清单 → 白名单 → 单独迁移，accepted 只增不减的例外需单独评审）。
+2. 922 条形态冲突待评估，属产品决策。
+3. 槽位线索覆盖率仅 5.9%（266/4537），无 NLP 依赖只能靠强线索。
+4. `ai-service` 两处待修：`application.yml` 模型名末尾多了 `nt`；`/ai/judge-feedback` 的 `errorType` 恒为 `UNKNOWN`。

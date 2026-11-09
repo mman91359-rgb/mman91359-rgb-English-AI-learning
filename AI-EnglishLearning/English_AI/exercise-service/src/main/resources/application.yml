@@ -68,3 +68,13 @@ judgment:
     enabled: ${JUDGMENT_ACCEPTED_CACHE_ENABLED:false}
     ttl-seconds: ${JUDGMENT_ACCEPTED_CACHE_TTL:60}
     max-size: ${JUDGMENT_ACCEPTED_CACHE_MAX_SIZE:2000}
+
+# AI 低置信复核入队（预留，本轮不生效）
+# 说明：当前 AI 判题不返回 confidence，也还没有异步写入的线程池，
+#       这两项配置暂无代码读取，仅作为接线点。接入方案见
+#       docs/2026-11-09-P2质量兜底记录.md 第四节。
+judge:
+  ai:
+    review-enabled: ${JUDGE_AI_REVIEW_ENABLED:false}
+    # 低于该阈值才入队；阈值越低入队越少
+    review-threshold: ${JUDGE_AI_REVIEW_THRESHOLD:0.6}

@@ -973,3 +973,32 @@ npm run build
 - `V1.0.29__remove_pseudo_forms.sql`：按 12 条白名单删除 `furer/furest`、`kneer/kneest`、`poetrier/poetriest`、`cheerer/cheerest`、`harmer/harmest`、`fiberer/fiberest`（6 行）。复核后 `PSEUDO_FORM` 归零，变体数 9440 → 9428。
 - 例外条款（accepted 只增不减的唯一破例）写入 `docs/数据库迁移规范.md` 2.4-E。
 
+### 五、2026-11-09 四六级真题批量导入（听力/阅读/翻译）
+
+**背景**：`D:/AI-EnglishLearning/英语资源/格式化数据/` 下 66 套格式化真题 JSON（CET4 32 + CET6 34）批量导入 `exercise_db`。
+
+**结构修订（2 项）**：
+1. `V1.0.30__add_question_exam_key.sql`：`question_info` 新增 `exam_key varchar(64)` + 索引 `idx_exam_key`，统一「考次」口径（与 `reading_passage.exam_key` 对齐）。
+2. `V1.0.31__alter_stem_nullable.sql`：`question_content.stem` 由 `NOT NULL` 改 `NULL`。原因：听力题（原卷只有选项无题干转写）与选词填空题（空位在文章中）天然无题干。
+
+**数据迁移（6 片）**：`V1.0.32~37__seed_exam_part01~06.sql`，共导入 **2798 题**（听力 1000 / 阅读 1740 / 翻译 58）+ **232 篇阅读文章**。
+
+**导入范围口径**：
+- 正常套（40）→ 听力 + 阅读 + 翻译；仅借听力套（18）→ 阅读 + 翻译（听力与来源套重复，跳过）；残卷（8）→ 整套留后处理。
+- 分类（A1 口径，不扩 `question_type` 枚举）：听力 `module_type=4/question_type=CHOICE`，阅读 `module_type=7/question_type=CHOICE`（细分走 `reading_passage.passage_type`），翻译 `module_type=3/question_type=TRANSLATION`。
+- `external_key` 命名：题目 `{examId}-q{两位题号}`、翻译 `{examId}-translation`、文章 `{examId}-{passageId}`。
+- 听力无音频/转写，**不写 `listening_audio`**（留待后续音频资源）。
+
+**回填迁移**：`V1.0.38__backfill_exam_key_listening.sql`——V1.0.3 早期导入的 `cet6-2022-12-1` 18 道听力题（Q1-8、Q16-25）早于 `exam_key` 字段，回填 `exam_key='cet6-2022-12-1'`。
+
+**涉及文件**：
+- 迁移：`exercise-service/src/main/resources/db/migration/V1.0.30~38`
+- 脚本：`scripts/import-exam.mjs`（check/build 两阶段，可重放，`EXAM_SOURCE_DIR` 指定源目录）
+- 校验报告：`docs/pending-migrations/exam-import-report.json`
+
+**验证**：`flyway validate` 通过；`flyway_schema_history` V1.0.30~38 全部 `success=1`；数据计数与预期完全一致（阅读文章 232、题目 2798、题目内容 2798）。
+
+**关键决策记录**：
+- 结构修订「stem 可空」是在 migrate 中暴露的（听力/选词填空无题干触发 `Column 'stem' cannot be null`），经需求方确认后新增独立迁移 V1.0.31。
+- 脚本 bug 修复：`optionsToJson` 空数组原返回字符串 `'NULL'`，导致 MATCHING 题 options 插入非法 JSON；已改为返回 JS `null`。
+

@@ -27,6 +27,18 @@ sql/backup/
 # 按 docs/pending-migrations/README.md 第 5 步，执行成功后删除，不入版本库）
 docs/pending-migrations/*.sql
 
+# 作业交付素材（截图与结构图，本地留档，不入库）
+docs/作业02-功能结构图.html
+docs/作业02-功能结构图.png
+docs/界面01-登录.png
+docs/界面02-首页.png
+docs/界面03-词汇练习.png
+docs/界面04-听力练习.png
+docs/界面05-错题本单词本.png
+
+# 角色提示词（同目录其余提示词已入库，此份按需暂不入库）
+docs/Workbuddy/后端开发工程师数据方向角色提示词.md
+
 # 听力原始资源与运行时音频（含版权，只在本地保留）
 listening-source/
 frontend/public/audio/exams/*.mp3

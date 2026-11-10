@@ -13,3 +13,6 @@ wordtml-main/
 前端设计参考图/
 参考图片/
 .workbuddy/
+
+# 本地 git worktree 挂载点（开发环境状态，不入版本库）
+.claude/worktrees/

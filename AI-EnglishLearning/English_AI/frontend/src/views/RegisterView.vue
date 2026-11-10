@@ -1,11 +1,8 @@
 ﻿<template>
   <div class="bg-background text-on-background min-h-screen flex">
     <aside class="hidden md:flex flex-col h-screen fixed left-0 top-0 w-sidebar-width bg-surface border-r border-outline-variant py-8 px-4 z-50">
-      <div class="flex items-center gap-3 mb-8 px-4">
-        <div class="w-10 h-10 bg-primary-fixed rounded-xl flex items-center justify-center">
-          <span class="material-symbols-outlined text-primary text-3xl">school</span>
-        </div>
-        <span class="text-headline-md font-headline-md font-bold text-primary">{{ $t('app.title') }}</span>
+      <div class="mb-8 px-4">
+        <AppLogo to="/register" badge="rounded" />
       </div>
       <nav class="flex-1 flex flex-col gap-2">
         <router-link

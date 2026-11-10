@@ -1,14 +1,13 @@
 <template>
   <div class="min-h-screen bg-background text-on-background flex">
     <aside class="hidden md:flex fixed left-0 top-0 z-50 h-screen w-sidebar-width flex-col border-r border-outline-variant bg-surface px-4 py-8">
-      <div class="mb-10 flex items-center gap-3 px-4">
-        <span class="flex h-10 w-10 items-center justify-center rounded-full bg-primary-container/20 text-primary">
-          <span class="material-symbols-outlined fill">auto_stories</span>
-        </span>
-        <div>
-          <p class="font-headline-md text-headline-md font-bold text-primary">{{ $t('app.title') }}</p>
-          <p class="font-label-md text-label-md text-on-surface-variant">{{ $t('app.subtitle') }}</p>
-        </div>
+      <div class="mb-10 px-4">
+        <AppLogo
+          to="/login"
+          icon="auto_stories"
+          badge="pill"
+          :subtitle="$t('app.subtitle')"
+        />
       </div>
       <nav class="flex flex-col gap-2">
         <router-link to="/login" class="flex items-center gap-4 rounded-xl px-4 py-3 font-label-lg text-label-lg text-on-surface-variant transition-colors hover:bg-primary-container/10 hover:text-primary">
@@ -141,6 +140,7 @@ import { useToast } from '../composables/useToast'
 import { useCountdown } from '../composables/useCountdown'
 import { resetPasswordByPhone } from '../api/user'
 import { inputClassLg } from '@/components/ui/formStyles'
+import AppLogo from '@/components/ui/AppLogo.vue'
 import { btnPrimaryBlock } from '@/components/ui/buttonStyles'
 
 const router = useRouter()

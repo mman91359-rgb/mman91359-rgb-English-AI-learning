@@ -115,6 +115,13 @@ button, .material-symbols-outlined {
   --color-on-warning: 255 255 255;
   --color-on-warning-container: 74 44 0;
 
+  /* 火焰色（仅签到火焰动效使用，三档由内到外：火芯 / 火身 / 火尖）
+     独立于 warning 是因为 warning 需承担「警示」语义，色相偏棕，
+     拉不出火焰需要的亮橙到橙红区间 */
+  --color-flame-core: 255 214 102;
+  --color-flame-mid: 255 152 0;
+  --color-flame-deep: 238 61 25;
+
   /* 信息/语法蓝 */
   --color-info: 26 95 180;
   --color-info-container: 199 226 255;
@@ -184,6 +191,11 @@ html.dark {
   --color-warning-container: 92 61 0;
   --color-on-warning: 71 43 0;
   --color-on-warning-container: 255 222 166;
+
+  /* 火焰色：暗色下整体提亮一档，避免压在深底上发闷 */
+  --color-flame-core: 255 226 138;
+  --color-flame-mid: 255 165 31;
+  --color-flame-deep: 255 92 46;
 
   /* 信息/语法蓝 */
   --color-info: 160 201 255;

@@ -64,6 +64,10 @@ export default {
         "on-warning": "rgb(var(--color-on-warning) / <alpha-value>)",
         "on-warning-container": "rgb(var(--color-on-warning-container) / <alpha-value>)",
 
+        "flame-core": "rgb(var(--color-flame-core) / <alpha-value>)",
+        "flame-mid": "rgb(var(--color-flame-mid) / <alpha-value>)",
+        "flame-deep": "rgb(var(--color-flame-deep) / <alpha-value>)",
+
         info: "rgb(var(--color-info) / <alpha-value>)",
         "info-container": "rgb(var(--color-info-container) / <alpha-value>)",
         "on-info": "rgb(var(--color-on-info) / <alpha-value>)",

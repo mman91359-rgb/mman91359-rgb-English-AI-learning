@@ -1,13 +1,9 @@
 <template>
   <aside class="hidden md:flex flex-col h-screen fixed left-0 top-0 w-sidebar-width bg-surface border-r border-outline-variant py-8 px-4 z-50">
     <div class="mb-10 px-4">
-      <div class="flex items-center gap-2">
-        <span class="material-symbols-outlined text-primary text-3xl">school</span>
-        <h1 class="text-headline-md font-headline-md font-bold text-primary">{{ $t('app.title') }}</h1>
-      </div>
-      <div class="mt-2 flex flex-col">
-        <span class="text-label-md font-label-md text-on-surface-variant">{{ $t('dashboard.streakDays') }}</span>
-        <span class="text-headline-md font-headline-md text-primary font-bold">{{ checkInStreak }} {{ $t('stats.days') }}<span v-if="checkInStreak >= 3" class="ml-1">🔥</span></span>
+      <AppLogo to="/dashboard" />
+      <div class="mt-2">
+        <StreakDisplay :days="userStore.checkInStreak" />
       </div>
     </div>
     <nav class="flex-1 flex flex-col gap-2">
@@ -72,13 +68,12 @@ import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useUserStore } from '@/stores/user'
+import AppLogo from '@/components/ui/AppLogo.vue'
+import StreakDisplay from '@/components/ui/StreakDisplay.vue'
 
 const { t } = useI18n()
 const route = useRoute()
 const userStore = useUserStore()
-
-// 连续签到天数：从 userStore 读取后端签到数据
-const checkInStreak = computed(() => userStore.checkInStreak)
 
 // 组件挂载时，如果签到信息还未加载则加载一次
 onMounted(() => {

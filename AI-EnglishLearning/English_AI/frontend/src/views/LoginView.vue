@@ -1,9 +1,8 @@
 <template>
   <div class="bg-background text-on-background min-h-screen flex antialiased">
     <aside class="hidden md:flex flex-col h-screen fixed left-0 top-0 w-sidebar-width bg-surface border-r border-outline-variant py-8 px-4 z-50">
-      <div class="flex items-center gap-3 mb-8 px-4">
-        <span class="material-symbols-outlined text-primary text-3xl">school</span>
-        <span class="text-headline-md font-headline-md font-bold text-primary">{{ $t('app.title') }}</span>
+      <div class="mb-8 px-4">
+        <AppLogo to="/login" />
       </div>
       <nav class="flex-1 flex flex-col gap-2">
         <router-link
@@ -144,6 +143,7 @@ import { useUserStore } from '@/stores/user'
 import { useToast } from '@/composables/useToast'
 import { inputClassLg } from '@/components/ui/formStyles'
 import { btnIcon, btnPrimaryBlock } from '@/components/ui/buttonStyles'
+import AppLogo from '@/components/ui/AppLogo.vue'
 
 const { t } = useI18n()
 const route = useRoute()

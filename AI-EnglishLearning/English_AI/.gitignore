@@ -23,6 +23,10 @@ uploads/
 # 数据库结构备份（只在本地保留，不提交）
 sql/backup/
 
+# 待审批迁移副本（Flyway 只扫描各服务 db/migration，副本仅本地暂存；
+# 按 docs/pending-migrations/README.md 第 5 步，执行成功后删除，不入版本库）
+docs/pending-migrations/*.sql
+
 # 听力原始资源与运行时音频（含版权，只在本地保留）
 listening-source/
 frontend/public/audio/exams/*.mp3

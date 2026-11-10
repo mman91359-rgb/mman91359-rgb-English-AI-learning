@@ -155,7 +155,21 @@
               class="flex-1 bg-gradient-to-r from-primary to-primary-fixed-dim text-on-primary py-4 rounded-[16px] font-label-lg text-label-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-[0_4px_14px_rgba(103,85,140,0.25)]"
               @click="toggleRate"
             >
-              <span class="material-symbols-outlined">speed</span>{{ playbackRate === 1 ? $t('listening.realSpeed') : '1.25x' }}
+              <span class="material-symbols-outlined">speed</span>{{ rateLabel(playbackRate) }}
+            </button>
+            <button
+              type="button"
+              class="bg-surface-container-lowest border border-outline-variant/40 text-on-surface-variant py-4 px-4 rounded-[16px] flex items-center justify-center gap-1 hover:bg-surface-variant transition-colors flex-shrink-0"
+              :aria-label="$t('listening.volume')"
+              :title="$t('listening.volume')"
+              @click="toggleGain"
+            >
+              <span class="material-symbols-outlined text-[20px]">{{ gainIcon }}</span>
+              <span class="flex items-end gap-[2px]" aria-hidden="true">
+                <span class="w-[3px] rounded-full bg-current" :class="gainLevel >= 0 ? 'h-2' : 'h-2'" :style="{ opacity: gainLevel >= 0 ? 1 : 0.3 }"></span>
+                <span class="w-[3px] rounded-full bg-current" :class="gainLevel >= 1 ? 'h-3' : 'h-2'" :style="{ opacity: gainLevel >= 1 ? 1 : 0.3 }"></span>
+                <span class="w-[3px] rounded-full bg-current" :class="gainLevel >= 2 ? 'h-4' : 'h-2'" :style="{ opacity: gainLevel >= 2 ? 1 : 0.3 }"></span>
+              </span>
             </button>
             <button
               type="button"
@@ -271,6 +285,7 @@ const results = ref<{ questionId: number; isCorrect: boolean }[]>([])
 const submittedContent = ref<Record<number, SubmittedContent>>({})
 const audioAbsoluteTime = ref(0)
 const playbackRate = ref(1)
+const gainLevel = ref(0)
 
 const currentQuestion = computed(() => questions.value[currentIndex.value])
 const currentContent = computed(() => {
@@ -435,10 +450,27 @@ const replayCurrent = () => {
   audioRef.value?.replay()
 }
 
+const RATE_LEVELS = [0.75, 1.0, 1.25, 1.5]
+
 const toggleRate = () => {
-  playbackRate.value = playbackRate.value === 1 ? 1.25 : 1
-  audioRef.value?.setPlaybackRate(playbackRate.value)
+  const current = RATE_LEVELS.indexOf(playbackRate.value)
+  const next = RATE_LEVELS[(current + 1) % RATE_LEVELS.length]
+  playbackRate.value = next
+  audioRef.value?.setPlaybackRate(next)
 }
+
+const rateLabel = (rate: number) => (rate === 1 ? t('listening.realSpeed') : `${rate}x`)
+
+const toggleGain = () => {
+  gainLevel.value = (gainLevel.value + 1) % 3
+  audioRef.value?.setGain(gainLevel.value)
+}
+
+const gainIcon = computed(() => {
+  if (gainLevel.value >= 2) return 'volume_up'
+  if (gainLevel.value === 1) return 'volume_down'
+  return 'volume_off'
+})
 
 const handleTranscriptSeek = (seconds: number) => {
   audioRef.value?.setRange('article')

@@ -42,6 +42,10 @@ export interface QuestionVO {
     questionStartSeconds?: number
     /** 题目段终点（秒，不包含） */
     questionEndSeconds?: number
+    /** 答案关键句起点（秒，包含），复听定位用 */
+    answerStartSeconds?: number
+    /** 答案关键句终点（秒，不包含） */
+    answerEndSeconds?: number
     /** 题组/音频段落标识 */
     groupKey?: string
     /** 听力题型 */

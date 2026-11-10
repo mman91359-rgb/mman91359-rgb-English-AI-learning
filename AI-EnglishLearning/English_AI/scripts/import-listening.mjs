@@ -258,10 +258,29 @@ function validate(manifest, examDir, docxLines) {
         errors.push(`${groupKey} Q${number}: difficultyLevel 必须在 1~8`)
       }
 
+      // 关键句（答案）区间，可选；提供时校验合法性
+      let answerStart = null
+      let answerEnd = null
+      if (question.answerStartSeconds != null || question.answerEndSeconds != null) {
+        answerStart = Number(question.answerStartSeconds)
+        answerEnd = Number(question.answerEndSeconds)
+        if (!Number.isFinite(answerStart) || !Number.isFinite(answerEnd)) {
+          errors.push(`${groupKey} Q${number}: answerStart/End 必须是数字`)
+        } else if (answerEnd <= answerStart) {
+          errors.push(`${groupKey} Q${number}: answerEnd 必须大于 answerStart`)
+        } else if (answerStart < articleStart || answerEnd > articleEnd) {
+          errors.push(`${groupKey} Q${number}: answer 区间必须落在文章段内`)
+        } else if (answerEnd > totalSeconds) {
+          errors.push(`${groupKey} Q${number}: answerEnd 超过音频总时长`)
+        }
+      }
+
       questions.push({
         number,
         start,
         end,
+        answerStart,
+        answerEnd,
         difficultyLevel,
         stem: questionStems.get(number) || '',
         lrcLineCount: questionLines.length,
@@ -384,9 +403,11 @@ function buildSql(manifest, groups, questionsByNumber, questionsStems) {
       lines.push(');')
       lines.push('')
       lines.push('INSERT INTO `listening_audio`')
-      lines.push('  (`question_id`, `audio_url`, `transcript`, `duration_seconds`, `audio_total_seconds`, `audio_start_seconds`, `audio_end_seconds`, `question_start_seconds`, `question_end_seconds`, `group_key`, `listening_type`, `lrc_content`, `created_at`, `updated_at`)')
+      lines.push('  (`question_id`, `audio_url`, `transcript`, `duration_seconds`, `audio_total_seconds`, `audio_start_seconds`, `audio_end_seconds`, `question_start_seconds`, `question_end_seconds`, `answer_start_seconds`, `answer_end_seconds`, `group_key`, `listening_type`, `lrc_content`, `created_at`, `updated_at`)')
       lines.push('VALUES (')
-      lines.push(`  ${variable}, ${sqlString(manifest.audio.publicUrl)}, ${sqlString(group.transcript)}, ${durationSeconds}, ${Number(manifest.audio.totalSeconds)}, ${group.articleStart.toFixed(2)}, ${group.articleEnd.toFixed(2)}, ${question.start.toFixed(2)}, ${question.end.toFixed(2)}, ${sqlString(group.groupKey)}, ${sqlString(group.listeningType)}, ${sqlString(group.lrc)}, NOW(), NOW()`)
+      const answerStartVal = question.answerStart == null ? 'NULL' : question.answerStart.toFixed(2)
+      const answerEndVal = question.answerEnd == null ? 'NULL' : question.answerEnd.toFixed(2)
+      lines.push(`  ${variable}, ${sqlString(manifest.audio.publicUrl)}, ${sqlString(group.transcript)}, ${durationSeconds}, ${Number(manifest.audio.totalSeconds)}, ${group.articleStart.toFixed(2)}, ${group.articleEnd.toFixed(2)}, ${question.start.toFixed(2)}, ${question.end.toFixed(2)}, ${answerStartVal}, ${answerEndVal}, ${sqlString(group.groupKey)}, ${sqlString(group.listeningType)}, ${sqlString(group.lrc)}, NOW(), NOW()`)
       lines.push(')')
       lines.push('ON DUPLICATE KEY UPDATE')
       lines.push('  `audio_url` = VALUES(`audio_url`),')
@@ -397,6 +418,8 @@ function buildSql(manifest, groups, questionsByNumber, questionsStems) {
       lines.push('  `audio_end_seconds` = VALUES(`audio_end_seconds`),')
       lines.push('  `question_start_seconds` = VALUES(`question_start_seconds`),')
       lines.push('  `question_end_seconds` = VALUES(`question_end_seconds`),')
+      lines.push('  `answer_start_seconds` = VALUES(`answer_start_seconds`),')
+      lines.push('  `answer_end_seconds` = VALUES(`answer_end_seconds`),')
       lines.push('  `group_key` = VALUES(`group_key`),')
       lines.push('  `listening_type` = VALUES(`listening_type`),')
       lines.push('  `lrc_content` = VALUES(`lrc_content`),')

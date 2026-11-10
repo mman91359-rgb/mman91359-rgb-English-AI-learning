@@ -67,6 +67,12 @@ public class QuestionVO {
     /** 题目段终点（秒，不包含） */
     private BigDecimal questionEndSeconds;
 
+    /** 答案关键句起点（秒，包含）；复听定位用 */
+    private BigDecimal answerStartSeconds;
+
+    /** 答案关键句终点（秒，不包含） */
+    private BigDecimal answerEndSeconds;
+
     /** 题组/音频段落标识 */
     private String groupKey;
 

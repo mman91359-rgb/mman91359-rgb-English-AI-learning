@@ -607,6 +607,7 @@ export default {
     corePhrases: '核心词组',
     corePhrasesEmpty: '核心词组将在后续 AI 解析中生成。',
     realSpeed: '真实语速',
+    volume: '音量增强',
     submitAnswer: '提交答案',
     pleaseSelect: '请先选择答案',
   },

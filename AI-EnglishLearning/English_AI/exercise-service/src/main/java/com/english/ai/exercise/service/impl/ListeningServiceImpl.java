@@ -188,6 +188,8 @@ public class ListeningServiceImpl implements ListeningService {
         question.setAudioEndSeconds(audio.getAudioEndSeconds());
         question.setQuestionStartSeconds(audio.getQuestionStartSeconds());
         question.setQuestionEndSeconds(audio.getQuestionEndSeconds());
+        question.setAnswerStartSeconds(audio.getAnswerStartSeconds());
+        question.setAnswerEndSeconds(audio.getAnswerEndSeconds());
         question.setGroupKey(audio.getGroupKey());
         question.setListeningType(audio.getListeningType());
     }

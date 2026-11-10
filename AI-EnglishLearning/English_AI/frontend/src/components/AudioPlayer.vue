@@ -128,6 +128,8 @@ const props = withDefaults(defineProps<{
   audioEndSeconds?: number
   questionStartSeconds?: number
   questionEndSeconds?: number
+  answerStartSeconds?: number
+  answerEndSeconds?: number
   disabled?: boolean
 }>(), {
   disabled: false,
@@ -151,6 +153,17 @@ const isPlaying = ref(false)
 const hasError = ref(false)
 const range = ref<RangeMode>('article')
 const playbackRate = ref(1)
+
+// 音量增益（Web Audio）：正常 / 增强 / 更强 三档
+const GAIN_LEVELS = [1.0, 1.5, 2.0] as const
+const gainLevel = ref(0)
+const audioContext = ref<AudioContext | null>(null)
+const gainNode = ref<GainNode | null>(null)
+const sourceNode = ref<MediaElementAudioSourceNode | null>(null)
+
+// 倍速档位：慢 0.75 / 正常 1.0 / 快 1.25 / 更快 1.5
+const RATE_LEVELS = [0.75, 1.0, 1.25, 1.5] as const
+const rateLevel = ref(1)
 
 const totalDuration = computed(() => duration.value || props.audioTotalSeconds || props.durationSeconds || 0)
 const articleStart = computed(() => props.audioStartSeconds ?? 0)
@@ -197,13 +210,47 @@ function barClass(track: RangeMode, index: number): string {
 }
 
 function toggleRate() {
-  const next = playbackRate.value === 1 ? 1.25 : 1
-  setPlaybackRate(next)
+  const next = (rateLevel.value + 1) % RATE_LEVELS.length
+  setPlaybackRate(RATE_LEVELS[next])
 }
 
 function setPlaybackRate(rate: number) {
   playbackRate.value = rate
+  rateLevel.value = RATE_LEVELS.indexOf(rate as (typeof RATE_LEVELS)[number])
   if (audioEl.value) audioEl.value.playbackRate = rate
+}
+
+/** 音量增益：循环切换三档（正常/增强/更强），返回当前档位索引。 */
+function toggleGain() {
+  const next = (gainLevel.value + 1) % GAIN_LEVELS.length
+  setGain(next)
+}
+
+function setGain(level: number) {
+  gainLevel.value = level
+  applyGain()
+}
+
+/** 惰性创建 Web Audio 链路，应用增益。需在用户手势（播放）后调用。 */
+function applyGain() {
+  const audio = audioEl.value
+  if (!audio) return
+  if (!audioContext.value) {
+    const Ctor = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+    if (!Ctor) return
+    audioContext.value = new Ctor()
+    sourceNode.value = audioContext.value.createMediaElementSource(audio)
+    gainNode.value = audioContext.value.createGain()
+    sourceNode.value.connect(gainNode.value)
+    gainNode.value.connect(audioContext.value.destination)
+  }
+  if (gainNode.value) {
+    gainNode.value.gain.value = GAIN_LEVELS[gainLevel.value]
+  }
+  // 自动播放策略：resume 需在用户手势内
+  if (audioContext.value.state === 'suspended') {
+    void audioContext.value.resume()
+  }
 }
 
 function emitTime() {
@@ -265,6 +312,7 @@ async function toggle() {
     currentTime.value = 0
   }
   try {
+    applyGain()
     audio.playbackRate = playbackRate.value
     await audio.play()
   } catch {
@@ -279,6 +327,7 @@ async function replay() {
   audio.currentTime = activeStart.value
   currentTime.value = 0
   try {
+    applyGain()
     audio.playbackRate = playbackRate.value
     await audio.play()
   } catch {
@@ -379,6 +428,7 @@ function reset() {
   hasError.value = false
   range.value = 'article'
   playbackRate.value = 1
+  rateLevel.value = 1
 }
 
 watch(() => props.src, reset)
@@ -402,7 +452,7 @@ onBeforeUnmount(() => {
   audioEl.value?.pause()
 })
 
-defineExpose({ toggle, replay, reset, setPlaybackRate, seekToAbsolute, setRange, toggleRate })
+defineExpose({ toggle, replay, reset, setPlaybackRate, seekToAbsolute, setRange, toggleRate, toggleGain, setGain })
 </script>
 
 <style scoped>

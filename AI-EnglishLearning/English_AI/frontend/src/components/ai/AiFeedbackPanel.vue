@@ -1,13 +1,13 @@
 <template>
   <div class="flex flex-col rounded-[24px] border border-outline-variant/40 bg-surface-container-lowest shadow-soft-glow">
-    <header class="flex items-center gap-2 px-6 pt-5">
+    <header v-if="!hideHeader" class="flex items-center gap-2 px-6 pt-5">
       <span class="flex h-9 w-9 items-center justify-center rounded-full bg-tertiary-container/40 text-tertiary">
         <span class="material-symbols-outlined text-icon-md">rate_review</span>
       </span>
       <h2 class="font-headline-sm text-headline-sm text-on-surface">{{ $t('ai.panel.title') }}</h2>
     </header>
 
-    <div class="px-6 py-4">
+    <div class="px-6 py-4" :class="hideHeader ? 'pt-5' : ''">
       <div v-if="loading" class="flex flex-col gap-3 py-6" role="status" aria-busy="true">
         <span class="sr-only">{{ $t('ai.panel.loading') }}</span>
         <div class="animate-shimmer h-3 w-1/3 rounded-full bg-gradient-to-r from-surface-container-low via-surface-container to-surface-container-low bg-[length:200%_100%] motion-reduce:animate-none" aria-hidden="true"></div>
@@ -31,7 +31,7 @@
     </div>
 
     <AiActionBar
-      v-if="!loading && !error && data"
+      v-if="!loading && !error && data && hasActions"
       :actions="actions"
       @copy="emit('copy')"
       @favorite="emit('favorite')"
@@ -60,6 +60,8 @@ const props = defineProps<{
   loading?: boolean
   error?: string
   data?: Record<string, unknown> | null
+  /** 隐藏自身标题栏：宿主页面已有栏目标题时使用，避免出现两个「AI 反馈」 */
+  hideHeader?: boolean
   actions?: {
     copy?: boolean
     favorite?: boolean
@@ -85,4 +87,7 @@ const TEMPLATE_MAP: Record<PanelType, unknown> = {
 }
 
 const templateComponent = computed(() => TEMPLATE_MAP[props.type])
+
+/** 操作条本身有上边框与内边距，无任何按钮时不应渲染，否则留出一条空白线 */
+const hasActions = computed(() => Object.values(props.actions ?? {}).some(Boolean))
 </script>

@@ -651,6 +651,7 @@ export default {
     incorrectHint: '译文与参考译文存在偏差，请对照参考译文修改。',
     semanticMatch: '语义可接受',
     suggestions: '学习建议',
+    wordLookupPending: '已选中「{word}」，查词讲解待接入',
     loadFailed: '加载翻译题失败',
     submitFailed: '提交翻译失败',
     favoriteAdded: '已加入收藏句',

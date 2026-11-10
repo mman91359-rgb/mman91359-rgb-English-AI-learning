@@ -128,17 +128,23 @@
             :status="feedbackStatus"
             :message="feedbackMessage"
             :tags="feedbackTags"
-            :show-favorite="submitted"
-            @favorite="addReferenceToFavorites"
+            :show-favorite="false"
           />
 
-          <div v-if="submitted" class="bg-surface-container-lowest rounded-[20px] p-5 shadow-[0_4px_20px_rgba(51,58,72,0.05)] border border-outline-variant/20">
-            <div class="flex items-center gap-2 mb-3">
-              <span class="material-symbols-outlined text-secondary text-[20px]">lightbulb</span>
-              <span class="font-label-lg text-label-lg text-on-surface">{{ $t('translation.reference') }}</span>
-            </div>
-            <p class="font-body-lg text-body-lg text-on-surface leading-relaxed">{{ result?.correctAnswer }}</p>
-          </div>
+          <!--
+            结构化反馈：参考译文 / 你的译文逐词对照。
+            收藏入口由面板底部操作条承担，故上方判定卡不再重复渲染收藏按钮。
+            hide-header：aside 顶部已有「AI 反馈」栏目标题，避免出现两个同名标题。
+          -->
+          <AiFeedbackPanel
+            v-if="submitted && result"
+            type="translation"
+            hide-header
+            :data="translationFeedback"
+            :actions="{ favorite: true }"
+            @favorite="addReferenceToFavorites"
+            @lookup="handleLookup"
+          />
 
           <div v-if="submitted && result?.suggestions?.length" class="bg-tertiary-container/15 rounded-[20px] p-5 border border-tertiary/20">
             <div class="flex items-center gap-2 mb-3">
@@ -161,6 +167,7 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import AppLayout from '../components/AppLayout.vue'
 import FeedbackPanel from '../components/listening/FeedbackPanel.vue'
+import AiFeedbackPanel from '../components/ai/AiFeedbackPanel.vue'
 import QuizProgressBar from '../components/quiz/QuizProgressBar.vue'
 import { useToast } from '../composables/useToast'
 import { useUserStore } from '../stores/user'
@@ -209,6 +216,25 @@ const feedbackTags = computed(() => {
   if (result.value.matchedLevel != null) tags.push(`L${result.value.matchedLevel}`)
   return tags
 })
+
+/**
+ * 结构化反馈数据。
+ * 只映射 TranslationFeedback 声明过的字段，aiReason 故意留空：
+ * 判定结论（heuristicHint）已由上方 FeedbackPanel 承担，两边都展示同一句话会显得重复。
+ * userAnswer 取 text 的当前值即可——提交后 textarea 被禁用，reset/next 会同时清空 submitted。
+ */
+const translationFeedback = computed<Record<string, unknown>>(() => ({
+  referenceAnswer: result.value?.correctAnswer ?? '',
+  userAnswer: text.value.trim(),
+}))
+
+/**
+ * 逐词查词。Step 1 只验证链路是否连通（WordToken → 模板 → 面板 → 页面），
+ * 真正的查词弹层留到后续迭代，避免这里顺带引入新的产品行为。
+ */
+const handleLookup = (word: string) => {
+  toast(t('translation.wordLookupPending', { word }), 'info')
+}
 
 onMounted(async () => {
   const userId = userStore.userId

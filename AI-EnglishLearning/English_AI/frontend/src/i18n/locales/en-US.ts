@@ -651,6 +651,7 @@ export default {
     incorrectHint: 'Your translation differs from the reference. Compare and revise.',
     semanticMatch: 'Semantically acceptable',
     suggestions: 'Suggestions',
+    wordLookupPending: 'Selected "{word}" — word lookup is not wired up yet',
     loadFailed: 'Failed to load translation questions',
     submitFailed: 'Failed to submit translation',
     favoriteAdded: 'Added to saved sentences',

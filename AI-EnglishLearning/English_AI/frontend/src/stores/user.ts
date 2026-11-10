@@ -63,6 +63,12 @@ const user = ref<LoginResponse | null>(parsedUser)
   const totalEarned = ref(0)
   const todayCheckedIn = ref(false)
   const checkInStreak = ref(0)
+  /**
+   * 签到成功的递增信号，仅供 UI 播放复燃动画使用。
+   * 不能靠监听 todayCheckedIn 从 false → true：首次加载金币信息时它也会这样变，
+   * 那时候不该放动画。只有真正调用 signIn() 才自增。
+   */
+  const signInNonce = ref(0)
   const previewSignInReward = ref(0)
   const vocabGroupReward = ref(5)
   const vocabGroupDailyLimit = ref(3)
@@ -162,6 +168,8 @@ const user = ref<LoginResponse | null>(parsedUser)
     todayCheckedIn.value = true
     checkInStreak.value = result.streakDays || 0
     previewSignInReward.value = 0
+    // 重复签到（alreadyCheckedIn）没有真正「点着」，不触发复燃
+    if (!result.alreadyCheckedIn) signInNonce.value += 1
     await loadCoinInfo()
     return result
   }
@@ -285,6 +293,7 @@ const user = ref<LoginResponse | null>(parsedUser)
     totalEarned,
     todayCheckedIn,
     checkInStreak,
+    signInNonce,
     previewSignInReward,
     vocabGroupReward,
     vocabGroupDailyLimit,

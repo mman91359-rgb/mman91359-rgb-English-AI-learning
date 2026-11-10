@@ -122,6 +122,18 @@ button, .material-symbols-outlined {
   --color-flame-mid: 255 152 0;
   --color-flame-deep: 238 61 25;
 
+  /* 火焰观感参数。亮色底上「亮橙压白」对比度只有 2:1，靠深色描边把字形轮廓
+     咬死；暗色底上不需要描边（会把边缘画硬），改用外发光 + 更大范围的扩散光。
+     光晕三档控制中心/中环/外缘的透明度，凑成「近亮远淡」的自然衰减。 */
+  --flame-stroke-width: 1px;
+  --flame-stroke-alpha: 0.5;
+  --flame-aura-core: 0.18;
+  --flame-aura-mid: 0.08;
+  --flame-aura-edge: 0.025;
+  --flame-ground-alpha: 0.22;
+  --flame-shadow-alpha: 0.32;
+  --flame-halo-alpha: 0.04;
+
   /* 信息/语法蓝 */
   --color-info: 26 95 180;
   --color-info-container: 199 226 255;
@@ -196,6 +208,17 @@ html.dark {
   --color-flame-core: 255 226 138;
   --color-flame-mid: 255 165 31;
   --color-flame-deep: 255 92 46;
+
+  /* 夜间：取消描边（亮色火焰自带高亮边界），光晕整体上调约一倍，
+     让火焰真正「照亮」侧栏这块区域，但外缘仍收到 0.08 以内不糊到文字 */
+  --flame-stroke-width: 0px;
+  --flame-stroke-alpha: 0;
+  --flame-aura-core: 0.26;
+  --flame-aura-mid: 0.14;
+  --flame-aura-edge: 0.06;
+  --flame-ground-alpha: 0.36;
+  --flame-shadow-alpha: 0.35;
+  --flame-halo-alpha: 0.1;
 
   /* 信息/语法蓝 */
   --color-info: 160 201 255;

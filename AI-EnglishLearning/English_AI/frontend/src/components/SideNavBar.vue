@@ -3,7 +3,11 @@
     <div class="mb-10 px-4">
       <AppLogo to="/dashboard" />
       <div class="mt-2">
-        <StreakDisplay :days="userStore.checkInStreak" />
+        <StreakDisplay
+          :days="userStore.checkInStreak"
+          :lit="userStore.todayCheckedIn"
+          :ignite-token="userStore.signInNonce"
+        />
       </div>
     </div>
     <nav class="flex-1 flex flex-col gap-2">

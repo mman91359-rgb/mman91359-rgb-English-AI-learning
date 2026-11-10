@@ -129,6 +129,11 @@ export default {
         "icon-xl": ["32px", { lineHeight: "32px" }],
         "icon-2xl": ["36px", { lineHeight: "36px" }],
         "icon-3xl": ["48px", { lineHeight: "48px" }],
+        "flame-xs": ["20px", { lineHeight: "20px" }],
+        "flame-sm": ["30px", { lineHeight: "30px" }],
+        "flame-md": ["36px", { lineHeight: "36px" }],
+        "flame-lg": ["42px", { lineHeight: "42px" }],
+        "flame-xl": ["48px", { lineHeight: "48px" }],
         "display-lg": ["48px", { lineHeight: "56px", fontWeight: "700" }],
       },
       boxShadow: {

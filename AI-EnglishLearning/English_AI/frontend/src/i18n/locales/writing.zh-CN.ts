@@ -82,6 +82,7 @@ const extra = {
     backToLearning: '返回学习中心',
     favorite: '收藏题目',
     unfavorite: '取消收藏',
+    askAi: '问 AI',
   },
   history: {
     type: '题型',

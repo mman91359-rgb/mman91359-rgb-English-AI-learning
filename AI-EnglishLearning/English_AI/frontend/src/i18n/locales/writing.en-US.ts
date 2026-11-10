@@ -82,6 +82,7 @@ const extra = {
     backToLearning: 'Back to Learning Center',
     favorite: 'Favorite topic',
     unfavorite: 'Remove favorite',
+    askAi: 'Ask AI',
   },
   history: {
     type: 'Type',

@@ -90,7 +90,7 @@
       <!-- 消息列表 -->
       <div v-else class="space-y-4">
         <div
-          v-for="{ msg, card } in rendered"
+          v-for="{ msg, card, feedback } in rendered"
           :key="msg.id"
           class="flex"
           :class="msg.role === 'user' ? 'justify-end' : 'justify-start'"
@@ -111,8 +111,27 @@
               避免两帧叠加时消息流同时容纳两份高度造成的夹挤。
             -->
             <Transition name="ai-swap" mode="out-in">
+              <!--
+                结构化结果卡：类型完全由 meta 决定，不做任何文本推断。
+                正文内容走默认插槽，长度由 FeedbackCardBody 自己控制（compact），
+                因此不参与 AiCard 的逐节截断。
+              -->
               <AiCard
-                v-if="card"
+                v-if="feedback"
+                key="feedback"
+                :sections="[]"
+                card-type="review"
+                :expanded="aiStore.expandedCardId === msg.id"
+                :avail-height="availHeight"
+                :head-title="feedback.title"
+                :summary="t('ai.card.clickToView')"
+                @toggle="aiStore.toggleCard(msg.id)"
+              >
+                <FeedbackCardBody :kind="feedback.kind" :record-id="feedback.recordId" />
+              </AiCard>
+
+              <AiCard
+                v-else-if="card"
                 key="card"
                 :sections="card.sections"
                 :card-type="card.type"
@@ -201,10 +220,11 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useAiStore, type ChatMessage } from '@/stores/ai'
+import { useAiStore, type ChatMessage, type FeedbackKind } from '@/stores/ai'
 import { useToast } from '@/composables/useToast'
 import { btnIconSm } from '@/components/ui/buttonStyles'
 import AiCard from '@/components/ai/AiCard.vue'
+import FeedbackCardBody from '@/components/ai/FeedbackCardBody.vue'
 import { formatAiContent, splitSections, type AiCardType, type AiSection } from '@/utils/aiContent'
 
 const { t } = useI18n()
@@ -222,6 +242,8 @@ const msgContainer = ref<HTMLDivElement>()
 /**
  * 卡片门槛：结构化回答（≥2 节且 ≥200 字符）才建卡，
  * 避免把"你好""这个我不确定"这类散文硬塞进卡框。
+ * 注意这里只判 vocab / grammar：review（批改）必须由 meta 声明，
+ * 它是唯一需要挂载异构子组件的类型，正则误判会让结构化数据整体不渲染。
  */
 function cardOf(msg: ChatMessage): { sections: AiSection[]; type: AiCardType } | null {
   if (msg.role !== 'ai' || msg.isStreaming || !msg.content) return null
@@ -231,15 +253,32 @@ function cardOf(msg: ChatMessage): { sections: AiSection[]; type: AiCardType } |
   if (chars < 200) return null
 
   const text = sections.map((s) => `${s.title} ${s.body}`).join(' ')
-  let type: AiCardType = 'vocab'
-  if (/语法|成分|时态|从句|句式|主谓/.test(text)) type = 'grammar'
-  else if (/评分|得分|批改|维度|总分/.test(text)) type = 'review'
+  const type: AiCardType = /语法|成分|时态|从句|句式|主谓/.test(text) ? 'grammar' : 'vocab'
   return { sections, type }
 }
 
-/** 消息与卡片的配对缓存，避免模板里反复 splitSections */
+/**
+ * 消息与卡片的配对缓存，避免模板里反复 splitSections。
+ * meta 存在时以 meta 为准（事实），否则才退回正文分节（措辞）。
+ */
+const FEEDBACK_TITLE_KEYS: Record<FeedbackKind, string> = {
+  writing: 'ai.card.typeWriting',
+  translation: 'ai.card.typeTranslation',
+  listening: 'ai.card.typeListening',
+}
+
 const rendered = computed(() =>
-  aiStore.messages.map((msg) => ({ msg, card: cardOf(msg) })),
+  aiStore.messages.map((msg) => ({
+    msg,
+    feedback: msg.meta
+      ? {
+          kind: msg.meta.kind,
+          recordId: msg.meta.recordId,
+          title: t(FEEDBACK_TITLE_KEYS[msg.meta.kind]),
+        }
+      : null,
+    card: msg.meta ? null : cardOf(msg),
+  })),
 )
 
 /**

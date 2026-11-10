@@ -12,12 +12,12 @@
   >
     <span class="flex h-7 w-full items-center gap-2.5">
       <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-[10px] bg-surface-container-high text-on-surface-variant">
-        <span class="material-symbols-outlined text-icon-md">{{ headIcon }}</span>
+        <span class="material-symbols-outlined text-icon-md">{{ resolvedIcon }}</span>
       </span>
-      <span class="min-w-0 flex-1 truncate font-headline-sm text-headline-sm text-on-surface">{{ headTitle }}</span>
+      <span class="min-w-0 flex-1 truncate font-headline-sm text-headline-sm text-on-surface">{{ resolvedTitle }}</span>
       <span class="material-symbols-outlined shrink-0 text-icon-sm text-on-surface-variant" aria-hidden="true">expand_more</span>
     </span>
-    <span class="mt-2 w-full truncate font-body-sm text-body-sm text-on-surface-variant">{{ summaryLine }}</span>
+    <span class="mt-2 w-full truncate font-body-sm text-body-sm text-on-surface-variant">{{ resolvedSummary }}</span>
   </button>
 
   <!--
@@ -36,31 +36,37 @@
       @click="emit('toggle')"
     >
       <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-[10px] bg-surface-container-high text-on-surface-variant">
-        <span class="material-symbols-outlined text-icon-md">{{ headIcon }}</span>
+        <span class="material-symbols-outlined text-icon-md">{{ resolvedIcon }}</span>
       </span>
-      <span class="min-w-0 flex-1 truncate font-headline-sm text-headline-sm text-on-surface">{{ headTitle }}</span>
+      <span class="min-w-0 flex-1 truncate font-headline-sm text-headline-sm text-on-surface">{{ resolvedTitle }}</span>
       <span class="material-symbols-outlined shrink-0 text-icon-sm text-on-surface-variant" aria-hidden="true">expand_less</span>
     </button>
 
     <div
       :id="bodyId"
       ref="bodyEl"
-      class="mt-4 flex flex-col gap-4"
+      class="ai-card-body mt-4 flex flex-col gap-4"
       :class="ready ? '' : 'invisible'"
     >
-      <section
-        v-for="(section, i) in shownSections"
-        :key="i"
-        :data-section="i"
-        class="flex flex-col gap-2"
-      >
-        <h4 v-if="section.title" class="flex items-center gap-2 font-label-md text-label-md text-on-surface-variant">
-          <span class="h-0.5 w-4 shrink-0 rounded-full bg-primary/40" aria-hidden="true"></span>
-          <span class="truncate">{{ section.title }}</span>
-        </h4>
-        <!-- 标题由上方 h4 承担，正文只渲染内容，避免与 .ai-title 样式重复 -->
-        <div class="ai-body" v-html="renderSection({ title: '', body: section.body })"></div>
-      </section>
+      <!--
+        默认插槽保留原有的 sections 渲染；结构化结果（meta 卡）由调用方塞自己的内容，
+        所以那段内容的长度由调用方负责，不参与下面的逐节截断。
+      -->
+      <slot>
+        <section
+          v-for="(section, i) in shownSections"
+          :key="i"
+          :data-section="i"
+          class="flex flex-col gap-2"
+        >
+          <h4 v-if="section.title" class="flex items-center gap-2 font-label-md text-label-md text-on-surface-variant">
+            <span class="h-0.5 w-4 shrink-0 rounded-full bg-primary/40" aria-hidden="true"></span>
+            <span class="truncate">{{ section.title }}</span>
+          </h4>
+          <!-- 标题由上方 h4 承担，正文只渲染内容，避免与 .ai-title 样式重复 -->
+          <div class="ai-body" v-html="renderSection({ title: '', body: section.body })"></div>
+        </section>
+      </slot>
     </div>
 
     <!-- 截断时给出唯一出口；未截断则不渲染按钮，避免死按钮 -->
@@ -83,12 +89,19 @@ import { useI18n } from 'vue-i18n'
 import { renderSection, type AiCardType, type AiSection } from '@/utils/aiContent'
 
 const props = defineProps<{
+  /** 纯文本分节卡用；结构化结果卡传空数组，内容走默认插槽 */
   sections: AiSection[]
   cardType: AiCardType
   /** 是否展开；由 store 的 expandedCardId 统一控制，保证同时只展开一张 */
   expanded: boolean
   /** 消息区可用高度，已 clamp 到视口 */
   availHeight: number
+  /** 覆盖头部标题（结构化结果卡用，无 sections 可推导） */
+  headTitle?: string
+  /** 覆盖折叠态摘要 */
+  summary?: string
+  /** 覆盖头部图标 */
+  icon?: string
 }>()
 
 const emit = defineEmits<{ (e: 'toggle'): void }>()
@@ -106,17 +119,19 @@ const ICON_MAP: Record<AiCardType, string> = {
   review: 'rate_review',
 }
 
-const headIcon = computed(() => ICON_MAP[props.cardType])
+const resolvedIcon = computed(() => props.icon || ICON_MAP[props.cardType])
 
-const headTitle = computed(() => {
+const resolvedTitle = computed(() => {
+  if (props.headTitle) return props.headTitle
   const typeLabel = t(`ai.card.type${props.cardType.charAt(0).toUpperCase()}${props.cardType.slice(1)}`)
   // 首个有标题的区块可作为实体名（词汇卡的词头、语法卡的语法点）
   const anchor = props.sections.find((s) => s.title)?.title
   return anchor ? `${typeLabel} · ${anchor}` : typeLabel
 })
 
-/** 折叠态摘要：锚点标题 → 首节正文首行 → 节数兜底，保证永不为空 */
-const summaryLine = computed(() => {
+/** 折叠态摘要：外部覆盖 → 锚点标题 → 首节正文首行 → 节数兜底，保证永不为空 */
+const resolvedSummary = computed(() => {
+  if (props.summary) return props.summary
   const anchor = props.sections.find((s) => s.title)?.title
   if (anchor) return anchor
   const firstBody = props.sections[0]?.body?.split('\n').find((l) => l.trim())
@@ -144,6 +159,13 @@ async function measure() {
   await nextTick()
   const el = bodyEl.value
   if (!el) return
+
+  // 插槽内容（结构化结果卡）自己控制密度，不参与逐节截断，直接显形
+  if (props.sections.length === 0) {
+    visibleCount.value = 0
+    ready.value = true
+    return
+  }
 
   const full = el.scrollHeight
   const avail = Math.max(320, props.availHeight)

@@ -2,12 +2,23 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { chatStream, type ChatRequest } from '@/api/ai'
 
+export type FeedbackKind = 'writing' | 'translation' | 'listening'
+
 export interface ChatMessage {
   id: string
   role: 'user' | 'ai' | 'system'
   content: string
   timestamp: number
   isStreaming?: boolean
+  /**
+   * 结构化结果引用。只存 recordId，不存业务模型本体：
+   * 消息体积可控、store 保持领域无关、渲染时按 id 反查。
+   * 存在 meta 时，类型判定以它为准，不再做任何文本推断。
+   */
+  meta?: {
+    kind: FeedbackKind
+    recordId: string
+  }
 }
 
 let msgSeq = 0
@@ -125,6 +136,18 @@ export const useAiStore = defineStore('ai', () => {
     expandedCardId.value = null
   }
 
+  /**
+   * 注入一张结构化结果卡（批改速览），不发起模型调用。
+   * 与 sendMessage 的区别：不产生 isLoading，也不清空既有对话——追问是延续，不是新开一题。
+   */
+  function injectFeedback(kind: FeedbackKind, recordId: string) {
+    const msg = addMessage('ai', '')
+    msg.meta = { kind, recordId }
+    // 新卡进来时收起上一张，保持同时只展开一张
+    expandedCardId.value = null
+    isOpen.value = true
+  }
+
   function sendScoreRequest(content: string, scoreType: 'speaking' | 'writing') {
     const prompt = scoreType === 'speaking'
       ? `请对以下口语内容进行评分：\n\n${content}`
@@ -148,6 +171,7 @@ export const useAiStore = defineStore('ai', () => {
     setInlineMode,
     sendMessage,
     clearMessages,
+    injectFeedback,
     sendScoreRequest,
   }
 })

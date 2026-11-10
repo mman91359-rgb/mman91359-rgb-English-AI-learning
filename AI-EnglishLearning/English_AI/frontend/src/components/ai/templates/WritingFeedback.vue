@@ -23,7 +23,7 @@
       </div>
     </section>
 
-    <section v-if="score?.strengths?.length" class="flex flex-col gap-2">
+    <section v-if="!compact && score?.strengths?.length" class="flex flex-col gap-2">
       <h3 class="font-label-lg text-label-lg text-on-surface">{{ $t('writing.report.strengths') }}</h3>
       <ul class="flex flex-col gap-2">
         <li v-for="(s, i) in score.strengths" :key="i" class="flex items-start gap-2 font-body-md text-body-md text-on-surface">
@@ -33,7 +33,7 @@
       </ul>
     </section>
 
-    <section v-if="score?.issues?.length" class="flex flex-col gap-2">
+    <section v-if="!compact && score?.issues?.length" class="flex flex-col gap-2">
       <h3 class="font-label-lg text-label-lg text-on-surface">{{ $t('writing.report.issues') }}</h3>
       <ul class="flex flex-col gap-2">
         <li v-for="(s, i) in score.issues" :key="i" class="flex items-start gap-2 font-body-md text-body-md text-on-surface">
@@ -43,12 +43,12 @@
       </ul>
     </section>
 
-    <section v-if="score?.corrections?.length" class="flex flex-col gap-3">
+    <section v-if="!compact && score?.corrections?.length" class="flex flex-col gap-3">
       <h3 class="font-label-lg text-label-lg text-on-surface">{{ $t('writing.report.corrections') }}</h3>
       <WritingCorrectionList :corrections="score.corrections" />
     </section>
 
-    <section v-if="score?.modelEssay" class="flex flex-col gap-2 rounded-2xl bg-surface-container-low p-4">
+    <section v-if="!compact && score?.modelEssay" class="flex flex-col gap-2 rounded-2xl bg-surface-container-low p-4">
       <h3 class="font-label-lg text-label-lg text-on-surface">{{ $t('writing.report.modelEssay') }}</h3>
       <p class="font-body-md text-body-md text-on-surface whitespace-pre-line">{{ score.modelEssay }}</p>
     </section>
@@ -61,5 +61,15 @@ import WritingDimensionBar from '../../writing/WritingDimensionBar.vue'
 import type { WritingScore } from '../../../types/writing'
 import { DIMENSION_LABEL_KEYS, WRITING_DIMENSIONS } from '../../../utils/writing'
 
-defineProps<{ score?: WritingScore | null }>()
+/**
+ * compact：只渲染总分与五个维度，用于对话流速览。
+ * 优点/问题/批改/范文属于深度内容，留在报告页，避免同一份报告在对话里铺开上千像素。
+ */
+withDefaults(defineProps<{
+  score?: WritingScore | null
+  compact?: boolean
+}>(), {
+  score: null,
+  compact: false,
+})
 </script>

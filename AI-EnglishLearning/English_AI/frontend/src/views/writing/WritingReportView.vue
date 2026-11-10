@@ -45,6 +45,10 @@
             <span class="material-symbols-outlined text-icon-sm">{{ isFavorite ? 'favorite' : 'favorite_border' }}</span>
             {{ isFavorite ? $t('writing.report.unfavorite') : $t('writing.report.favorite') }}
           </button>
+          <button type="button" :class="btnSecondarySm" @click="askAi">
+            <span class="material-symbols-outlined text-icon-sm">forum</span>
+            {{ $t('writing.report.askAi') }}
+          </button>
           <button type="button" :class="btnPrimarySm" @click="rewrite">
             <span class="material-symbols-outlined text-icon-sm">refresh</span>
             {{ $t('writing.report.again') }}
@@ -111,6 +115,7 @@ import { btnPrimarySm, btnSecondarySm } from '../../components/ui/buttonStyles'
 import WritingCorrectionList from '../../components/writing/WritingCorrectionList.vue'
 import WritingDimensionBar from '../../components/writing/WritingDimensionBar.vue'
 import { useToast } from '../../composables/useToast'
+import { useAiStore } from '../../stores/ai'
 import { fetchFavoriteIds, fetchSubmission, fetchSubmissions, setFavorite } from '../../api/writing'
 import type { WritingSubmission } from '../../types/writing'
 import {
@@ -126,6 +131,7 @@ const route = useRoute()
 const router = useRouter()
 const { t } = useI18n()
 const { show: toast } = useToast()
+const aiStore = useAiStore()
 
 const loading = ref(true)
 const error = ref('')
@@ -179,6 +185,17 @@ const toggleFavorite = async () => {
 const rewrite = () => {
   if (!submission.value) return
   void router.push({ path: '/writing/practice', query: { topic: submission.value.topicId } })
+}
+
+/**
+ * 追问入口。
+ * 先按当前作文重建对话上下文（open 传 context 会清空上一题的记录），
+ * 再注入一张批改速览卡。不自动发送提问，避免直接消耗一次模型调用。
+ */
+const askAi = () => {
+  if (!submission.value) return
+  aiStore.open({ contextType: 'general', userAnswer: submission.value.content })
+  aiStore.injectFeedback('writing', submission.value.id)
 }
 
 onMounted(load)

@@ -93,6 +93,7 @@ const navGroups = computed<NavGroup[]>(() => [
   },
   { titleKey: 'adminConsole.nav.groupSystem', items: [{ path: '/admin/operation-logs', labelKey: 'adminConsole.nav.operationLogs', icon: 'history' }] },
   { titleKey: 'adminConsole.nav.groupContent', items: [{ path: '/admin/questions', labelKey: 'adminConsole.nav.questions', icon: 'fact_check' }] },
+  { titleKey: 'adminConsole.nav.groupReview', items: [{ path: '/admin/judge-review', labelKey: 'adminConsole.nav.judgeReview', icon: 'grading' }] },
 ])
 
 const isActive = (path: string) => route.path === path || route.path.startsWith(`${path}/`)

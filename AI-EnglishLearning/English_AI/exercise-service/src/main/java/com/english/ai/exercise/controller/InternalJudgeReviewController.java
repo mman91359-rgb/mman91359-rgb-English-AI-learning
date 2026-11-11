@@ -13,9 +13,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 判题审核队列写入接口（/internal/** 由 InternalAuthInterceptor 校验）。
+ * 判题审核队列的服务间/运维接口（/internal/** 由 InternalAuthInterceptor 校验 X-Internal-Token）。
  *
- * <p>能力预留：主判题链路不会调用本接口。是否入队由调用方（管理端/运营脚本）决定。</p>
+ * <p>面向服务间调用与运维脚本，不经网关、不走角色鉴权；
+ * 运营后台请改用 {@link AdminJudgeReviewController}（/admin/judge-review/**，走网关 JWT + 管理员角色）。</p>
  */
 @RestController
 @RequestMapping("/internal/judge")

@@ -385,3 +385,47 @@ export const rejectQuestion = (id: number, comment: string): Promise<void> =>
 
 export const generateQuestions = (body: GenerateQuestionsRequest): Promise<number> =>
   post('/admin/questions/generate', body)
+
+/** ---------- 判题复核 ---------- */
+
+/** 判题复核队列状态（区别于题目的 PENDING/APPROVED/REJECTED） */
+export type JudgeReviewStatus = 'PENDING' | 'REVIEWED' | 'DISMISSED'
+
+/** 判题复核队列条目 */
+export interface JudgeReviewAdminItem {
+  id: number
+  questionId: number
+  userId: number
+  logId: number | null
+  difficultyLevel: number | null
+  moduleType: number | null
+  userAnswer: string
+  correctAnswer: string
+  matchedLevel: number | null
+  aiConfidence: number | null
+  aiResult: string | null
+  judgeContext: string | null
+  reason: string
+  status: JudgeReviewStatus
+  reviewerId: number | null
+  reviewComment: string | null
+  stem: string | null
+  curveScored: boolean
+  eloScored: boolean
+  createdAt: string
+}
+
+export interface JudgeReviewAdminQuery {
+  status?: JudgeReviewStatus
+  reason?: string
+  questionId?: number
+  page?: number
+  size?: number
+}
+
+export const getJudgeReviews = (params: JudgeReviewAdminQuery): Promise<AdminPage<JudgeReviewAdminItem>> =>
+  get('/admin/judge-review', params)
+
+/** 单条复核结论落地（PASS 维持判对 / FAIL 改判为错并补记） */
+export const resolveJudgeReview = (id: number, verdict: 'PASS' | 'FAIL', comment?: string): Promise<boolean> =>
+  post(`/admin/judge-review/${id}/resolve`, { reviewId: id, verdict, comment })

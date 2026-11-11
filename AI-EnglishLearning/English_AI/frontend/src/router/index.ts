@@ -26,6 +26,7 @@ const AdminQuestionsView = () => import('../views/admin/AdminQuestionsView.vue')
 const AdminNoticesView = () => import('../views/admin/AdminNoticesView.vue')
 const AdminActivitiesView = () => import('../views/admin/AdminActivitiesView.vue')
 const AdminOperationLogsView = () => import('../views/admin/AdminOperationLogsView.vue')
+const AdminJudgeReviewView = () => import('../views/admin/AdminJudgeReviewView.vue')
 const ForbiddenView = () => import('../views/ForbiddenView.vue')
 const ListeningQuizView = () => import('../views/ListeningQuizView.vue')
 const TranslationPracticeView = () => import('../views/TranslationPracticeView.vue')
@@ -245,6 +246,12 @@ const router = createRouter({
           name: 'admin-questions',
           component: AdminQuestionsView,
           meta: { requiresAuth: true, requiresAdmin: true, adminTitleKey: 'adminConsole.nav.questions' },
+        },
+        {
+          path: 'judge-review',
+          name: 'admin-judge-review',
+          component: AdminJudgeReviewView,
+          meta: { requiresAuth: true, requiresAdmin: true, adminTitleKey: 'adminConsole.nav.judgeReview' },
         },
         {
           path: 'notices',

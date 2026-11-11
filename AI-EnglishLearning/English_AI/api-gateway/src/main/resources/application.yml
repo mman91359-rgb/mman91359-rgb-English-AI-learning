@@ -22,7 +22,7 @@ spring:
         - id: admin-exercise-service
           uri: ${EXERCISE_SERVICE_URL:http://localhost:8082}
           predicates:
-            - Path=/admin/questions,/admin/questions/**,/admin/learning-stats/**
+            - Path=/admin/questions,/admin/questions/**,/admin/learning-stats/**,/admin/judge-review,/admin/judge-review/**
         - id: admin-user-service
           uri: ${USER_SERVICE_URL:http://localhost:8081}
           predicates:

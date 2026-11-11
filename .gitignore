@@ -7,12 +7,20 @@
 日志/
 设计方案/
 
+# 毕业设计文档（含每次修改备份副本，不入版本控制）
+毕业文档/
+
 # 外部独立项目与临时目录
 init/
 wordtml-main/
 前端设计参考图/
 参考图片/
 .workbuddy/
+.tmp_ref/
+
+# 生成产物与工作文档（不入版本控制）
+AI-EnglishLearning/English_AI/docs/Workbuddy/图片/
+AI-EnglishLearning/English_AI/docs/Workbuddy/*.md
 
 # 本地 git worktree 挂载点（开发环境状态，不入版本库）
 .claude/worktrees/

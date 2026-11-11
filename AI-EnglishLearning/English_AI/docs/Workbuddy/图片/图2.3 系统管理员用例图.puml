@@ -1,0 +1,42 @@
+@startuml
+' 图2.3 系统管理员用例图
+' 注意：图内不嵌图号，图号与图题统一写在 Word 图注中
+left to right direction
+skinparam defaultFontName "Microsoft YaHei"
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam ArrowColor #4A5568
+skinparam ArrowThickness 1.1
+skinparam usecaseBackgroundColor #EAF1FB
+skinparam usecaseBorderColor #5B7DB1
+skinparam usecaseBorderThickness 1.1
+skinparam rectangleBorderColor #8A9AAE
+skinparam rectangleBackgroundColor #FFFFFF
+skinparam nodesep 18
+skinparam ranksep 34
+
+actor "系统管理员" as A
+
+rectangle "Recall 睿考四六级 AI 学习系统" {
+  usecase "登录系统" as A1
+  usecase "管理题库" as A2
+  usecase "管理用户账号" as A3
+  usecase "管理公告与活动" as A4
+  usecase "查看数据概览" as A5
+  usecase "查看操作日志" as A6
+  usecase "新增题目数据" as A7
+  usecase "修改题目数据" as A8
+  usecase "删除题目数据" as A9
+}
+
+A --> A1
+A --> A2
+A --> A3
+A --> A4
+A --> A5
+A --> A6
+
+A2 ..> A7 : include
+A2 ..> A8 : include
+A2 ..> A9 : include
+@enduml

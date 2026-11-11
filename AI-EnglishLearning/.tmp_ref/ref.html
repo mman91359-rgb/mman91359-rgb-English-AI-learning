@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>大学四年，想做的 100 件小事</title>
+<style>
+  :root{
+    --bg:#fafafa;
+    --paper:#ffffff;
+    --ink:#2b2b2b;
+    --ink-soft:#6b6b6b;
+    --ink-faint:#9a9a9a;
+    --line:#ececec;
+    --line-soft:#f2f2f2;
+    --c-todo-bg:#f0f0f0;   --c-todo-tx:#8a8a8a; --c-todo-bd:#e3e3e3;
+    --c-wait-bg:#e3effa;   --c-wait-tx:#5c86ad; --c-wait-bd:#d3e4f5;
+    --c-done-bg:#faf0d6;   --c-done-tx:#a3803a; --c-done-bd:#f0e2bb;
+    --c-later-bg:#e7e3f0;  --c-later-tx:#8375a3; --c-later-bd:#d8d2e8;
+    --accent:#7c9cbf;
+    --radius:10px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{max-width:100%;overflow-x:hidden;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:14px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .serif{font-family:Georgia,"Times New Roman","Songti SC","SimSun",serif;}
+  ::selection{background:#dcebf7;}
+
+  .wrap{max-width:980px;margin:0 auto;padding:0 20px 80px;}
+
+  /* ---------- 顶部导航 ---------- */
+  header.site{
+    position:sticky;top:0;z-index:50;
+    background:rgba(250,250,250,.92);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-inner{
+    max-width:980px;margin:0 auto;padding:14px 20px;
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+  }
+  .brand{font-size:14px;letter-spacing:.5px;color:var(--ink-soft);white-space:nowrap;}
+  .brand b{color:var(--ink);font-weight:600;}
+  nav.tabs{display:flex;gap:4px;background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:3px;}
+  nav.tabs button{
+    border:none;background:transparent;color:var(--ink-soft);
+    padding:6px 16px;border-radius:999px;cursor:pointer;
+    font-size:13px;font-family:inherit;transition:all .18s ease;white-space:nowrap;
+  }
+  nav.tabs button:hover{color:var(--ink);}
+  nav.tabs button.on{background:var(--ink);color:#fff;}
+  .lang-btn{
+    border:none;background:var(--paper);border:1px solid var(--line);border-radius:999px;
+    padding:6px 14px;cursor:pointer;font-size:12.5px;font-family:inherit;color:var(--ink-soft);
+    transition:all .18s ease;white-space:nowrap;
+  }
+  .lang-btn:hover{color:var(--ink);border-color:#d5d5d5;}
+  .nav-right{display:flex;align-items:center;gap:8px;}
+
+  /* ---------- 页头 ---------- */
+  .page-head{padding:52px 0 28px;text-align:center;}
+  .page-head h1{font-size:26px;font-weight:600;letter-spacing:1px;}
+  .page-head .sub{margin-top:10px;color:var(--ink-faint);font-size:13px;letter-spacing:2px;}
+  .page-head .quote{margin-top:22px;color:var(--ink-soft);font-size:13px;letter-spacing:1.5px;}
+  .page-head .quote::before,.page-head .quote::after{content:"";display:inline-block;width:26px;height:1px;background:var(--line);vertical-align:middle;margin:0 12px;}
+
+  /* ---------- 统计条 ---------- */
+  .stat-bar{
+    background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px 22px;display:flex;align-items:center;gap:26px;flex-wrap:wrap;
+    box-shadow:0 1px 3px rgba(0,0,0,.02);
+  }
+  .stat-num{display:flex;align-items:baseline;gap:6px;white-space:nowrap;}
+  .stat-num .n{font-size:26px;font-weight:600;letter-spacing:.5px;}
+  .stat-num .d{font-size:13px;color:var(--ink-faint);}
+  .stat-mid{flex:1;min-width:180px;}
+  .progress-track{height:5px;background:var(--line-soft);border-radius:99px;overflow:hidden;}
+  .progress-fill{height:100%;background:var(--accent);border-radius:99px;transition:width .5s ease;}
+  .progress-label{margin-top:7px;font-size:12px;color:var(--ink-faint);display:flex;justify-content:space-between;}
+  .stat-chapter{
+    font-size:13px;color:var(--ink-soft);white-space:nowrap;
+    padding:6px 14px;border:1px solid var(--line);border-radius:999px;background:#fbfbfb;
+  }
+  .stat-chapter b{color:var(--ink);font-weight:500;}
+
+  /* ---------- 工具行 ---------- */
+  .tools{display:flex;align-items:center;gap:10px;margin:22px 0 6px;flex-wrap:wrap;}
+  .search-box{
+    display:flex;align-items:center;gap:8px;flex:1;min-width:200px;max-width:320px;
+    background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:8px 16px;
+    transition:border-color .18s;
+  }
+  .search-box:focus-within{border-color:#c8d8e8;}
+  .search-box svg{flex:none;opacity:.45;}
+  .search-box input{border:none;outline:none;background:transparent;font-family:inherit;font-size:13px;color:var(--ink);width:100%;}
+  .search-box input::placeholder{color:var(--ink-faint);}
+  select.filter{
+    appearance:none;-webkit-appearance:none;
+    background:var(--paper) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath d='M1 3l4 4 4-4' fill='none' stroke='%239a9a9a' stroke-width='1.4' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 14px center;
+    border:1px solid var(--line);border-radius:999px;padding:8px 36px 8px 16px;
+    font-family:inherit;font-size:13px;color:var(--ink-soft);cursor:pointer;outline:none;
+    transition:border-color .18s;
+  }
+  select.filter:hover{border-color:#d8d8d8;}
+  select.filter:focus{border-color:#c8d8e8;}
+
+  /* ---------- 事项网格 ---------- */
+  .cat-title{
+    margin:26px 0 14px;display:flex;align-items:center;gap:12px;
+    font-size:13px;color:var(--ink-faint);letter-spacing:2px;
+  }
+  .cat-title::after{content:"";flex:1;height:1px;background:var(--line);}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(196px,1fr));gap:12px;}
+  .card{
+    background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px 15px;cursor:pointer;position:relative;
+    box-shadow:0 1px 2px rgba(0,0,0,.015);
+    transition:box-shadow .18s ease,transform .18s ease,border-color .18s ease;
+    display:flex;flex-direction:column;gap:8px;min-height:104px;
+    text-align:left;font-family:inherit;
+  }
+  .card:hover{box-shadow:0 4px 14px rgba(0,0,0,.06);transform:translateY(-1px);border-color:#e0e0e0;}
+  .card:active{transform:translateY(0);}
+  .card-top{display:flex;align-items:center;justify-content:space-between;}
+  .card-num{font-size:11px;color:var(--ink-faint);letter-spacing:1px;font-family:Georgia,serif;}
+  .card-marks{display:flex;gap:6px;align-items:center;}
+  .mark-photo{opacity:.5;}
+  .mark-mood{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--ink-faint);display:inline-block;opacity:.55;}
+  .mark-mood.m-happy{border-color:#d9a94e;}
+  .card-name{font-size:13.5px;line-height:1.5;color:var(--ink);flex:1;word-break:break-all;}
+  html[lang="en"] .card-name{word-break:normal;overflow-wrap:break-word;}
+  .card.done .card-name{color:#4a4a4a;}
+  .card-bot{display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap;}
+  .pill{
+    font-size:11px;padding:2.5px 10px;border-radius:999px;border:1px solid;letter-spacing:.5px;white-space:nowrap;
+  }
+  .pill.todo{background:var(--c-todo-bg);color:var(--c-todo-tx);border-color:var(--c-todo-bd);}
+  .pill.wait{background:var(--c-wait-bg);color:var(--c-wait-tx);border-color:var(--c-wait-bd);}
+  .pill.done{background:var(--c-done-bg);color:var(--c-done-tx);border-color:var(--c-done-bd);}
+  .pill.later{background:var(--c-later-bg);color:var(--c-later-tx);border-color:var(--c-later-bd);}
+  .card-date{font-size:11px;color:var(--ink-faint);white-space:nowrap;}
+  .card.s-done{border-color:#efe6cc;}
+  .card.s-wait{border-color:#e0ecf7;}
+  .card.s-later{border-color:#e2dded;}
+  .grid-empty{
+    grid-column:1/-1;text-align:center;padding:60px 0;color:var(--ink-faint);font-size:13px;letter-spacing:1px;
+  }
+
+  /* ---------- 弹窗 ---------- */
+  .modal-mask{
+    position:fixed;inset:0;background:rgba(40,40,40,.32);z-index:100;
+    display:flex;align-items:flex-start;justify-content:center;padding:6vh 16px 16px;
+    opacity:0;pointer-events:none;transition:opacity .2s ease;overflow-y:auto;
+  }
+  .modal-mask.show{opacity:1;pointer-events:auto;}
+  .modal{
+    background:var(--paper);border-radius:14px;width:100%;max-width:520px;
+    box-shadow:0 18px 50px rgba(0,0,0,.14);
+    transform:translateY(10px);transition:transform .22s ease;
+  }
+  .modal-mask.show .modal{transform:translateY(0);}
+  .modal-head{padding:20px 24px 0;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
+  .modal-head .m-num{font-size:11px;color:var(--ink-faint);letter-spacing:1.5px;font-family:Georgia,serif;}
+  .modal-head h3{font-size:16px;font-weight:600;margin-top:2px;}
+  .modal-close{
+    border:none;background:var(--line-soft);width:28px;height:28px;border-radius:50%;
+    cursor:pointer;color:var(--ink-soft);font-size:14px;line-height:1;flex:none;
+    transition:background .15s;
+  }
+  .modal-close:hover{background:#e6e6e6;color:var(--ink);}
+  .modal-body{padding:18px 24px 24px;display:flex;flex-direction:column;gap:18px;}
+  .field label{display:block;font-size:12px;color:var(--ink-faint);letter-spacing:1px;margin-bottom:8px;}
+  .status-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+  .status-row button{
+    border:1px solid var(--line);background:#fbfbfb;border-radius:8px;padding:8px 4px;
+    font-family:inherit;font-size:12.5px;color:var(--ink-soft);cursor:pointer;transition:all .15s;
+  }
+  .status-row button:hover{border-color:#ddd;}
+  .status-row button.on.f-todo{background:var(--c-todo-bg);border-color:var(--c-todo-bd);color:var(--c-todo-tx);}
+  .status-row button.on.f-wait{background:var(--c-wait-bg);border-color:var(--c-wait-bd);color:var(--c-wait-tx);}
+  .status-row button.on.f-done{background:var(--c-done-bg);border-color:var(--c-done-bd);color:var(--c-done-tx);}
+  .status-row button.on.f-later{background:var(--c-later-bg);border-color:var(--c-later-bd);color:var(--c-later-tx);}
+  input[type=date]{
+    font-family:inherit;font-size:13px;color:var(--ink);
+    border:1px solid var(--line);border-radius:8px;padding:8px 12px;background:#fbfbfb;outline:none;
+    transition:border-color .15s;
+  }
+  input[type=date]:focus{border-color:#c8d8e8;}
+  .mood-grid{display:flex;flex-wrap:wrap;gap:8px;}
+  .mood-grid button{
+    border:1px solid var(--line);background:#fbfbfb;border-radius:999px;
+    padding:5px 14px;font-family:inherit;font-size:12.5px;color:var(--ink-soft);cursor:pointer;
+    transition:all .15s;
+  }
+  .mood-grid button:hover{border-color:#ddd;}
+  .mood-grid button.on{background:var(--ink);color:#fff;border-color:var(--ink);}
+  textarea.note{
+    width:100%;min-height:76px;resize:vertical;
+    font-family:inherit;font-size:13px;color:var(--ink);line-height:1.7;
+    border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:#fbfbfb;outline:none;
+    transition:border-color .15s;
+  }
+  textarea.note:focus{border-color:#c8d8e8;}
+  .photo-area{display:flex;flex-direction:column;gap:10px;}
+  .photo-thumbs{display:flex;flex-wrap:wrap;gap:10px;}
+  .thumb{position:relative;width:86px;height:64px;border-radius:8px;overflow:hidden;border:1px solid var(--line);}
+  .thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+  .thumb .del{
+    position:absolute;top:4px;right:4px;width:18px;height:18px;border-radius:50%;
+    border:none;background:rgba(255,255,255,.9);color:var(--ink-soft);font-size:11px;line-height:1;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+  }
+  .thumb .del:hover{background:#fff;color:var(--ink);}
+  .photo-add{
+    align-self:flex-start;border:1px dashed #d5d5d5;border-radius:8px;background:#fbfbfb;
+    padding:8px 16px;font-family:inherit;font-size:12.5px;color:var(--ink-soft);cursor:pointer;
+    transition:all .15s;
+  }
+  .photo-add:hover{border-color:#bbb;color:var(--ink);}
+  .modal-foot{display:flex;gap:10px;justify-content:flex-end;padding:0 24px 24px;}
+  .btn{
+    border:1px solid var(--line);background:var(--paper);border-radius:999px;
+    padding:9px 26px;font-family:inherit;font-size:13px;color:var(--ink-soft);cursor:pointer;
+    transition:all .15s;
+  }
+  .btn:hover{color:var(--ink);border-color:#d5d5d5;}
+  .btn.primary{background:var(--ink);color:#fff;border-color:var(--ink);}
+  .btn.primary:hover{background:#444;}
+
+  /* toast */
+  .toast{
+    position:fixed;left:50%;bottom:40px;transform:translateX(-50%) translateY(16px);
+    background:var(--ink);color:#fff;font-size:13px;letter-spacing:1px;
+    padding:10px 26px;border-radius:999px;z-index:200;opacity:0;
+    transition:all .3s ease;pointer-events:none;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  /* ---------- 第二页 ---------- */
+  .chapter-hero{
+    background:var(--paper);border:1px solid var(--line);border-radius:14px;
+    padding:38px 34px 30px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.02);
+  }
+  .chapter-hero .lv{font-size:13px;letter-spacing:3px;color:var(--ink-faint);}
+  .chapter-hero h2{font-size:24px;font-weight:600;margin-top:8px;letter-spacing:1px;}
+  .chapter-hero .say{margin-top:12px;color:var(--ink-soft);font-size:13.5px;}
+  .chapter-hero .cnt{margin-top:18px;font-size:13px;color:var(--ink-faint);}
+  .chapter-hero .cnt b{color:var(--ink);font-size:18px;font-weight:600;margin:0 2px;}
+
+  .roadmap{margin-top:44px;padding:0 8px;}
+  .road-track{position:relative;height:2px;background:var(--line-soft);border-radius:99px;margin:0 30px;}
+  .road-fill{position:absolute;left:0;top:0;height:100%;background:var(--accent);border-radius:99px;transition:width .5s ease;}
+  .road-nodes{display:flex;justify-content:space-between;margin-top:-7px;position:relative;}
+  .road-node{display:flex;flex-direction:column;align-items:center;gap:10px;flex:1;min-width:0;}
+  .road-dot{width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--line);transition:all .3s;}
+  .road-node.passed .road-dot{border-color:var(--accent);background:#e3effa;}
+  .road-node.current .road-dot{border-color:var(--accent);background:var(--accent);box-shadow:0 0 0 4px rgba(124,156,191,.18);}
+  .road-name{font-size:12px;color:var(--ink-faint);letter-spacing:1px;white-space:nowrap;}
+  .road-node.passed .road-name{color:var(--ink-soft);}
+  .road-node.current .road-name{color:var(--ink);font-weight:600;}
+
+  .sec-title{margin:56px 0 20px;display:flex;align-items:center;gap:12px;font-size:14px;color:var(--ink);letter-spacing:2px;font-weight:600;}
+  .sec-title::after{content:"";flex:1;height:1px;background:var(--line);}
+
+  .stats3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+  .stat-card{
+    background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);
+    padding:22px 24px;box-shadow:0 1px 3px rgba(0,0,0,.02);
+  }
+  .stat-card .t{font-size:12px;color:var(--ink-faint);letter-spacing:2px;}
+  .stat-card .v{margin-top:12px;font-size:20px;font-weight:600;letter-spacing:.5px;line-height:1.4;}
+  .stat-card .v small{font-size:12px;color:var(--ink-faint);font-weight:400;margin-left:2px;}
+  .tag-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+  .tag{
+    font-size:12.5px;color:var(--ink-soft);background:#f6f6f6;
+    border:1px solid var(--line);border-radius:999px;padding:4px 14px;letter-spacing:1px;
+  }
+
+  .letter{
+    background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);
+    padding:30px 34px;box-shadow:0 1px 3px rgba(0,0,0,.02);
+  }
+  .letter p{color:var(--ink-soft);font-size:14px;line-height:2;letter-spacing:.5px;text-align:justify;}
+
+  .timeline{display:flex;flex-direction:column;gap:0;}
+  .tl-item{
+    display:flex;gap:18px;background:var(--paper);border:1px solid var(--line);
+    border-radius:var(--radius);padding:16px 20px;cursor:pointer;
+    transition:box-shadow .18s,transform .18s,border-color .18s;
+  }
+  .tl-item:hover{box-shadow:0 4px 14px rgba(0,0,0,.06);transform:translateY(-1px);}
+  .tl-item + .tl-item{margin-top:10px;}
+  .tl-item + .tl-item::before{content:none;}
+  .tl-photo{width:72px;height:54px;border-radius:8px;overflow:hidden;border:1px solid var(--line);flex:none;background:var(--line-soft);}
+  .tl-photo img{width:100%;height:100%;object-fit:cover;display:block;}
+  .tl-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;}
+  .tl-name{font-size:14px;font-weight:500;color:var(--ink);}
+  .tl-meta{display:flex;gap:10px;align-items:center;font-size:12px;color:var(--ink-faint);flex-wrap:wrap;}
+  .tl-meta .mood{color:var(--c-wait-tx);}
+  .tl-note{font-size:12.5px;color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+  footer.site{margin-top:70px;text-align:center;color:var(--ink-faint);font-size:12px;letter-spacing:2px;line-height:2;}
+  .reset-row{text-align:center;margin-top:46px;}
+  .reset-row button{
+    background:none;border:1px solid var(--line);border-radius:999px;
+    color:var(--ink-faint);font-size:12px;letter-spacing:1px;
+    padding:7px 18px;cursor:pointer;transition:all .2s;
+  }
+  .reset-row button:hover{color:var(--ink);border-color:var(--ink-faint);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:720px){
+    .wrap{padding:0 14px 60px;}
+    .nav-inner{padding:12px 14px;}
+    .brand{display:none;}
+    .page-head{padding:36px 0 22px;}
+    .page-head h1{font-size:21px;}
+    .page-head .quote::before,.page-head .quote::after{width:14px;margin:0 8px;}
+    .stat-bar{gap:14px;padding:16px 18px;}
+    .stat-num .n{font-size:22px;}
+    .stat-chapter{font-size:12px;padding:5px 12px;}
+    .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+    .card{padding:12px 13px;min-height:96px;}
+    .card-name{font-size:13px;}
+    .status-row{grid-template-columns:repeat(2,1fr);}
+    .stats3{grid-template-columns:1fr;}
+    .chapter-hero{padding:30px 22px 26px;}
+    .chapter-hero h2{font-size:20px;}
+    .road-name{font-size:11px;transform:scale(.92);}
+    .tl-photo{width:60px;height:46px;}
+    .letter{padding:24px 22px;}
+    .modal-body{gap:16px;}
+    .tools{margin:18px 0 4px;}
+    .search-box{max-width:none;}
+  }
+  @media (max-width:380px){
+    .grid{grid-template-columns:repeat(2,1fr);}
+  }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="nav-inner">
+    <div class="brand" id="brand"><b>100 件小事</b> · 大学手账</div>
+    <nav class="tabs">
+      <button id="tab-list" class="on" onclick="switchTab('list')">100 件小事</button>
+      <button id="tab-chapter" onclick="switchTab('chapter')">我的大学章节</button>
+    </nav>
+    <div class="nav-right">
+      <button class="lang-btn" id="lang-toggle" onclick="toggleLang()">EN</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ================= 第一页 ================= -->
+  <section id="page-list">
+    <div class="page-head">
+      <h1 class="serif" id="main-title">大学四年，想做的 100 件小事</h1>
+      <div class="sub" id="main-sub">慢慢完成，也慢慢记住。</div>
+      <div class="quote serif" id="main-quote">有些事情不是为了完成，而是为了记住。</div>
+    </div>
+
+    <div class="stat-bar">
+      <div class="stat-num"><span class="n" id="stat-count">0</span><span class="d" id="stat-unit">/ 100 已珍藏</span></div>
+      <div class="stat-mid">
+        <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+        <div class="progress-label"><span id="progress-pct">0%</span><span id="progress-next"></span></div>
+      </div>
+      <div class="stat-chapter" id="stat-chapter">第一章 · 初见</div>
+    </div>
+
+    <div class="tools">
+      <div class="search-box">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="#6b6b6b" stroke-width="1.4"/><path d="M9.5 9.5L13 13" stroke="#6b6b6b" stroke-width="1.4" stroke-linecap="round"/></svg>
+        <input id="search-input" type="text" placeholder="搜索一件小事…" oninput="renderList()">
+      </div>
+      <select class="filter" id="cat-filter" onchange="renderList()">
+        <option value="全部">全部</option>
+      </select>
+    </div>
+
+    <div id="list-body"></div>
+  </section>
+
+  <!-- ================= 第二页 ================= -->
+  <section id="page-chapter" style="display:none">
+    <div class="page-head">
+      <h1 class="serif" id="ch-title">我的大学章节</h1>
+      <div class="sub" id="ch-sub">一步一步，都是走过的路。</div>
+    </div>
+
+    <div class="chapter-hero">
+      <div class="lv" id="ch-lv">Lv.1</div>
+      <h2 class="serif" id="ch-name">第一章 · 初见</h2>
+      <div class="say" id="ch-say">你正在慢慢认识这所校园。</div>
+      <div class="cnt" id="ch-cnt">已珍藏 <b id="ch-count">0</b>/100 件 · <span id="ch-left"></span></div>
+    </div>
+
+    <div class="roadmap">
+      <div class="road-track"><div class="road-fill" id="road-fill"></div></div>
+      <div class="road-nodes" id="road-nodes"></div>
+    </div>
+
+    <div class="sec-title" id="sec-moment">此刻的大学</div>
+    <div class="stats3">
+      <div class="stat-card">
+        <div class="t" id="t-done">已经珍藏</div>
+        <div class="v" id="s-done">0 <small id="t-things">件小事</small></div>
+      </div>
+      <div class="stat-card">
+        <div class="t" id="t-mood">最近的心情</div>
+        <div class="v" id="s-mood">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="t" id="t-kw">我的大学关键词</div>
+        <div class="tag-list" id="s-kw"></div>
+      </div>
+    </div>
+
+    <div class="sec-title" id="sec-letter">写给现在的自己</div>
+    <div class="letter">
+      <p class="serif" id="letter-text"></p>
+    </div>
+
+    <div class="sec-title" id="sec-recent">最近珍藏</div>
+    <div class="timeline" id="timeline"></div>
+
+    <div class="reset-row"><button id="reset-demo"></button></div>
+
+    <footer class="site" id="site-footer">
+      大学四年，想做的 100 件小事<br>
+      有些事情不是为了完成，而是为了记住。
+    </footer>
+  </section>
+</div>
+
+<!-- 记录面板 -->
+<div class="modal-mask" id="modal-mask">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <div class="m-num" id="m-num"></div>
+        <h3 class="serif" id="m-name"></h3>
+      </div>
+      <button class="modal-close" onclick="closeModal()" aria-label="关闭">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label id="l-status">状态</label>
+        <div class="status-row" id="m-status">
+          <button data-v="todo" class="f-todo">想去做</button>
+          <button data-v="wait" class="f-wait">等待发生</button>
+          <button data-v="done" class="f-done">已经珍藏</button>
+          <button data-v="later" class="f-later">留给以后</button>
+        </div>
+      </div>
+      <div class="field">
+        <label id="l-date">完成日期</label>
+        <input type="date" id="m-date">
+      </div>
+      <div class="field">
+        <label id="l-mood">当时的心情</label>
+        <div class="mood-grid" id="m-mood"></div>
+      </div>
+      <div class="field">
+        <label id="l-note">一句话记录</label>
+        <textarea class="note" id="m-note" maxlength="100" placeholder="那天发生了什么…"></textarea>
+      </div>
+      <div class="field photo-area">
+        <label id="l-photo">照片</label>
+        <div class="photo-thumbs" id="m-photos"></div>
+        <button class="photo-add" id="btn-add-photo" onclick="document.getElementById('m-file').click()">＋ 添加照片</button>
+        <input type="file" id="m-file" accept="image/*" multiple style="display:none" onchange="onPickPhotos(event)">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" id="btn-cancel" onclick="closeModal()">取消</button>
+      <button class="btn primary" id="btn-save" onclick="saveRecord()">保存记录</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">已保存</div>
+
+<script>
+/* ============ 语言（先于一切数据求值） ============ */
+var LANG = "zh";
+try{
+  var __q = new URLSearchParams(location.search);
+  if(__q.get("lang") === "en") LANG = "en";
+}catch(e){}
+document.documentElement.lang = LANG === "en" ? "en" : "zh-CN";
+if(LANG === "en") document.title = "100 Little Things for Four Years of College";
+function T(zh, en){ return LANG === "en" ? en : zh; }
+
+/* ============ 基础数据 ============ */
+var CAT_KEYS = ["校园时光","青春日常","朋友之间","一个人的浪漫","小小远方","关于热爱","勇敢一点","感受世界","留下痕迹","好好告别"];
+var CAT_TEXT = {
+  "校园时光": T("校园时光","Campus Time"),
+  "青春日常": T("青春日常","Daily Youth"),
+  "朋友之间": T("朋友之间","Between Friends"),
+  "一个人的浪漫": T("一个人的浪漫","Solo Romance"),
+  "小小远方": T("小小远方","Little Faraway"),
+  "关于热爱": T("关于热爱","About Passion"),
+  "勇敢一点": T("勇敢一点","Be Braver"),
+  "感受世界": T("感受世界","Feel the World"),
+  "留下痕迹": T("留下痕迹","Leave a Trace"),
+  "好好告别": T("好好告别","Say Goodbye")
+};
+var RAW = {
+"校园时光":["看一次校园日出","等一场校园日落","在操场吹晚风","雨后逛一圈校园","拍下四季的同一个角落","走遍学校每条小路","在长椅上发一次呆","听一次校园广播","去一次学校天台","和校门认真合影"],
+"青春日常":["早起吃一次早餐","穿睡衣去拿外卖","在食堂发现隐藏菜单","尝遍学校所有食堂","在宿舍吃一次火锅","为室友庆祝生日","熬夜聊一次真心话","一起看一场老电影","拍一张宿舍全家福","认真布置一次寝室"],
+"朋友之间":["认识一个不同专业的人","和朋友交换一本书","给朋友写一封信","一起完成一张拼图","一起去陌生的地方","为朋友准备小惊喜","和老朋友见一面","认真说一次谢谢","勇敢说一次对不起","留下一段朋友的声音"],
+"一个人的浪漫":["一个人看场电影","一个人逛博物馆","一个人去看花","一个人吃顿好饭","一个人散步到天黑","找到自己的秘密基地","买一束花送给自己","写一封信给未来","记录一个普通下午","和自己拍一张合照"],
+"小小远方":["坐一次绿皮火车","去一座陌生城市","看一次真正的大海","爬一座不高的山","在山顶等日出","看一次漫天星星","去郊外野餐","沿着河边散步","迷一次不危险的路","带回一张旅行车票"],
+"关于热爱":["找到一项真正的爱好","学会一首喜欢的歌","读完一本厚书","写完一个小故事","拍一组喜欢的照片","画一幅不完美的画","种活一盆植物","学会一道拿手菜","做一件亲手完成的礼物","坚持一件小事一百天"],
+"勇敢一点":["在很多人面前发言","主动认识一个人","对喜欢的人表达心意","拒绝一次勉强自己","尝试一次新发型","穿一次大胆的衣服","去参加陌生活动","完成一件害怕的事","坦然接受一次失败","为自己认真争取一次"],
+"感受世界":["看一场现场演出","听一次街头歌唱","逛一次旧书店","看一次艺术展","参加一次音乐节","看一场话剧","去一次天文馆","观察一次月亮圆缺","在春天认真看花","在冬天等一场雪"],
+"留下痕迹":["拍一张学生证照片","保存一张课程表","留下第一次获奖证明","收藏一张手写便签","记录一次心动瞬间","做一本大学相册","录下校园的声音","写一篇年度回忆","保存毕业前的聊天记录","给大学生活做一段视频"],
+"好好告别":["和喜欢的老师聊聊天","回一次刚入学的地方","再吃一次最爱的窗口","和室友散一次步","向重要的人表达感谢","穿学士服走遍校园","拍一张毕业合照","写下大学的遗憾","原谅曾经的自己","对大学认真说再见"]
+};
+var RAW_EN = {
+"校园时光":["Watch a campus sunrise","Wait for a campus sunset","Feel the evening breeze on the field","Stroll the campus after rain","Photograph the same corner in four seasons","Walk every path on campus","Daydream on a bench","Listen to the campus radio","Visit the school rooftop","Take a serious photo with the school gate"],
+"青春日常":["Get up early for breakfast","Grab delivery in pajamas","Discover a hidden canteen dish","Try every canteen on campus","Have hotpot in the dorm","Celebrate a roommate's birthday","Stay up late for a heart-to-heart","Watch an old movie together","Take a dorm group photo","Decorate the dorm with care"],
+"朋友之间":["Befriend someone from another major","Swap a book with a friend","Write a friend a letter","Finish a puzzle together","Visit somewhere unfamiliar together","Prepare a little surprise for a friend","Meet up with an old friend","Say a heartfelt thank you","Bravely say sorry","Record a friend's voice"],
+"一个人的浪漫":["Watch a movie alone","Wander a museum alone","Go see the flowers alone","Treat yourself to a nice meal","Walk until dark, alone","Find your own secret base","Buy yourself a bouquet","Write a letter to the future","Record an ordinary afternoon","Take a photo with yourself"],
+"小小远方":["Ride a slow green train","Visit an unfamiliar city","See the real ocean","Climb a small mountain","Wait for sunrise on the summit","Watch a sky full of stars","Picnic in the suburbs","Walk along the river","Get harmlessly lost once","Bring back a travel ticket"],
+"关于热爱":["Find a true passion","Learn a favorite song","Finish a thick book","Finish a little story","Shoot a photo series you love","Paint an imperfect picture","Keep a plant alive","Master a signature dish","Make a gift with your own hands","Stick with a small thing for 100 days"],
+"勇敢一点":["Speak in front of a crowd","Say hi to someone new","Confess to someone you like","Say no once","Try a new haircut","Wear something bold","Join an event with strangers","Do the thing you fear","Accept a failure with grace","Stand up for yourself once"],
+"感受世界":["See a live show","Hear street singing","Browse an old bookshop","Visit an art exhibition","Go to a music festival","Watch a stage play","Visit a planetarium","Track the moon's phases","Watch spring blossoms closely","Wait for winter snow"],
+"留下痕迹":["Take a student ID photo","Keep a class schedule","Keep your first award certificate","Treasure a handwritten note","Capture a heart-flutter moment","Make a college album","Record the sounds of campus","Write a year-in-review","Save pre-graduation chats","Make a video of college life"],
+"好好告别":["Chat with a teacher you like","Revisit where you first arrived","Eat at your favorite window once more","Take a walk with roommates","Thank the people who matter","Walk the campus in graduation gown","Take a graduation photo","Write down the regrets","Forgive your past self","Say a proper goodbye to college"]
+};
+
+var ITEMS = [];
+var __idx = 1;
+for(var __ci=0; __ci<CAT_KEYS.length; __ci++){
+  var __c = CAT_KEYS[__ci];
+  var __names = LANG === "en" ? RAW_EN[__c] : RAW[__c];
+  for(var __ni=0; __ni<__names.length; __ni++){
+    ITEMS.push({id:__idx++, name:__names[__ni], cat:__c});
+  }
+}
+
+/* 心情：canonical 键存储，渲染层翻译 */
+var MOOD_KEYS = ["happy","calm","moved","expectant","free","tired","lost","missing","surprise","other"];
+var MOOD_TEXT = {
+  happy: T("开心","Happy"), calm: T("平静","Calm"), moved: T("感动","Moved"),
+  expectant: T("期待","Expectant"), free: T("自由","Free"), tired: T("疲惫","Tired"),
+  lost: T("失落","Lost"), missing: T("想念","Missing"), surprise: T("惊喜","Surprise"),
+  other: T("其他","Other")
+};
+var STATUS_TEXT = {todo:T("想去做","To Do"), wait:T("等待发生","Waiting"), done:T("已经珍藏","Treasured"), later:T("留给以后","For Later")};
+var CHAPTERS = [
+  {lv:1,name:T("第一章 · 初见","Chapter 1 · First Sight"),say:T("你正在慢慢认识这所校园。","You are slowly getting to know this campus."),min:0},
+  {lv:2,name:T("第二章 · 相遇","Chapter 2 · Encounter"),say:T("你开始遇见喜欢的人和事。","You begin to meet the people and things you love."),min:20},
+  {lv:3,name:T("第三章 · 生长","Chapter 3 · Growth"),say:T("你正在成为更完整的自己。","You are becoming a more complete self."),min:40},
+  {lv:4,name:T("第四章 · 远行","Chapter 4 · Faraway"),say:T("你走出了熟悉的生活半径。","You have stepped beyond your familiar radius of life."),min:60},
+  {lv:5,name:T("第五章 · 珍藏","Chapter 5 · Treasure"),say:T("你的大学已经有了许多故事。","Your college years already hold many stories."),min:80},
+  {lv:6,name:T("终章 · 满载而归","Finale · Fully Loaded"),say:T("这一段青春，值得被好好记住。","This youth deserves to be remembered well."),min:100}
+];
+var ROAD_NAMES = [T("初见","First Sight"),T("相遇","Encounter"),T("生长","Growth"),T("远行","Faraway"),T("珍藏","Treasure"),T("满载而归","Fully Loaded")];
+var KW_DICT = ["晚风","日落","日出","朋友","食堂","书","信","电影","花","山","河","城市","旅行","夏天","冬天","春天","夜","窗","风","海","歌","画","照片"];
+var KW_DICT_EN = ["breeze","sunset","sunrise","friend","canteen","book","letter","movie","flower","mountain","river","city","train","summer","winter","spring","night","window","wind","sea","song","picture","photo","dorm","campus"];
+
+/* ============ 演示照片（内置 SVG placeholder） ============ */
+function ph(text, color){
+  var label = LANG === "en" ? text : text;
+  var svg = `<svg xmlns='http://www.w3.org/2000/svg' width='480' height='360'><rect width='480' height='360' fill='${color}'/><text x='240' y='190' font-size='24' fill='rgba(70,70,70,0.45)' text-anchor='middle' font-family='sans-serif' letter-spacing='4'>${label}</text></svg>`;
+  return "data:image/svg+xml," + encodeURIComponent(svg);
+}
+
+/* ============ 演示数据（DEMO_SEED） ============
+   日期锚点：最近珍藏日 2026-09-01（生成日当天），整体由源演示包平移。
+   mood 存 canonical 键；photos 为内置 SVG data URI。 */
+function seed(){
+  if(LANG === "en"){
+    return {
+      "1":  {status:"done", date:"2026-09-01", mood:"happy",     note:"The field at 5:30 a.m., the sky slowly lighting up.", photos:[ph("Sunrise","#e3effa")]},
+      "2":  {status:"done", date:"2025-10-14", mood:"moved",     note:"Waited on the rooftop until the last ray of light sank away.", photos:[]},
+      "5":  {status:"done", date:"2026-06-22", mood:"calm",      note:"The east wall of the teaching building: cherry spring, green summer, amber autumn, snowy winter.", photos:[ph("Four Seasons","#faf0d6")]},
+      "13": {status:"done", date:"2025-11-05", mood:"surprise",  note:"The auntie secretly added an extra spoon of secret chili sauce.", photos:[]},
+      "16": {status:"done", date:"2025-12-07", mood:"free",      note:"Lights-out heart-to-heart in the dorm, talking until 2 a.m.", photos:[]},
+      "22": {status:"done", date:"2026-01-10", mood:"moved",     note:"Some words are hard to say in person, writing them down fits just right.", photos:[]},
+      "34": {status:"done", date:"2026-03-16", mood:"expectant", note:"Passed a flower shop and bought myself a small bunch of sunflowers.", photos:[]},
+      "41": {status:"done", date:"2026-05-02", mood:"free",      note:"The slow train swayed along, rice fields all the way.", photos:[ph("The Trip","#e7e3f0")]},
+      "52": {status:"done", date:"2026-05-27", mood:"calm",      note:"Three weeks through One Hundred Years of Solitude, the flyleaf filled with names.", photos:[]},
+      "63": {status:"done", date:"2026-06-13", mood:"expectant", note:"Presented in class with sweaty palms; the applause afterward was warm.", photos:[]},
+      "73": {status:"done", date:"2026-07-21", mood:"surprise",  note:"Front row at the livehouse, sound waves rising from the soles of my feet.", photos:[]},
+      "95": {status:"done", date:"2026-08-30", mood:"missing",   note:"Third floor of the library by the window, the moment he looked up.", photos:[]},
+      "3":  {status:"wait",  date:"", mood:"", note:"", photos:[]},
+      "47": {status:"wait",  date:"", mood:"", note:"", photos:[]},
+      "55": {status:"later", date:"", mood:"", note:"", photos:[]},
+      "88": {status:"later", date:"", mood:"", note:"", photos:[]}
+    };
+  }
+  return {
+    "1":  {status:"done", date:"2026-09-01", mood:"happy",     note:"清晨五点半的操场，天边一点点亮起来。", photos:[ph("日出","#e3effa")]},
+    "2":  {status:"done", date:"2025-10-14", mood:"moved",     note:"在天台等到最后一缕光沉下去。", photos:[]},
+    "5":  {status:"done", date:"2026-06-22", mood:"calm",      note:"教学楼东墙，春樱、夏荫、秋叶、冬雪都齐了。", photos:[ph("四季","#faf0d6")]},
+    "13": {status:"done", date:"2025-11-05", mood:"surprise",  note:"阿姨偷偷多给了一勺秘制辣酱。", photos:[]},
+    "16": {status:"done", date:"2025-12-07", mood:"free",      note:"熄灯后卧谈会，聊到凌晨两点。", photos:[]},
+    "22": {status:"done", date:"2026-01-10", mood:"moved",     note:"有些话当面说不出口，写下来刚刚好。", photos:[]},
+    "34": {status:"done", date:"2026-03-16", mood:"expectant", note:"路过花店，给自己买了一小束向日葵。", photos:[]},
+    "41": {status:"done", date:"2026-05-02", mood:"free",      note:"绿皮火车摇摇晃晃，看了一路稻田。", photos:[ph("旅途","#e7e3f0")]},
+    "52": {status:"done", date:"2026-05-27", mood:"calm",      note:"三周啃完《百年孤独》，扉页写满了名字。", photos:[]},
+    "63": {status:"done", date:"2026-06-13", mood:"expectant", note:"课堂展示讲到手心冒汗，结束后掌声很暖。", photos:[]},
+    "73": {status:"done", date:"2026-07-21", mood:"surprise",  note:"livehouse 的前排，音浪从脚底传上来。", photos:[]},
+    "95": {status:"done", date:"2026-08-30", mood:"missing",   note:"图书馆三楼靠窗，他抬头的那一眼。", photos:[]},
+    "3":  {status:"wait",  date:"", mood:"", note:"", photos:[]},
+    "47": {status:"wait",  date:"", mood:"", note:"", photos:[]},
+    "55": {status:"later", date:"", mood:"", note:"", photos:[]},
+    "88": {status:"later", date:"", mood:"", note:"", photos:[]}
+  };
+}
+
+/* ============ 状态存取（案例本地演示层，key 按语言隔离） ============ */
+const KEY = "college100_case_c100w_v1_" + LANG;
+let records = load();
+
+function load(){
+  try{
+    const s = localStorage.getItem(KEY);
+    if(s) return JSON.parse(s);
+  }catch(e){}
+  const d = seed();
+  try{ localStorage.setItem(KEY, JSON.stringify(d)); }catch(e){}
+  return d;
+}
+function persist(){
+  try{ localStorage.setItem(KEY, JSON.stringify(records)); }
+  catch(e){ showToast(T("照片较多，保存到本地失败","Too many photos, failed to save locally")); }
+}
+
+/* ============ 工具函数 ============ */
+const $ = s => document.querySelector(s);
+function catText(c){ return CAT_TEXT[c] || c; }
+function moodText(m){ return MOOD_TEXT[m] || m || ""; }
+function recOf(i){ return records[i.id] || {}; }
+function doneList(){
+  return ITEMS.filter(i => recOf(i).status === "done")
+    .map(i => ({item:i, r:recOf(i)}))
+    .sort((a,b) => (b.r.date||"").localeCompare(a.r.date||""));
+}
+function doneCount(){ return ITEMS.filter(i => recOf(i).status === "done").length; }
+function chapterOf(n){
+  let c = CHAPTERS[0];
+  for(const ch of CHAPTERS){ if(n >= ch.min) c = ch; }
+  return c;
+}
+function fmtDate(d){
+  if(!d) return "";
+  const [y,m,dd] = d.split("-");
+  return `${y.slice(2)}.${m}.${dd}`;
+}
+function showToast(msg){
+  const t = $("#toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(t._tm);
+  t._tm = setTimeout(()=>t.classList.remove("show"), 1800);
+}
+
+/* ============ 语言切换 ============ */
+function toggleLang(){
+  const next = LANG === "en" ? "zh" : "en";
+  try{
+    const u = new URL(location.href);
+    if(next === "en"){ u.searchParams.set("lang","en"); } else { u.searchParams.delete("lang"); }
+    location.href = u.toString();
+  }catch(e){ location.reload(); }
+}
+
+/* ============ 静态 DOM 文案 ============ */
+function applyStaticI18n(){
+  $("#brand").innerHTML = T("<b>100 件小事</b> · 大学手账", "<b>100 Little Things</b> · College Journal");
+  $("#tab-list").textContent = T("100 件小事","100 Little Things");
+  $("#tab-chapter").textContent = T("我的大学章节","My College Chapters");
+  $("#lang-toggle").textContent = LANG === "en" ? "中文" : "EN";
+  $("#main-title").textContent = T("大学四年，想做的 100 件小事","100 Little Things for Four Years of College");
+  $("#main-sub").textContent = T("慢慢完成，也慢慢记住。","Finish slowly, remember slowly.");
+  $("#main-quote").textContent = T("有些事情不是为了完成，而是为了记住。","Some things are not meant to be finished, but to be remembered.");
+  $("#stat-unit").textContent = T("/ 100 已珍藏","/ 100 collected");
+  $("#ch-title").textContent = T("我的大学章节","My College Chapters");
+  $("#ch-sub").textContent = T("一步一步，都是走过的路。","Every step is a road you have walked.");
+  $("#ch-name").textContent = T("第一章 · 初见","Chapter 1 · First Sight");
+  $("#ch-say").textContent = T("你正在慢慢认识这所校园。","You are slowly getting to know this campus.");
+  $("#toast").textContent = T("已保存","Saved");
+  $("#ch-cnt").childNodes[0].textContent = T("已珍藏 ","Collected ");
+  $("#ch-cnt").childNodes[2].textContent = T("/100 件 · "," / 100 · ");
+  $("#sec-moment").textContent = T("此刻的大学","This Moment");
+  $("#t-done").textContent = T("已经珍藏","Collected");
+  $("#t-things").textContent = T("件小事","little things");
+  $("#t-mood").textContent = T("最近的心情","Recent Moods");
+  $("#t-kw").textContent = T("我的大学关键词","My College Keywords");
+  $("#sec-letter").textContent = T("写给现在的自己","A Letter to You");
+  $("#sec-recent").textContent = T("最近珍藏","Recent Treasures");
+  $("#site-footer").innerHTML = T("大学四年，想做的 100 件小事<br>有些事情不是为了完成，而是为了记住。","100 Little Things for Four Years of College<br>Some things are not meant to be finished, but to be remembered.");
+  $("#reset-demo").textContent = T("清空演示记录，从零开始","Clear demo records, start fresh");
+  $("#l-status").textContent = T("状态","Status");
+  $("#l-date").textContent = T("完成日期","Date");
+  $("#l-mood").textContent = T("当时的心情","The Mood");
+  $("#l-note").textContent = T("一句话记录","One Line");
+  $("#l-photo").textContent = T("照片","Photos");
+  $("#m-note").placeholder = T("那天发生了什么…","What happened that day…");
+  $("#btn-add-photo").textContent = T("＋ 添加照片","＋ Add Photo");
+  $("#btn-cancel").textContent = T("取消","Cancel");
+  $("#btn-save").textContent = T("保存记录","Save");
+  $("#search-input").placeholder = T("搜索一件小事…","Search a little thing…");
+  var stBtns = document.querySelectorAll("#m-status button");
+  stBtns.forEach(function(b){ b.textContent = STATUS_TEXT[b.dataset.v]; });
+  document.querySelector(".modal-close").setAttribute("aria-label", T("关闭","Close"));
+}
+
+/* ============ 页面切换 ============ */
+function switchTab(p){
+  $("#tab-list").classList.toggle("on", p==="list");
+  $("#tab-chapter").classList.toggle("on", p==="chapter");
+  $("#page-list").style.display = p==="list" ? "" : "none";
+  $("#page-chapter").style.display = p==="chapter" ? "" : "none";
+  window.scrollTo({top:0});
+  if(p==="chapter") renderChapter();
+}
+
+/* ============ 第一页：列表 ============ */
+const photoIcon = `<svg class="mark-photo" width="13" height="13" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="12" height="10" rx="1.5" stroke="#6b6b6b" stroke-width="1.2"/><circle cx="4.8" cy="6.5" r="1.2" fill="#6b6b6b"/><path d="M1.5 11l3.2-3 2.6 2.4L9.6 8l3 2.6" stroke="#6b6b6b" stroke-width="1.2" stroke-linejoin="round"/></svg>`;
+
+function buildCatFilter(){
+  const sel = $("#cat-filter");
+  sel.innerHTML = "";
+  const o0 = document.createElement("option");
+  o0.value = "全部"; o0.textContent = T("全部","All");
+  sel.appendChild(o0);
+  for(const c of CAT_KEYS){
+    const o = document.createElement("option");
+    o.value = c; o.textContent = catText(c);
+    sel.appendChild(o);
+  }
+}
+
+function renderList(){
+  const kw = $("#search-input").value.trim();
+  const cat = $("#cat-filter").value;
+  const body = $("#list-body");
+  const groups = [];
+  for(const c of (cat==="全部" ? CAT_KEYS : [cat])){
+    const list = ITEMS.filter(i => i.cat===c &&
+      (!kw || i.name.includes(kw) || String(i.id).padStart(3,"0").includes(kw) || String(i.id)===kw));
+    if(list.length) groups.push({cat:c, list});
+  }
+  let html = "";
+  if(!groups.length){
+    html = `<div class="grid"><div class="grid-empty">${T("没有找到相关的小事","No matching little things")}</div></div>`;
+  } else {
+    for(const g of groups){
+      html += `<div class="cat-title">${catText(g.cat)}</div><div class="grid">`;
+      for(const it of g.list){
+        const r = recOf(it);
+        const st = r.status || "todo";
+        const marks = [];
+        if(r.photos && r.photos.length) marks.push(photoIcon);
+        if(r.mood) marks.push(`<span class="mark-mood ${r.mood==='happy'?'m-happy':''}" title="${moodText(r.mood)}"></span>`);
+        html += `<button class="card s-${st} ${st==='done'?'done':''}" onclick="openModal(${it.id})" title="${it.name}">
+          <div class="card-top"><span class="card-num">№ ${String(it.id).padStart(3,"0")}</span><span class="card-marks">${marks.join("")}</span></div>
+          <div class="card-name">${it.name}</div>
+          <div class="card-bot"><span class="pill ${st}">${STATUS_TEXT[st]}</span>${st==="done"&&r.date?`<span class="card-date">${fmtDate(r.date)}</span>`:""}</div>
+        </button>`;
+      }
+      html += `</div>`;
+    }
+  }
+  body.innerHTML = html;
+  renderStats();
+}
+
+function renderStats(){
+  const n = doneCount();
+  const ch = chapterOf(n);
+  $("#stat-count").textContent = n;
+  $("#progress-fill").style.width = n + "%";
+  $("#progress-pct").textContent = Math.round(n) + "%";
+  $("#stat-chapter").innerHTML = `Lv.${ch.lv} <b>${ch.name}</b>`;
+  const idx = CHAPTERS.indexOf(ch);
+  if(idx < CHAPTERS.length-1){
+    const next = CHAPTERS[idx+1];
+    const shortZh = next.name.replace(/第.章 · |终章 · /,"");
+    const shorts = ["First Sight","Encounter","Growth","Faraway","Treasure"];
+    const shortEn = shorts[idx] || next.name;
+    $("#progress-next").textContent = T(`距「${shortZh}」还差 ${next.min - n} 件`, `${next.min - n} more to "${shortEn}"`);
+  } else {
+    $("#progress-next").textContent = T("已抵达终章","You have reached the finale");
+  }
+}
+
+/* ============ 弹窗 ============ */
+let editingId = null;
+let tmpStatus = "todo", tmpMood = "", tmpPhotos = [];
+
+function openModal(id){
+  editingId = id;
+  const it = ITEMS.find(x=>x.id===id);
+  const r = recOf(it);
+  tmpStatus = r.status || "todo";
+  tmpMood = r.mood || "";
+  tmpPhotos = (r.photos || []).slice();
+  $("#m-num").textContent = `№ ${String(id).padStart(3,"0")} · ${catText(it.cat)}`;
+  $("#m-name").textContent = it.name;
+  $("#m-date").value = r.date || "";
+  $("#m-note").value = r.note || "";
+  renderModalStatus();
+  renderModalMood();
+  renderModalPhotos();
+  $("#modal-mask").classList.add("show");
+  document.body.style.overflow = "hidden";
+}
+function closeModal(){
+  $("#modal-mask").classList.remove("show");
+  document.body.style.overflow = "";
+  editingId = null;
+}
+$("#modal-mask").addEventListener("click", e => { if(e.target===$("#modal-mask")) closeModal(); });
+document.addEventListener("keydown", e => { if(e.key==="Escape") closeModal(); });
+
+function renderModalStatus(){
+  document.querySelectorAll("#m-status button").forEach(b=>{
+    b.classList.toggle("on", b.dataset.v===tmpStatus);
+  });
+}
+document.querySelectorAll("#m-status button").forEach(b=>{
+  b.addEventListener("click", ()=>{ tmpStatus = b.dataset.v; renderModalStatus(); });
+});
+
+function renderModalMood(){
+  let html = "";
+  for(const m of MOOD_KEYS){
+    html += `<button class="${m===tmpMood?"on":""}" data-m="${m}">${moodText(m)}</button>`;
+  }
+  $("#m-mood").innerHTML = html;
+  document.querySelectorAll("#m-mood button").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      tmpMood = tmpMood===b.dataset.m ? "" : b.dataset.m;
+      renderModalMood();
+    });
+  });
+}
+
+function renderModalPhotos(){
+  let html = "";
+  tmpPhotos.forEach((p,i)=>{
+    html += `<div class="thumb"><img src="${p}" alt="${T("照片","Photo")}"><button class="del" onclick="delPhoto(${i})" title="${T("删除照片","Remove photo")}">✕</button></div>`;
+  });
+  $("#m-photos").innerHTML = html;
+}
+function delPhoto(i){ tmpPhotos.splice(i,1); renderModalPhotos(); }
+
+function onPickPhotos(e){
+  const files = Array.from(e.target.files || []);
+  if(!files.length) return;
+  let remain = files.length;
+  for(const f of files){
+    const reader = new FileReader();
+    reader.onload = ev => {
+      shrink(ev.target.result, url => {
+        tmpPhotos.push(url);
+        if(--remain === 0) renderModalPhotos();
+      });
+    };
+    reader.readAsDataURL(f);
+  }
+  e.target.value = "";
+}
+function shrink(dataUrl, cb){
+  const img = new Image();
+  img.onload = ()=>{
+    const MAX = 720;
+    let w = img.width, h = img.height;
+    if(Math.max(w,h) > MAX){ const k = MAX/Math.max(w,h); w = Math.round(w*k); h = Math.round(h*k); }
+    const cv = document.createElement("canvas");
+    cv.width = w; cv.height = h;
+    cv.getContext("2d").drawImage(img, 0, 0, w, h);
+    try{ cb(cv.toDataURL("image/jpeg", 0.82)); }
+    catch(e){ cb(dataUrl); }
+  };
+  img.onerror = ()=>cb(dataUrl);
+  img.src = dataUrl;
+}
+
+function saveRecord(){
+  const it = ITEMS.find(x=>x.id===editingId);
+  if(!it) return;
+  const r = recOf(it);
+  r.status = tmpStatus;
+  r.date = $("#m-date").value || "";
+  r.mood = tmpMood;
+  r.note = $("#m-note").value.trim();
+  r.photos = tmpPhotos;
+  if(r.status !== "done" && !r.date && !r.note && !(r.photos&&r.photos.length) && !r.mood && r.status==="todo"){
+    delete records[it.id];
+  } else {
+    records[it.id] = r;
+  }
+  persist();
+  closeModal();
+  renderList();
+  showToast(T("已保存","Saved"));
+}
+
+/* ============ 第二页：章节 ============ */
+function renderChapter(){
+  const n = doneCount();
+  const ch = chapterOf(n);
+  const idx = CHAPTERS.indexOf(ch);
+  const done = doneList();
+
+  $("#ch-lv").textContent = `Lv.${ch.lv}`;
+  $("#ch-name").textContent = ch.name;
+  $("#ch-say").textContent = `“${ch.say}”`;
+  $("#ch-count").textContent = n;
+  if(idx < 5){
+    $("#ch-left").textContent = T(`距离下一章还差 ${CHAPTERS[idx+1].min - n} 件`, `${CHAPTERS[idx+1].min - n} more to the next chapter`);
+  } else {
+    $("#ch-left").textContent = T("已经走完了全部章节","All chapters completed");
+  }
+
+  // 章节进度线
+  const pct = idx / 5 * 100;
+  $("#road-fill").style.width = pct + "%";
+  let nodes = "";
+  ROAD_NAMES.forEach((nm,i)=>{
+    const cls = i < idx ? "passed" : (i===idx ? "current passed" : "");
+    nodes += `<div class="road-node ${cls}"><div class="road-dot"></div><div class="road-name">${nm}</div></div>`;
+  });
+  $("#road-nodes").innerHTML = nodes;
+
+  // 三个数据区
+  $("#s-done").innerHTML = `${n} <small>${T("件小事","little things")}</small>`;
+
+  const moodCount = {};
+  done.forEach(d => { if(d.r.mood) moodCount[d.r.mood] = (moodCount[d.r.mood]||0)+1; });
+  const topMoods = Object.entries(moodCount).sort((a,b)=>b[1]-a[1]).slice(0,3).map(x=>moodText(x[0]));
+  $("#s-mood").textContent = topMoods.length ? topMoods.join(" · ") : T("还没有记录","No records yet");
+
+  const KWS = LANG === "en" ? KW_DICT_EN : KW_DICT;
+  const kwCount = {};
+  for(const d of done){
+    const text = d.item.name + (d.r.note||"");
+    for(const k of KWS){
+      if(text.includes(k)) kwCount[k] = (kwCount[k]||0)+1;
+    }
+  }
+  const kws = Object.entries(kwCount)
+    .sort((a,b)=> b[1]-a[1] || KWS.indexOf(a[0])-KWS.indexOf(b[0]))
+    .slice(0,5).map(x=>x[0]);
+  $("#s-kw").innerHTML = kws.length
+    ? kws.map(k=>`<span class="tag">${k}</span>`).join("")
+    : `<span class="tag">${T("等待被写下","Waiting to be written")}</span>`;
+
+  // 写给现在的自己
+  $("#letter-text").textContent = buildLetter(n, ch, kws, done);
+
+  // 最近珍藏
+  const tl = $("#timeline");
+  if(!done.length){
+    tl.innerHTML = `<div class="grid-empty" style="padding:40px 0">${T("还没有珍藏的小事，从第一件开始吧。","No treasures yet — start with the first little thing.")}</div>`;
+    return;
+  }
+  let html = "";
+  for(const d of done.slice(0,8)){
+    const photo = (d.r.photos && d.r.photos.length) ? `<div class="tl-photo"><img src="${d.r.photos[0]}" alt=""></div>` : "";
+    html += `<div class="tl-item" onclick="openModal(${d.item.id})">
+      ${photo}
+      <div class="tl-main">
+        <div class="tl-name">${d.item.name}</div>
+        <div class="tl-meta"><span>${d.r.date||""}</span>${d.r.mood?`<span class="mood">${moodText(d.r.mood)}</span>`:""}</div>
+        ${d.r.note?`<div class="tl-note">${d.r.note}</div>`:""}
+      </div>
+    </div>`;
+  }
+  tl.innerHTML = html;
+}
+
+function buildLetter(n, ch, kws, done){
+  const recent = done.slice(0,3).map(d=>d.item.name);
+  if(n === 0){
+    return T("清单还是崭新的。不用着急，大学很长，慢慢来。从第一件小事开始，把它轻轻放进回忆里。","The list is still brand new. No rush — college is long. Start with the first little thing and tuck it gently into memory.");
+  }
+  let s = T(`到现在，你已经把 ${n} 件小事好好收了起来。`,`By now, you have tucked away ${n} little things with care.`);
+  if(kws.length){
+    const kwStr = kws.slice(0,4).join(T("、",", "));
+    s += T(`翻看这些记录，${kwStr}，是这段时间留给你的关键词。`,`Looking through these records, ${kwStr} are the keywords this time has left you.`);
+  }
+  if(recent.length){
+    s += T(`最近的一件，是「${recent[0]}」。`,`The most recent one was "${recent[0]}".`);
+  }
+  if(ch.lv <= 2){
+    s += T("你正在慢慢认识这所校园，生活正在长出自己的节奏。","You are getting to know this campus, and life is finding its own rhythm.");
+  } else if(ch.lv <= 3){
+    s += T("你正在成为更完整的自己，也留下了一些值得回头看的痕迹。","You are becoming a more complete you, leaving traces worth looking back on.");
+  } else if(ch.lv <= 4){
+    s += T("你走出了熟悉的生活半径，看见的地方比想象中更远。","You have walked beyond the familiar, seeing places farther than imagined.");
+  } else if(ch.lv === 5){
+    s += T("你的大学已经有了许多故事，它们都好好地放在这里。","Your college years hold many stories, kept safely here.");
+  } else {
+    s += T("这一段青春，值得被好好记住。","This youth deserves to be remembered well.");
+  }
+  return s;
+}
+
+/* ============ 初始化 ============ */
+(function init(){
+  applyStaticI18n();
+  buildCatFilter();
+  renderList();
+  $("#reset-demo").addEventListener("click", function(){
+    if(confirm(T("将清空演示记录，之后保存的都是你自己的记录。确定清空吗？","This will clear the demo records so you can start your own. Continue?"))){
+      try{ localStorage.removeItem(KEY); }catch(e){}
+      records = {};
+      persist();
+      renderList();
+      showToast(T("已清空，从零开始","Cleared. A fresh start"));
+    }
+  });
+})();
+</script>
+</body>
+</html>

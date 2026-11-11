@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="UTF-8"><style>
+* { box-sizing:border-box; }
+body { margin:0; padding:0; background:#fff;
+       font-family:"Microsoft YaHei","Segoe UI",sans-serif; color:#22303F; }
+.canvas { position:relative; width:605px; height:592px; background:#fff; }
+svg.links { position:absolute; left:0; top:0; width:605px; height:592px; z-index:1; }
+.cls { position:absolute; z-index:2; background:#fff; border:1.2px solid #9BAEC4;
+        border-radius:3px; overflow:hidden; box-shadow:0 0 0 0.6px rgba(150,170,195,.25); }
+.hd { height:26px; display:flex; align-items:center; gap:6px; padding:0 8px;
+       background:#ECF2FA; border-bottom:1.2px solid #9BAEC4; }
+.hd .ic { width:16px; height:16px; border-radius:50%; border:1.3px solid #5E7FA8;
+           color:#4A6C93; font-size:9.5px; font-weight:700; line-height:13px;
+           text-align:center; flex:0 0 auto; font-family:Georgia,serif; }
+.hd .nm { font-size:11.5px; font-weight:700; color:#16233A; letter-spacing:.2px;
+           font-style:italic; }
+.hd .nm.plain { font-style:normal; }
+.ft { padding:2px 0 8px; }
+.r { height:17px; display:flex; align-items:center; padding:0 8px;
+      font-size:11.0px; font-family:Consolas,"Courier New",monospace;
+      white-space:nowrap; }
+.r .v { flex:0 0 12px; color:#7A8798; }
+.r .s { flex:0 1 auto; color:#1E2A3A; }
+.r .t { flex:1 1 auto; text-align:right; color:#4C7EA8; padding-left:6px; }
+.sep { height:1px; background:#DCE4EE; margin:2px 6px 2px; }
+.note { position:absolute; z-index:2; font-size:10px; color:#5E6E82;
+         background:#FAFBFD; border:1px dashed #B8C6D8; border-radius:3px;
+         padding:4px 8px; }
+.lb { position:absolute; z-index:3; font-size:9.5px; color:#4C7EA8; background:#fff;
+       padding:0 2px; }
+</style></head><body><div class="canvas">
+<svg class="links">
+<path d="M 144 154 L 144 178" fill="none" stroke="#6E8CAC" stroke-width="1.15"/>
+<polygon points="144,178 147.4,170.0 140.6,170.0" fill="#6E8CAC"/>
+<path d="M 144 333 L 144 309" fill="none" stroke="#6E8CAC" stroke-width="1.15" stroke-dasharray="5,3"/>
+<polygon points="144.0,309.0 139.8,318.0 148.2,318.0" fill="#fff" stroke="#6E8CAC" stroke-width="1.15"/>
+<path d="M 144 486 L 144 510" fill="none" stroke="#6E8CAC" stroke-width="1.15"/>
+<polygon points="144,510 147.4,502.0 140.6,502.0" fill="#6E8CAC"/>
+<path d="M 396 405 L 416 405" fill="none" stroke="#6E8CAC" stroke-width="1.15"/>
+<polygon points="416,405 408.0,401.6 408.0,408.4" fill="#6E8CAC"/>
+<path d="M 396 540 L 406 540 L 406 505 L 416 505" fill="none" stroke="#6E8CAC" stroke-width="1.15"/>
+<polygon points="416,505 408.0,501.6 408.0,508.4" fill="#6E8CAC"/>
+<path d="M 396 255 L 416 255" fill="none" stroke="#6E8CAC" stroke-width="1.15"/>
+<polygon points="416,255 408.0,251.6 408.0,258.4" fill="#6E8CAC"/>
+<path d="M 396 215 L 406 215 L 406 70 L 416 70" fill="none" stroke="#6E8CAC" stroke-width="1.15"/>
+<polygon points="416,70 408.0,66.6 408.0,73.4" fill="#6E8CAC"/>
+</svg>
+<div class="cls" style="left:4px;top:6px;width:392px;height:148px;">
+<div class="hd"><div class="ic">C</div><div class="nm">ExerciseController</div></div>
+<div class="ft">
+<div class="r"><span class="v">+</span><span class="s">selectQuestions(Long, Integer, int)</span><span class="t">Result&lt;List&lt;QuestionVO&gt;&gt;</span></div>
+<div class="r"><span class="v">+</span><span class="s">getAssessQuestions()</span><span class="t">Result&lt;List&lt;QuestionVO&gt;&gt;</span></div>
+<div class="r"><span class="v">+</span><span class="s">submit(SubmitRequest)</span><span class="t">Result&lt;SubmitResponse&gt;</span></div>
+<div class="r"><span class="v">+</span><span class="s">errorBook(Long)</span><span class="t">Result&lt;List&lt;QuestionVO&gt;&gt;</span></div>
+<div class="r"><span class="v">+</span><span class="s">knowledgePoints(String)</span><span class="t">Result&lt;List&lt;SysKnowledgePoint&gt;&gt;</span></div>
+<div class="r"><span class="v">+</span><span class="s">getUserStats(Long)</span><span class="t">Result&lt;UserExerciseStats&gt;</span></div>
+</div>
+</div>
+<div class="cls" style="left:4px;top:178px;width:392px;height:131px;">
+<div class="hd"><div class="ic">I</div><div class="nm">ExerciseService</div></div>
+<div class="ft">
+<div class="r"><span class="v">+</span><span class="s">selectQuestions(Long, Integer, int)</span><span class="t">List&lt;QuestionVO&gt;</span></div>
+<div class="r"><span class="v">+</span><span class="s">submitAnswer(SubmitRequest)</span><span class="t">SubmitResponse</span></div>
+<div class="r"><span class="v">+</span><span class="s">getErrorBook(Long)</span><span class="t">List&lt;QuestionVO&gt;</span></div>
+<div class="r"><span class="v">+</span><span class="s">getUserStats(Long)</span><span class="t">UserExerciseStats</span></div>
+<div class="r"><span class="v">+</span><span class="s">getKnowledgePoints(String)</span><span class="t">List&lt;SysKnowledgePoint&gt;</span></div>
+</div>
+</div>
+<div class="cls" style="left:4px;top:333px;width:392px;height:153px;">
+<div class="hd"><div class="ic">C</div><div class="nm">ExerciseServiceImpl</div></div>
+<div class="ft">
+<div class="r"><span class="v">-</span><span class="s">questionInfoMapper</span><span class="t">QuestionInfoMapper</span></div>
+<div class="r"><span class="v">-</span><span class="s">errorBookMapper</span><span class="t">UserErrorBookMapper</span></div>
+<div class="r"><span class="v">-</span><span class="s">exerciseLogMapper</span><span class="t">UserExerciseLogMapper</span></div>
+<div class="r"><span class="v">-</span><span class="s">judgmentEngine</span><span class="t">JudgmentEngine</span></div>
+</div>
+<div class="sep"></div>
+<div class="ft">
+<div class="r"><span class="v">+</span><span class="s">selectQuestions(Long, Integer, int)</span><span class="t">List&lt;QuestionVO&gt;</span></div>
+<div class="r"><span class="v">+</span><span class="s">submitAnswer(SubmitRequest)</span><span class="t">SubmitResponse</span></div>
+</div>
+</div>
+<div class="cls" style="left:4px;top:510px;width:392px;height:63px;">
+<div class="hd"><div class="ic">I</div><div class="nm">QuestionInfoMapper</div></div>
+<div class="ft">
+<div class="r"><span class="v"></span><span class="s">extends BaseMapper&lt;QuestionInfo&gt;</span><span class="t"></span></div>
+</div>
+</div>
+<div class="cls" style="left:416px;top:6px;width:185px;height:131px;">
+<div class="hd"><div class="ic">C</div><div class="nm">UserErrorBook</div></div>
+<div class="ft">
+<div class="r"><span class="v">-</span><span class="s">id</span><span class="t">Long</span></div>
+<div class="r"><span class="v">-</span><span class="s">userId</span><span class="t">Long</span></div>
+<div class="r"><span class="v">-</span><span class="s">questionId</span><span class="t">Long</span></div>
+<div class="r"><span class="v">-</span><span class="s">wrongCount</span><span class="t">Integer</span></div>
+<div class="r"><span class="v">-</span><span class="s">isResolved</span><span class="t">Integer</span></div>
+</div>
+</div>
+<div class="cls" style="left:416px;top:161px;width:185px;height:148px;">
+<div class="hd"><div class="ic">C</div><div class="nm">UserExerciseLog</div></div>
+<div class="ft">
+<div class="r"><span class="v">-</span><span class="s">id</span><span class="t">Long</span></div>
+<div class="r"><span class="v">-</span><span class="s">userId</span><span class="t">Long</span></div>
+<div class="r"><span class="v">-</span><span class="s">questionId</span><span class="t">Long</span></div>
+<div class="r"><span class="v">-</span><span class="s">userAnswer</span><span class="t">String</span></div>
+<div class="r"><span class="v">-</span><span class="s">isCorrect</span><span class="t">Integer</span></div>
+<div class="r"><span class="v">-</span><span class="s">durationSeconds</span><span class="t">Integer</span></div>
+</div>
+</div>
+<div class="cls" style="left:416px;top:333px;width:185px;height:199px;">
+<div class="hd"><div class="ic">C</div><div class="nm">QuestionInfo</div></div>
+<div class="ft">
+<div class="r"><span class="v">-</span><span class="s">id</span><span class="t">Long</span></div>
+<div class="r"><span class="v">-</span><span class="s">moduleType</span><span class="t">Integer</span></div>
+<div class="r"><span class="v">-</span><span class="s">targetLevel</span><span class="t">String</span></div>
+<div class="r"><span class="v">-</span><span class="s">difficultyLevel</span><span class="t">Integer</span></div>
+<div class="r"><span class="v">-</span><span class="s">questionType</span><span class="t">String</span></div>
+<div class="r"><span class="v">-</span><span class="s">knowledgePointId</span><span class="t">Long</span></div>
+<div class="r"><span class="v">-</span><span class="s">passageId</span><span class="t">Long</span></div>
+<div class="r"><span class="v">-</span><span class="s">acceptedAnswers</span><span class="t">String</span></div>
+<div class="r"><span class="v">-</span><span class="s">answerWord</span><span class="t">String</span></div>
+</div>
+</div>
+</div></body></html>

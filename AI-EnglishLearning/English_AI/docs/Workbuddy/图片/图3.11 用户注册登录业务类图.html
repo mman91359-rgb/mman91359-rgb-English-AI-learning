@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="UTF-8"><style>
+* { box-sizing:border-box; }
+body { margin:0; padding:0; background:#fff;
+       font-family:"Microsoft YaHei","Segoe UI",sans-serif; color:#22303F; }
+.canvas { position:relative; width:605px; height:662px; background:#fff; }
+svg.links { position:absolute; left:0; top:0; width:605px; height:662px; z-index:1; }
+.cls { position:absolute; z-index:2; background:#fff; border:1.2px solid #9BAEC4;
+        border-radius:3px; overflow:hidden; box-shadow:0 0 0 0.6px rgba(150,170,195,.25); }
+.hd { height:26px; display:flex; align-items:center; gap:6px; padding:0 8px;
+       background:#ECF2FA; border-bottom:1.2px solid #9BAEC4; }
+.hd .ic { width:16px; height:16px; border-radius:50%; border:1.3px solid #5E7FA8;
+           color:#4A6C93; font-size:9.5px; font-weight:700; line-height:13px;
+           text-align:center; flex:0 0 auto; font-family:Georgia,serif; }
+.hd .nm { font-size:11.5px; font-weight:700; color:#16233A; letter-spacing:.2px;
+           font-style:italic; }
+.hd .nm.plain { font-style:normal; }
+.ft { padding:2px 0 8px; }
+.r { height:17px; display:flex; align-items:center; padding:0 8px;
+      font-size:11.0px; font-family:Consolas,"Courier New",monospace;
+      white-space:nowrap; }
+.r .v { flex:0 0 12px; color:#7A8798; }
+.r .s { flex:0 1 auto; color:#1E2A3A; }
+.r .t { flex:1 1 auto; text-align:right; color:#4C7EA8; padding-left:6px; }
+.sep { height:1px; background:#DCE4EE; margin:2px 6px 2px; }
+.note { position:absolute; z-index:2; font-size:10px; color:#5E6E82;
+         background:#FAFBFD; border:1px dashed #B8C6D8; border-radius:3px;
+         padding:4px 8px; }
+.lb { position:absolute; z-index:3; font-size:9.5px; color:#4C7EA8; background:#fff;
+       padding:0 2px; }
+</style></head><body><div class="canvas">
+<svg class="links">
+<path d="M 169 188 L 169 210" fill="none" stroke="#6E8CAC" stroke-width="1.15"/>
+<polygon points="169,210 172.4,202.0 165.6,202.0" fill="#6E8CAC"/>
+<path d="M 169 361 L 169 341" fill="none" stroke="#6E8CAC" stroke-width="1.15" stroke-dasharray="5,3"/>
+<polygon points="169.0,341.0 164.8,350.0 173.2,350.0" fill="#fff" stroke="#6E8CAC" stroke-width="1.15"/>
+<path d="M 169 497 L 169 517" fill="none" stroke="#6E8CAC" stroke-width="1.15"/>
+<polygon points="169,517 172.4,509.0 165.6,509.0" fill="#6E8CAC"/>
+<path d="M 334 80 L 350 80" fill="none" stroke="#6E8CAC" stroke-width="1.15"/>
+<polygon points="350,80 342.0,76.6 342.0,83.4" fill="#6E8CAC"/>
+<path d="M 334 295 L 350 295" fill="none" stroke="#6E8CAC" stroke-width="1.15"/>
+<polygon points="350,295 342.0,291.6 342.0,298.4" fill="#6E8CAC"/>
+<path d="M 334 325 L 342 325 L 342 540 L 350 540" fill="none" stroke="#6E8CAC" stroke-width="1.15"/>
+<polygon points="350,540 342.0,536.6 342.0,543.4" fill="#6E8CAC"/>
+</svg>
+<div class="cls" style="left:4px;top:6px;width:330px;height:182px;">
+<div class="hd"><div class="ic">C</div><div class="nm">UserController</div></div>
+<div class="ft">
+<div class="r"><span class="v">+</span><span class="s">register(RegisterRequest)</span><span class="t">Result&lt;Long&gt;</span></div>
+<div class="r"><span class="v">+</span><span class="s">login(LoginRequest)</span><span class="t">Result&lt;LoginResponse&gt;</span></div>
+<div class="r"><span class="v">+</span><span class="s">info(Long)</span><span class="t">Result&lt;SysUser&gt;</span></div>
+<div class="r"><span class="v">+</span><span class="s">byUsername(String)</span><span class="t">Result&lt;SysUser&gt;</span></div>
+<div class="r"><span class="v">+</span><span class="s">updateNickname(Map)</span><span class="t">Result&lt;String&gt;</span></div>
+<div class="r"><span class="v">+</span><span class="s">updatePassword(Map)</span><span class="t">Result&lt;Boolean&gt;</span></div>
+<div class="r"><span class="v">+</span><span class="s">updatePhone(Map)</span><span class="t">Result&lt;String&gt;</span></div>
+<div class="r"><span class="v">+</span><span class="s">uploadAvatar(Long, MultipartFile)</span><span class="t">Result&lt;String&gt;</span></div>
+</div>
+</div>
+<div class="cls" style="left:4px;top:210px;width:330px;height:131px;">
+<div class="hd"><div class="ic">I</div><div class="nm">UserService</div></div>
+<div class="ft">
+<div class="r"><span class="v">+</span><span class="s">register(RegisterRequest)</span><span class="t">Long</span></div>
+<div class="r"><span class="v">+</span><span class="s">login(LoginRequest)</span><span class="t">LoginResponse</span></div>
+<div class="r"><span class="v">+</span><span class="s">getById(Long)</span><span class="t">SysUser</span></div>
+<div class="r"><span class="v">+</span><span class="s">getByAccount(String)</span><span class="t">SysUser</span></div>
+<div class="r"><span class="v">+</span><span class="s">updatePassword(Long, String, String)</span><span class="t">boolean</span></div>
+</div>
+</div>
+<div class="cls" style="left:4px;top:361px;width:330px;height:136px;">
+<div class="hd"><div class="ic">C</div><div class="nm">UserServiceImpl</div></div>
+<div class="ft">
+<div class="r"><span class="v">-</span><span class="s">userMapper</span><span class="t">UserMapper</span></div>
+<div class="r"><span class="v">-</span><span class="s">radarService</span><span class="t">UserAbilityRadarService</span></div>
+</div>
+<div class="sep"></div>
+<div class="ft">
+<div class="r"><span class="v">+</span><span class="s">register(RegisterRequest)</span><span class="t">Long</span></div>
+<div class="r"><span class="v">+</span><span class="s">login(LoginRequest)</span><span class="t">LoginResponse</span></div>
+<div class="r"><span class="v">+</span><span class="s">getByAccount(String)</span><span class="t">SysUser</span></div>
+</div>
+</div>
+<div class="cls" style="left:4px;top:517px;width:330px;height:63px;">
+<div class="hd"><div class="ic">I</div><div class="nm">UserMapper</div></div>
+<div class="ft">
+<div class="r"><span class="v"></span><span class="s">extends BaseMapper&lt;SysUser&gt;</span><span class="t"></span></div>
+</div>
+</div>
+<div class="cls" style="left:350px;top:6px;width:251px;height:148px;">
+<div class="hd"><div class="ic">C</div><div class="nm">RegisterRequest</div></div>
+<div class="ft">
+<div class="r"><span class="v">-</span><span class="s">nickname</span><span class="t">String</span></div>
+<div class="r"><span class="v">-</span><span class="s">password</span><span class="t">String</span></div>
+<div class="r"><span class="v">-</span><span class="s">phone</span><span class="t">String</span></div>
+<div class="r"><span class="v">-</span><span class="s">email</span><span class="t">String</span></div>
+<div class="r"><span class="v">-</span><span class="s">cetLevel</span><span class="t">String</span></div>
+<div class="r"><span class="v">-</span><span class="s">code</span><span class="t">String</span></div>
+</div>
+</div>
+<div class="cls" style="left:350px;top:172px;width:251px;height:80px;">
+<div class="hd"><div class="ic">C</div><div class="nm">LoginRequest</div></div>
+<div class="ft">
+<div class="r"><span class="v">-</span><span class="s">account</span><span class="t">String</span></div>
+<div class="r"><span class="v">-</span><span class="s">password</span><span class="t">String</span></div>
+</div>
+</div>
+<div class="cls" style="left:350px;top:262px;width:251px;height:182px;">
+<div class="hd"><div class="ic">C</div><div class="nm">LoginResponse</div></div>
+<div class="ft">
+<div class="r"><span class="v">-</span><span class="s">token</span><span class="t">String</span></div>
+<div class="r"><span class="v">-</span><span class="s">userId</span><span class="t">Long</span></div>
+<div class="r"><span class="v">-</span><span class="s">nickname</span><span class="t">String</span></div>
+<div class="r"><span class="v">-</span><span class="s">avatarUrl</span><span class="t">String</span></div>
+<div class="r"><span class="v">-</span><span class="s">cetLevel</span><span class="t">String</span></div>
+<div class="r"><span class="v">-</span><span class="s">roles</span><span class="t">String</span></div>
+<div class="r"><span class="v">-</span><span class="s">eloScore</span><span class="t">Integer</span></div>
+<div class="r"><span class="v">-</span><span class="s">eloLevel</span><span class="t">String</span></div>
+</div>
+</div>
+<div class="cls" style="left:350px;top:454px;width:251px;height:199px;">
+<div class="hd"><div class="ic">C</div><div class="nm">SysUser</div></div>
+<div class="ft">
+<div class="r"><span class="v">-</span><span class="s">id</span><span class="t">Long</span></div>
+<div class="r"><span class="v">-</span><span class="s">username</span><span class="t">String</span></div>
+<div class="r"><span class="v">-</span><span class="s">password</span><span class="t">String</span></div>
+<div class="r"><span class="v">-</span><span class="s">nickname</span><span class="t">String</span></div>
+<div class="r"><span class="v">-</span><span class="s">phone</span><span class="t">String</span></div>
+<div class="r"><span class="v">-</span><span class="s">email</span><span class="t">String</span></div>
+<div class="r"><span class="v">-</span><span class="s">cetLevel</span><span class="t">String</span></div>
+<div class="r"><span class="v">-</span><span class="s">roles</span><span class="t">String</span></div>
+<div class="r"><span class="v">-</span><span class="s">status</span><span class="t">Integer</span></div>
+</div>
+</div>
+<div class="note" style="left:4px;top:590px;width:330px;">注：username 由 nickname 同步生成，登录标识为 phone / email</div>
+</div></body></html>

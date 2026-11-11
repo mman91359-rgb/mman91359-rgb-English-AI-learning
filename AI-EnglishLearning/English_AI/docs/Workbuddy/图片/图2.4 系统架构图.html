@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+    background:#fff; padding:18px; width:1500px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .canvas { border:1px solid #E8EDF3; border-radius:6px; padding:16px; }
+
+  .row { display:flex; gap:12px; align-items:stretch; }
+  .side { width:186px; flex:none; display:flex; flex-direction:column; gap:10px; }
+  .side-title {
+    background:#FCEFD9; border:1px solid #F2D9B0; border-radius:8px;
+    padding:8px 6px; text-align:center; font-size:13px; font-weight:700; color:#8A5A16;
+    line-height:1.35;
+  }
+  .third {
+    background:#fff; border:1px solid #E3E8EF; border-radius:8px;
+    padding:12px 8px; text-align:center; font-size:12.5px; color:#4A5568;
+    line-height:1.6; flex:1; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:8px;
+  }
+  .third b { font-size:13px; color:#2D3748; }
+
+  .bus { width:34px; flex:none; display:flex; flex-direction:column; gap:10px; }
+  .bus span {
+    flex:1; background:#DCE9F8; border:1px solid #C3D8F0; border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+    writing-mode:vertical-rl; letter-spacing:3px;
+    font-size:12.5px; color:#2D5A8C; font-weight:600;
+  }
+
+  .main { flex:1; display:flex; flex-direction:column; gap:0; }
+
+  .layer { border-radius:8px; padding:10px 12px; position:relative; }
+  .layer-tag {
+    width:82px; flex:none; font-size:13px; font-weight:700; line-height:1.4;
+    display:flex; align-items:center; justify-content:center; text-align:center;
+  }
+  .layer-inner { display:flex; gap:10px; align-items:stretch; }
+
+  .cards { flex:1; display:flex; gap:9px; flex-wrap:wrap; }
+
+  .card {
+    background:#fff; border:1px solid #E3E8EF; border-radius:7px;
+    padding:9px 12px; font-size:13px; color:#2D3748;
+    display:flex; align-items:center; gap:8px; line-height:1.45;
+    box-shadow:0 1px 2px rgba(31,56,88,.04);
+  }
+  .card .ico {
+    width:26px; height:26px; border-radius:6px; flex:none;
+    display:flex; align-items:center; justify-content:center;
+    font-size:12.5px; font-weight:700;
+  }
+  .card small { color:#718096; font-size:11.5px; }
+
+  /* 各层配色 */
+  .l-user   { background:#E9F3FC; border:1px solid #CFE4F6; }
+  .l-user .layer-tag   { color:#2D5A8C; }
+  .l-auth   { background:#DEEEFA; border:1px solid #C6DFF3; }
+  .l-auth .layer-tag   { color:#2D5A8C; }
+  .l-app    { background:#EAF7EF; border:1px solid #CFE8DA; }
+  .l-app .layer-tag    { color:#2E7D4F; }
+  .l-data   { background:#FDF3E3; border:1px solid #F1DFC2; }
+  .l-data .layer-tag   { color:#8A5A16; }
+  .l-infra  { background:#E7F3FA; border:1px solid #CDE6F5; }
+  .l-infra .layer-tag  { color:#21658C; }
+  .l-tool   { background:#F2EEF9; border:1px solid #E0D8F0; }
+  .l-tool .layer-tag   { color:#5B448A; }
+
+  .sub {
+    border-radius:7px; padding:9px 10px; background:rgba(255,255,255,.55);
+    border:1px dashed rgba(120,150,180,.45); flex:1;
+  }
+  .sub-title {
+    font-size:12px; font-weight:700; color:#4A6478; margin-bottom:8px;
+    letter-spacing:.5px;
+  }
+
+  .arrow {
+    height:20px; display:flex; align-items:center; justify-content:center;
+  }
+
+  .bottom { display:flex; gap:12px; margin-top:12px; }
+  .bottom div {
+    flex:1; background:#EDF4FC; border:1px solid #D8E6F6; border-radius:8px;
+    padding:10px; text-align:center; font-size:13px; font-weight:700; color:#2D5A8C;
+  }
+
+  .ico-u { background:#DBEAFE; color:#2563EB; }
+  .ico-a { background:#E7F6EC; color:#15803D; }
+  .ico-d { background:#FBEEDC; color:#B45309; }
+  .ico-i { background:#DDEEF9; color:#0E7490; }
+  .ico-t { background:#EDE9F8; color:#6D28D9; }
+</style>
+</head>
+<body>
+<div class="canvas">
+  <div class="row">
+    <!-- 左侧：第三方 -->
+    <div class="side">
+      <div class="side-title">第三方系统<br>或数据源</div>
+      <div class="third">
+        <div class="card" style="flex-direction:column;gap:6px;padding:10px 6px;border:none;box-shadow:none">
+          <div class="ico ico-u">智</div>
+          <b>阿里云百炼</b>
+          <span>DashScope 大模型接口<br>单词补全 / 判题复核<br>写作评分</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 中间竖条 -->
+    <div class="bus">
+      <span>数据总线</span>
+      <span>接口服务</span>
+    </div>
+
+    <!-- 右侧主体 -->
+    <div class="main">
+      <!-- 用户层 -->
+      <div class="layer l-user">
+        <div class="layer-inner">
+          <div class="layer-tag">用户层</div>
+          <div class="cards">
+            <div class="card" style="flex:1"><span class="ico ico-u">用</span><div>四六级备考用户<br><small>Web 浏览器 / PC 端</small></div></div>
+            <div class="card" style="flex:1"><span class="ico ico-u">管</span><div>系统管理员<br><small>后台管理端</small></div></div>
+            <div class="card" style="flex:1"><span class="ico ico-u">前</span><div>Vue 3 单页应用<br><small>Vite 构建 / 响应式布局</small></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="arrow"><svg width="15" height="20" viewBox="0 0 15 20"><path d="M7.5 1.5 L11.5 7 H9 V13 H11.5 L7.5 18.5 L3.5 13 H6 V7 H3.5 Z" fill="#8CB8E0"/></svg></div>
+
+      <!-- 鉴权层 -->
+      <div class="layer l-auth">
+        <div class="layer-inner">
+          <div class="layer-tag">接入与<br>身份认证</div>
+          <div class="cards">
+            <div class="card" style="flex:1"><span class="ico ico-i">关</span><div>api-gateway 路由分发<br><small>统一入口 / 跨域处理</small></div></div>
+            <div class="card" style="flex:1"><span class="ico ico-i">鉴</span><div>JWT 令牌鉴权<br><small>HS256 签名校验</small></div></div>
+            <div class="card" style="flex:1"><span class="ico ico-i">权</span><div>角色权限校验<br><small>ROLE_USER / ROLE_ADMIN</small></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="arrow"><svg width="15" height="20" viewBox="0 0 15 20"><path d="M7.5 1.5 L11.5 7 H9 V13 H11.5 L7.5 18.5 L3.5 13 H6 V7 H3.5 Z" fill="#8CB8E0"/></svg></div>
+
+      <!-- 应用服务 -->
+      <div class="layer l-app">
+        <div class="layer-inner">
+          <div class="layer-tag">应用<br>服务</div>
+          <div style="flex:1;display:flex;gap:10px">
+            <div class="sub">
+              <div class="sub-title">业务微服务模块</div>
+              <div class="cards">
+                <div class="card" style="flex:1 1 46%"><span class="ico ico-a">用</span><div>user-service<br><small>账号 / 能力画像 / 配置</small></div></div>
+                <div class="card" style="flex:1 1 46%"><span class="ico ico-a">题</span><div>exercise-service<br><small>题库 / 三级判题 / 错题本</small></div></div>
+                <div class="card" style="flex:1 1 46%"><span class="ico ico-a">忆</span><div>learning-engine-service<br><small>艾宾浩斯复习曲线</small></div></div>
+                <div class="card" style="flex:1 1 46%"><span class="ico ico-a">智</span><div>ai-service<br><small>大模型能力封装</small></div></div>
+              </div>
+            </div>
+            <div class="sub">
+              <div class="sub-title">基础服务与功能组件</div>
+              <div class="cards">
+                <div class="card" style="flex:1 1 30%"><span class="ico ico-a">框</span><div>Spring Boot 3.2</div></div>
+                <div class="card" style="flex:1 1 30%"><span class="ico ico-a">云</span><div>Cloud Gateway</div></div>
+                <div class="card" style="flex:1 1 30%"><span class="ico ico-a">迁</span><div>Flyway 版本迁移</div></div>
+                <div class="card" style="flex:1 1 30%"><span class="ico ico-a">密</span><div>BCrypt 密码加密</div></div>
+                <div class="card" style="flex:1 1 30%"><span class="ico ico-a">调</span><div>RestTemplate 调用</div></div>
+                <div class="card" style="flex:1 1 30%"><span class="ico ico-a">图</span><div>ECharts 图表</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="arrow"><svg width="15" height="20" viewBox="0 0 15 20"><path d="M7.5 1.5 L11.5 7 H9 V13 H11.5 L7.5 18.5 L3.5 13 H6 V7 H3.5 Z" fill="#8CB8E0"/></svg></div>
+
+      <!-- 数据访问 -->
+      <div class="layer l-data">
+        <div class="layer-inner">
+          <div class="layer-tag">数据<br>访问层</div>
+          <div class="cards">
+            <div class="card" style="flex:1"><span class="ico ico-d">映</span><div>MyBatis-Plus BaseMapper<br><small>实体映射 / 条件构造器 / 分页插件</small></div></div>
+            <div class="card" style="flex:1"><span class="ico ico-d">连</span><div>三套独立数据源<br><small>按微服务边界分库连接</small></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="arrow"><svg width="15" height="20" viewBox="0 0 15 20"><path d="M7.5 1.5 L11.5 7 H9 V13 H11.5 L7.5 18.5 L3.5 13 H6 V7 H3.5 Z" fill="#8CB8E0"/></svg></div>
+
+      <!-- 基础设施 -->
+      <div class="layer l-infra">
+        <div class="layer-inner">
+          <div class="layer-tag">基础设施<br>服务器</div>
+          <div class="cards">
+            <div class="card" style="flex:1"><span class="ico ico-i">库</span><div>MySQL 8.0<br><small>user_db / exercise_db / learning_db</small></div></div>
+            <div class="card" style="flex:1"><span class="ico ico-i">件</span><div>文件存储<br><small>听力音频 / 阅读配图</small></div></div>
+            <div class="card" style="flex:1"><span class="ico ico-i">备</span><div>数据库备份<br><small>backup-schema.sh 结构快照</small></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="arrow"><svg width="15" height="20" viewBox="0 0 15 20"><path d="M7.5 1.5 L11.5 7 H9 V13 H11.5 L7.5 18.5 L3.5 13 H6 V7 H3.5 Z" fill="#8CB8E0"/></svg></div>
+
+      <!-- 基础工具 -->
+      <div class="layer l-tool">
+        <div class="layer-inner">
+          <div class="layer-tag">基础<br>工具层</div>
+          <div class="cards">
+            <div class="card" style="flex:1"><span class="ico ico-t">环</span><div>JDK 17</div></div>
+            <div class="card" style="flex:1"><span class="ico ico-t">构</span><div>Maven 3.9 多模块</div></div>
+            <div class="card" style="flex:1"><span class="ico ico-t">运</span><div>Node.js 18</div></div>
+            <div class="card" style="flex:1"><span class="ico ico-t">包</span><div>Vite 8 / npm</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom">
+    <div>安全保障体系　JWT 鉴权 · BCrypt 加密 · 参数校验</div>
+    <div>运维管理体系　Flyway 迁移 · 统一日志 · 异常处理</div>
+    <div>数据标准体系　三库拆分 · 命名规范 · 索引设计</div>
+  </div>
+</div>
+</body>
+</html>

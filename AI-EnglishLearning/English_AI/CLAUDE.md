@@ -1045,7 +1045,7 @@ npm run build
 
 - `ai-service`：新增 `POST /ai/translate-score`（CET 15 分制），评分用 temperature 0.2；`buildRequestBodySync` 增加温度重载。
 - `exercise-service`：`TranslationScoreClient`（独立 RestTemplate，读超时 8s）、`JudgeReviewAsyncWriter`（单线程 + 200 有界队列 + 丢弃策略）、`JudgmentEngineImpl` 段落分支接评分、`POST /internal/judge/review/resolve` 落地复核结论。
-- 复核结论落地（`resolve`）的副作用以「有绑定作答」为准入门槛：无绑定 `log_id` 或绑定的作答已被清理时，改判、错题本、ELO/曲线补记**全部跳过**；FAIL 仅在「作答本是对的」时把该次作答 `is_correct=0` 并写错题本，本已错的**不重复写**。补记结论以改判后的 `log.is_correct` 为准（与 `rescore` 同源），PASS/FAIL 都是补记、不回滚已发放的数据。
+- 复核结论落地（`resolve`）的副作用以「有绑定作答」为准入门槛：无绑定 `log_id` 或绑定的作答已被清理时，改判、错题本、ELO/曲线补记**全部跳过**；FAIL 仅在「作答本是对的」时把该次作答 `is_correct=0` 并写错题本，本已错的**不重复写**。补记结论以改判后的 `log.is_correct` 为准（与 `rescore` 同源），PASS/FAIL 都是补记、不回滚已发放的数据。PASS **不回写** `is_correct=1`（灰区提交时本就是 1）；对遗留矛盾态（log 已错但复核点 PASS）以 `log.is_correct` 为准按错补记，队列里的 PASS 只是审核记录。
 
 ### 五、验证
 
@@ -1146,7 +1146,7 @@ npm run build
 | `77013bb` | 补记抢占改 5 分钟租约（**后被下一提交修正**） |
 | `b5dcb6c` | 完成时间与租约分列，修掉每 10 分钟重复补记 |
 | `9de788b` | 复核后台列表页（`AdminJudgeReviewController` + 前端 `AdminJudgeReviewView`） |
-| `9f2b9c2` | 注册 MyBatis-Plus 分页拦截器，修复核列表分页失效 |
+| `9f2b9c2` | 注册 MyBatis-Plus 分页拦截器，修复复核列表分页失效 |
 | `8bc185e` | resolve 在 `log_id` 为空时跳过改判/错题本/补记 |
 | `dbe24d8` | 改判副作用以实际改判成功为前提（log 不存在/本已错不写错题本） |
 | `8fa368e` | 三条副作用统一以「有绑定作答」为准入门槛 |

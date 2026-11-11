@@ -224,6 +224,29 @@ class JudgeReviewQueueServiceImplTest {
     }
 
     @Test
+    void resolvePassOnAlreadyWrongLogRecordsNegativeScore() {
+        when(judgeReviewQueueMapper.selectById(12L)).thenReturn(pendingItem());
+        when(judgeReviewQueueMapper.update(isNull(), any())).thenReturn(1);
+        // 遗留矛盾态：log 已错，复核却点 PASS
+        UserExerciseLog log = new UserExerciseLog();
+        log.setId(88L);
+        log.setUserId(9L);
+        log.setQuestionId(510L);
+        log.setIsCorrect(0);
+        when(exerciseLogMapper.selectById(88L)).thenReturn(log);
+        when(judgeReviewQueueMapper.claimCurveLease(12L)).thenReturn(1);
+        when(judgeReviewQueueMapper.claimEloLease(12L)).thenReturn(1);
+
+        assertTrue(service.resolve(resolveRequest("PASS")));
+
+        // PASS 不回写 is_correct，也不写错题本；补记按 log.is_correct=false 走，与 rescore 同源
+        verify(exerciseLogMapper, never()).updateById(any());
+        verifyNoInteractions(errorBookMapper);
+        verify(auditRestTemplate, org.mockito.Mockito.times(2))
+                .postForEntity(any(String.class), any(), eq(String.class));
+    }
+
+    @Test
     void resolveIsIdempotent() {
         JudgeReviewQueueItem reviewed = pendingItem();
         reviewed.setStatus("REVIEWED");

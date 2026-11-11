@@ -201,6 +201,7 @@
             :message="feedbackMessage"
             :tags="feedbackTags"
             :show-favorite="showResult"
+            :favorited="isCurrentFavorited"
             @favorite="favoriteCurrent"
           />
 
@@ -211,6 +212,7 @@
             :current-time="audioAbsoluteTime"
             :range-start="currentQuestion.audioStartSeconds || 0"
             :range-end="currentQuestion.audioEndSeconds || currentQuestion.audioTotalSeconds || 0"
+            :favorited="isCurrentFavorited"
             @seek="handleTranscriptSeek"
             @favorite="favoriteCurrent"
           />
@@ -245,12 +247,12 @@ import { useUserStore } from '../stores/user'
 import { useAppStore } from '../stores/app'
 import { useToast } from '../composables/useToast'
 import {
-  addFavorite,
   selectListeningQuestions,
   submitListeningAnswer,
   type QuestionVO,
   type SubmitResponse,
 } from '../api/exercise'
+import { useSentenceFavorite } from '@/composables/useSentenceFavorite'
 import { btnIcon } from '@/components/ui/buttonStyles'
 
 interface ParsedOption {
@@ -269,6 +271,7 @@ const { t } = useI18n()
 const { show: toast } = useToast()
 const userStore = useUserStore()
 const appStore = useAppStore()
+const sentenceFavorite = useSentenceFavorite()
 
 const audioRef = ref<InstanceType<typeof AudioPlayer> | null>(null)
 const questions = ref<QuestionVO[]>([])
@@ -477,14 +480,16 @@ const handleTranscriptSeek = (seconds: number) => {
   void nextTick(() => audioRef.value?.seekToAbsolute(seconds))
 }
 
+/** 收藏文本：优先整段听力原文，回退题干；回显与写入必须用同一文本 */
+const favoriteText = computed(() => currentContent.value?.transcript || currentQuestion.value?.stem || '')
+const isCurrentFavorited = computed(() => sentenceFavorite.isFavorited(favoriteText.value))
+
 const favoriteCurrent = async () => {
   const question = currentQuestion.value
-  const userId = userStore.userId
-  if (!question || !userId) return
-  const sentence = currentContent.value?.transcript || question.stem
+  if (!question) return
   try {
-    await addFavorite({ userId, sentenceText: sentence, questionId: question.id })
-    toast(t('listening.favorited'), 'success')
+    const state = await sentenceFavorite.toggle(favoriteText.value, question.id)
+    if (state === true) toast(t('listening.favorited'), 'success')
   } catch {
     toast(t('listening.favoriteFailed'), 'error')
   }
@@ -495,6 +500,7 @@ const restart = () => void loadQuestions()
 const goBack = () => router.push({ path: '/learning', query: { tab: 'listening' } })
 
 onMounted(() => {
+  void sentenceFavorite.load()
   void loadQuestions()
 })
 </script>

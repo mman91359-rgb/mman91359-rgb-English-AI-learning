@@ -73,6 +73,7 @@ export default {
     action: {
       copy: '复制',
       favorite: '收藏',
+      favorited: '已收藏',
       addError: '加入错题本',
       addVocab: '加入单词本',
       mastered: '标记掌握',

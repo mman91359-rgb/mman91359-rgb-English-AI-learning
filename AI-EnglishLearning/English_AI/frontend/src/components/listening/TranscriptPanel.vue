@@ -8,10 +8,14 @@
       <button
         v-if="!locked && transcript"
         type="button"
-        class="text-secondary hover:text-secondary-fixed-variant transition-colors font-label-md text-label-md flex items-center gap-1"
+        class="transition-colors font-label-md text-label-md flex items-center gap-1"
+        :class="favorited ? 'text-error' : 'text-secondary hover:text-secondary-fixed-variant'"
+        :aria-pressed="favorited"
         @click="$emit('favorite')"
       >
-        <span class="material-symbols-outlined text-[16px]">bookmark</span>{{ $t('listening.favorite') }}
+        <span class="material-symbols-outlined text-[16px]" :class="{ fill: favorited }">
+          {{ favorited ? 'favorite' : 'favorite_border' }}
+        </span>{{ $t('listening.favorite') }}
       </button>
     </div>
 
@@ -71,11 +75,14 @@ const props = withDefaults(defineProps<{
   currentTime?: number
   rangeStart?: number
   rangeEnd?: number
+  /** 当前内容是否已收藏，驱动空心/红色实心切换 */
+  favorited?: boolean
 }>(), {
   locked: false,
   currentTime: 0,
   rangeStart: 0,
   rangeEnd: Number.POSITIVE_INFINITY,
+  favorited: false,
 })
 
 defineEmits<{

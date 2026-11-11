@@ -109,7 +109,10 @@
               :aria-label="favoriteIds.includes(item.topicId) ? $t('writing.entry.unfavorite') : $t('writing.entry.favorite')"
               @click.stop="toggleFavorite(item.topicId)"
             >
-              <span class="material-symbols-outlined text-icon-md">{{ favoriteIds.includes(item.topicId) ? 'favorite' : 'favorite_border' }}</span>
+              <span
+                class="material-symbols-outlined text-icon-md"
+                :class="{ fill: favoriteIds.includes(item.topicId) }"
+              >{{ favoriteIds.includes(item.topicId) ? 'favorite' : 'favorite_border' }}</span>
             </button>
           </div>
         </li>

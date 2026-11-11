@@ -199,13 +199,17 @@
                       <p class="text-sm text-primary font-medium">{{ correctSentence }}</p>
                     </div>
                   </div>
-                  <!-- 收藏按钮 -->
+                  <!-- 收藏按钮：未收藏空心，已收藏红色实心 -->
                   <button
-                    class="w-full bg-surface text-on-surface border border-outline-variant py-3 rounded-xl font-label-md text-label-md hover:bg-primary-container/20 transition-colors flex items-center justify-center gap-2"
+                    class="w-full bg-surface border border-outline-variant py-3 rounded-xl font-label-md text-label-md hover:bg-primary-container/20 transition-colors flex items-center justify-center gap-2"
+                    :class="isCurrentFavorited ? 'text-error' : 'text-on-surface'"
+                    :aria-pressed="isCurrentFavorited"
                     @click="handleFavorite"
                   >
-                    <span class="material-symbols-outlined text-lg">favorite</span>
-                    {{ $t('learning.favoriteSentence') }}
+                    <span class="material-symbols-outlined text-lg" :class="{ fill: isCurrentFavorited }">
+                      {{ isCurrentFavorited ? 'favorite' : 'favorite_border' }}
+                    </span>
+                    {{ isCurrentFavorited ? $t('learning.favorited') : $t('learning.favoriteSentence') }}
                   </button>
                 </div>
               </div>
@@ -357,7 +361,8 @@ import SideNavBar from '@/components/SideNavBar.vue'
 import AiSidebar from '@/components/AiSidebar.vue'
 import { useUserStore } from '@/stores/user'
 import { useAppStore } from '@/stores/app'
-import { selectQuestions, submitAnswer as submitAnswerApi, getQuestionById, addFavorite } from '@/api/exercise'
+import { selectQuestions, submitAnswer as submitAnswerApi, getQuestionById } from '@/api/exercise'
+import { useSentenceFavorite } from '@/composables/useSentenceFavorite'
 import { useSpeechRecognition } from '@/composables/useSpeechRecognition'
 import { useAiStore } from '@/stores/ai'
 import { shuffle } from '@/utils/array'
@@ -370,6 +375,7 @@ const { t } = useI18n()
 const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
+const sentenceFavorite = useSentenceFavorite()
 const appStore = useAppStore()
 const aiStore = useAiStore()
 
@@ -966,24 +972,15 @@ const goBack = () => { if (window.history.length > 1) router.back(); else router
 const restartQuiz = () => { clearProgress(); loadQuestions() }
 
 // ========== 收藏功能 ==========
+/** 语法题收藏的是正确句子，回显时须用同一文本 */
+const favoriteText = computed(() => correctSentence.value || currentQuestion.value?.stem || '')
+const isCurrentFavorited = computed(() => sentenceFavorite.isFavorited(favoriteText.value))
+
 const handleFavorite = async () => {
   const q = currentQuestion.value
-  const uid = userStore.userId
-  if (!uid || !q) return
+  if (!q) return
   try {
-    await addFavorite({
-      userId: uid,
-      sentenceText: correctSentence.value || q.stem,
-      questionId: q.id,
-    })
-    // 视觉反馈：短暂改变按钮文本
-    const btn = document.activeElement as HTMLButtonElement | null
-    if (btn) {
-      const original = btn.innerHTML
-      btn.innerHTML = `<span class="material-symbols-outlined text-lg">favorite</span> ${t('learning.favorited')}`
-      btn.disabled = true
-      setTimeout(() => { btn.innerHTML = original; btn.disabled = false }, 1500)
-    }
+    await sentenceFavorite.toggle(favoriteText.value, q.id)
   } catch (e) {
     console.warn('收藏失败', e)
   }
@@ -992,6 +989,7 @@ const handleFavorite = async () => {
 // ========== 生命周期 ==========
 onMounted(() => {
   aiStore.setInlineMode(true)
+  void sentenceFavorite.load()
   if (userStore.userId) loadQuestions()
   startTime.value = Date.now()
 })

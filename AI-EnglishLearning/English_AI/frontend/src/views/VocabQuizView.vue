@@ -223,13 +223,17 @@
                     <p class="font-body-md text-body-md text-on-surface">{{ submitResult.analysis }}</p>
                   </div>
                 </div>
-                <!-- 收藏按钮 -->
+                <!-- 收藏按钮：未收藏空心，已收藏红色实心 -->
                 <button
-                  class="w-full bg-surface text-on-surface border border-outline-variant py-3 rounded-xl font-label-md text-label-md hover:bg-primary-container/20 transition-colors flex items-center justify-center gap-2"
+                  class="w-full bg-surface border border-outline-variant py-3 rounded-xl font-label-md text-label-md hover:bg-primary-container/20 transition-colors flex items-center justify-center gap-2"
+                  :class="isCurrentFavorited ? 'text-error' : 'text-on-surface'"
+                  :aria-pressed="isCurrentFavorited"
                   @click="handleFavorite"
                 >
-                  <span class="material-symbols-outlined text-lg">favorite</span>
-                  {{ $t('learning.favoriteSentence') }}
+                  <span class="material-symbols-outlined text-lg" :class="{ fill: isCurrentFavorited }">
+                    {{ isCurrentFavorited ? 'favorite' : 'favorite_border' }}
+                  </span>
+                  {{ isCurrentFavorited ? $t('learning.favorited') : $t('learning.favoriteSentence') }}
                 </button>
               </div>
             </div>
@@ -464,10 +468,10 @@ import {
   selectNewVocabularyQuestions,
   submitAnswer as submitAnswerApi,
   getQuestionById,
-  addFavorite,
   getReviewList,
   addVocabulary,
 } from '@/api/exercise'
+import { useSentenceFavorite } from '@/composables/useSentenceFavorite'
 import { useSpeechRecognition } from '@/composables/useSpeechRecognition'
 import { useAiStore } from '@/stores/ai'
 import { shuffle } from '@/utils/array'
@@ -479,6 +483,7 @@ import EmptyState from '@/components/ui/EmptyState.vue'
 const router = useRouter()
 const { t } = useI18n()
 const userStore = useUserStore()
+const sentenceFavorite = useSentenceFavorite()
 const appStore = useAppStore()
 const { show: toast } = useToast()
 const { isListening, transcript, error: speechError, isSupported: speechSupported, start: startSpeech, stop: stopSpeech } = useSpeechRecognition()
@@ -1046,26 +1051,18 @@ const restartQuiz = async () => {
 }
 
 // ========== 收藏功能 ==========
+/** 收藏文本与收藏接口传入的 sentenceText 必须一致，否则回显匹配不上 */
+const favoriteText = computed(() => currentQuestion.value?.stem ?? '')
+const isCurrentFavorited = computed(() => sentenceFavorite.isFavorited(favoriteText.value))
+
 const handleFavorite = async () => {
   const q = currentQuestion.value
-  const uid = userStore.userId
-  if (!uid || !q) return
+  if (!q) return
   try {
-    await addFavorite({
-      userId: uid,
-      sentenceText: q.stem,
-      questionId: q.id,
-    })
-    // 视觉反馈：短暂改变按钮文本
-    const btn = document.activeElement as HTMLButtonElement | null
-    if (btn) {
-      const original = btn.innerHTML
-      btn.innerHTML = `<span class="material-symbols-outlined text-lg">favorite</span> ${t('learning.favorited')}`
-      btn.disabled = true
-      setTimeout(() => { btn.innerHTML = original; btn.disabled = false }, 1500)
-    }
+    const state = await sentenceFavorite.toggle(favoriteText.value, q.id)
+    if (state === true) toast(t('learning.favorited'), 'success')
   } catch (e) {
-    console.warn('收藏失败', e)
+    toast(e instanceof Error ? e.message : '收藏失败', 'error')
   }
 }
 
@@ -1106,6 +1103,7 @@ watch(speechError, (val) => { if (val) console.warn('语音错误:', val) })
 // ========== 生命周期 ==========
 onMounted(async () => {
   aiStore.setInlineMode(true)
+  void sentenceFavorite.load()
   if (userStore.userId) {
     const needsGoal = await promptVocabularyGoalsIfNeeded()
     if (!needsGoal) {

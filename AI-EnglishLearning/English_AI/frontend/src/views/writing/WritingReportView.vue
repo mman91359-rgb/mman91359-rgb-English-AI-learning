@@ -42,7 +42,10 @@
             {{ $t('writing.report.history') }}
           </button>
           <button type="button" :class="btnSecondarySm" @click="toggleFavorite">
-            <span class="material-symbols-outlined text-icon-sm">{{ isFavorite ? 'favorite' : 'favorite_border' }}</span>
+            <span
+              class="material-symbols-outlined text-icon-sm"
+              :class="{ fill: isFavorite }"
+            >{{ isFavorite ? 'favorite' : 'favorite_border' }}</span>
             {{ isFavorite ? $t('writing.report.unfavorite') : $t('writing.report.favorite') }}
           </button>
           <button type="button" :class="btnSecondarySm" @click="askAi">

@@ -48,7 +48,7 @@
                   @click="toggleFavorite"
                 >
                   <span class="material-symbols-outlined text-icon-md" :class="{ fill: favorited }">
-                    {{ favorited ? 'star' : 'star_outline' }}
+                    {{ favorited ? 'bookmark' : 'bookmark_border' }}
                   </span>
                 </button>
                 <button

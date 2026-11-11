@@ -24,11 +24,14 @@
       v-if="showFavorite"
       type="button"
       class="flex-shrink-0 p-2 rounded-full transition-all duration-200 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-      :class="favoriteClass"
+      :class="favorited ? 'text-error hover:bg-error/10' : favoriteClass"
       :aria-label="$t('listening.favorite')"
+      :aria-pressed="favorited"
       @click="$emit('favorite')"
     >
-      <span class="material-symbols-outlined">favorite_border</span>
+      <span class="material-symbols-outlined" :class="{ fill: favorited }">
+        {{ favorited ? 'favorite' : 'favorite_border' }}
+      </span>
     </button>
   </div>
 </template>
@@ -42,10 +45,13 @@ const props = withDefaults(defineProps<{
   message?: string
   tags?: string[]
   showFavorite?: boolean
+  /** 当前题目是否已收藏，驱动空心/红色实心切换 */
+  favorited?: boolean
 }>(), {
   status: 'idle',
   tags: () => [],
   showFavorite: false,
+  favorited: false,
 })
 
 defineEmits<{ favorite: [] }>()

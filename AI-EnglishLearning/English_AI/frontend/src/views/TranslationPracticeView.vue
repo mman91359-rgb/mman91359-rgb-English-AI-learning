@@ -142,6 +142,7 @@
             hide-header
             :data="translationFeedback"
             :actions="{ favorite: true }"
+            :favorited="isReferenceFavorited"
             @favorite="addReferenceToFavorites"
             @lookup="handleLookup"
           />
@@ -184,7 +185,7 @@ import { useToast } from '../composables/useToast'
 import { useUserStore } from '../stores/user'
 import { useAiStore } from '../stores/ai'
 import { selectTranslationQuestions, submitTranslation, isPassageTranslation } from '../api/translation'
-import { addFavorite } from '../api/exercise'
+import { useSentenceFavorite } from '@/composables/useSentenceFavorite'
 import type { QuestionVO } from '../api/exercise'
 import type { SubmitResponse } from '../api/exercise'
 import { btnIcon } from '@/components/ui/buttonStyles'
@@ -194,6 +195,7 @@ const { t } = useI18n()
 const { show: toast } = useToast()
 const userStore = useUserStore()
 const aiStore = useAiStore()
+const sentenceFavorite = useSentenceFavorite()
 
 const questions = ref<QuestionVO[]>([])
 const currentIndex = ref(0)
@@ -261,6 +263,7 @@ onMounted(async () => {
     router.push('/login')
     return
   }
+  void sentenceFavorite.load()
   try {
     questions.value = await selectTranslationQuestions(userId, 5)
     if (questions.value.length === 0) {
@@ -337,17 +340,17 @@ const askAi = () => {
   aiStore.injectFeedback('translation', String(logId.value), true)
 }
 
+/** 收藏的是参考译文，回显须用同一文本 */
+const favoriteText = computed(() => result.value?.correctAnswer ?? '')
+const isReferenceFavorited = computed(() => sentenceFavorite.isFavorited(favoriteText.value))
+
 const addReferenceToFavorites = async () => {
-  if (!result.value?.correctAnswer || !userStore.userId) return
+  if (!favoriteText.value || !userStore.userId) return
   try {
-    await addFavorite({
-      userId: userStore.userId,
-      sentenceText: result.value.correctAnswer,
-      questionId: currentQuestion.value?.id,
-    })
-    toast(t('translation.favoriteAdded'), 'success')
-  } catch (e: any) {
-    toast(e?.message || t('translation.favoriteFailed'), 'error')
+    const state = await sentenceFavorite.toggle(favoriteText.value, currentQuestion.value?.id)
+    if (state === true) toast(t('translation.favoriteAdded'), 'success')
+  } catch (e) {
+    toast(e instanceof Error ? e.message : t('translation.favoriteFailed'), 'error')
   }
 }
 </script>

@@ -12,11 +12,15 @@
     <button
       v-if="actions.favorite"
       type="button"
-      class="flex h-9 items-center gap-1.5 rounded-full px-3 font-label-md text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-high"
+      class="flex h-9 items-center gap-1.5 rounded-full px-3 font-label-md text-label-md transition-colors hover:bg-surface-container-high"
+      :class="favorited ? 'text-error' : 'text-on-surface-variant'"
+      :aria-pressed="favorited"
       @click="emit('favorite')"
     >
-      <span class="material-symbols-outlined text-icon-md">bookmark_add</span>
-      <span>{{ $t('ai.action.favorite') }}</span>
+      <span class="material-symbols-outlined text-icon-md" :class="{ fill: favorited }">
+        {{ favorited ? 'favorite' : 'favorite_border' }}
+      </span>
+      <span>{{ favorited ? $t('ai.action.favorited') : $t('ai.action.favorite') }}</span>
     </button>
     <button
       v-if="actions.addError"
@@ -52,6 +56,7 @@
 /**
  * 通用 AI 操作条：复制/收藏/加错题本/加单词本/标记掌握。
  * 通过 props 控制显示哪些按钮，事件由父组件处理。
+ * 收藏按钮由父组件传 favorited 驱动图标与颜色（空心 → 红色实心）。
  */
 withDefaults(defineProps<{
   actions?: {
@@ -61,8 +66,11 @@ withDefaults(defineProps<{
     addVocab?: boolean
     mastered?: boolean
   }
+  /** 当前内容是否已收藏 */
+  favorited?: boolean
 }>(), {
   actions: () => ({}),
+  favorited: false,
 })
 
 const emit = defineEmits<{

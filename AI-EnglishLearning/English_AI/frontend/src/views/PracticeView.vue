@@ -126,11 +126,15 @@
             </div>
           <button
             v-if="showResult"
-            class="w-full bg-surface text-on-surface border border-outline-variant py-3 rounded-xl font-label-md text-label-md hover:bg-primary-container/20 transition-colors flex items-center justify-center gap-2"
+            class="w-full bg-surface border border-outline-variant py-3 rounded-xl font-label-md text-label-md hover:bg-primary-container/20 transition-colors flex items-center justify-center gap-2"
+            :class="isCurrentFavorited ? 'text-error' : 'text-on-surface'"
+            :aria-pressed="isCurrentFavorited"
             @click="handleFavorite"
           >
-            <span class="material-symbols-outlined text-lg">favorite</span>
-            {{ $t('learning.favoriteSentence') }}
+            <span class="material-symbols-outlined text-lg" :class="{ fill: isCurrentFavorited }">
+              {{ isCurrentFavorited ? 'favorite' : 'favorite_border' }}
+            </span>
+            {{ isCurrentFavorited ? $t('learning.favorited') : $t('learning.favoriteSentence') }}
           </button>
             <button
               class="w-full bg-primary text-on-primary py-4 rounded-xl font-label-lg text-label-lg hover:bg-primary/90 transition-colors"
@@ -229,7 +233,8 @@ import { useI18n } from 'vue-i18n'
 import AppLayout from '../components/AppLayout.vue'
 import { useUserStore } from '@/stores/user'
 import { moduleName as moduleLabel } from '@/config/modules'
-import { selectQuestions, submitAnswer, addFavorite } from '@/api/exercise'
+import { selectQuestions, submitAnswer } from '@/api/exercise'
+import { useSentenceFavorite } from '@/composables/useSentenceFavorite'
 import type { QuestionVO, SubmitResponse } from '@/api/exercise'
 import { btnIcon } from '@/components/ui/buttonStyles'
 import LoadingState from '@/components/ui/LoadingState.vue'
@@ -239,6 +244,7 @@ const route = useRoute()
 const router = useRouter()
 const { t } = useI18n()
 const userStore = useUserStore()
+const sentenceFavorite = useSentenceFavorite()
 
 const moduleType = computed(() => Number(route.query.moduleType) || 1)
 const count = computed(() => Number(route.query.count) || 10)
@@ -456,23 +462,15 @@ const goNext = () => {
   }
 }
 
+/** 收藏文本与收藏接口传入的 sentenceText 保持一致 */
+const favoriteText = computed(() => currentQuestion.value?.stem ?? '')
+const isCurrentFavorited = computed(() => sentenceFavorite.isFavorited(favoriteText.value))
+
 const handleFavorite = async () => {
   const q = currentQuestion.value
-  const uid = userStore.userId
-  if (!uid || !q) return
+  if (!q) return
   try {
-    await addFavorite({
-      userId: uid,
-      sentenceText: q.stem,
-      questionId: q.id,
-    })
-    // Visual feedback - briefly show the button text change
-    const btn = document.activeElement
-    if (btn) {
-      const original = btn.innerHTML
-      btn.innerHTML = `<span class="material-symbols-outlined text-lg">favorite</span> ${t('learning.favorited')}`
-      setTimeout(() => { btn.innerHTML = original }, 1500)
-    }
+    await sentenceFavorite.toggle(favoriteText.value, q.id)
   } catch (e) {
     console.warn('收藏失败', e)
   }
@@ -485,6 +483,7 @@ const restartPractice = () => {
 
 onMounted(() => {
   if (userStore.userId) {
+    void sentenceFavorite.load()
     loadQuestions()
   } else {
     router.push('/login')

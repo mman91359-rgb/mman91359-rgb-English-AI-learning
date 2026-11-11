@@ -33,6 +33,7 @@
     <AiActionBar
       v-if="!loading && !error && data && hasActions"
       :actions="actions"
+      :favorited="favorited"
       @copy="emit('copy')"
       @favorite="emit('favorite')"
       @add-error="emit('addError')"
@@ -69,6 +70,8 @@ const props = defineProps<{
     addVocab?: boolean
     mastered?: boolean
   }
+  /** 当前解析内容是否已收藏，透传给操作条 */
+  favorited?: boolean
 }>()
 
 const emit = defineEmits<{

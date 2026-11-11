@@ -73,6 +73,7 @@ export default {
     action: {
       copy: 'Copy',
       favorite: 'Favorite',
+      favorited: 'Favorited',
       addError: 'Add to error book',
       addVocab: 'Add to vocabulary',
       mastered: 'Mark mastered',

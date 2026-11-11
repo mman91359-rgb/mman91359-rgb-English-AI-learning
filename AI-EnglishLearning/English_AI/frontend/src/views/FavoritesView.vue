@@ -48,7 +48,7 @@
         class="bg-surface-container-lowest rounded-[20px] p-5 shadow-soft-glow flex items-start justify-between gap-4 hover:shadow-md transition-shadow"
       >
         <div class="flex items-start gap-3 flex-1 min-w-0">
-          <span class="material-symbols-outlined text-error shrink-0 mt-0.5">favorite</span>
+          <span class="material-symbols-outlined fill text-error shrink-0 mt-0.5">favorite</span>
           <div class="min-w-0 flex-1">
             <p
               :class="[

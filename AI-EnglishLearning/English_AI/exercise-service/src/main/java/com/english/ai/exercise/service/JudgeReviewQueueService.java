@@ -24,4 +24,11 @@ public interface JudgeReviewQueueService {
      * @return true 表示本次处理成功，false 表示记录不存在或已被处理
      */
     boolean resolve(JudgeReviewResolveRequest request);
+
+    /**
+     * 补记重试：只补还缺的那一半（遗忘曲线 / ELO）。
+     *
+     * @return true 表示两半都已补记完成
+     */
+    boolean rescore(Long reviewId);
 }

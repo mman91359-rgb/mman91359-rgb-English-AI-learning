@@ -1095,4 +1095,22 @@ npm run build
 
 > 阈值仍不动：机翻拿 7 分是"达意但表达差"的合理落点，抬线会误伤真实学生。标定时单列「机翻/直译」类别。
 
+### 十、复核补记可重试（V1.0.45）
+
+**问题**：`resolve` 的 afterCommit 补记 ELO / 遗忘曲线失败只记 warn，队列行与"正常已处理"无差别，再调 resolve 因 `status != PENDING` 返回 false → 那条作答永久不计分。
+
+**方案**：
+
+1. 两个补记各留一个时间戳（`curve_scored_at` / `elo_scored_at`）。单个 `scored_at` 无论怎么实现都会出错：都成功才置位 → 重试把已成功的一半再跑一遍；任一成功就置位 → 失败那半永久丢失。
+2. **写入协议：抢占 → 请求 → 失败清回**。`UPDATE ... SET x=NOW() WHERE id=? AND x IS NULL` 抢占成功（affected=1）才发 HTTP；失败把标记清回 NULL。顺序反过来，`resolve` 与 `rescore` 并发时会各发一次，曲线阶梯推两级。
+3. 失败日志用 `error`（用户分数永久缺失，不是普通告警）。
+4. 新增 `POST /internal/judge/review/rescore`；定时任务 `ReviewScoringRetryTask` 每 10 分钟扫最多 50 条 `REVIEWED AND log_id IS NOT NULL AND (两标记有 NULL)` 逐条补。
+5. verdict 不新加列：FAIL 时绑定 log 已被改成 0，PASS 保持 1，直接拿 `is_correct` 当 `isCorrect`；`log_id` 为空的手工入队跳过并 warn。
+
+**两个运维事实**：
+
+- **AUTO_INCREMENT 排查**：`information_schema.tables` 的 AUTO_INCREMENT 默认缓存 86400 秒，会报旧值（当时显示 296/3，真实是 298/5）。要看准值用 `SHOW CREATE TABLE` 或 `SET SESSION information_schema_stats_expiry=0`。冒烟数据确实写进生产库，证据链成立。
+- **shadow 模式已确认**：`practiceOnly=true` 提交一次段译（不写表），日志为 `mode=shadow`，耗时 1769ms。
+- **MQ 守卫仍未实机验证**：本地没有 RabbitMQ。切 enforce 前需在开启 MQ 的环境按清单验证（灰区提交后 consumer 无该 traceId、曲线无新行；resolve FAIL 后只新增 1 行）。
+
 

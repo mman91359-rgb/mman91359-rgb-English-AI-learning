@@ -65,6 +65,12 @@ public class JudgeReviewQueueItem {
     /** 审核意见 */
     private String reviewComment;
 
+    /** 遗忘曲线补记成功时间；NULL 表示未补记（灰区提交时不记，复核后补） */
+    private LocalDateTime curveScoredAt;
+
+    /** ELO 补记成功时间；NULL 表示未补记 */
+    private LocalDateTime eloScoredAt;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;

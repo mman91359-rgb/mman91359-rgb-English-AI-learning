@@ -119,13 +119,46 @@ public class JudgeReviewQueueServiceImpl implements JudgeReviewQueueService {
 
         // 灰区提交时没有记 ELO / 遗忘曲线，复核结论出来后在事务提交后补记一次
         runAfterCommit(() -> {
-            updateCurve(item, pass);
-            updateElo(item, pass);
+            ensureCurve(item, pass);
+            ensureElo(item, pass);
         });
 
         log.info("审核结论落地: reviewId={}, verdict={}, questionId={}, userId={}, logId={}",
                 request.getReviewId(), request.getVerdict(), item.getQuestionId(), item.getUserId(), item.getLogId());
         return true;
+    }
+
+    /**
+     * 补记重试：只补还缺的那一半（curve / elo）。
+     *
+     * <p>复核结论不给对话框，直接看绑定 log 的 {@code is_correct}——
+     * FAIL 时 {@link #markLogWrong} 已把它置 0，PASS 保持 1，语义一致。</p>
+     *
+     * @return true 表示两半都已补记完成；false 表示记录不满足条件或仍有缺失
+     */
+    @Override
+    public boolean rescore(Long reviewId) {
+        JudgeReviewQueueItem item = judgeReviewQueueMapper.selectById(reviewId);
+        if (item == null || !STATUS_REVIEWED.equals(item.getStatus())) {
+            return false;
+        }
+        if (item.getLogId() == null) {
+            log.warn("审核记录缺少 log_id，无法推断复核结论，跳过补记: reviewId={}", reviewId);
+            return false;
+        }
+        if (item.getCurveScoredAt() != null && item.getEloScoredAt() != null) {
+            return false;
+        }
+        UserExerciseLog boundLog = exerciseLogMapper.selectById(item.getLogId());
+        if (boundLog == null) {
+            log.error("补记失败：绑定的答题日志不存在: reviewId={}, logId={}", reviewId, item.getLogId());
+            return false;
+        }
+        boolean isCorrect = Integer.valueOf(1).equals(boundLog.getIsCorrect());
+        boolean curveDone = ensureCurve(item, isCorrect);
+        boolean eloDone = ensureElo(item, isCorrect);
+        log.info("补记重试: reviewId={}, curve={}, elo={}", reviewId, curveDone, eloDone);
+        return curveDone && eloDone;
     }
 
     /**
@@ -165,10 +198,23 @@ public class JudgeReviewQueueServiceImpl implements JudgeReviewQueueService {
         }
     }
 
-    private void updateCurve(JudgeReviewQueueItem item, boolean isCorrect) {
+    /**
+     * 补记遗忘曲线。协议：抢占标记 → 发请求 → 失败清回。
+     *
+     * <p>顺序不能反：若先发请求再置位，resolve 与 rescore 并发时都会看到 NULL，
+     * 各发一次 → 曲线阶梯推两级。</p>
+     */
+    private boolean ensureCurve(JudgeReviewQueueItem item, boolean isCorrect) {
+        if (item.getCurveScoredAt() != null) {
+            return true;
+        }
         if (item.getModuleType() == null) {
-            log.warn("审核记录缺少 module_type，跳过遗忘曲线补记: reviewId={}", item.getId());
-            return;
+            log.error("审核记录缺少 module_type，无法补记遗忘曲线: reviewId={}", item.getId());
+            return false;
+        }
+        if (judgeReviewQueueMapper.claimCurveScored(item.getId()) == 0) {
+            // 已被其他请求抢占，视为已处理
+            return true;
         }
         try {
             Map<String, Object> body = new HashMap<>();
@@ -177,15 +223,26 @@ public class JudgeReviewQueueServiceImpl implements JudgeReviewQueueService {
             body.put("isCorrect", isCorrect);
             body.put("moduleType", item.getModuleType());
             postJson(learningEngineUrl + "/learning/update-curve", body);
+            return true;
         } catch (Exception e) {
-            log.warn("复核后补记遗忘曲线失败: reviewId={}, error={}", item.getId(), e.getMessage());
+            log.error("补记遗忘曲线失败，标记已清回待重试: reviewId={}, error={}",
+                    item.getId(), e.getMessage());
+            judgeReviewQueueMapper.clearCurveScored(item.getId());
+            return false;
         }
     }
 
-    private void updateElo(JudgeReviewQueueItem item, boolean isCorrect) {
+    /** 补记 ELO，与 {@link #ensureCurve} 同一套抢占协议 */
+    private boolean ensureElo(JudgeReviewQueueItem item, boolean isCorrect) {
+        if (item.getEloScoredAt() != null) {
+            return true;
+        }
         if (item.getModuleType() == null || item.getDifficultyLevel() == null) {
-            log.warn("审核记录缺少 module_type / difficulty_level，跳过 ELO 补记: reviewId={}", item.getId());
-            return;
+            log.error("审核记录缺少 module_type / difficulty_level，无法补记 ELO: reviewId={}", item.getId());
+            return false;
+        }
+        if (judgeReviewQueueMapper.claimEloScored(item.getId()) == 0) {
+            return true;
         }
         try {
             Map<String, Object> body = new HashMap<>();
@@ -194,8 +251,12 @@ public class JudgeReviewQueueServiceImpl implements JudgeReviewQueueService {
             body.put("moduleType", item.getModuleType());
             body.put("isCorrect", isCorrect);
             postJson(userServiceUrl + "/user/radar/update-elo", body);
+            return true;
         } catch (Exception e) {
-            log.warn("复核后补记 ELO 失败: reviewId={}, error={}", item.getId(), e.getMessage());
+            log.error("补记 ELO 失败，标记已清回待重试: reviewId={}, error={}",
+                    item.getId(), e.getMessage());
+            judgeReviewQueueMapper.clearEloScored(item.getId());
+            return false;
         }
     }
 

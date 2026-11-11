@@ -126,6 +126,8 @@ class JudgeReviewQueueServiceImplTest {
     void resolvePassOnlyUpdatesStatusAndRecordsPositive() {
         when(judgeReviewQueueMapper.selectById(12L)).thenReturn(pendingItem());
         when(judgeReviewQueueMapper.update(isNull(), any())).thenReturn(1);
+        when(judgeReviewQueueMapper.claimCurveScored(12L)).thenReturn(1);
+        when(judgeReviewQueueMapper.claimEloScored(12L)).thenReturn(1);
 
         assertTrue(service.resolve(resolveRequest("PASS")));
 
@@ -148,6 +150,8 @@ class JudgeReviewQueueServiceImplTest {
         // 按 log_id 精确取，而不是按 user+question 猜最近一条
         when(exerciseLogMapper.selectById(88L)).thenReturn(log);
         when(errorBookMapper.selectOne(any())).thenReturn(null);
+        when(judgeReviewQueueMapper.claimCurveScored(12L)).thenReturn(1);
+        when(judgeReviewQueueMapper.claimEloScored(12L)).thenReturn(1);
 
         assertTrue(service.resolve(resolveRequest("FAIL")));
 
@@ -194,5 +198,89 @@ class JudgeReviewQueueServiceImplTest {
 
         assertFalse(service.resolve(resolveRequest("FAIL")));
         verifyNoInteractions(exerciseLogMapper, errorBookMapper, auditRestTemplate);
+    }
+
+    // ===== 补记重试（rescore） =====
+
+    private JudgeReviewQueueItem reviewedItem() {
+        JudgeReviewQueueItem item = pendingItem();
+        item.setStatus("REVIEWED");
+        return item;
+    }
+
+    private UserExerciseLog boundLog(int isCorrect) {
+        UserExerciseLog log = new UserExerciseLog();
+        log.setId(88L);
+        log.setUserId(9L);
+        log.setQuestionId(510L);
+        log.setIsCorrect(isCorrect);
+        return log;
+    }
+
+    @Test
+    void rescoreOnlyFillsMissingCurveAndSkipsScoredElo() {
+        JudgeReviewQueueItem item = reviewedItem();
+        item.setEloScoredAt(java.time.LocalDateTime.now());
+        when(judgeReviewQueueMapper.selectById(12L)).thenReturn(item);
+        when(exerciseLogMapper.selectById(88L)).thenReturn(boundLog(1));
+        when(judgeReviewQueueMapper.claimCurveScored(12L)).thenReturn(1);
+
+        assertTrue(service.rescore(12L));
+
+        verify(judgeReviewQueueMapper, never()).claimEloScored(any());
+        verify(auditRestTemplate, org.mockito.Mockito.times(1))
+                .postForEntity(any(String.class), any(), eq(String.class));
+    }
+
+    @Test
+    void rescoreIsNoopWhenBothAlreadyScored() {
+        JudgeReviewQueueItem item = reviewedItem();
+        item.setCurveScoredAt(java.time.LocalDateTime.now());
+        item.setEloScoredAt(java.time.LocalDateTime.now());
+        when(judgeReviewQueueMapper.selectById(12L)).thenReturn(item);
+
+        assertFalse(service.rescore(12L));
+        verifyNoInteractions(auditRestTemplate, exerciseLogMapper);
+    }
+
+    @Test
+    void rescoreRejectsPendingOrUnboundRows() {
+        when(judgeReviewQueueMapper.selectById(12L)).thenReturn(pendingItem());
+        assertFalse(service.rescore(12L));
+
+        JudgeReviewQueueItem noLog = reviewedItem();
+        noLog.setLogId(null);
+        when(judgeReviewQueueMapper.selectById(12L)).thenReturn(noLog);
+        assertFalse(service.rescore(12L));
+
+        verifyNoInteractions(auditRestTemplate);
+    }
+
+    @Test
+    void rescoreClearsMarkerWhenDownstreamFails() {
+        JudgeReviewQueueItem item = reviewedItem();
+        when(judgeReviewQueueMapper.selectById(12L)).thenReturn(item);
+        when(exerciseLogMapper.selectById(88L)).thenReturn(boundLog(0));
+        when(judgeReviewQueueMapper.claimCurveScored(12L)).thenReturn(1);
+        when(judgeReviewQueueMapper.claimEloScored(12L)).thenReturn(1);
+        when(auditRestTemplate.postForEntity(any(String.class), any(), eq(String.class)))
+                .thenThrow(new RuntimeException("timeout"));
+
+        assertFalse(service.rescore(12L));
+
+        verify(judgeReviewQueueMapper).clearCurveScored(12L);
+        verify(judgeReviewQueueMapper).clearEloScored(12L);
+    }
+
+    @Test
+    void claimReturningZeroMeansAlreadyHandled() {
+        JudgeReviewQueueItem item = reviewedItem();
+        when(judgeReviewQueueMapper.selectById(12L)).thenReturn(item);
+        when(exerciseLogMapper.selectById(88L)).thenReturn(boundLog(1));
+        when(judgeReviewQueueMapper.claimCurveScored(12L)).thenReturn(0);
+        when(judgeReviewQueueMapper.claimEloScored(12L)).thenReturn(0);
+
+        assertTrue(service.rescore(12L));
+        verifyNoInteractions(auditRestTemplate);
     }
 }

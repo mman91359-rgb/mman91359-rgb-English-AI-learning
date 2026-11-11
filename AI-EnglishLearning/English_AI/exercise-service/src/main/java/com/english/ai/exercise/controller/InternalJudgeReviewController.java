@@ -2,6 +2,7 @@ package com.english.ai.exercise.controller;
 
 import com.english.ai.common.Result;
 import com.english.ai.exercise.dto.JudgeReviewEnqueueRequest;
+import com.english.ai.exercise.dto.JudgeReviewRescoreRequest;
 import com.english.ai.exercise.dto.JudgeReviewResolveRequest;
 import com.english.ai.exercise.service.JudgeReviewQueueService;
 import jakarta.validation.Valid;
@@ -41,5 +42,13 @@ public class InternalJudgeReviewController {
     @PostMapping("/review/resolve")
     public Result<Boolean> resolve(@Valid @RequestBody JudgeReviewResolveRequest request) {
         return Result.success(judgeReviewQueueService.resolve(request));
+    }
+
+    /**
+     * 补记重试：只补尚未完成的 ELO / 遗忘曲线，天然幂等。
+     */
+    @PostMapping("/review/rescore")
+    public Result<Boolean> rescore(@Valid @RequestBody JudgeReviewRescoreRequest request) {
+        return Result.success(judgeReviewQueueService.rescore(request.getReviewId()));
     }
 }

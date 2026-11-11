@@ -119,6 +119,16 @@ public class JudgeReviewQueueServiceImpl implements JudgeReviewQueueService {
         }
 
         boolean pass = "PASS".equalsIgnoreCase(request.getVerdict());
+
+        // 无 log_id 的手工/历史行：没有可改判的作答，也没有计分依据。
+        // 灰区真实入队一定带 log_id，只有手工入队/历史数据才可能为空。
+        // 此时跳过改判、错题本与计分补记，避免凭空污染真实用户的错题本/曲线/ELO。
+        if (item.getLogId() == null) {
+            log.warn("审核记录缺少 log_id，跳过改判/错题本/计分补记: reviewId={}, verdict={}",
+                    request.getReviewId(), request.getVerdict());
+            return true;
+        }
+
         if (!pass) {
             markLogWrong(item.getLogId(), request.getReviewId());
             upsertErrorBook(item.getUserId(), item.getQuestionId());

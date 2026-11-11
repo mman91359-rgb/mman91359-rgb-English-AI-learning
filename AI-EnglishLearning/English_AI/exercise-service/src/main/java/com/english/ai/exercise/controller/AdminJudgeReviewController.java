@@ -57,7 +57,7 @@ public class AdminJudgeReviewController {
     @GetMapping
     public Result<PageResult<JudgeReviewAdminItem>> page(JudgeReviewAdminQuery query) {
         int page = query.getPage() > 0 ? query.getPage() : 1;
-        int size = query.getSize() > 0 ? query.getSize() : 20;
+        int size = Math.min(query.getSize() > 0 ? query.getSize() : 20, 100);
 
         LambdaQueryWrapper<JudgeReviewQueueItem> wrapper = new LambdaQueryWrapper<>();
         if (query.getStatus() != null && !query.getStatus().isBlank()) {

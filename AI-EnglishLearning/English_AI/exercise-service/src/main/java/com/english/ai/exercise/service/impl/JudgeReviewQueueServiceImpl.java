@@ -11,6 +11,7 @@ import com.english.ai.exercise.mapper.JudgeReviewQueueMapper;
 import com.english.ai.exercise.mapper.UserErrorBookMapper;
 import com.english.ai.exercise.mapper.UserExerciseLogMapper;
 import com.english.ai.exercise.service.JudgeReviewQueueService;
+import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,7 +43,13 @@ public class JudgeReviewQueueServiceImpl implements JudgeReviewQueueService {
     private final JudgeReviewQueueMapper judgeReviewQueueMapper;
     private final UserExerciseLogMapper exerciseLogMapper;
     private final UserErrorBookMapper errorBookMapper;
-    private final RestTemplate restTemplate;
+
+    /**
+     * 补记 ELO / 遗忘曲线用短超时客户端（connect 1s / read 2s）。
+     * resolve 是运维接口，不该被下游拖到 20s；失败只记日志，不影响复核结论落地。
+     */
+    @Resource(name = "auditRestTemplate")
+    private RestTemplate auditRestTemplate;
 
     @Value("${service.user.url}")
     private String userServiceUrl;
@@ -195,7 +202,7 @@ public class JudgeReviewQueueServiceImpl implements JudgeReviewQueueService {
     private void postJson(String url, Map<String, Object> body) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        restTemplate.postForEntity(url, new HttpEntity<>(body, headers), String.class);
+        auditRestTemplate.postForEntity(url, new HttpEntity<>(body, headers), String.class);
     }
 
     /**

@@ -474,24 +474,8 @@ public class ExerciseServiceImpl implements ExerciseService {
                     judgmentResult.getReviewDraft(), logId, traceId, judgeCorrectAnswer);
 
             // 发布RabbitMQ事件（异步解耦，fire-and-forget）
-            if (rabbitTemplate != null) {
-                try {
-                    ExerciseCompletedEvent event = ExerciseCompletedEvent.builder()
-                            .userId(request.getUserId())
-                            .questionId(request.getQuestionId())
-                            .moduleType(moduleType)
-                            .isCorrect(isCorrect)
-                            .attemptCount(1)
-                            .timestamp(System.currentTimeMillis())
-                            .traceId(traceId)
-                            .build();
-                    rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_NAME,
-                            RabbitMQConfig.ROUTING_KEY, event);
-                    log.debug("MQ事件已发送: traceId={}", traceId);
-                } catch (Exception e) {
-                    log.warn("RabbitMQ事件发送失败（不影响主流程）: {}", e.getMessage());
-                }
-            }
+            // 灰区必须一并跳过：consumer 会无条件写遗忘曲线，发了就等于计了两次
+            publishCompletedEvent(request, moduleType, isCorrect, traceId, judgmentResult.getReviewDraft());
         }
 
         if (practiceOnly) {
@@ -678,6 +662,38 @@ public class ExerciseServiceImpl implements ExerciseService {
             restTemplate.postForEntity(url, entity, String.class);
         } catch (Exception e) {
             log.warn("调用user-service更新ELO失败: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * 发布练习完成事件（fire-and-forget）。
+     *
+     * <p>灰区（{@code draft != null}）不能发：learning-engine 的消费者会无条件写遗忘曲线，
+     * 而灰区的计分要等复核结论出来才补记——发了就会变成"先记一次、复核再记一次"。</p>
+     */
+    void publishCompletedEvent(SubmitRequest request, int moduleType, boolean isCorrect,
+                               String traceId, TranslationReviewDraft draft) {
+        if (draft != null) {
+            return;
+        }
+        if (rabbitTemplate == null) {
+            return;
+        }
+        try {
+            ExerciseCompletedEvent event = ExerciseCompletedEvent.builder()
+                    .userId(request.getUserId())
+                    .questionId(request.getQuestionId())
+                    .moduleType(moduleType)
+                    .isCorrect(isCorrect)
+                    .attemptCount(1)
+                    .timestamp(System.currentTimeMillis())
+                    .traceId(traceId)
+                    .build();
+            rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_NAME,
+                    RabbitMQConfig.ROUTING_KEY, event);
+            log.debug("MQ事件已发送: traceId={}", traceId);
+        } catch (Exception e) {
+            log.warn("RabbitMQ事件发送失败（不影响主流程）: {}", e.getMessage());
         }
     }
 

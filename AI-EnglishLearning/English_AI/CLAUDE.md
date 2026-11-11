@@ -1076,4 +1076,23 @@ npm run build
 2. 人工标注（10 达标 / 10 达意有瑕疵 / 10 错译）后调 `pass-score` / `review-score`；
 3. 切 `enforce`，再抽样复核 20~30 条验证灰区准确性。
 
+### 九、复核链路第二处修订（2026-11-11）
+
+1. **MQ 与灰区互斥**：`ExerciseServiceImpl.publishCompletedEvent` 加 `draft != null` 守卫。此前灰区只跳过了同步 curve/elo，MQ 照发，而 `ExerciseCompletedConsumer` 无条件写曲线——线上开了 RabbitMQ 就会"先记一次、复核再记一次"。本地 `spring.rabbitmq.enabled=false` 时看不到，属潜伏缺陷。
+2. **唯一键改按作答去重**（V1.0.44）：`uk_question_user_answer(question_id,user_id,answer_hash)` → `uk_review_log(log_id)`。原键会让重复译文在 `INSERT IGNORE` 时被吞，那条作答既不入队也永远不计分。`log_id` 可空，手工入队不受影响；去重展示留给复核列表页。
+3. **resolve 补记改用 `auditRestTemplate`**（1s/2s）：事务提交后的两次 HTTP 不再被下游拖到 20s；失败只记日志。
+
+**enforce 端到端实测（userId=9 / Q506，测完已还原数据）**：
+
+| 检查 | 结果 |
+|---|---|
+| 灰区提交 | `isCorrect=true`，`7/15`，hint「已提交人工复核」 |
+| 重复提交同一译文 | 产生 2 条 `user_exercise_log` + 2 条队列行（不再被吞） |
+| 队列字段 | `log_id` 精确对应、`difficulty_level=5`、`module_type=3`、`ai_confidence=0.467`、`PARTIAL` |
+| 灰区计分 | ELO 保持 1000、无曲线、无错题本 → **确认跳过** |
+| resolve FAIL | 只把 `log_id=296` 改成 0（297 保持 1）；错题本 `wrong_count=1`；ELO 1000→995；curve 新增 1 行 |
+| 清理 | 日志/队列/错题本/曲线归零，radar 复原 |
+
+> 阈值仍不动：机翻拿 7 分是"达意但表达差"的合理落点，抬线会误伤真实学生。标定时单列「机翻/直译」类别。
+
 

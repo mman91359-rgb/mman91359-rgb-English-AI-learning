@@ -45,7 +45,7 @@ class JudgeReviewQueueServiceImplTest {
     private UserErrorBookMapper errorBookMapper;
 
     @Mock
-    private RestTemplate restTemplate;
+    private RestTemplate auditRestTemplate;
 
     @InjectMocks
     private JudgeReviewQueueServiceImpl service;
@@ -54,6 +54,8 @@ class JudgeReviewQueueServiceImplTest {
     void setUp() {
         ReflectionTestUtils.setField(service, "userServiceUrl", "http://user-test");
         ReflectionTestUtils.setField(service, "learningEngineUrl", "http://learning-test");
+        // @Resource 注入的字段 Mockito 不会自动填，显式塞进去
+        ReflectionTestUtils.setField(service, "auditRestTemplate", auditRestTemplate);
     }
 
     private JudgeReviewEnqueueRequest request(String reason) {
@@ -129,7 +131,7 @@ class JudgeReviewQueueServiceImplTest {
 
         // PASS 不动答题日志与错题本，但要按 isCorrect=true 补记 ELO / 曲线
         verifyNoInteractions(exerciseLogMapper, errorBookMapper);
-        verify(restTemplate, org.mockito.Mockito.times(2))
+        verify(auditRestTemplate, org.mockito.Mockito.times(2))
                 .postForEntity(any(String.class), any(), eq(String.class));
     }
 
@@ -155,7 +157,7 @@ class JudgeReviewQueueServiceImplTest {
         verify(errorBookMapper).insert(captor.capture());
         assertEquals(9L, captor.getValue().getUserId());
         assertEquals(510L, captor.getValue().getQuestionId());
-        verify(restTemplate, org.mockito.Mockito.times(2))
+        verify(auditRestTemplate, org.mockito.Mockito.times(2))
                 .postForEntity(any(String.class), any(), eq(String.class));
     }
 
@@ -182,7 +184,7 @@ class JudgeReviewQueueServiceImplTest {
 
         assertFalse(service.resolve(resolveRequest("FAIL")));
         verify(judgeReviewQueueMapper, never()).update(isNull(), any());
-        verifyNoInteractions(exerciseLogMapper, errorBookMapper, restTemplate);
+        verifyNoInteractions(exerciseLogMapper, errorBookMapper, auditRestTemplate);
     }
 
     @Test
@@ -191,6 +193,6 @@ class JudgeReviewQueueServiceImplTest {
         when(judgeReviewQueueMapper.update(isNull(), any())).thenReturn(0);
 
         assertFalse(service.resolve(resolveRequest("FAIL")));
-        verifyNoInteractions(exerciseLogMapper, errorBookMapper, restTemplate);
+        verifyNoInteractions(exerciseLogMapper, errorBookMapper, auditRestTemplate);
     }
 }

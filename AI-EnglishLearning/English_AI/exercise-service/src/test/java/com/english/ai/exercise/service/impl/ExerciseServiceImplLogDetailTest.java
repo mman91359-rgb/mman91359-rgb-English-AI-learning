@@ -25,6 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.web.client.RestTemplate;
@@ -68,6 +69,7 @@ class ExerciseServiceImplLogDetailTest {
     @Mock private Clock clock;
     @Mock private PlatformTransactionManager transactionManager;
     @Mock private JudgeReviewAsyncWriter judgeReviewAsyncWriter;
+    @Mock private RabbitTemplate rabbitTemplate;
 
     @InjectMocks
     private ExerciseServiceImpl service;
@@ -191,5 +193,28 @@ class ExerciseServiceImplLogDetailTest {
 
         verify(restTemplate, times(2)).postForEntity(any(String.class), any(), eq(String.class));
         verifyNoInteractions(judgeReviewAsyncWriter);
+    }
+
+    // ===== MQ 与灰区互斥 =====
+
+    @Test
+    void grayDraftDoesNotPublishMessage() {
+        ReflectionTestUtils.setField(service, "rabbitTemplate", rabbitTemplate);
+
+        TranslationReviewDraft draft = TranslationReviewDraft.builder()
+                .reason("TRANSLATION_LOW_SCORE").build();
+        service.publishCompletedEvent(submitRequest(), 3, true, "trace-1", draft);
+
+        // consumer 会无条件写遗忘曲线，灰区发事件等于计两次
+        verifyNoInteractions(rabbitTemplate);
+    }
+
+    @Test
+    void normalSubmitPublishesMessage() {
+        ReflectionTestUtils.setField(service, "rabbitTemplate", rabbitTemplate);
+
+        service.publishCompletedEvent(submitRequest(), 3, true, "trace-1", null);
+
+        verify(rabbitTemplate).convertAndSend(any(String.class), any(String.class), any(Object.class));
     }
 }

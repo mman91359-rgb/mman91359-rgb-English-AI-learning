@@ -1017,7 +1017,7 @@ npm run build
 | SENTENCE_MAKING（module 2） | 40 | 全部 |
 | TRANSLATION（module 3） | 68 | 62（62/62 均为段落，`CHAR_LENGTH(stem)>40`） |
 
-合计 `question_info` **7393** 行。
+合计 `question_info` **7393** 行（活跃 **7389** + 软删 **4**）。**全文其余统计一律以 active（`is_deleted=0`）为准**。
 
 ### 二、判定口径（CET 15 分制）
 
@@ -1127,5 +1127,61 @@ npm run build
 - **AUTO_INCREMENT 排查**：`information_schema.tables` 的 AUTO_INCREMENT 默认缓存 86400 秒，会报旧值（当时显示 296/3，真实是 298/5）。要看准值用 `SHOW CREATE TABLE` 或 `SET SESSION information_schema_stats_expiry=0`。冒烟数据确实写进生产库，证据链成立。
 - **shadow 模式已确认**：`practiceOnly=true` 提交一次段译（不写表），日志为 `mode=shadow`，耗时 1769ms。
 - **MQ 守卫仍未实机验证**：本地没有 RabbitMQ。切 enforce 前需在开启 MQ 的环境按清单验证（灰区提交后 consumer 无该 traceId、曲线无新行；resolve FAIL 后只新增 1 行）。
+
+---
+
+## 变更记录（2026-11-11 · 第九轮）：P2 段落翻译兜底交付
+
+> **一句话**：段落翻译从「逐字归一化比对」改为「AI 按 CET 15 分制评分 + 灰区人工复核」，判分准确性与成本之间用灰区兜底。
+> **交接主文档**：`docs/review/translation-review-handover.md`（自包含，新会话只看它即可接手；本节只做摘要与索引）。
+
+### 一、交付清单
+
+| 提交 | 内容 |
+|---|---|
+| `10b0867` | 段落翻译接 AI 评分，灰区入复核队列 |
+| `7f4ec61` | 复核按 log_id 精确改判，灰区不记 ELO/曲线 |
+| `3da51d1` | 灰区不再发 MQ，队列唯一键改为按作答 |
+| `b1b1894` | 复核补记可重试（两个完成时间戳 + rescore + 定时扫描） |
+| `77013bb` | 补记抢占改 5 分钟租约（**后被下一提交修正**） |
+| `b5dcb6c` | 完成时间与租约分列，修掉每 10 分钟重复补记 |
+
+迁移：**V1.0.41 / 42 / 43 / 44 / 45 / 46**（全部 `success=1`）。
+
+核心入口：
+- `ai-service`：`POST /ai/translate-score`、`AiService.scoreTranslation` / `parseTranslationScore`
+- `exercise-service`：`TranslationScoreClient`、`JudgmentEngineImpl.judgePassageTranslation`、`ExerciseServiceImpl.applyLearningSideEffects` / `publishCompletedEvent`、`JudgeReviewAsyncWriter`、`InternalJudgeReviewController`（`/internal/judge/review`、`/review/resolve`、`/review/rescore`）、`ReviewScoringRetryTask`
+
+### 二、当前基线（实测）
+
+| 项 | 值 |
+|---|---|
+| `question_info` | 总 7393，软删 4，**活跃 7389** |
+| 题型（活跃） | FILL_BLANK 4537 / CHOICE 1004(m4)+1740(m7) / SENTENCE_MAKING 40 / TRANSLATION 68 |
+| 段落翻译 | 68 道翻译题中 accepted 为空 62，且 **62/62 全是段落**（stem>40） |
+| Flyway | **V1.0.46** |
+| `judge_review_queue` | **0 行**（尚无真实灰区样本） |
+| 服务 | 8081 / 8082 / 8083 / 8084 / 8086 均在监听 |
+
+### 三、运行状态
+
+- **`judgment.translation.ai-mode = shadow`**（yml 默认；未 export 覆盖）：AI 照常打分写日志，**不改变判分结果**。
+- 阈值 `pass-score=9` / `review-score=7` / `max-score=15`（CET 15 分制）。
+- 队列为空，`ReviewScoringRetryTask` 每 10 分钟空转一次（`findUnscored` 返回空直接 return）。
+
+### 四、上线门禁（**未完成前禁止切 enforce**）
+
+1. **MQ 实机验证**：`spring.rabbitmq.enabled=true` 环境下，enforce 提交 1 条灰区 → consumer 日志无该 traceId、`user_memory_curve` 无新行；`resolve FAIL` 后曲线只新增 **1** 行、ELO 只降一次。
+2. **shadow 标定**：累计 ≥30 条真实段译样本，人工标注（达标／达意有瑕疵／错译，单列"机翻/直译"类）后校准 `pass-score` / `review-score`。
+3. **端到端回归**：灰区入队 → 复核改判 → 补记计分全流程在有下游的环境跑通。
+
+本地 `spring.rabbitmq.enabled=false`，所以第 1 条**至今未验证**——这是当前最大的未验证项。
+
+### 五、已知边界
+
+1. 灰区样本若长期 `PENDING`，该次答题永远不计分（ELO/曲线缺失）；监控上要能看到积压。
+2. 补记租约是"尽力而为"：实例卡住超过 5 分钟才恢复会重复补记一次（租约必须远大于 HTTP 时长）。
+3. `resolve` 返回布尔只表示"复核结论落地"，补记失败被吞掉；将来做复核后台时改为 `{landed, curveScored, eloScored}`。
+4. 灰区判对会计入当天正确率，复核 FAIL 后统计回退但前端无解释；做"复核后改判"标记时一并解决。
 
 

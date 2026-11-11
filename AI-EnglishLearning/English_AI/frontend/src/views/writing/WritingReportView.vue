@@ -116,8 +116,8 @@ import WritingCorrectionList from '../../components/writing/WritingCorrectionLis
 import WritingDimensionBar from '../../components/writing/WritingDimensionBar.vue'
 import { useToast } from '../../composables/useToast'
 import { useAiStore } from '../../stores/ai'
-import { fetchFavoriteIds, fetchSubmission, fetchSubmissions, setFavorite } from '../../api/writing'
-import type { WritingSubmission } from '../../types/writing'
+import { fetchFavoriteIds, fetchSubmission, fetchSubmissions, fetchWritingTopics, setFavorite } from '../../api/writing'
+import type { WritingSubmission, WritingTopic } from '../../types/writing'
 import {
   DIMENSION_LABEL_KEYS,
   DIMENSION_MAX,
@@ -188,14 +188,46 @@ const rewrite = () => {
 }
 
 /**
+ * 把题目整理成一段可读上下文。
+ * 后端会把它包成「【当前题目】…」塞进 user message，所以这里不再加标题前缀。
+ * 英文题面必须带上：用户追问「这句怎么改」时，模型需要知道原题要求才能判断切题与否。
+ */
+function buildTopicContext(topic: WritingTopic): string {
+  const lines: string[] = [topic.title]
+  if (topic.directions) lines.push(topic.directions)
+  if (topic.topic) lines.push(`英文题面：${topic.topic}`)
+  if (topic.requirements.length) {
+    lines.push('写作要点：')
+    topic.requirements.forEach((item, i) => lines.push(`${i + 1}. ${item}`))
+  }
+  lines.push(`字数要求：${topic.wordRange[0]}-${topic.wordRange[1]} 词`)
+  return lines.join('\n')
+}
+
+/**
  * 追问入口。
  * 先按当前作文重建对话上下文（open 传 context 会清空上一题的记录），
  * 再注入一张批改速览卡。不自动发送提问，避免直接消耗一次模型调用。
+ *
+ * 题目按 topicId 从前端题库取（题库为静态数据，不走接口）；
+ * 取不到时退化为只带作文正文，不阻塞入口——缺题目只是回答没那么准，不该点不动。
+ *
+ * contextType 保持 general：writing 的 system prompt 是「按百分制重新评分」，
+ * 会诱导模型再打一次分，而报告页用 15 分制，两套分数并列会让用户困惑。
  */
-const askAi = () => {
-  if (!submission.value) return
-  aiStore.open({ contextType: 'general', userAnswer: submission.value.content })
-  aiStore.injectFeedback('writing', submission.value.id, true)
+const askAi = async () => {
+  const current = submission.value
+  if (!current) return
+  let questionContent: string | undefined
+  try {
+    const topics = await fetchWritingTopics()
+    const topic = topics.find((item) => item.id === current.topicId)
+    if (topic) questionContent = buildTopicContext(topic)
+  } catch {
+    // 题库读取失败不影响追问，按无题目处理
+  }
+  aiStore.open({ contextType: 'general', questionContent, userAnswer: current.content })
+  aiStore.injectFeedback('writing', current.id, true)
 }
 
 onMounted(load)

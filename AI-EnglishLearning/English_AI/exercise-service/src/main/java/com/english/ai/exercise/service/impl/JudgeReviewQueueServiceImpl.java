@@ -137,10 +137,13 @@ public class JudgeReviewQueueServiceImpl implements JudgeReviewQueueService {
             upsertErrorBook(item.getUserId(), item.getQuestionId());
         }
 
-        // 灰区提交时没有记 ELO / 遗忘曲线，复核结论出来后在事务提交后补记一次
+        // 灰区提交时没有记 ELO / 遗忘曲线，复核结论出来后在事务提交后补记一次。
+        // 结论以改判后的 log.is_correct 为准（而非 verdict 字符串），与 rescore 同源，
+        // 避免「log 本已错但复核点 PASS」时 resolve 加分、重试却扣分的相反结论。
+        boolean isCorrect = Integer.valueOf(1).equals(logEntry.getIsCorrect());
         runAfterCommit(() -> {
-            ensureCurve(item, pass);
-            ensureElo(item, pass);
+            ensureCurve(item, isCorrect);
+            ensureElo(item, isCorrect);
         });
 
         log.info("审核结论落地: reviewId={}, verdict={}, questionId={}, userId={}, logId={}",

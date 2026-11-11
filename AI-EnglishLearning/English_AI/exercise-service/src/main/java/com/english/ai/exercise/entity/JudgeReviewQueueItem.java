@@ -8,9 +8,10 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 /**
- * 判题审核队列条目（V1.0.27）。
+ * 判题审核队列条目（V1.0.27 建表，V1.0.41 补 AI 评分三列）。
  *
- * <p>仅作能力预留：判题引擎不读写本表，入队由调用方显式触发。</p>
+ * <p>段落翻译灰区会由判题引擎异步写入本表（reason=TRANSLATION_LOW_SCORE）；
+ * 其余场景仍由调用方显式触发。</p>
  */
 @Data
 @TableName("judge_review_queue")
@@ -34,7 +35,16 @@ public class JudgeReviewQueueItem {
     /** 判题命中层级，见 JudgmentLevel */
     private Integer matchedLevel;
 
-    /** 入队原因：MANUAL / MISMATCH / AI_LOW_CONFIDENCE */
+    /** AI 评分归一化 0.000~1.000（rawScore / maxScore），人工入队时为 null */
+    private java.math.BigDecimal aiConfidence;
+
+    /** AI 结论：CORRECT / PARTIAL / INCORRECT */
+    private String aiResult;
+
+    /** 判题上下文快照（模式/分数档位/耗时等） */
+    private String judgeContext;
+
+    /** 入队原因：MANUAL / MISMATCH / AI_LOW_CONFIDENCE / TRANSLATION_LOW_SCORE */
     private String reason;
 
     /** 状态：PENDING / REVIEWED / DISMISSED */

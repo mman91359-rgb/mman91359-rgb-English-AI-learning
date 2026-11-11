@@ -120,6 +120,23 @@ public class AiController {
     }
 
     /**
+     * 段落翻译评分（同步，非流式）
+     * POST /ai/translate-score
+     * 由 exercise-service 的段落翻译兜底调用，按 CET 15 分制打分。
+     * 返回 {"rawScore":8,"maxRawScore":15,"level":"PASS","comment":"...","available":true}
+     * AI 不可用时返回 available=false，由调用方回落本地判定。
+     */
+    @PostMapping("/translate-score")
+    public Map<String, Object> translateScore(@RequestBody Map<String, Object> request) {
+        String source = String.valueOf(request.getOrDefault("source", ""));
+        String reference = String.valueOf(request.getOrDefault("reference", ""));
+        String userAnswer = String.valueOf(request.getOrDefault("userAnswer", ""));
+        log.info("段落翻译评分请求: questionId={}, userAnswerLength={}",
+                request.get("questionId"), userAnswer.length());
+        return aiService.scoreTranslation(source, reference, userAnswer);
+    }
+
+    /**
      * AI 批量生成题目（同步，非流式）
      * POST /ai/generate-questions
      * 请求体参数：

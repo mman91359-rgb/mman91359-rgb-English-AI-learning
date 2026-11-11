@@ -23,6 +23,18 @@ public class RestTemplateConfig {
     }
 
     /**
+     * 段落翻译评分专用：读超时 8s。
+     * 评分比判对慢，但不能让提交线程等太久；超时后调用方回落本地判定。
+     */
+    @Bean("translationScoreRestTemplate")
+    public RestTemplate translationScoreRestTemplate(RestTemplateBuilder builder) {
+        return builder
+                .setConnectTimeout(Duration.ofSeconds(2))
+                .setReadTimeout(Duration.ofSeconds(8))
+                .build();
+    }
+
+    /**
      * 审计上报专用：短超时，失败不阻塞审核主流程。
      */
     @Bean("auditRestTemplate")

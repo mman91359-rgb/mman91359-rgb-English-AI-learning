@@ -2,6 +2,7 @@ package com.english.ai.exercise.controller;
 
 import com.english.ai.common.Result;
 import com.english.ai.exercise.dto.JudgeReviewEnqueueRequest;
+import com.english.ai.exercise.dto.JudgeReviewResolveRequest;
 import com.english.ai.exercise.service.JudgeReviewQueueService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,5 +31,15 @@ public class InternalJudgeReviewController {
     @PostMapping("/review")
     public Result<Boolean> enqueue(@Valid @RequestBody JudgeReviewEnqueueRequest request) {
         return Result.success(judgeReviewQueueService.enqueue(request));
+    }
+
+    /**
+     * 审核结论落地：PASS 维持判对，FAIL 改判为错并写回错题本。
+     *
+     * @return true 本次处理成功；false 记录不存在或已被处理
+     */
+    @PostMapping("/review/resolve")
+    public Result<Boolean> resolve(@Valid @RequestBody JudgeReviewResolveRequest request) {
+        return Result.success(judgeReviewQueueService.resolve(request));
     }
 }

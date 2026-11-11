@@ -356,6 +356,14 @@ public class AiService {
      * 构建非流式请求体（stream=false）
      */
     private String buildRequestBodySync(List<Map<String, String>> messages) {
+        return buildRequestBodySync(messages, temperature);
+    }
+
+    /**
+     * 构建非流式请求体（可指定 temperature）。
+     * 评分类调用用低温（0.2）压住分数漂移，其余调用维持全局默认。
+     */
+    private String buildRequestBodySync(List<Map<String, String>> messages, double temperatureOverride) {
         StringBuilder sb = new StringBuilder();
         sb.append("{\"model\":\"").append(model).append("\",");
         sb.append("\"messages\":[");
@@ -367,7 +375,7 @@ public class AiService {
         }
         sb.append("],");
         sb.append("\"max_tokens\":").append(maxTokens).append(",");
-        sb.append("\"temperature\":").append(temperature).append(",");
+        sb.append("\"temperature\":").append(temperatureOverride).append(",");
         sb.append("\"stream\":false");
         sb.append("}");
         return sb.toString();
@@ -961,6 +969,117 @@ public class AiService {
         } catch (Exception e) {
             log.warn("解析判题反馈 JSON 失败: {}", e.getMessage());
             return new FeedbackPayload(text, "UNKNOWN");
+        }
+    }
+
+    /** 段落翻译评分：系统提示词（CET 15 分制五档） */
+    private static final String TRANSLATION_SCORE_PROMPT =
+        "你是四六级翻译评分员。请按 CET 翻译评分标准（满分 15 分）给学生译文打分：" +
+        "13-15 优秀（准确表达、用词正确、行文流畅）；10-12 良好（基本准确、文字通顺、少量错误）；" +
+        "7-9 及格（基本达意、文字尚可、有一些错误）；4-6 较差（仅部分达意、较多错误）；1-3 差（仅极少达意）。" +
+        "只返回 JSON，不要任何其他文字：" +
+        "{\"rawScore\":整数,\"maxRawScore\":15,\"level\":\"EXCELLENT|GOOD|PASS|NEEDS_WORK|POOR\",\"comment\":\"50字以内中文点评\"}";
+
+    /**
+     * 段落翻译评分（CET 15 分制）。
+     *
+     * <p>返回 {@code {rawScore, maxRawScore, level, comment, available}}；
+     * AI 不可用（未配置 Key / 非 200 / 解析失败 / 异常）时 {@code available=false}，
+     * 由调用方回落本地判定，不抛异常。</p>
+     */
+    public Map<String, Object> scoreTranslation(String source, String reference, String userAnswer) {
+        Map<String, Object> result = new HashMap<>();
+        result.put("available", false);
+        result.put("maxRawScore", 15);
+
+        if (apiKey == null || apiKey.isBlank()) {
+            log.warn("AI API Key 未配置，段落翻译评分不可用");
+            return result;
+        }
+
+        try {
+            List<Map<String, String>> messages = new ArrayList<>();
+            messages.add(Map.of("role", "system", "content", TRANSLATION_SCORE_PROMPT));
+            messages.add(Map.of("role", "user", "content",
+                "中文原文：" + (source == null ? "" : source) +
+                "\n参考译文：" + (reference == null ? "" : reference) +
+                "\n学生译文：" + (userAnswer == null ? "" : userAnswer) +
+                "\n请严格按指定 JSON 格式输出评分结果。"));
+
+            // 评分用低温，压住同一篇译文在不同调用间的分数漂移
+            String requestBody = buildRequestBodySync(messages, 0.2);
+            HttpURLConnection conn = createConnectionSync(requestBody);
+            int code = conn.getResponseCode();
+            if (code != 200) {
+                log.warn("段落翻译评分调用失败: {}，调用方将回落本地判定", code);
+                return result;
+            }
+
+            String respBody;
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) sb.append(line);
+                respBody = sb.toString();
+            }
+
+            Map<String, Object> parsed = parseTranslationScore(extractContentFromSync(respBody));
+            if (parsed == null) {
+                log.warn("段落翻译评分解析失败，调用方将回落本地判定");
+                return result;
+            }
+            result.putAll(parsed);
+            result.put("available", true);
+            return result;
+        } catch (Exception e) {
+            log.warn("段落翻译评分异常: {}，调用方将回落本地判定", e.getMessage());
+            return result;
+        }
+    }
+
+    /**
+     * 解析翻译评分 JSON。包级可见，便于单测。
+     *
+     * @return 解析结果；缺少 rawScore 或格式非法时返回 null
+     */
+    static Map<String, Object> parseTranslationScore(String content) {
+        if (content == null || content.isBlank()) {
+            return null;
+        }
+        String text = content.trim();
+        if (text.startsWith("```")) {
+            int start = text.indexOf('\n');
+            int end = text.lastIndexOf("```");
+            if (start > 0 && end > start) {
+                text = text.substring(start + 1, end).trim();
+            }
+        }
+        int li = text.indexOf('{');
+        int ri = text.lastIndexOf('}');
+        if (li < 0 || ri <= li) {
+            return null;
+        }
+        try {
+            com.fasterxml.jackson.databind.JsonNode node =
+                new com.fasterxml.jackson.databind.ObjectMapper().readTree(text.substring(li, ri + 1));
+            int rawScore = node.path("rawScore").asInt(-1);
+            if (rawScore < 0) {
+                return null;
+            }
+            int maxRawScore = node.path("maxRawScore").asInt(15);
+            if (maxRawScore <= 0) {
+                maxRawScore = 15;
+            }
+            Map<String, Object> out = new HashMap<>();
+            out.put("rawScore", Math.min(rawScore, maxRawScore));
+            out.put("maxRawScore", maxRawScore);
+            out.put("level", node.path("level").asText(""));
+            out.put("comment", node.path("comment").asText(""));
+            return out;
+        } catch (Exception e) {
+            log.warn("解析翻译评分 JSON 失败: {}", e.getMessage());
+            return null;
         }
     }
 

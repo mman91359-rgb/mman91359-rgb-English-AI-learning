@@ -921,12 +921,11 @@ npm run build
 > `COLLOCATION_CONFLICT`（`to + 空格` 541、`a/an + 空格` 381，涉及 595 题）是「accepted 偏宽松」既定设计的体现，不是错题，**不计入待修数**。
 > 另三条规则 0 命中且线索覆盖率仅 5.9%，属于**未验证**而非「已验证干净」。
 
-### 四、模块2 的前置条件
+### 四、模块2 的现状（已换靶，见第八轮）
 
-1. 先用 `JudgmentMetrics` 的 `aiRate` 埋点确认真实 AI 触发量；
-2. 再决定是否改 `ai-service` 的 prompt 让它返回 `confidence`（当前两条判题链路都不返回）；
-3. 接线时走 `V1.0.29` 给 `judge_review_queue` 加 `ai_confidence` / `ai_result` / `judge_context`；
-4. exercise-service 目前**没有异步能力**（无 `@EnableAsync`），需自建有界线程池。
+1. 原计划「AI 低置信复核」的前提已被实测推翻：L2.5 几乎不触发，见第八轮。
+2. 加列迁移版本是 **`V1.0.41`**（V1.0.29 已用于伪形态删除，V1.0.30~40 已用于真题导入与听力音频）。
+3. exercise-service 仍**没有异步能力**（无 `@EnableAsync`），队列写入需自建有界线程池。
 
 ### 五、遗留
 
@@ -1001,4 +1000,62 @@ npm run build
 **关键决策记录**：
 - 结构修订「stem 可空」是在 migrate 中暴露的（听力/选词填空无题干触发 `Column 'stem' cannot be null`），经需求方确认后新增独立迁移 V1.0.31。
 - 脚本 bug 修复：`optionsToJson` 空数组原返回字符串 `'NULL'`，导致 MATCHING 题 options 插入非法 JSON；已改为返回 JS `null`。
+
+---
+
+## 变更记录（2026-11-11 · 第八轮）
+
+> 主题：**P2 换靶 —— 段落翻译 AI 评分兜底 + 灰区复核**。
+> 原「AI 低置信复核」的前提被实测推翻：L2.5 几乎不触发，队列会长期空转。
+
+### 一、题库基线（以此为准，勿再按 4613 统计）
+
+| 题型 | 题数 | accepted 空 |
+|---|---|---|
+| FILL_BLANK（module 1） | 4537 活跃 / 4541 含软删 | 0 |
+| CHOICE（module 4 / 7） | 1004 / 1740 | 全部 |
+| SENTENCE_MAKING（module 2） | 40 | 全部 |
+| TRANSLATION（module 3） | 68 | 62（62/62 均为段落，`CHAR_LENGTH(stem)>40`） |
+
+合计 `question_info` **7393** 行。
+
+### 二、判定口径（CET 15 分制）
+
+| rawScore | 判定 |
+|---|---|
+| ≥ 9（`pass-score`） | 判对，`matchedLevel=SEMANTIC` |
+| 7~8（`review-score`） | **判对 + 异步入复核队列**（`reason=TRANSLATION_LOW_SCORE`） |
+| ≤ 6 | 判错，`errorType=MISMATCH` |
+
+- **灰区判对**，因为 `isCorrect` 直接驱动错题本 / 遗忘曲线 / ELO 三处，判错会系统性冤枉用户。
+- 阈值全部走 `judgment.translation.*` 配置，**默认 `ai-mode=shadow`**：只打分写日志、不参与判定，先攒 30 条样本标定再切 `enforce`。
+- AI 失败（超时/非 200/未配置/解析失败）→ 回落 MISMATCH，`errorType=AI_UNAVAILABLE`，不抛异常、不入灰区。
+
+### 三、迁移
+
+| 版本 | 内容 |
+|---|---|
+| V1.0.41 | `judge_review_queue` 补 `ai_confidence` / `ai_result` / `judge_context` |
+| V1.0.42 | `user_answer` / `correct_answer` 放宽到 2000；唯一键改用生成列 `answer_hash`（长文本直接进唯一键会触发 InnoDB 3072 字节索引上限） |
+
+> 两条库都因 V1.0.42 首版 SQL 失败留下 `success=0` 历史行，用 `flyway repair` 清除后重跑。
+
+
+### 四、代码
+
+- `ai-service`：新增 `POST /ai/translate-score`（CET 15 分制），评分用 temperature 0.2；`buildRequestBodySync` 增加温度重载。
+- `exercise-service`：`TranslationScoreClient`（独立 RestTemplate，读超时 8s）、`JudgeReviewAsyncWriter`（单线程 + 200 有界队列 + 丢弃策略）、`JudgmentEngineImpl` 段落分支接评分、`POST /internal/judge/review/resolve` 落地复核结论。
+- 复核 FAIL 会：改该用户该题最近一条 `user_exercise_log.is_correct=0` + 写回错题本；PASS 只改队列状态。**不回滚已发放的 ELO / 遗忘曲线**。
+
+### 五、验证
+
+- `ai-service` 13 用例、`exercise-service` 92 用例全绿（新增段落分支 5 例 + resolve 4 例）。
+- 全量构建 6 模块 BUILD SUCCESS。
+
+### 六、下一步
+
+1. 以 `shadow` 跑 2~3 天或攒 30 条 `翻译评分` 日志；
+2. 人工标注（10 达标 / 10 达意有瑕疵 / 10 错译）后调 `pass-score` / `review-score`；
+3. 切 `enforce`，再抽样复核 20~30 条验证灰区准确性。
+
 

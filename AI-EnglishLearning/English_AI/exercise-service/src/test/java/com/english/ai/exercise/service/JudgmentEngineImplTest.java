@@ -52,14 +52,25 @@ class JudgmentEngineImplTest {
     @Mock
     private RestTemplate restTemplate;
 
+    @Mock
+    private com.english.ai.exercise.client.TranslationScoreClient translationScoreClient;
+
+    @Mock
+    private com.english.ai.exercise.service.impl.JudgeReviewAsyncWriter judgeReviewAsyncWriter;
+
     private JudgmentEngineImpl engine;
 
     private static final Long QID = 1L;
 
     @BeforeEach
     void setUp() {
-        engine = new JudgmentEngineImpl(buggyPathMapper, questionInfoMapper, restTemplate);
+        engine = new JudgmentEngineImpl(
+                buggyPathMapper, questionInfoMapper, restTemplate,
+                translationScoreClient, judgeReviewAsyncWriter);
         ReflectionTestUtils.setField(engine, "aiServiceUrl", "http://ai-test");
+        ReflectionTestUtils.setField(engine, "translationAiMode", "shadow");
+        ReflectionTestUtils.setField(engine, "translationPassScore", 9);
+        ReflectionTestUtils.setField(engine, "translationReviewScore", 7);
     }
 
     private SubmitRequest request(String answer) {
@@ -248,6 +259,91 @@ class JudgmentEngineImplTest {
         assertEquals(2, result.getMatchedLevel());
         assertTrue(result.getIsSemanticMatch());
         verifyNoInteractions(restTemplate);
+    }
+
+    // ===== 段落翻译 AI 评分兜底 =====
+
+    private SubmitRequest passageRequest() {
+        SubmitRequest req = request("A completely different translation.");
+        req.setModuleType(3);
+        return req;
+    }
+
+    @Test
+    void passageShadowModeKeepsMismatchAndOnlyLogsScore() {
+        when(translationScoreClient.score(anyString(), any(), any(), any()))
+                .thenReturn(new com.english.ai.exercise.dto.TranslationScore(12, 15, "GOOD", "ok"));
+
+        JudgmentResult result = engine.judgeTranslation(
+                passageRequest(), "参考译文", "中文题干", null, true);
+
+        // shadow：分数照打，但判定结果保持改造前的 MISMATCH
+        assertFalse(result.getIsCorrect());
+        assertEquals("MISMATCH", result.getErrorType());
+        verify(translationScoreClient).score(anyString(), any(), any(), any());
+        verifyNoInteractions(judgeReviewAsyncWriter);
+    }
+
+    @Test
+    void passageEnforceHighScoreMarksCorrect() {
+        ReflectionTestUtils.setField(engine, "translationAiMode", "enforce");
+        when(translationScoreClient.score(anyString(), any(), any(), any()))
+                .thenReturn(new com.english.ai.exercise.dto.TranslationScore(12, 15, "GOOD", "ok"));
+
+        JudgmentResult result = engine.judgeTranslation(
+                passageRequest(), "参考译文", "中文题干", null, true);
+
+        assertTrue(result.getIsCorrect());
+        assertEquals(2, result.getMatchedLevel());
+        verifyNoInteractions(judgeReviewAsyncWriter);
+    }
+
+    @Test
+    void passageEnforceGrayZoneMarksCorrectAndEnqueuesReview() {
+        ReflectionTestUtils.setField(engine, "translationAiMode", "enforce");
+        when(translationScoreClient.score(anyString(), any(), any(), any()))
+                .thenReturn(new com.english.ai.exercise.dto.TranslationScore(8, 15, "PASS", "基本达意"));
+
+        JudgmentResult result = engine.judgeTranslation(
+                passageRequest(), "参考译文", "中文题干", null, true);
+
+        // 灰区判对（不污染错题本/ELO），同时入队等人工复核
+        assertTrue(result.getIsCorrect());
+
+        org.mockito.ArgumentCaptor<com.english.ai.exercise.dto.JudgeReviewEnqueueRequest> captor =
+                org.mockito.ArgumentCaptor.forClass(com.english.ai.exercise.dto.JudgeReviewEnqueueRequest.class);
+        verify(judgeReviewAsyncWriter).enqueueAsync(captor.capture());
+        com.english.ai.exercise.dto.JudgeReviewEnqueueRequest enqueued = captor.getValue();
+        assertEquals("TRANSLATION_LOW_SCORE", enqueued.getReason());
+        assertEquals("PARTIAL", enqueued.getAiResult());
+        assertEquals(0, enqueued.getAiConfidence().compareTo(new java.math.BigDecimal("0.533")));
+    }
+
+    @Test
+    void passageEnforceLowScoreMarksWrong() {
+        ReflectionTestUtils.setField(engine, "translationAiMode", "enforce");
+        when(translationScoreClient.score(anyString(), any(), any(), any()))
+                .thenReturn(new com.english.ai.exercise.dto.TranslationScore(5, 15, "NEEDS_WORK", "偏差较大"));
+
+        JudgmentResult result = engine.judgeTranslation(
+                passageRequest(), "参考译文", "中文题干", null, true);
+
+        assertFalse(result.getIsCorrect());
+        assertEquals("MISMATCH", result.getErrorType());
+        verifyNoInteractions(judgeReviewAsyncWriter);
+    }
+
+    @Test
+    void passageAiUnavailableFallsBackWithExplicitErrorType() {
+        ReflectionTestUtils.setField(engine, "translationAiMode", "enforce");
+        when(translationScoreClient.score(anyString(), any(), any(), any())).thenReturn(null);
+
+        JudgmentResult result = engine.judgeTranslation(
+                passageRequest(), "参考译文", "中文题干", null, true);
+
+        assertFalse(result.getIsCorrect());
+        assertEquals("AI_UNAVAILABLE", result.getErrorType());
+        verifyNoInteractions(judgeReviewAsyncWriter);
     }
 
     // ===== P1-1：错因表查询侧归一化兜底 =====

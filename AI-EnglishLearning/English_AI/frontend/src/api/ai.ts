@@ -53,6 +53,33 @@ async function streamRequest(
     let buffer = ''
     let currentEvent = 'token'
     let doneSent = false
+    // SSE 规范：一个事件的多条 data 行属于同一段负载，需按换行拼接后再派发。
+    // 后端会把 token 里的换行拆成多条 data 行（如 "音标  \n" → "data:音标  " + "data:"），
+    // 逐行 trim 会把换行/缩进吃掉，导致 Markdown 结构塌成一行，故此处必须原样保留空白。
+    let dataLines: string[] = []
+
+    /** 事件结束（空行）时派发，拼接规则见上方注释 */
+    const dispatch = () => {
+      if (dataLines.length === 0) {
+        currentEvent = 'token'
+        return
+      }
+      const payload = dataLines.join('\n')
+      dataLines = []
+      const event = currentEvent
+      currentEvent = 'token'
+
+      if (event === 'done') {
+        doneSent = true
+        onDone(fullText)
+        return
+      }
+      if (event === 'error') {
+        throw new Error(payload)
+      }
+      fullText += payload
+      onToken(payload)
+    }
 
     while (true) {
       const { done, value } = await reader.read()
@@ -62,36 +89,30 @@ async function streamRequest(
       const lines = buffer.split('\n')
       buffer = lines.pop() || ''
 
-      for (const line of lines) {
-        const trimmed = line.trim()
-        if (!trimmed) continue
+      for (const rawLine of lines) {
+        // 兼容 CRLF：只去掉行尾 \r，其余空白一律保留
+        const line = rawLine.endsWith('\r') ? rawLine.slice(0, -1) : rawLine
 
-        if (trimmed.startsWith('event:')) {
-          currentEvent = trimmed.substring(6).trim() || 'token'
+        if (line === '') {
+          dispatch()
           continue
         }
 
-        if (!trimmed.startsWith('data:')) {
+        if (line.startsWith('event:')) {
+          currentEvent = line.substring(6).trim() || 'token'
           continue
         }
 
-        const data = trimmed.substring(5).trim()
-        if (!data) continue
-
-        if (currentEvent === 'done') {
-          doneSent = true
-          onDone(fullText)
-          continue
+        if (line.startsWith('data:')) {
+          // 规范只允许去掉 "data:" 后的一个前导空格，多余空格属于正文
+          const raw = line.substring(5)
+          dataLines.push(raw.startsWith(' ') ? raw.slice(1) : raw)
         }
-
-        if (currentEvent === 'error') {
-          throw new Error(data)
-        }
-
-        fullText += data
-        onToken(data)
       }
     }
+
+    // 流意外结束且末尾没有空行时，兜底派发残留负载
+    dispatch()
 
     if (!doneSent) {
       onDone(fullText)

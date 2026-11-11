@@ -1045,11 +1045,11 @@ npm run build
 
 - `ai-service`：新增 `POST /ai/translate-score`（CET 15 分制），评分用 temperature 0.2；`buildRequestBodySync` 增加温度重载。
 - `exercise-service`：`TranslationScoreClient`（独立 RestTemplate，读超时 8s）、`JudgeReviewAsyncWriter`（单线程 + 200 有界队列 + 丢弃策略）、`JudgmentEngineImpl` 段落分支接评分、`POST /internal/judge/review/resolve` 落地复核结论。
-- 复核 FAIL 会：改该用户该题最近一条 `user_exercise_log.is_correct=0` + 写回错题本；PASS 只改队列状态。**不回滚已发放的 ELO / 遗忘曲线**。
+- 复核结论落地（`resolve`）的副作用以「有绑定作答」为准入门槛：无绑定 `log_id` 或绑定的作答已被清理时，改判、错题本、ELO/曲线补记**全部跳过**；FAIL 仅在「作答本是对的」时把该次作答 `is_correct=0` 并写错题本，本已错的**不重复写**。补记结论以改判后的 `log.is_correct` 为准（与 `rescore` 同源），PASS/FAIL 都是补记、不回滚已发放的数据。
 
 ### 五、验证
 
-- `ai-service` 13 用例、`exercise-service` 92 用例全绿（新增段落分支 5 例 + resolve 4 例）。
+- `ai-service` 13 用例、`exercise-service` 112 用例全绿（`JudgeReviewQueueServiceImplTest` 18 例）。
 - 全量构建 6 模块 BUILD SUCCESS。
 
 ### 六、复核链路的关键约束（同日修订）
@@ -1145,12 +1145,17 @@ npm run build
 | `b1b1894` | 复核补记可重试（两个完成时间戳 + rescore + 定时扫描） |
 | `77013bb` | 补记抢占改 5 分钟租约（**后被下一提交修正**） |
 | `b5dcb6c` | 完成时间与租约分列，修掉每 10 分钟重复补记 |
+| `9de788b` | 复核后台列表页（`AdminJudgeReviewController` + 前端 `AdminJudgeReviewView`） |
+| `9f2b9c2` | 注册 MyBatis-Plus 分页拦截器，修复核列表分页失效 |
+| `8bc185e` | resolve 在 `log_id` 为空时跳过改判/错题本/补记 |
+| `dbe24d8` | 改判副作用以实际改判成功为前提（log 不存在/本已错不写错题本） |
+| `8fa368e` | 三条副作用统一以「有绑定作答」为准入门槛 |
 
 迁移：**V1.0.41 / 42 / 43 / 44 / 45 / 46**（全部 `success=1`）。
 
 核心入口：
 - `ai-service`：`POST /ai/translate-score`、`AiService.scoreTranslation` / `parseTranslationScore`
-- `exercise-service`：`TranslationScoreClient`、`JudgmentEngineImpl.judgePassageTranslation`、`ExerciseServiceImpl.applyLearningSideEffects` / `publishCompletedEvent`、`JudgeReviewAsyncWriter`、`InternalJudgeReviewController`（`/internal/judge/review`、`/review/resolve`、`/review/rescore`）、`ReviewScoringRetryTask`
+- `exercise-service`：`TranslationScoreClient`、`JudgmentEngineImpl.judgePassageTranslation`、`ExerciseServiceImpl.applyLearningSideEffects` / `publishCompletedEvent`、`JudgeReviewAsyncWriter`、`InternalJudgeReviewController`（`/internal/judge/review`、`/review/resolve`、`/review/rescore`，服务间/运维用）、`AdminJudgeReviewController`（`GET /admin/judge-review`、`POST /admin/judge-review/{id}/resolve`，运营后台用）、`JudgeReviewQueueServiceImpl`（`enqueue`/`resolve`/`rescore`）、`MybatisPlusConfig`（分页拦截器）、`ReviewScoringRetryTask`
 
 ### 二、当前基线（实测）
 

@@ -96,8 +96,9 @@ if (isPassage) { return MISMATCH; }
 人工复核
   └─ POST /internal/judge/review/resolve {reviewId, verdict: PASS|FAIL, comment, reviewerId}
        ├─ 条件更新 status: PENDING → REVIEWED（抢不到则返回 false）
-       ├─ FAIL → 按 log_id 把该次作答改成 0 + 写回错题本
-       └─ afterCommit → ensureCurve / ensureElo
+       ├─ 无绑定 log_id（或绑定的作答已被清理）→ 改判/错题本/补记全部跳过
+       ├─ FAIL 且作答本是对的 → 按 log_id 把该次作答改成 0 + 写回错题本
+       └─ afterCommit → ensureCurve / ensureElo（结论以改判后的 log.is_correct 为准）
             ├─ claim 租约（5 分钟）→ 发 HTTP → 成功写完成时间 / 失败释放租约
             └─ 失败由 ReviewScoringRetryTask 每 10 分钟重试（或手动 /review/rescore）
 ```

@@ -120,21 +120,21 @@ public class JudgeReviewQueueServiceImpl implements JudgeReviewQueueService {
 
         boolean pass = "PASS".equalsIgnoreCase(request.getVerdict());
 
-        // 无 log_id 的手工/历史行：没有可改判的作答，也没有计分依据。
-        // 灰区真实入队一定带 log_id，只有手工入队/历史数据才可能为空。
-        // 此时跳过改判、错题本与计分补记，避免凭空污染真实用户的错题本/曲线/ELO。
-        if (item.getLogId() == null) {
-            log.warn("审核记录缺少 log_id，跳过改判/错题本/计分补记: reviewId={}, verdict={}",
-                    request.getReviewId(), request.getVerdict());
+        // 统一副作用准入门槛：必须能取到绑定的作答记录，否则无改判/错题本/计分依据。
+        // 无 log_id 的手工/历史行、或绑定的 log 已被清理，都属于「无绑定作答」，
+        // 状态已置 REVIEWED，但改判、错题本、ELO/曲线补记全部跳过，避免污染真实用户数据。
+        UserExerciseLog logEntry = item.getLogId() == null ? null : exerciseLogMapper.selectById(item.getLogId());
+        if (logEntry == null) {
+            log.warn("审核记录无绑定作答，跳过改判与计分补记: reviewId={}, logId={}",
+                    request.getReviewId(), item.getLogId());
             return true;
         }
 
-        if (!pass) {
-            // 只有「真的把作答从对改成错」时才写错题本；log 不存在或本来就是错的不写，
-            // 避免灰区行绑定了一个已被清理的作答时凭空多一条错题。
-            if (markLogWrong(item.getLogId(), request.getReviewId())) {
-                upsertErrorBook(item.getUserId(), item.getQuestionId());
-            }
+        // 只有「真的把作答从对改成错」才写错题本；本来就是错的不重复写
+        if (!pass && Integer.valueOf(1).equals(logEntry.getIsCorrect())) {
+            logEntry.setIsCorrect(0);
+            exerciseLogMapper.updateById(logEntry);
+            upsertErrorBook(item.getUserId(), item.getQuestionId());
         }
 
         // 灰区提交时没有记 ELO / 遗忘曲线，复核结论出来后在事务提交后补记一次
@@ -152,7 +152,7 @@ public class JudgeReviewQueueServiceImpl implements JudgeReviewQueueService {
      * 补记重试：只补还缺的那一半（curve / elo）。
      *
      * <p>复核结论不给对话框，直接看绑定 log 的 {@code is_correct}——
-     * FAIL 时 {@link #markLogWrong} 已把它置 0，PASS 保持 1，语义一致。</p>
+     * FAIL 时 resolve 已把它置 0，PASS 保持 1，语义一致。</p>
      *
      * @return true 表示两半都已补记完成；false 表示记录不满足条件或仍有缺失
      */
@@ -180,33 +180,6 @@ public class JudgeReviewQueueServiceImpl implements JudgeReviewQueueService {
         boolean eloDone = ensureElo(item, isCorrect);
         log.info("补记重试: reviewId={}, curve={}, elo={}", reviewId, curveDone, eloDone);
         return curveDone && eloDone;
-    }
-
-    /**
-     * 按 log_id 精确改判。
-     *
-     * <p>历史行没有 log_id，这时**不猜**最近一条——用户可能已经重做过该题，
-     * 猜错会把一条正确记录改成错。宁可不改，留日志等人工处理。</p>
-     *
-     * @return true 表示确实把作答从对改成了错（此时才应写错题本）；false 表示无需/无法改判
-     */
-    private boolean markLogWrong(Long logId, Long reviewId) {
-        if (logId == null) {
-            log.warn("审核记录缺少 log_id，跳过改判: reviewId={}", reviewId);
-            return false;
-        }
-        UserExerciseLog logEntry = exerciseLogMapper.selectById(logId);
-        if (logEntry == null) {
-            log.warn("审核记录绑定的答题日志不存在: reviewId={}, logId={}", reviewId, logId);
-            return false;
-        }
-        if (Integer.valueOf(0).equals(logEntry.getIsCorrect())) {
-            // 本来就是错的，无需改判，也不重复写错题本
-            return false;
-        }
-        logEntry.setIsCorrect(0);
-        exerciseLogMapper.updateById(logEntry);
-        return true;
     }
 
     /** 事务提交后执行；单测等无事务场景直接执行 */

@@ -126,13 +126,21 @@ class JudgeReviewQueueServiceImplTest {
     void resolvePassOnlyUpdatesStatusAndRecordsPositive() {
         when(judgeReviewQueueMapper.selectById(12L)).thenReturn(pendingItem());
         when(judgeReviewQueueMapper.update(isNull(), any())).thenReturn(1);
+        // PASS 也需确认有绑定作答，否则走「无绑定作答」分支跳过补记
+        UserExerciseLog log = new UserExerciseLog();
+        log.setId(88L);
+        log.setUserId(9L);
+        log.setQuestionId(510L);
+        log.setIsCorrect(1);
+        when(exerciseLogMapper.selectById(88L)).thenReturn(log);
         when(judgeReviewQueueMapper.claimCurveLease(12L)).thenReturn(1);
         when(judgeReviewQueueMapper.claimEloLease(12L)).thenReturn(1);
 
         assertTrue(service.resolve(resolveRequest("PASS")));
 
-        // PASS 不动答题日志与错题本，但要按 isCorrect=true 补记 ELO / 曲线
-        verifyNoInteractions(exerciseLogMapper, errorBookMapper);
+        // PASS 不改判（不 updateById），但要按 isCorrect=true 补记 ELO / 曲线
+        verify(exerciseLogMapper, never()).updateById(any());
+        verifyNoInteractions(errorBookMapper);
         verify(auditRestTemplate, org.mockito.Mockito.times(2))
                 .postForEntity(any(String.class), any(), eq(String.class));
     }
@@ -179,20 +187,17 @@ class JudgeReviewQueueServiceImplTest {
     }
 
     @Test
-    void resolveFailWithoutBoundLogSkipsErrorBook() {
+    void resolveFailWithoutBoundLogSkipsAllSideEffects() {
         when(judgeReviewQueueMapper.selectById(12L)).thenReturn(pendingItem());
         when(judgeReviewQueueMapper.update(isNull(), any())).thenReturn(1);
         // log_id 有值，但绑定的作答记录已不存在（被清理）
         when(exerciseLogMapper.selectById(88L)).thenReturn(null);
-        when(judgeReviewQueueMapper.claimCurveLease(12L)).thenReturn(1);
-        when(judgeReviewQueueMapper.claimEloLease(12L)).thenReturn(1);
 
         assertTrue(service.resolve(resolveRequest("FAIL")));
 
-        // 改判不了 → 不写错题本；但补记仍按 FAIL(isCorrect=false) 走
-        verifyNoInteractions(errorBookMapper);
-        verify(auditRestTemplate, org.mockito.Mockito.times(2))
-                .postForEntity(any(String.class), any(), eq(String.class));
+        // 无绑定作答：不改判、不写错题本、不补记（与 log_id=null 同一门槛）
+        verify(exerciseLogMapper, never()).updateById(any());
+        verifyNoInteractions(errorBookMapper, auditRestTemplate);
     }
 
     @Test
@@ -213,6 +218,7 @@ class JudgeReviewQueueServiceImplTest {
 
         verify(exerciseLogMapper, never()).updateById(any());
         verifyNoInteractions(errorBookMapper);
+        // 作答存在（只是本已错）→ 仍按 FAIL 补记
         verify(auditRestTemplate, org.mockito.Mockito.times(2))
                 .postForEntity(any(String.class), any(), eq(String.class));
     }

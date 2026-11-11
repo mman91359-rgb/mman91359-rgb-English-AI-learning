@@ -75,7 +75,7 @@
               v-if="row.logId === null || row.logId === undefined"
               class="font-label-sm text-label-sm text-outline"
             >
-              —（{{ $t('adminConsole.judgeReview.noBoundLog') }}）
+              — {{ $t('adminConsole.judgeReview.noBoundLog') }}
             </span>
             <span
               v-else

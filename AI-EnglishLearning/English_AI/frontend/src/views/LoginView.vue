@@ -189,4 +189,16 @@ const handleLogin = async () => {
 }
 </script>
 
+<style scoped>
+/*
+ * 隐藏 Edge / IE 自带的密码显示按钮（::-ms-reveal）。
+ * 本页已有 Material Symbols 的自定义眼睛，原生按钮会与之并列出现两个。
+ * 仅作用于本页，避免影响未提供自定义切换的页面（忘记密码、设置页）。
+ */
+input[type='password']::-ms-reveal,
+input[type='password']::-ms-clear {
+  display: none;
+}
+</style>
+
 

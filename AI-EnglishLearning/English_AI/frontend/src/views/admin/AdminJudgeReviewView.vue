@@ -72,6 +72,13 @@
           </template>
           <template #cell-scoreStatus="{ row }">
             <span
+              v-if="row.logId === null || row.logId === undefined"
+              class="font-label-sm text-label-sm text-outline"
+            >
+              —（{{ $t('adminConsole.judgeReview.noBoundLog') }}）
+            </span>
+            <span
+              v-else
               class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 font-label-sm text-label-sm"
               :class="row.curveScored && row.eloScored ? 'bg-success-container text-on-success-container' : 'bg-warning-container text-on-warning-container'"
             >

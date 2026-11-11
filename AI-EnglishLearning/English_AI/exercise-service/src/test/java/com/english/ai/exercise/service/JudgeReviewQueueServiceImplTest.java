@@ -166,18 +166,55 @@ class JudgeReviewQueueServiceImplTest {
     }
 
     @Test
-    void resolveFailWithoutLogIdSkipsLogUpdateInsteadOfGuessing() {
+    void resolveFailWithoutLogIdSkipsAllSideEffects() {
         JudgeReviewQueueItem item = pendingItem();
         item.setLogId(null);
         when(judgeReviewQueueMapper.selectById(12L)).thenReturn(item);
         when(judgeReviewQueueMapper.update(isNull(), any())).thenReturn(1);
-        when(errorBookMapper.selectOne(any())).thenReturn(null);
 
         assertTrue(service.resolve(resolveRequest("FAIL")));
 
-        // 没有 log_id 就不猜"最近一条"，只写错题本
-        verifyNoInteractions(exerciseLogMapper);
-        verify(errorBookMapper).insert(any(UserErrorBook.class));
+        // 无 log_id：不改判、不写错题本、不发补记请求（手工/历史行无计分依据）
+        verifyNoInteractions(exerciseLogMapper, errorBookMapper, auditRestTemplate);
+    }
+
+    @Test
+    void resolveFailWithoutBoundLogSkipsErrorBook() {
+        when(judgeReviewQueueMapper.selectById(12L)).thenReturn(pendingItem());
+        when(judgeReviewQueueMapper.update(isNull(), any())).thenReturn(1);
+        // log_id 有值，但绑定的作答记录已不存在（被清理）
+        when(exerciseLogMapper.selectById(88L)).thenReturn(null);
+        when(judgeReviewQueueMapper.claimCurveLease(12L)).thenReturn(1);
+        when(judgeReviewQueueMapper.claimEloLease(12L)).thenReturn(1);
+
+        assertTrue(service.resolve(resolveRequest("FAIL")));
+
+        // 改判不了 → 不写错题本；但补记仍按 FAIL(isCorrect=false) 走
+        verifyNoInteractions(errorBookMapper);
+        verify(auditRestTemplate, org.mockito.Mockito.times(2))
+                .postForEntity(any(String.class), any(), eq(String.class));
+    }
+
+    @Test
+    void resolveFailOnAlreadyWrongLogSkipsErrorBook() {
+        when(judgeReviewQueueMapper.selectById(12L)).thenReturn(pendingItem());
+        when(judgeReviewQueueMapper.update(isNull(), any())).thenReturn(1);
+        // 绑定的作答本来就是错的 → 无需改判，也不重复写错题本
+        UserExerciseLog log = new UserExerciseLog();
+        log.setId(88L);
+        log.setUserId(9L);
+        log.setQuestionId(510L);
+        log.setIsCorrect(0);
+        when(exerciseLogMapper.selectById(88L)).thenReturn(log);
+        when(judgeReviewQueueMapper.claimCurveLease(12L)).thenReturn(1);
+        when(judgeReviewQueueMapper.claimEloLease(12L)).thenReturn(1);
+
+        assertTrue(service.resolve(resolveRequest("FAIL")));
+
+        verify(exerciseLogMapper, never()).updateById(any());
+        verifyNoInteractions(errorBookMapper);
+        verify(auditRestTemplate, org.mockito.Mockito.times(2))
+                .postForEntity(any(String.class), any(), eq(String.class));
     }
 
     @Test

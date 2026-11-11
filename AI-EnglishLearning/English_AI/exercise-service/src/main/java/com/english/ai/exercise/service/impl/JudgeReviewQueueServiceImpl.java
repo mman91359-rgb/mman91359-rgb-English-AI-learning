@@ -130,8 +130,11 @@ public class JudgeReviewQueueServiceImpl implements JudgeReviewQueueService {
         }
 
         if (!pass) {
-            markLogWrong(item.getLogId(), request.getReviewId());
-            upsertErrorBook(item.getUserId(), item.getQuestionId());
+            // 只有「真的把作答从对改成错」时才写错题本；log 不存在或本来就是错的不写，
+            // 避免灰区行绑定了一个已被清理的作答时凭空多一条错题。
+            if (markLogWrong(item.getLogId(), request.getReviewId())) {
+                upsertErrorBook(item.getUserId(), item.getQuestionId());
+            }
         }
 
         // 灰区提交时没有记 ELO / 遗忘曲线，复核结论出来后在事务提交后补记一次
@@ -184,22 +187,26 @@ public class JudgeReviewQueueServiceImpl implements JudgeReviewQueueService {
      *
      * <p>历史行没有 log_id，这时**不猜**最近一条——用户可能已经重做过该题，
      * 猜错会把一条正确记录改成错。宁可不改，留日志等人工处理。</p>
+     *
+     * @return true 表示确实把作答从对改成了错（此时才应写错题本）；false 表示无需/无法改判
      */
-    private void markLogWrong(Long logId, Long reviewId) {
+    private boolean markLogWrong(Long logId, Long reviewId) {
         if (logId == null) {
             log.warn("审核记录缺少 log_id，跳过改判: reviewId={}", reviewId);
-            return;
+            return false;
         }
         UserExerciseLog logEntry = exerciseLogMapper.selectById(logId);
         if (logEntry == null) {
             log.warn("审核记录绑定的答题日志不存在: reviewId={}, logId={}", reviewId, logId);
-            return;
+            return false;
         }
         if (Integer.valueOf(0).equals(logEntry.getIsCorrect())) {
-            return;
+            // 本来就是错的，无需改判，也不重复写错题本
+            return false;
         }
         logEntry.setIsCorrect(0);
         exerciseLogMapper.updateById(logEntry);
+        return true;
     }
 
     /** 事务提交后执行；单测等无事务场景直接执行 */

@@ -368,6 +368,7 @@ const messages: Record<string, string> = {
   'judgeReview.failToast': 'Failed and re-judged',
   'judgeReview.scored': 'Scored',
   'judgeReview.pendingScore': 'Pending score',
+  'judgeReview.noBoundLog': 'No bound answer',
   'judgeReview.fieldUserAnswer': 'User answer',
   'judgeReview.fieldCorrectAnswer': 'Reference translation',
   'judgeReview.fieldAiResult': 'AI verdict',

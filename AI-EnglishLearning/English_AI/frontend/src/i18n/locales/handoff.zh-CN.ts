@@ -368,6 +368,7 @@ const messages: Record<string, string> = {
   'judgeReview.failToast': '已驳回并改判',
   'judgeReview.scored': '已补分',
   'judgeReview.pendingScore': '待补分',
+  'judgeReview.noBoundLog': '无绑定作答',
   'judgeReview.fieldUserAnswer': '用户答案',
   'judgeReview.fieldCorrectAnswer': '参考译文',
   'judgeReview.fieldAiResult': 'AI 结论',

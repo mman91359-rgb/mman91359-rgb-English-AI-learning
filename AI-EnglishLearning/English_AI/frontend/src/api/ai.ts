@@ -6,6 +6,8 @@ export interface ChatRequest {
   contextType?: string
   questionContent?: string
   userAnswer?: string
+  /** 已有评分摘要：让模型知道各维度实际得分，追问失分原因时才有依据 */
+  scoreSummary?: string
   history?: { role: string; content: string }[]
   scoreType?: string
 }

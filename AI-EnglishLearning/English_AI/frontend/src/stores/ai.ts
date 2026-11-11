@@ -34,6 +34,8 @@ export const useAiStore = defineStore('ai', () => {
   const contextType = ref('general')
   const questionContent = ref('')
   const userAnswer = ref('')
+  /** 已有评分摘要（批改结果页带入），让追问能引用具体分数 */
+  const scoreSummary = ref('')
   /** 当前展开的卡片消息 id；null 表示全部收起，保证同一时间只展开一张 */
   const expandedCardId = ref<string | null>(null)
 
@@ -41,11 +43,17 @@ export const useAiStore = defineStore('ai', () => {
     expandedCardId.value = expandedCardId.value === id ? null : id
   }
 
-  function open(context?: { contextType?: string; questionContent?: string; userAnswer?: string }) {
+  function open(context?: {
+    contextType?: string
+    questionContent?: string
+    userAnswer?: string
+    scoreSummary?: string
+  }) {
     if (context) {
       contextType.value = context.contextType || 'general'
       questionContent.value = context.questionContent || ''
       userAnswer.value = context.userAnswer || ''
+      scoreSummary.value = context.scoreSummary || ''
       // 切题时清除上一题的对话记录，确保AI聚焦当前题目
       messages.value = []
       expandedCardId.value = null
@@ -94,6 +102,7 @@ export const useAiStore = defineStore('ai', () => {
       contextType: contextType.value,
       questionContent: questionContent.value || undefined,
       userAnswer: userAnswer.value || undefined,
+      scoreSummary: scoreSummary.value || undefined,
     }
 
     // token 合并：流式回调每秒可达 10-40 次，逐 token 写入会触发整段富文本重解析，
@@ -167,6 +176,7 @@ export const useAiStore = defineStore('ai', () => {
     contextType,
     questionContent,
     userAnswer,
+    scoreSummary,
     expandedCardId,
     open,
     close,

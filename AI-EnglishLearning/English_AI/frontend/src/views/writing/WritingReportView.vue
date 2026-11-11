@@ -117,7 +117,7 @@ import WritingDimensionBar from '../../components/writing/WritingDimensionBar.vu
 import { useToast } from '../../composables/useToast'
 import { useAiStore } from '../../stores/ai'
 import { fetchFavoriteIds, fetchSubmission, fetchSubmissions, fetchWritingTopics, setFavorite } from '../../api/writing'
-import type { WritingSubmission, WritingTopic } from '../../types/writing'
+import type { WritingScore, WritingSubmission, WritingTopic } from '../../types/writing'
 import {
   DIMENSION_LABEL_KEYS,
   DIMENSION_MAX,
@@ -205,6 +205,30 @@ function buildTopicContext(topic: WritingTopic): string {
 }
 
 /**
+ * 把报告页的评分拼成一段文本摘要，交给模型当上下文。
+ *
+ * 只带结构化事实（分数 / 等级 / 五维 / 主要问题），刻意不带逐句批改：
+ * corrections 动辄几十条，会把 prompt 撑大，而用户问到具体句子时
+ * 模型能从正文里自己找到——带了反而是在替它做重复劳动。
+ */
+function buildScoreSummary(s: WritingScore): string {
+  const lines: string[] = [
+    `总分 ${s.rawScore}/${SCORE_MAX}，折算 ${s.weightedScore.toFixed(1)}/106.5，等级：${t(SCORE_LEVEL_LABEL_KEYS[s.level])}`,
+  ]
+  const dims = WRITING_DIMENSIONS.map(
+    (d) => `${t(DIMENSION_LABEL_KEYS[d])} ${s.dimensions[d]}/${DIMENSION_MAX}`,
+  ).join('、')
+  lines.push(`维度得分：${dims}`)
+  if (s.issues.length) {
+    lines.push('主要问题：')
+    s.issues.slice(0, 3).forEach((item, i) => {
+      lines.push(`${i + 1}. ${item.length > 80 ? `${item.slice(0, 80)}…` : item}`)
+    })
+  }
+  return lines.join('\n')
+}
+
+/**
  * 追问入口。
  * 先按当前作文重建对话上下文（open 传 context 会清空上一题的记录），
  * 再注入一张批改速览卡。不自动发送提问，避免直接消耗一次模型调用。
@@ -226,7 +250,12 @@ const askAi = async () => {
   } catch {
     // 题库读取失败不影响追问，按无题目处理
   }
-  aiStore.open({ contextType: 'general', questionContent, userAnswer: current.content })
+  aiStore.open({
+    contextType: 'general',
+    questionContent,
+    userAnswer: current.content,
+    scoreSummary: buildScoreSummary(current.report),
+  })
   aiStore.injectFeedback('writing', current.id, true)
 }
 

@@ -418,6 +418,10 @@ public class AiService {
                 if (request.getUserAnswer() != null && !request.getUserAnswer().isBlank()) {
                     userMsg.append("【我的答案】").append(request.getUserAnswer()).append("\n");
                 }
+                // 已有评分摘要：放在答案之后、问题之前，模型据此解释失分原因
+                if (request.getScoreSummary() != null && !request.getScoreSummary().isBlank()) {
+                    userMsg.append("【本次评分结果】\n").append(request.getScoreSummary()).append("\n");
+                }
                 userMsg.append(request.getMessage());
                 messages.add(Map.of("role", "user", "content", userMsg.toString()));
 

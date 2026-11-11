@@ -126,8 +126,8 @@ class JudgeReviewQueueServiceImplTest {
     void resolvePassOnlyUpdatesStatusAndRecordsPositive() {
         when(judgeReviewQueueMapper.selectById(12L)).thenReturn(pendingItem());
         when(judgeReviewQueueMapper.update(isNull(), any())).thenReturn(1);
-        when(judgeReviewQueueMapper.claimCurveScored(12L)).thenReturn(1);
-        when(judgeReviewQueueMapper.claimEloScored(12L)).thenReturn(1);
+        when(judgeReviewQueueMapper.claimCurveLease(12L)).thenReturn(1);
+        when(judgeReviewQueueMapper.claimEloLease(12L)).thenReturn(1);
 
         assertTrue(service.resolve(resolveRequest("PASS")));
 
@@ -150,8 +150,8 @@ class JudgeReviewQueueServiceImplTest {
         // 按 log_id 精确取，而不是按 user+question 猜最近一条
         when(exerciseLogMapper.selectById(88L)).thenReturn(log);
         when(errorBookMapper.selectOne(any())).thenReturn(null);
-        when(judgeReviewQueueMapper.claimCurveScored(12L)).thenReturn(1);
-        when(judgeReviewQueueMapper.claimEloScored(12L)).thenReturn(1);
+        when(judgeReviewQueueMapper.claimCurveLease(12L)).thenReturn(1);
+        when(judgeReviewQueueMapper.claimEloLease(12L)).thenReturn(1);
 
         assertTrue(service.resolve(resolveRequest("FAIL")));
 
@@ -223,23 +223,25 @@ class JudgeReviewQueueServiceImplTest {
         item.setEloScoredAt(java.time.LocalDateTime.now());
         when(judgeReviewQueueMapper.selectById(12L)).thenReturn(item);
         when(exerciseLogMapper.selectById(88L)).thenReturn(boundLog(1));
-        when(judgeReviewQueueMapper.claimCurveScored(12L)).thenReturn(1);
+        when(judgeReviewQueueMapper.claimCurveLease(12L)).thenReturn(1);
 
         assertTrue(service.rescore(12L));
 
-        verify(judgeReviewQueueMapper, never()).claimEloScored(any());
+        verify(judgeReviewQueueMapper, never()).claimEloLease(any());
+        verify(judgeReviewQueueMapper).markCurveDone(12L);
         verify(auditRestTemplate, org.mockito.Mockito.times(1))
                 .postForEntity(any(String.class), any(), eq(String.class));
     }
 
     @Test
-    void rescoreIsNoopWhenBothAlreadyScored() {
+    void rescoreReturnsTrueWhenBothAlreadyScored() {
         JudgeReviewQueueItem item = reviewedItem();
         item.setCurveScoredAt(java.time.LocalDateTime.now());
         item.setEloScoredAt(java.time.LocalDateTime.now());
         when(judgeReviewQueueMapper.selectById(12L)).thenReturn(item);
 
-        assertFalse(service.rescore(12L));
+        // 两半都完成 → 按 javadoc 语义返回 true，而不是 false
+        assertTrue(service.rescore(12L));
         verifyNoInteractions(auditRestTemplate, exerciseLogMapper);
     }
 
@@ -257,52 +259,72 @@ class JudgeReviewQueueServiceImplTest {
     }
 
     @Test
-    void rescoreClearsMarkerWhenDownstreamFails() {
+    void rescoreReleasesLeasesWhenDownstreamFails() {
         JudgeReviewQueueItem item = reviewedItem();
         when(judgeReviewQueueMapper.selectById(12L)).thenReturn(item);
         when(exerciseLogMapper.selectById(88L)).thenReturn(boundLog(0));
-        when(judgeReviewQueueMapper.claimCurveScored(12L)).thenReturn(1);
-        when(judgeReviewQueueMapper.claimEloScored(12L)).thenReturn(1);
+        when(judgeReviewQueueMapper.claimCurveLease(12L)).thenReturn(1);
+        when(judgeReviewQueueMapper.claimEloLease(12L)).thenReturn(1);
         when(auditRestTemplate.postForEntity(any(String.class), any(), eq(String.class)))
                 .thenThrow(new RuntimeException("timeout"));
 
         assertFalse(service.rescore(12L));
 
-        verify(judgeReviewQueueMapper).clearCurveScored(12L);
-        verify(judgeReviewQueueMapper).clearEloScored(12L);
+        verify(judgeReviewQueueMapper).releaseCurveLease(12L);
+        verify(judgeReviewQueueMapper).releaseEloLease(12L);
+        // 失败绝不能写完成时间
+        verify(judgeReviewQueueMapper, never()).markCurveDone(any());
+        verify(judgeReviewQueueMapper, never()).markEloDone(any());
     }
 
+    /**
+     * 回归：一条 10 分钟前**成功补记**的记录，绝不能被当成"过期租约"再补一次。
+     * 旧实现把抢占时刻写进 scored_at，这条会每 10 分钟重复推一次曲线。
+     */
     @Test
-    void staleCurveMarkerTriggersReclaim() {
+    void completedCurveIsNeverReclaimed() {
         JudgeReviewQueueItem item = reviewedItem();
-        // 10 分钟前抢过但没完成（进程被杀）→ 超过 5 分钟租约，应重新抢占
         item.setCurveScoredAt(java.time.LocalDateTime.now().minusMinutes(10));
         item.setEloScoredAt(java.time.LocalDateTime.now());
         when(judgeReviewQueueMapper.selectById(12L)).thenReturn(item);
-        when(exerciseLogMapper.selectById(88L)).thenReturn(boundLog(1));
-        when(judgeReviewQueueMapper.claimCurveScored(12L)).thenReturn(1);
 
         assertTrue(service.rescore(12L));
 
-        verify(judgeReviewQueueMapper).claimCurveScored(12L);
-        verify(judgeReviewQueueMapper, never()).claimEloScored(any());
-        verify(auditRestTemplate, org.mockito.Mockito.times(1))
-                .postForEntity(any(String.class), any(), eq(String.class));
+        verify(judgeReviewQueueMapper, never()).claimCurveLease(any());
+        verify(judgeReviewQueueMapper, never()).claimEloLease(any());
+        verifyNoInteractions(auditRestTemplate, exerciseLogMapper);
     }
 
     @Test
-    void staleEloMarkerTriggersOnlyEloReclaim() {
+    void activeLeaseIsNotReclaimed() {
         JudgeReviewQueueItem item = reviewedItem();
-        item.setCurveScoredAt(java.time.LocalDateTime.now());
-        item.setEloScoredAt(java.time.LocalDateTime.now().minusMinutes(10));
+        // 未完成，但租约还有效 → 别的实例正在补，不能抢
+        item.setCurveLeaseUntil(java.time.LocalDateTime.now().plusMinutes(5));
+        item.setEloScoredAt(java.time.LocalDateTime.now());
         when(judgeReviewQueueMapper.selectById(12L)).thenReturn(item);
-        when(exerciseLogMapper.selectById(88L)).thenReturn(boundLog(0));
-        when(judgeReviewQueueMapper.claimEloScored(12L)).thenReturn(1);
+        when(exerciseLogMapper.selectById(88L)).thenReturn(boundLog(1));
+        when(judgeReviewQueueMapper.claimCurveLease(12L)).thenReturn(0);
 
         assertTrue(service.rescore(12L));
 
-        verify(judgeReviewQueueMapper, never()).claimCurveScored(any());
-        verify(judgeReviewQueueMapper).claimEloScored(12L);
+        verify(judgeReviewQueueMapper).claimCurveLease(12L);
+        verifyNoInteractions(auditRestTemplate);
+    }
+
+    @Test
+    void expiredLeaseAllowsReclaim() {
+        JudgeReviewQueueItem item = reviewedItem();
+        // 未完成 + 租约已过期（模拟进程崩溃）→ 应重新抢占并只发一次
+        item.setCurveLeaseUntil(java.time.LocalDateTime.now().minusMinutes(1));
+        item.setEloScoredAt(java.time.LocalDateTime.now());
+        when(judgeReviewQueueMapper.selectById(12L)).thenReturn(item);
+        when(exerciseLogMapper.selectById(88L)).thenReturn(boundLog(1));
+        when(judgeReviewQueueMapper.claimCurveLease(12L)).thenReturn(1);
+
+        assertTrue(service.rescore(12L));
+
+        verify(judgeReviewQueueMapper).claimCurveLease(12L);
+        verify(judgeReviewQueueMapper).markCurveDone(12L);
         verify(auditRestTemplate, org.mockito.Mockito.times(1))
                 .postForEntity(any(String.class), any(), eq(String.class));
     }
@@ -312,8 +334,8 @@ class JudgeReviewQueueServiceImplTest {
         JudgeReviewQueueItem item = reviewedItem();
         when(judgeReviewQueueMapper.selectById(12L)).thenReturn(item);
         when(exerciseLogMapper.selectById(88L)).thenReturn(boundLog(1));
-        when(judgeReviewQueueMapper.claimCurveScored(12L)).thenReturn(0);
-        when(judgeReviewQueueMapper.claimEloScored(12L)).thenReturn(0);
+        when(judgeReviewQueueMapper.claimCurveLease(12L)).thenReturn(0);
+        when(judgeReviewQueueMapper.claimEloLease(12L)).thenReturn(0);
 
         assertTrue(service.rescore(12L));
         verifyNoInteractions(auditRestTemplate);

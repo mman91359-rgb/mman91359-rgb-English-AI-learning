@@ -28,42 +28,59 @@ public interface JudgeReviewQueueMapper extends BaseMapper<JudgeReviewQueueItem>
             + "#{item.reason}, #{item.status})")
     int enqueueIgnoreDuplicate(@Param("item") JudgeReviewQueueItem item);
 
-    /**
-     * 抢占遗忘曲线补记标记；返回 0 表示已被其他请求抢占（且仍在租约内）。
-     *
-     * <p>租约 5 分钟：claim 后进程若被拉掉，标记会停在那里；超过租约即视为"从没抢过"，
-     * 由下一次扫描重新抢占，避免永久漏记。租约必须远大于单次 HTTP 时长（当前 2s 超时）。</p>
-     */
-    @Update("UPDATE `judge_review_queue` SET `curve_scored_at` = NOW() "
-            + "WHERE `id` = #{id} AND (`curve_scored_at` IS NULL "
-            + "OR `curve_scored_at` < NOW() - INTERVAL 5 MINUTE)")
-    int claimCurveScored(@Param("id") Long id);
+    // ---------------------------------------------------------------------
+    // 补记协议（curve / elo 各一套，全部用 DB 的 NOW() 比较时间）：
+    //   抢占 claimXLease → 请求 → 成功 markXDone / 失败 releaseXLease
+    // *_scored_at 非空 = 已完成，永不再补；*_lease_until 未到期 = 别人正在做。
+    // ---------------------------------------------------------------------
 
-    /** 补记失败时清回标记，等待重试 */
-    @Update("UPDATE `judge_review_queue` SET `curve_scored_at` = NULL WHERE `id` = #{id}")
-    int clearCurveScored(@Param("id") Long id);
+    /** 抢占遗忘曲线补记租约（5 分钟）；返回 0 表示已完成或别人正在做 */
+    @Update("UPDATE `judge_review_queue` "
+            + "SET `curve_lease_until` = NOW() + INTERVAL 5 MINUTE "
+            + "WHERE `id` = #{id} AND `curve_scored_at` IS NULL "
+            + "AND (`curve_lease_until` IS NULL OR `curve_lease_until` < NOW())")
+    int claimCurveLease(@Param("id") Long id);
 
-    /** 抢占 ELO 补记标记（同样带 5 分钟租约） */
-    @Update("UPDATE `judge_review_queue` SET `elo_scored_at` = NOW() "
-            + "WHERE `id` = #{id} AND (`elo_scored_at` IS NULL "
-            + "OR `elo_scored_at` < NOW() - INTERVAL 5 MINUTE)")
-    int claimEloScored(@Param("id") Long id);
+    /** 补记成功：写完成时间并释放租约 */
+    @Update("UPDATE `judge_review_queue` "
+            + "SET `curve_scored_at` = NOW(), `curve_lease_until` = NULL "
+            + "WHERE `id` = #{id} AND `curve_scored_at` IS NULL")
+    int markCurveDone(@Param("id") Long id);
 
-    /** 补记失败时清回标记 */
-    @Update("UPDATE `judge_review_queue` SET `elo_scored_at` = NULL WHERE `id` = #{id}")
-    int clearEloScored(@Param("id") Long id);
+    /** 补记失败：只释放租约，完成时间保持 NULL 等待重试 */
+    @Update("UPDATE `judge_review_queue` SET `curve_lease_until` = NULL WHERE `id` = #{id}")
+    int releaseCurveLease(@Param("id") Long id);
+
+    /** 抢占 ELO 补记租约（5 分钟） */
+    @Update("UPDATE `judge_review_queue` "
+            + "SET `elo_lease_until` = NOW() + INTERVAL 5 MINUTE "
+            + "WHERE `id` = #{id} AND `elo_scored_at` IS NULL "
+            + "AND (`elo_lease_until` IS NULL OR `elo_lease_until` < NOW())")
+    int claimEloLease(@Param("id") Long id);
+
+    /** ELO 补记成功 */
+    @Update("UPDATE `judge_review_queue` "
+            + "SET `elo_scored_at` = NOW(), `elo_lease_until` = NULL "
+            + "WHERE `id` = #{id} AND `elo_scored_at` IS NULL")
+    int markEloDone(@Param("id") Long id);
+
+    /** ELO 补记失败 */
+    @Update("UPDATE `judge_review_queue` SET `elo_lease_until` = NULL WHERE `id` = #{id}")
+    int releaseEloLease(@Param("id") Long id);
 
     /**
      * 已复核但还没补记完的队列行（定时重试用）。
      *
-     * <p>标记为空或已超过 5 分钟租约都算"没补完"；缺少 module_type / difficulty_level
+     * <p>只有「未完成且没有有效租约」才算待补；缺 module_type / difficulty_level
      * 的行无法补记，直接排除，避免每轮刷 error 并占用批次名额。</p>
      */
     @Select("SELECT * FROM `judge_review_queue` "
             + "WHERE `status` = 'REVIEWED' AND `log_id` IS NOT NULL "
             + "AND `module_type` IS NOT NULL AND `difficulty_level` IS NOT NULL "
-            + "AND ((`curve_scored_at` IS NULL OR `curve_scored_at` < NOW() - INTERVAL 5 MINUTE) "
-            + "  OR (`elo_scored_at` IS NULL OR `elo_scored_at` < NOW() - INTERVAL 5 MINUTE)) "
+            + "AND ((`curve_scored_at` IS NULL "
+            + "      AND (`curve_lease_until` IS NULL OR `curve_lease_until` < NOW())) "
+            + "  OR (`elo_scored_at` IS NULL "
+            + "      AND (`elo_lease_until` IS NULL OR `elo_lease_until` < NOW()))) "
             + "ORDER BY `id` LIMIT #{limit}")
     List<JudgeReviewQueueItem> findUnscored(@Param("limit") int limit);
 }

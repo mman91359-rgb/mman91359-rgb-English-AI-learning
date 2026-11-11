@@ -68,8 +68,14 @@ public class JudgeReviewQueueItem {
     /** 遗忘曲线补记成功时间；NULL 表示未补记（灰区提交时不记，复核后补） */
     private LocalDateTime curveScoredAt;
 
+    /** 遗忘曲线补记租约到期时间；未到期表示有实例正在补，别抢 */
+    private LocalDateTime curveLeaseUntil;
+
     /** ELO 补记成功时间；NULL 表示未补记 */
     private LocalDateTime eloScoredAt;
+
+    /** ELO 补记租约到期时间 */
+    private LocalDateTime eloLeaseUntil;
 
     private LocalDateTime createdAt;
 

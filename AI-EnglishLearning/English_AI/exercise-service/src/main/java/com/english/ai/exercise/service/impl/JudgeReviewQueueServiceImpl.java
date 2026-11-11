@@ -40,13 +40,6 @@ public class JudgeReviewQueueServiceImpl implements JudgeReviewQueueService {
     private static final String STATUS_PENDING = "PENDING";
     private static final String STATUS_REVIEWED = "REVIEWED";
 
-    /**
-     * 补记租约：与 Mapper 里的 {@code INTERVAL 5 MINUTE} 必须一致。
-     * 必须远大于单次 HTTP 时长（auditRestTemplate 读超时 2s），
-     * 又要小于定时任务的 10 分钟间隔，保证崩溃后下一轮能捞回。
-     */
-    private static final java.time.Duration SCORING_LEASE = java.time.Duration.ofMinutes(5);
-
     private final JudgeReviewQueueMapper judgeReviewQueueMapper;
     private final UserExerciseLogMapper exerciseLogMapper;
     private final UserErrorBookMapper errorBookMapper;
@@ -160,8 +153,9 @@ public class JudgeReviewQueueServiceImpl implements JudgeReviewQueueService {
             log.warn("审核记录缺少 log_id，无法推断复核结论，跳过补记: reviewId={}", reviewId);
             return false;
         }
-        if (isFresh(item.getCurveScoredAt()) && isFresh(item.getEloScoredAt())) {
-            return false;
+        if (item.getCurveScoredAt() != null && item.getEloScoredAt() != null) {
+            // 已完成的两半都不需要再动，按 javadoc 语义返回 true
+            return true;
         }
         UserExerciseLog boundLog = exerciseLogMapper.selectById(item.getLogId());
         if (boundLog == null) {
@@ -219,15 +213,16 @@ public class JudgeReviewQueueServiceImpl implements JudgeReviewQueueService {
      * 各发一次 → 曲线阶梯推两级。</p>
      */
     private boolean ensureCurve(JudgeReviewQueueItem item, boolean isCorrect) {
-        if (isFresh(item.getCurveScoredAt())) {
+        // 完成时间非空 = 永远不再补记；只有"未完成 + 无有效租约"才抢得到
+        if (item.getCurveScoredAt() != null) {
             return true;
         }
         if (item.getModuleType() == null) {
             log.error("审核记录缺少 module_type，无法补记遗忘曲线: reviewId={}", item.getId());
             return false;
         }
-        if (judgeReviewQueueMapper.claimCurveScored(item.getId()) == 0) {
-            // 已被其他请求抢占，视为已处理
+        if (judgeReviewQueueMapper.claimCurveLease(item.getId()) == 0) {
+            // 已完成或别的实例正在补，视为已处理
             return true;
         }
         try {
@@ -237,34 +232,26 @@ public class JudgeReviewQueueServiceImpl implements JudgeReviewQueueService {
             body.put("isCorrect", isCorrect);
             body.put("moduleType", item.getModuleType());
             postJson(learningEngineUrl + "/learning/update-curve", body);
+            judgeReviewQueueMapper.markCurveDone(item.getId());
             return true;
         } catch (Exception e) {
-            log.error("补记遗忘曲线失败，标记已清回待重试: reviewId={}, error={}",
+            log.error("补记遗忘曲线失败，租约已释放待重试: reviewId={}, error={}",
                     item.getId(), e.getMessage());
-            judgeReviewQueueMapper.clearCurveScored(item.getId());
+            judgeReviewQueueMapper.releaseCurveLease(item.getId());
             return false;
         }
     }
 
-    /**
-     * 标记非空且在租约内，才算"已补记完成"。
-     *
-     * <p>超租约的标记视为"抢了但没做完"（进程可能已崩溃），允许重新抢占。</p>
-     */
-    private boolean isFresh(java.time.LocalDateTime scoredAt) {
-        return scoredAt != null && scoredAt.isAfter(java.time.LocalDateTime.now().minus(SCORING_LEASE));
-    }
-
-    /** 补记 ELO，与 {@link #ensureCurve} 同一套抢占协议 */
+    /** 补记 ELO，与 {@link #ensureCurve} 同一套「抢占 → 请求 → 成功置完成 / 失败释放租约」协议 */
     private boolean ensureElo(JudgeReviewQueueItem item, boolean isCorrect) {
-        if (isFresh(item.getEloScoredAt())) {
+        if (item.getEloScoredAt() != null) {
             return true;
         }
         if (item.getModuleType() == null || item.getDifficultyLevel() == null) {
             log.error("审核记录缺少 module_type / difficulty_level，无法补记 ELO: reviewId={}", item.getId());
             return false;
         }
-        if (judgeReviewQueueMapper.claimEloScored(item.getId()) == 0) {
+        if (judgeReviewQueueMapper.claimEloLease(item.getId()) == 0) {
             return true;
         }
         try {
@@ -274,11 +261,12 @@ public class JudgeReviewQueueServiceImpl implements JudgeReviewQueueService {
             body.put("moduleType", item.getModuleType());
             body.put("isCorrect", isCorrect);
             postJson(userServiceUrl + "/user/radar/update-elo", body);
+            judgeReviewQueueMapper.markEloDone(item.getId());
             return true;
         } catch (Exception e) {
-            log.error("补记 ELO 失败，标记已清回待重试: reviewId={}, error={}",
+            log.error("补记 ELO 失败，租约已释放待重试: reviewId={}, error={}",
                     item.getId(), e.getMessage());
-            judgeReviewQueueMapper.clearEloScored(item.getId());
+            judgeReviewQueueMapper.releaseEloLease(item.getId());
             return false;
         }
     }

@@ -1107,11 +1107,20 @@ npm run build
 4. 新增 `POST /internal/judge/review/rescore`；定时任务 `ReviewScoringRetryTask` 每 10 分钟扫最多 50 条 `REVIEWED AND log_id IS NOT NULL AND (两标记有 NULL)` 逐条补。
 5. verdict 不新加列：FAIL 时绑定 log 已被改成 0，PASS 保持 1，直接拿 `is_correct` 当 `isCorrect`；`log_id` 为空的手工入队跳过并 warn。
 
-**租约（同日修订）**：抢占不是永久的——`claim` 的 `WHERE` 增加 `OR x < NOW() - INTERVAL 5 MINUTE`，扫描条件同步放宽。否则进程在 claim 与请求之间被杀，标记停在 `NOW()`、扫描永远看不到，又变成"看起来已补记、实际没补记"。内存里的 `isFresh()` 判断也必须跟着放宽，否则 SQL 改了不生效。
+**租约（V1.0.46 修正，以此为准）**：**完成时间与租约必须是两列**——
 
-- 租约 5 分钟的取值依据：HTTP 读超时 2s，正常补记毫秒级；5 分钟足以区分"在跑"与"死了"，又小于扫描间隔 10 分钟。
-- **残留风险**：实例卡住超过租约才恢复时，会与其他实例各补一次（曲线/ELO 重复）。彻底消除需租约续期或下游幂等键，成本不划算。**调超时或调租约时两处必须同步改。**
+| 列 | 含义 |
+|---|---|
+| `curve_scored_at` / `elo_scored_at` | 完成时间；非空 = 永远不再补记 |
+| `curve_lease_until` / `elo_lease_until` | 进行中租约；未到期 = 别的实例在做，别抢 |
+
+- 协议：`claimXLease`（`scored_at IS NULL AND (lease IS NULL OR lease < NOW())`，置 `lease = NOW()+5min`）→ 请求 → 成功 `markXDone`（写完成时间 + 清租约）/ 失败 `releaseXLease`（只清租约）。
+- **为什么不能把抢占时刻写进 `scored_at`**（V1.0.45 的错误实现）：成功后标记停在抢占时刻，5 分钟后扫描把它判成"过期未做"，于是**每 10 分钟重复补记一次**，曲线阶梯无上限推进、ELO 反复重算——比"崩溃漏一次"严重得多。同一列无法同时表达"正在做"和"已完成"。
+- **所有时间比较一律用 DB 的 `NOW()`**，不要用 JVM 时钟（`isFresh` 已删除）。云主机若是 UTC 而 JDBC 带 `Asia/Shanghai`，两边差 8 小时会让标记瞬间过期，同样导致反复补记。
+- 5 分钟的取值依据：HTTP 读超时 2s，正常补记毫秒级；5 分钟足以区分"在跑"与"死了"，又小于扫描间隔 10 分钟。**调超时或调租约时 Mapper 与定时任务两处要同步改。**
+- **残留风险**：实例卡住超过租约才恢复时，会与其他实例各补一次。彻底消除需租约续期或下游幂等键，成本不划算。
 - 扫描侧排除 `module_type` / `difficulty_level` 为空的行（无法补记），入队时对这类行只 warn 一次，避免每 10 分钟刷 error。
+- **回归验证（已做）**：造一行 `curve_scored_at = elo_scored_at = NOW()-6min、lease=NULL、status=REVIEWED`，调 `rescore` → 返回 `true`、零 HTTP、`user_memory_curve` 无新行；旧实现下这里会多出一行。
 
 **两个运维事实**：
 

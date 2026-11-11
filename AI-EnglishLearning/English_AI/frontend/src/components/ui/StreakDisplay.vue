@@ -1,19 +1,24 @@
 <template>
   <div class="flex flex-col">
     <span class="font-label-md text-label-md text-on-surface-variant">{{ labelText }}</span>
-    <div class="flex h-8 items-center gap-1">
-      <span
-        class="streak-days font-headline-md text-headline-md font-bold tabular-nums text-primary"
-        :class="{ 'is-igniting': igniting }"
-      >{{ days }}</span>
-      <span class="font-label-lg text-label-lg text-primary/60">{{ unitText }}</span>
+    <!--
+      两段式：左段是专用文字区（数字 + 单位），右段是火焰。
+      文字区自己成块、宽度随内容自适应，火焰紧贴它的右缘——
+      原来火焰挂在固定 w-12 的槽位里居中，左右各多出 6px 死白，
+      再加 gap + ml 合计让文字到火焰的净间距有 22px，看起来是飘着的。
+      槽位高度仍固定 h-8，尺寸变化只是视觉溢出，不推动下方导航。
+    -->
+    <div class="flex h-8 items-center">
+      <span class="flex shrink-0 items-baseline gap-1">
+        <span
+          class="streak-days font-headline-md text-headline-md font-bold tabular-nums text-primary"
+          :class="{ 'is-igniting': igniting }"
+        >{{ days }}</span>
+        <span class="font-label-lg text-label-lg text-primary/60">{{ unitText }}</span>
+      </span>
 
-      <!--
-        火焰槽位固定 h-8 w-11，火焰本体在槽内居中且尺寸随档位变化，
-        超出部分只是视觉溢出、不参与布局，所以侧栏导航不会随天数抖动。
-      -->
       <span
-        class="flame-slot relative ml-1 inline-flex h-8 w-12 shrink-0 items-center justify-center"
+        class="flame-slot relative ml-1 inline-flex h-8 shrink-0 items-center"
         :class="{ 'is-lit': visual.lit }"
         :style="slotStyle"
         aria-hidden="true"

@@ -18,7 +18,9 @@ import com.english.ai.exercise.dto.VocabularyVO;
 import com.english.ai.exercise.dto.ExerciseHistoryVO;
 import com.english.ai.exercise.dto.DailyWordVO;
 import com.english.ai.exercise.dto.WordDetailVO;
+import com.english.ai.exercise.dto.JudgeReviewEnqueueRequest;
 import com.english.ai.exercise.dto.JudgmentResult;
+import com.english.ai.exercise.dto.TranslationReviewDraft;
 import com.english.ai.exercise.dto.WeakKnowledgePoint;
 import com.english.ai.exercise.dto.CoinAwardResult;
 import com.english.ai.exercise.dto.PreferenceResult;
@@ -80,6 +82,7 @@ public class ExerciseServiceImpl implements ExerciseService {
     private final StudySessionService studySessionService;
     private final Clock clock;
     private final PlatformTransactionManager transactionManager;
+    private final JudgeReviewAsyncWriter judgeReviewAsyncWriter;
 
     /** 每组单词数量的短缓存，避免每次词汇答题都跨服务查询偏好 */
     private final Map<Long, CachedGroupSize> groupSizeCache = new ConcurrentHashMap<>();
@@ -466,39 +469,9 @@ public class ExerciseServiceImpl implements ExerciseService {
                 coinAward = maybeAwardVocabGroup(request.getUserId());
             }
 
-            // 调用 learning-engine 更新遗忘曲线
-            try {
-                String url = learningEngineUrl + "/learning/update-curve";
-                Map<String, Object> body = new HashMap<>();
-                body.put("userId", request.getUserId());
-                body.put("questionId", request.getQuestionId());
-                body.put("isCorrect", isCorrect);
-                body.put("moduleType", moduleType);
-
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(MediaType.APPLICATION_JSON);
-                HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
-                restTemplate.postForEntity(url, entity, String.class);
-            } catch (Exception e) {
-                log.warn("调用learning-engine更新遗忘曲线失败: {}", e.getMessage());
-            }
-
-            // 调用 user-service 更新ELO分
-            try {
-                String url = userServiceUrl + "/user/radar/update-elo";
-                Map<String, Object> body = new HashMap<>();
-                body.put("userId", request.getUserId());
-                body.put("difficultyLevel", info.getDifficultyLevel());
-                body.put("moduleType", moduleType);
-                body.put("isCorrect", isCorrect);
-
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(MediaType.APPLICATION_JSON);
-                HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
-                restTemplate.postForEntity(url, entity, String.class);
-            } catch (Exception e) {
-                log.warn("调用user-service更新ELO失败: {}", e.getMessage());
-            }
+            // 灰区（reviewDraft 非空）跳过计分，等复核结论出来再补记一次，避免不可逆的"先加后减"
+            applyLearningSideEffects(request, info, moduleType, isCorrect,
+                    judgmentResult.getReviewDraft(), logId, traceId, judgeCorrectAnswer);
 
             // 发布RabbitMQ事件（异步解耦，fire-and-forget）
             if (rabbitTemplate != null) {
@@ -634,6 +607,78 @@ public class ExerciseServiceImpl implements ExerciseService {
         if (t.length() >= 2 && t.charAt(1) == '.') return t.substring(0, 1).toUpperCase();
         if (t.length() == 1 && Character.isLetter(t.charAt(0))) return t.toUpperCase();
         return t;
+    }
+
+    /**
+     * 答题后的学习副作用：遗忘曲线 + ELO，或段落翻译灰区的一次性入队。
+     *
+     * <p>灰区（{@code draft != null}）**不记 ELO / 曲线**：结论还没定，先记再改会造成
+     * ELO 反向不对称、曲线阶梯不可逆。等人工复核出结论，由 resolve 用队列里的
+     * difficultyLevel / moduleType 补记一次。</p>
+     *
+     * <p>入队放在这里而不是判题引擎里，是因为此刻 {@code user_exercise_log} 已插入、
+     * 主键已回填，队列可以直接存 log_id，复核时按主键精确改判。</p>
+     */
+    void applyLearningSideEffects(SubmitRequest request, QuestionInfo info, int moduleType,
+                                  boolean isCorrect, TranslationReviewDraft draft, Long logId,
+                                  String traceId, String correctAnswer) {
+        if (draft != null && logId != null) {
+            JudgeReviewEnqueueRequest enqueue = new JudgeReviewEnqueueRequest();
+            enqueue.setQuestionId(request.getQuestionId());
+            enqueue.setUserId(request.getUserId());
+            enqueue.setLogId(logId);
+            enqueue.setDifficultyLevel(info != null ? info.getDifficultyLevel() : null);
+            enqueue.setModuleType(moduleType);
+            enqueue.setUserAnswer(request.getUserAnswer());
+            enqueue.setCorrectAnswer(correctAnswer);
+            enqueue.setMatchedLevel(JudgmentLevel.SEMANTIC);
+            enqueue.setReason(draft.getReason());
+            enqueue.setAiConfidence(draft.getAiConfidence());
+            enqueue.setAiResult(draft.getAiResult());
+            String context = (draft.getJudgeContext() == null ? "" : draft.getJudgeContext())
+                    + ";traceId=" + traceId;
+            enqueue.setJudgeContext(context.length() > 1000 ? context.substring(0, 1000) : context);
+            judgeReviewAsyncWriter.enqueueAsync(enqueue);
+            return;
+        }
+        if (draft != null) {
+            // 理论上不会发生（practiceOnly 不走这里）；真发生就按普通判对计分，避免漏记
+            log.warn("灰区结果缺少答题记录ID，按普通判对计分: questionId={}", request.getQuestionId());
+        }
+
+        // 调用 learning-engine 更新遗忘曲线
+        try {
+            String url = learningEngineUrl + "/learning/update-curve";
+            Map<String, Object> body = new HashMap<>();
+            body.put("userId", request.getUserId());
+            body.put("questionId", request.getQuestionId());
+            body.put("isCorrect", isCorrect);
+            body.put("moduleType", moduleType);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+            restTemplate.postForEntity(url, entity, String.class);
+        } catch (Exception e) {
+            log.warn("调用learning-engine更新遗忘曲线失败: {}", e.getMessage());
+        }
+
+        // 调用 user-service 更新ELO分
+        try {
+            String url = userServiceUrl + "/user/radar/update-elo";
+            Map<String, Object> body = new HashMap<>();
+            body.put("userId", request.getUserId());
+            body.put("difficultyLevel", info != null ? info.getDifficultyLevel() : null);
+            body.put("moduleType", moduleType);
+            body.put("isCorrect", isCorrect);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+            restTemplate.postForEntity(url, entity, String.class);
+        } catch (Exception e) {
+            log.warn("调用user-service更新ELO失败: {}", e.getMessage());
+        }
     }
 
     private void upsertErrorBook(Long userId, Long questionId) {

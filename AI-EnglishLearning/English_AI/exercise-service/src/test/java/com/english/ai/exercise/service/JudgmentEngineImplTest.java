@@ -55,9 +55,6 @@ class JudgmentEngineImplTest {
     @Mock
     private com.english.ai.exercise.client.TranslationScoreClient translationScoreClient;
 
-    @Mock
-    private com.english.ai.exercise.service.impl.JudgeReviewAsyncWriter judgeReviewAsyncWriter;
-
     private JudgmentEngineImpl engine;
 
     private static final Long QID = 1L;
@@ -65,12 +62,12 @@ class JudgmentEngineImplTest {
     @BeforeEach
     void setUp() {
         engine = new JudgmentEngineImpl(
-                buggyPathMapper, questionInfoMapper, restTemplate,
-                translationScoreClient, judgeReviewAsyncWriter);
+                buggyPathMapper, questionInfoMapper, restTemplate, translationScoreClient);
         ReflectionTestUtils.setField(engine, "aiServiceUrl", "http://ai-test");
         ReflectionTestUtils.setField(engine, "translationAiMode", "shadow");
         ReflectionTestUtils.setField(engine, "translationPassScore", 9);
         ReflectionTestUtils.setField(engine, "translationReviewScore", 7);
+        ReflectionTestUtils.setField(engine, "translationMaxScore", 15);
     }
 
     private SubmitRequest request(String answer) {
@@ -280,8 +277,8 @@ class JudgmentEngineImplTest {
         // shadow：分数照打，但判定结果保持改造前的 MISMATCH
         assertFalse(result.getIsCorrect());
         assertEquals("MISMATCH", result.getErrorType());
+        assertNull(result.getReviewDraft());
         verify(translationScoreClient).score(anyString(), any(), any(), any());
-        verifyNoInteractions(judgeReviewAsyncWriter);
     }
 
     @Test
@@ -295,11 +292,11 @@ class JudgmentEngineImplTest {
 
         assertTrue(result.getIsCorrect());
         assertEquals(2, result.getMatchedLevel());
-        verifyNoInteractions(judgeReviewAsyncWriter);
+        assertNull(result.getReviewDraft());
     }
 
     @Test
-    void passageEnforceGrayZoneMarksCorrectAndEnqueuesReview() {
+    void passageEnforceGrayZoneMarksCorrectAndProducesReviewDraft() {
         ReflectionTestUtils.setField(engine, "translationAiMode", "enforce");
         when(translationScoreClient.score(anyString(), any(), any(), any()))
                 .thenReturn(new com.english.ai.exercise.dto.TranslationScore(8, 15, "PASS", "基本达意"));
@@ -307,16 +304,27 @@ class JudgmentEngineImplTest {
         JudgmentResult result = engine.judgeTranslation(
                 passageRequest(), "参考译文", "中文题干", null, true);
 
-        // 灰区判对（不污染错题本/ELO），同时入队等人工复核
+        // 灰区判对（不污染错题本/ELO），并产出复核草稿；入队由提交链路在 log 插入后完成
         assertTrue(result.getIsCorrect());
+        com.english.ai.exercise.dto.TranslationReviewDraft draft = result.getReviewDraft();
+        assertTrue(draft != null);
+        assertEquals("TRANSLATION_LOW_SCORE", draft.getReason());
+        assertEquals("PARTIAL", draft.getAiResult());
+        assertEquals(0, draft.getAiConfidence().compareTo(new java.math.BigDecimal("0.533")));
+    }
 
-        org.mockito.ArgumentCaptor<com.english.ai.exercise.dto.JudgeReviewEnqueueRequest> captor =
-                org.mockito.ArgumentCaptor.forClass(com.english.ai.exercise.dto.JudgeReviewEnqueueRequest.class);
-        verify(judgeReviewAsyncWriter).enqueueAsync(captor.capture());
-        com.english.ai.exercise.dto.JudgeReviewEnqueueRequest enqueued = captor.getValue();
-        assertEquals("TRANSLATION_LOW_SCORE", enqueued.getReason());
-        assertEquals("PARTIAL", enqueued.getAiResult());
-        assertEquals(0, enqueued.getAiConfidence().compareTo(new java.math.BigDecimal("0.533")));
+    @Test
+    void passageScoreIsNormalizedToConfiguredScale() {
+        ReflectionTestUtils.setField(engine, "translationAiMode", "enforce");
+        // 模型返回百分制：80/100 应归一成 12/15 → 判对，而不是把 80 直接比 9
+        when(translationScoreClient.score(anyString(), any(), any(), any()))
+                .thenReturn(new com.english.ai.exercise.dto.TranslationScore(80, 100, "GOOD", "ok"));
+
+        JudgmentResult result = engine.judgeTranslation(
+                passageRequest(), "参考译文", "中文题干", null, true);
+
+        assertTrue(result.getIsCorrect());
+        assertNull(result.getReviewDraft());
     }
 
     @Test
@@ -330,7 +338,6 @@ class JudgmentEngineImplTest {
 
         assertFalse(result.getIsCorrect());
         assertEquals("MISMATCH", result.getErrorType());
-        verifyNoInteractions(judgeReviewAsyncWriter);
     }
 
     @Test
@@ -343,7 +350,6 @@ class JudgmentEngineImplTest {
 
         assertFalse(result.getIsCorrect());
         assertEquals("AI_UNAVAILABLE", result.getErrorType());
-        verifyNoInteractions(judgeReviewAsyncWriter);
     }
 
     // ===== P1-1：错因表查询侧归一化兜底 =====

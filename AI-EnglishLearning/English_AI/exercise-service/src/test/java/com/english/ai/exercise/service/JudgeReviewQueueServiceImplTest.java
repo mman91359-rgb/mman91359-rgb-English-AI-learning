@@ -15,11 +15,14 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.client.RestTemplate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -41,8 +44,17 @@ class JudgeReviewQueueServiceImplTest {
     @Mock
     private UserErrorBookMapper errorBookMapper;
 
+    @Mock
+    private RestTemplate restTemplate;
+
     @InjectMocks
     private JudgeReviewQueueServiceImpl service;
+
+    @org.junit.jupiter.api.BeforeEach
+    void setUp() {
+        ReflectionTestUtils.setField(service, "userServiceUrl", "http://user-test");
+        ReflectionTestUtils.setField(service, "learningEngineUrl", "http://learning-test");
+    }
 
     private JudgeReviewEnqueueRequest request(String reason) {
         JudgeReviewEnqueueRequest req = new JudgeReviewEnqueueRequest();
@@ -91,6 +103,9 @@ class JudgeReviewQueueServiceImplTest {
         item.setId(12L);
         item.setQuestionId(510L);
         item.setUserId(9L);
+        item.setLogId(88L);
+        item.setDifficultyLevel(3);
+        item.setModuleType(3);
         item.setStatus("PENDING");
         item.setReason("TRANSLATION_LOW_SCORE");
         return item;
@@ -106,17 +121,20 @@ class JudgeReviewQueueServiceImplTest {
     }
 
     @Test
-    void resolvePassOnlyUpdatesStatus() {
+    void resolvePassOnlyUpdatesStatusAndRecordsPositive() {
         when(judgeReviewQueueMapper.selectById(12L)).thenReturn(pendingItem());
         when(judgeReviewQueueMapper.update(isNull(), any())).thenReturn(1);
 
         assertTrue(service.resolve(resolveRequest("PASS")));
-        // PASS 不动答题日志与错题本
+
+        // PASS 不动答题日志与错题本，但要按 isCorrect=true 补记 ELO / 曲线
         verifyNoInteractions(exerciseLogMapper, errorBookMapper);
+        verify(restTemplate, org.mockito.Mockito.times(2))
+                .postForEntity(any(String.class), any(), eq(String.class));
     }
 
     @Test
-    void resolveFailMarksLatestLogWrongAndUpsertsErrorBook() {
+    void resolveFailMarksBoundLogWrongAndUpsertsErrorBook() {
         when(judgeReviewQueueMapper.selectById(12L)).thenReturn(pendingItem());
         when(judgeReviewQueueMapper.update(isNull(), any())).thenReturn(1);
 
@@ -125,7 +143,8 @@ class JudgeReviewQueueServiceImplTest {
         log.setUserId(9L);
         log.setQuestionId(510L);
         log.setIsCorrect(1);
-        when(exerciseLogMapper.selectOne(any())).thenReturn(log);
+        // 按 log_id 精确取，而不是按 user+question 猜最近一条
+        when(exerciseLogMapper.selectById(88L)).thenReturn(log);
         when(errorBookMapper.selectOne(any())).thenReturn(null);
 
         assertTrue(service.resolve(resolveRequest("FAIL")));
@@ -136,6 +155,23 @@ class JudgeReviewQueueServiceImplTest {
         verify(errorBookMapper).insert(captor.capture());
         assertEquals(9L, captor.getValue().getUserId());
         assertEquals(510L, captor.getValue().getQuestionId());
+        verify(restTemplate, org.mockito.Mockito.times(2))
+                .postForEntity(any(String.class), any(), eq(String.class));
+    }
+
+    @Test
+    void resolveFailWithoutLogIdSkipsLogUpdateInsteadOfGuessing() {
+        JudgeReviewQueueItem item = pendingItem();
+        item.setLogId(null);
+        when(judgeReviewQueueMapper.selectById(12L)).thenReturn(item);
+        when(judgeReviewQueueMapper.update(isNull(), any())).thenReturn(1);
+        when(errorBookMapper.selectOne(any())).thenReturn(null);
+
+        assertTrue(service.resolve(resolveRequest("FAIL")));
+
+        // 没有 log_id 就不猜"最近一条"，只写错题本
+        verifyNoInteractions(exerciseLogMapper);
+        verify(errorBookMapper).insert(any(UserErrorBook.class));
     }
 
     @Test
@@ -146,7 +182,7 @@ class JudgeReviewQueueServiceImplTest {
 
         assertFalse(service.resolve(resolveRequest("FAIL")));
         verify(judgeReviewQueueMapper, never()).update(isNull(), any());
-        verifyNoInteractions(exerciseLogMapper, errorBookMapper);
+        verifyNoInteractions(exerciseLogMapper, errorBookMapper, restTemplate);
     }
 
     @Test
@@ -155,6 +191,6 @@ class JudgeReviewQueueServiceImplTest {
         when(judgeReviewQueueMapper.update(isNull(), any())).thenReturn(0);
 
         assertFalse(service.resolve(resolveRequest("FAIL")));
-        verifyNoInteractions(exerciseLogMapper, errorBookMapper);
+        verifyNoInteractions(exerciseLogMapper, errorBookMapper, restTemplate);
     }
 }

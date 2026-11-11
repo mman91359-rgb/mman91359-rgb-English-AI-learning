@@ -1052,7 +1052,25 @@ npm run build
 - `ai-service` 13 用例、`exercise-service` 92 用例全绿（新增段落分支 5 例 + resolve 4 例）。
 - 全量构建 6 模块 BUILD SUCCESS。
 
-### 六、下一步
+### 六、复核链路的关键约束（同日修订）
+
+1. **灰区不记账**：灰区提交**不写 ELO、不写遗忘曲线**，等复核结论出来由 `resolve` 用队列里的 `difficulty_level / module_type` 补记一次。原因：ELO 是增量模型，先加后减不对称；曲线的间隔阶梯不可逆。
+2. **改判按 `log_id` 精确到单次作答**：入队从判题引擎挪到 `ExerciseServiceImpl`（`user_exercise_log` 插入、主键回填之后），队列存 `log_id`。`log_id` 为空的历史行**不猜"最近一条"**，只记 warn 并跳过。
+3. **队列满不是静默丢弃**：`JudgeReviewAsyncWriter` 用计数型拒绝策略，每次丢弃记 `error` 日志并累加 `dropped`。
+4. **分数统一归一**：AI 返回的 `rawScore/maxRawScore` 先折算到 `judgment.translation.max-score`（默认 15）再比档位，避免模型返回百分制时全量判对。
+5. **已知边界**：灰区样本若长期 `PENDING`，该次答题就永远不计分（ELO/曲线缺失）。62 道段译日均个位数，可接受，但监控上要能看到积压。
+
+### 七、端到端冒烟（2026-11-11，shadow）
+
+| 输入 | raw | scaled | level | elapsedMs | 判题结果 |
+|---|---|---|---|---|---|
+| 语义正确的改写译文 | 14/15 | 14/15 | EXCELLENT | 2088 | shadow → MISMATCH |
+| 逐字机翻 | 7/15 | 7/15 | PASS | 1527 | shadow → MISMATCH |
+
+- 真实模型输出是干净 JSON，解析正常；耗时 1.5~2.1s，远低于 8s 超时，**暂不需要改成异步判题**。
+- 观察：机翻拿到 7/15（灰区下沿），说明模型偏宽松。标定时重点看这一类，`review-score` 可能要上调到 8。
+
+### 八、下一步
 
 1. 以 `shadow` 跑 2~3 天或攒 30 条 `翻译评分` 日志；
 2. 人工标注（10 达标 / 10 达意有瑕疵 / 10 错译）后调 `pass-score` / `review-score`；

@@ -29,4 +29,12 @@ public class JudgmentResult {
 
     /** 是否为语义匹配（近义词/同义表达被判对），由 Level 2.5 设置 */
     private Boolean isSemanticMatch;
+
+    /**
+     * 段落翻译灰区的复核草稿（非空表示本次判对但需人工复核）。
+     *
+     * <p>只用于内部链路：入队由 {@code ExerciseServiceImpl} 在答题日志插入后完成，
+     * 因此不会出现在 {@code SubmitResponse} 里。</p>
+     */
+    private TranslationReviewDraft reviewDraft;
 }

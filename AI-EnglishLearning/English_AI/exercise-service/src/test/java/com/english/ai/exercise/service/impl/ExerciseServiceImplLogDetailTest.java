@@ -1,6 +1,9 @@
 package com.english.ai.exercise.service.impl;
 
 import com.english.ai.exercise.dto.ExerciseHistoryVO;
+import com.english.ai.exercise.dto.JudgeReviewEnqueueRequest;
+import com.english.ai.exercise.dto.SubmitRequest;
+import com.english.ai.exercise.dto.TranslationReviewDraft;
 import com.english.ai.exercise.entity.QuestionContent;
 import com.english.ai.exercise.entity.QuestionInfo;
 import com.english.ai.exercise.entity.UserExerciseLog;
@@ -22,6 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.web.client.RestTemplate;
 
@@ -32,6 +36,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
@@ -60,9 +67,16 @@ class ExerciseServiceImplLogDetailTest {
     @Mock private StudySessionService studySessionService;
     @Mock private Clock clock;
     @Mock private PlatformTransactionManager transactionManager;
+    @Mock private JudgeReviewAsyncWriter judgeReviewAsyncWriter;
 
     @InjectMocks
     private ExerciseServiceImpl service;
+
+    @org.junit.jupiter.api.BeforeEach
+    void setUp() {
+        ReflectionTestUtils.setField(service, "userServiceUrl", "http://user-test");
+        ReflectionTestUtils.setField(service, "learningEngineUrl", "http://learning-test");
+    }
 
     private UserExerciseLog logOf(Long id, Long userId, Long questionId) {
         UserExerciseLog log = new UserExerciseLog();
@@ -124,5 +138,58 @@ class ExerciseServiceImplLogDetailTest {
         assertEquals(3, detail.getDifficultyLevel().intValue());
         assertEquals("abandon 的过去式", detail.getAnalysis());
         assertEquals("He ____ his plan to travel.", detail.getStem());
+    }
+
+    // ===== 提交后的学习副作用分流 =====
+
+    private SubmitRequest submitRequest() {
+        SubmitRequest req = new SubmitRequest();
+        req.setUserId(9L);
+        req.setQuestionId(510L);
+        req.setUserAnswer("a fairly good translation");
+        req.setModuleType(3);
+        return req;
+    }
+
+    private QuestionInfo infoWithDifficulty() {
+        QuestionInfo info = new QuestionInfo();
+        info.setId(510L);
+        info.setDifficultyLevel(4);
+        info.setQuestionType("TRANSLATION");
+        return info;
+    }
+
+    @Test
+    void grayDraftEnqueuesWithLogIdAndSkipsScoring() {
+        TranslationReviewDraft draft = TranslationReviewDraft.builder()
+                .reason("TRANSLATION_LOW_SCORE")
+                .aiConfidence(new java.math.BigDecimal("0.533"))
+                .aiResult("PARTIAL")
+                .judgeContext("mode=enforce;scaled=8/15")
+                .build();
+
+        service.applyLearningSideEffects(submitRequest(), infoWithDifficulty(), 3,
+                true, draft, 88L, "trace-123", "参考译文");
+
+        org.mockito.ArgumentCaptor<JudgeReviewEnqueueRequest> captor =
+                org.mockito.ArgumentCaptor.forClass(JudgeReviewEnqueueRequest.class);
+        verify(judgeReviewAsyncWriter).enqueueAsync(captor.capture());
+        JudgeReviewEnqueueRequest enqueued = captor.getValue();
+        assertEquals(88L, enqueued.getLogId());
+        assertEquals(3, enqueued.getModuleType().intValue());
+        assertEquals(4, enqueued.getDifficultyLevel().intValue());
+        assertEquals("TRANSLATION_LOW_SCORE", enqueued.getReason());
+        org.junit.jupiter.api.Assertions.assertTrue(enqueued.getJudgeContext().contains("traceId=trace-123"));
+        // 灰区不记 ELO / 曲线
+        verifyNoInteractions(restTemplate);
+    }
+
+    @Test
+    void normalSubmitRecordsCurveAndElo() {
+        service.applyLearningSideEffects(submitRequest(), infoWithDifficulty(), 3,
+                true, null, 88L, "trace-123", "参考译文");
+
+        verify(restTemplate, times(2)).postForEntity(any(String.class), any(), eq(String.class));
+        verifyNoInteractions(judgeReviewAsyncWriter);
     }
 }

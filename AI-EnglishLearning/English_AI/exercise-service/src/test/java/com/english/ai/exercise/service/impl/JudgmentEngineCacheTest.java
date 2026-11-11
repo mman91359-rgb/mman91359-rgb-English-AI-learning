@@ -45,16 +45,12 @@ class JudgmentEngineCacheTest {
     @Mock
     private com.english.ai.exercise.client.TranslationScoreClient translationScoreClient;
 
-    @Mock
-    private JudgeReviewAsyncWriter judgeReviewAsyncWriter;
-
     private JudgmentEngineImpl engine;
 
     @BeforeEach
     void setUp() {
         engine = new JudgmentEngineImpl(
-                buggyPathMapper, questionInfoMapper, restTemplate,
-                translationScoreClient, judgeReviewAsyncWriter);
+                buggyPathMapper, questionInfoMapper, restTemplate, translationScoreClient);
         ReflectionTestUtils.setField(engine, "aiServiceUrl", "http://ai-test");
         ReflectionTestUtils.setField(engine, "translationAiMode", "shadow");
     }

@@ -17,6 +17,15 @@ public class JudgeReviewEnqueueRequest {
     @NotNull(message = "userId不能为空")
     private Long userId;
 
+    /** 绑定的答题记录ID，灰区入队时必带；人工入队可为空 */
+    private Long logId;
+
+    /** 题目难度：复核后补记 ELO 用 */
+    private Integer difficultyLevel;
+
+    /** 模块类型：复核后补记遗忘曲线用 */
+    private Integer moduleType;
+
     /** 段落翻译是整段作答，长度上限放到 2000（V1.0.42 同步放宽列宽） */
     @NotBlank(message = "userAnswer不能为空")
     @Size(max = 2000, message = "userAnswer长度不能超过2000")

@@ -26,6 +26,15 @@ public class JudgeReviewQueueItem {
     /** 提交用户ID */
     private Long userId;
 
+    /** 绑定的答题记录ID（user_exercise_log.id），复核改判按它精确到单次作答 */
+    private Long logId;
+
+    /** 题目难度：复核后补记 ELO 用 */
+    private Integer difficultyLevel;
+
+    /** 模块类型：复核后补记遗忘曲线用 */
+    private Integer moduleType;
+
     /** 用户作答原文 */
     private String userAnswer;
 

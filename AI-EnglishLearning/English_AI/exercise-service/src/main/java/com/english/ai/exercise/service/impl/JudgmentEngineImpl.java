@@ -3,9 +3,9 @@ package com.english.ai.exercise.service.impl;
 import com.english.ai.common.JudgmentLevel;
 import com.english.ai.common.util.AnswerNormalizer;
 import com.english.ai.exercise.client.TranslationScoreClient;
-import com.english.ai.exercise.dto.JudgeReviewEnqueueRequest;
 import com.english.ai.exercise.dto.JudgmentResult;
 import com.english.ai.exercise.dto.SubmitRequest;
+import com.english.ai.exercise.dto.TranslationReviewDraft;
 import com.english.ai.exercise.dto.TranslationScore;
 import com.english.ai.exercise.entity.QuestionBuggyPath;
 import com.english.ai.exercise.entity.QuestionInfo;
@@ -40,7 +40,6 @@ public class JudgmentEngineImpl implements JudgmentEngine {
     private final QuestionInfoMapper questionInfoMapper;
     private final RestTemplate restTemplate;
     private final TranslationScoreClient translationScoreClient;
-    private final JudgeReviewAsyncWriter judgeReviewAsyncWriter;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Value("${service.ai.url}")
@@ -57,6 +56,10 @@ public class JudgmentEngineImpl implements JudgmentEngine {
     /** ≥ 该分数进灰区：判对 + 入复核队列 */
     @Value("${judgment.translation.review-score:7}")
     private int translationReviewScore;
+
+    /** 判分标尺：AI 返回的分数先归一化到这个分母再比档位 */
+    @Value("${judgment.translation.max-score:15}")
+    private int translationMaxScore;
 
     /** accepted 非空且未命中时，是否在提示里直接给出正确答案 */
     @Value("${judgment.mismatch.reveal-answer:true}")
@@ -734,40 +737,56 @@ public class JudgmentEngineImpl implements JudgmentEngine {
             return passageMismatch("AI_UNAVAILABLE");
         }
 
+        // 统一到配置的标尺：模型可能返回百分制（80/100），直接拿 80 比 9 分会全量判对
+        int scaledScore = (int) Math.round(
+                score.rawScore() * (double) translationMaxScore / score.maxRawScore());
+        scaledScore = Math.max(0, Math.min(scaledScore, translationMaxScore));
+
         boolean enforce = "enforce".equalsIgnoreCase(translationAiMode);
-        log.info("翻译评分 questionId={} mode={} raw={}/{} level={} elapsedMs={}",
+        log.info("翻译评分 questionId={} mode={} raw={}/{} scaled={}/{} level={} elapsedMs={}",
                 request.getQuestionId(), enforce ? "enforce" : "shadow",
-                score.rawScore(), score.maxRawScore(), score.level(), elapsedMs);
+                score.rawScore(), score.maxRawScore(), scaledScore, translationMaxScore,
+                score.level(), elapsedMs);
 
         if (!enforce) {
             return passageMismatch("MISMATCH");
         }
 
-        if (score.rawScore() >= translationPassScore) {
+        if (scaledScore >= translationPassScore) {
             return JudgmentResult.builder()
                     .isCorrect(true)
-                    .heuristicHint("译文语义正确（AI 评分 " + score.rawScore() + "/" + score.maxRawScore() + "）。")
+                    .heuristicHint("译文语义正确（AI 评分 " + scaledScore + "/" + translationMaxScore + "）。")
                     .matchedLevel(JudgmentLevel.SEMANTIC)
                     .suggestions(List.of())
                     .isSemanticMatch(true)
                     .build();
         }
 
-        if (score.rawScore() >= translationReviewScore) {
-            enqueueTranslationReview(request, correctAnswer, userAnswer, score, elapsedMs);
+        if (scaledScore >= translationReviewScore) {
+            // 灰区只产出草稿：入队要等答题日志插入后拿到 log_id，由 ExerciseServiceImpl 完成
             return JudgmentResult.builder()
                     .isCorrect(true)
-                    .heuristicHint("译文基本达意（AI 评分 " + score.rawScore() + "/" + score.maxRawScore()
+                    .heuristicHint("译文基本达意（AI 评分 " + scaledScore + "/" + translationMaxScore
                             + "），已提交人工复核。")
                     .matchedLevel(JudgmentLevel.SEMANTIC)
                     .suggestions(List.of())
                     .isSemanticMatch(true)
+                    .reviewDraft(TranslationReviewDraft.builder()
+                            .reason("TRANSLATION_LOW_SCORE")
+                            .aiConfidence(java.math.BigDecimal
+                                    .valueOf((double) scaledScore / translationMaxScore)
+                                    .setScale(3, java.math.RoundingMode.HALF_UP))
+                            .aiResult("PARTIAL")
+                            .judgeContext("mode=enforce;raw=" + score.rawScore() + "/" + score.maxRawScore()
+                                    + ";scaled=" + scaledScore + "/" + translationMaxScore
+                                    + ";level=" + score.level() + ";elapsedMs=" + elapsedMs)
+                            .build())
                     .build();
         }
 
         return JudgmentResult.builder()
                 .isCorrect(false)
-                .heuristicHint("译文与参考译文存在偏差（AI 评分 " + score.rawScore() + "/" + score.maxRawScore()
+                .heuristicHint("译文与参考译文存在偏差（AI 评分 " + scaledScore + "/" + translationMaxScore
                         + "），请对照参考译文修改。")
                 .errorType("MISMATCH")
                 .matchedLevel(JudgmentLevel.SEMANTIC)
@@ -783,34 +802,6 @@ public class JudgmentEngineImpl implements JudgmentEngine {
                 .matchedLevel(JudgmentLevel.SEMANTIC)
                 .suggestions(List.of("对照参考译文，检查关键短语与句式表达。"))
                 .build();
-    }
-
-    /**
-     * 灰区入队：判对但存疑，异步写审核队列。
-     * 判对是为了不污染错题本 / 遗忘曲线 / ELO；入队是为了让复核结论能回写。
-     */
-    private void enqueueTranslationReview(SubmitRequest request, String correctAnswer,
-                                          String userAnswer, TranslationScore score, long elapsedMs) {
-        try {
-            JudgeReviewEnqueueRequest enqueue = new JudgeReviewEnqueueRequest();
-            enqueue.setQuestionId(request.getQuestionId());
-            enqueue.setUserId(request.getUserId());
-            enqueue.setUserAnswer(userAnswer);
-            enqueue.setCorrectAnswer(correctAnswer);
-            enqueue.setMatchedLevel(JudgmentLevel.SEMANTIC);
-            enqueue.setReason("TRANSLATION_LOW_SCORE");
-            enqueue.setAiConfidence(java.math.BigDecimal
-                    .valueOf(score.ratio())
-                    .setScale(3, java.math.RoundingMode.HALF_UP));
-            enqueue.setAiResult("PARTIAL");
-            enqueue.setJudgeContext("mode=enforce;raw=" + score.rawScore() + "/" + score.maxRawScore()
-                    + ";level=" + score.level() + ";elapsedMs=" + elapsedMs);
-            judgeReviewAsyncWriter.enqueueAsync(enqueue);
-        } catch (Exception e) {
-            // 入队失败不影响判题结果
-            log.warn("段落翻译灰区入队失败: questionId={}, error={}",
-                    request.getQuestionId(), e.getMessage());
-        }
     }
 
     /**

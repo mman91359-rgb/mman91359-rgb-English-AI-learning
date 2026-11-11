@@ -67,6 +67,7 @@ export default {
       openFullReport: '查看完整批改',
       loadFailed: '批改记录加载失败',
       recordNotFound: '批改记录不存在或已被删除',
+      listeningPending: '听力分析暂只支持练习页查看',
       retry: '重试',
     },
     action: {
@@ -661,6 +662,7 @@ export default {
     semanticMatch: '语义可接受',
     suggestions: '学习建议',
     wordLookupPending: '已选中「{word}」，查词讲解待接入',
+    askAi: '问 AI：这次的译文怎么改',
     loadFailed: '加载翻译题失败',
     submitFailed: '提交翻译失败',
     favoriteAdded: '已加入收藏句',

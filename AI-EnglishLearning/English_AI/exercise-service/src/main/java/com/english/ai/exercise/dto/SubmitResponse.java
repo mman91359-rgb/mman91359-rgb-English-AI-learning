@@ -27,6 +27,13 @@ public class SubmitResponse {
     /** 追踪ID */
     private String traceId;
 
+    /**
+     * 本次答题记录ID（user_exercise_log 主键）。
+     * 供前端在对话流里反查这次提交的完整上下文（题干/标准答案/解析），
+     * practiceOnly 提交不写日志，此时为 null。
+     */
+    private Long logId;
+
     /** 启发式反馈提示（引导思考，不直接给答案） */
     private String heuristicHint;
 

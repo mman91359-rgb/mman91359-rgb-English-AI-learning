@@ -67,6 +67,7 @@ export default {
       openFullReport: 'View full feedback',
       loadFailed: 'Failed to load feedback',
       recordNotFound: 'Feedback record not found or deleted',
+      listeningPending: 'Listening analysis is available on the practice page only',
       retry: 'Retry',
     },
     action: {
@@ -661,6 +662,7 @@ export default {
     semanticMatch: 'Semantically acceptable',
     suggestions: 'Suggestions',
     wordLookupPending: 'Selected "{word}" — word lookup is not wired up yet',
+    askAi: 'Ask AI how to improve this translation',
     loadFailed: 'Failed to load translation questions',
     submitFailed: 'Failed to submit translation',
     favoriteAdded: 'Added to saved sentences',

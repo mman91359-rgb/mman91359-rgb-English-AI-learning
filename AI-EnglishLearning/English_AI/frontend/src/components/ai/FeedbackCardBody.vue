@@ -26,9 +26,24 @@
       </button>
     </div>
 
-    <!-- 就绪态：对话流只放总分与维度，完整批改走跳转 -->
+    <!-- 就绪态：对话流只放速览，完整内容走跳转 -->
     <template v-else>
-      <WritingFeedback v-if="report" :score="report" compact />
+      <!-- 写作：总分 + 五维，其余留在报告页 -->
+      <WritingFeedback v-if="kind === 'writing' && report" :score="report" compact />
+
+      <!-- 翻译：原文/译文的逐词对照 + 题目解析 -->
+      <TranslationFeedback
+        v-else-if="kind === 'translation' && translationData"
+        :data="translationData"
+        @lookup="onLookup"
+      />
+
+      <p
+        v-else-if="kind === 'listening'"
+        class="py-2 text-center font-body-sm text-body-sm text-on-surface-variant"
+      >
+        {{ t('ai.card.listeningPending') }}
+      </p>
 
       <button
         v-if="fullPath"
@@ -48,7 +63,11 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import WritingFeedback from './templates/WritingFeedback.vue'
+import TranslationFeedback from './templates/TranslationFeedback.vue'
 import { fetchSubmission } from '../../api/writing'
+import { fetchExerciseLogDetail, type ExerciseHistoryVO } from '../../api/exercise'
+import { useToast } from '../../composables/useToast'
+import { useUserStore } from '../../stores/user'
 import type { WritingScore } from '../../types/writing'
 import type { FeedbackKind } from '../../stores/ai'
 
@@ -64,30 +83,73 @@ const props = defineProps<{
 
 const router = useRouter()
 const { t } = useI18n()
+const userStore = useUserStore()
+const { show: toast } = useToast()
 
 const loading = ref(true)
 const error = ref('')
 const report = ref<WritingScore | null>(null)
+const logDetail = ref<ExerciseHistoryVO | null>(null)
 
-/** 只有写作有现成的深度报告页；翻译/听力接口就绪后再补各自的落点 */
+/** 只有写作有现成的深度报告页；翻译/听力的完整内容已经在卡片里，不再重复跳转 */
 const fullPath = computed(() =>
   props.kind === 'writing' ? `/writing/report?submission=${props.recordId}` : '',
 )
+
+/**
+ * 答题记录 → 翻译模板的契约映射。
+ * referenceAnswer 取题库标准译文，userAnswer 取本次作答；
+ * aiReason 用题库自带的 analysis 顶替——判分当时的启发式提示不落库，
+ * 文案上按「题目解析」呈现，不谎称是 AI 当时的判分理由。
+ */
+const translationData = computed(() => {
+  const d = logDetail.value
+  if (!d) return null
+  return {
+    referenceAnswer: d.correctAnswer ?? '',
+    userAnswer: d.userAnswer ?? '',
+    aiReason: d.analysis ?? '',
+  }
+})
+
+function onLookup(word: string) {
+  // 对话流里没有查词侧栏宿主，先给一句明确提示，避免点了毫无反应
+  toast(t('translation.wordLookupPending', { word }))
+}
 
 async function load() {
   loading.value = true
   error.value = ''
   try {
-    if (props.kind !== 'writing') {
-      error.value = t('ai.card.loadFailed')
+    if (props.kind === 'writing') {
+      const submission = await fetchSubmission(props.recordId)
+      if (!submission) {
+        error.value = t('ai.card.recordNotFound')
+        return
+      }
+      report.value = submission.report
       return
     }
-    const submission = await fetchSubmission(props.recordId)
-    if (!submission) {
-      error.value = t('ai.card.recordNotFound')
+
+    if (props.kind === 'translation') {
+      const userId = userStore.userId
+      if (!userId) {
+        error.value = t('ai.card.recordNotFound')
+        return
+      }
+      const detail = await fetchExerciseLogDetail(Number(props.recordId), userId)
+      if (!detail) {
+        error.value = t('ai.card.recordNotFound')
+        return
+      }
+      logDetail.value = detail
       return
     }
-    report.value = submission.report
+
+    // 听力：反查接口暂不返回 transcript（原文在 listening_audio 表）。
+    // 这里只结束加载态，由模板显示 listeningPending 文案；
+    // 不要置 error，否则会走到失败态，那条提示永远显示不出来。
+    return
   } catch (e) {
     error.value = e instanceof Error ? e.message : t('ai.card.loadFailed')
   } finally {

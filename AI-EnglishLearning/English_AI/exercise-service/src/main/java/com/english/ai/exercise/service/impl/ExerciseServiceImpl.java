@@ -431,6 +431,8 @@ public class ExerciseServiceImpl implements ExerciseService {
         // 新词循环的练习尝试只判题，不写日志、不更新 ELO/遗忘曲线、不触发金币组
         boolean practiceOnly = Boolean.TRUE.equals(request.getPracticeOnly());
         CoinAwardResult coinAward = null;
+        // 答题记录ID：insert 后由 MyBatis-Plus 回填自增主键，供前端反查本次提交的上下文
+        Long logId = null;
 
         if (!practiceOnly) {
             // 本地写操作放在同一事务：日志 + 错题本要么都成功，要么都回滚
@@ -455,6 +457,8 @@ public class ExerciseServiceImpl implements ExerciseService {
                     resolveErrorBook(userId, questionId);
                 }
             });
+            // 事务提交后主键已回填，此处读取即可拿到自增ID
+            logId = logEntry.getId();
 
             // 事务提交后再执行跨服务/消息副作用，避免长事务与本地回滚不一致
             // 词汇答题刚好完成一组时发放金币，失败不影响答题主流程
@@ -531,6 +535,7 @@ public class ExerciseServiceImpl implements ExerciseService {
                 .correctAnswerKey(extractAnswerKey(content.getCorrectAnswer()))
                 .analysis(content.getAnalysis())
                 .traceId(traceId)
+                .logId(logId)
                 .heuristicHint(heuristicHint)
                 .errorType(errorType)
                 .matchedLevel(matchedLevel)
@@ -1320,6 +1325,63 @@ public class ExerciseServiceImpl implements ExerciseService {
                     .createdAt(log.getCreatedAt())
                     .build();
         }).collect(Collectors.toList());
+    }
+
+    /**
+     * 按答题记录ID反查单次提交的完整上下文。
+     *
+     * <p>存在的意义：AI 对话流只保存 {@code recordId} 而不保存业务模型，
+     * 展开卡片时用这里把题干、标准答案、解析、用户作答还原出来。
+     * 与 {@link #getExerciseHistory} 的区别是只查一条，不用批量 join。</p>
+     *
+     * <p>注意：{@code user_exercise_log} 只落 userAnswer / isCorrect，
+     * 判分当时的启发式提示与建议不落库，因此这里拿不到「AI 当时的理由」，
+     * 只能给到题库自带的 analysis（题目解析）。</p>
+     *
+     * @return 记录不存在或不属于该用户时返回 null
+     */
+    @Override
+    public ExerciseHistoryVO getExerciseLogDetail(Long logId, Long userId) {
+        if (logId == null || userId == null) {
+            return null;
+        }
+        UserExerciseLog logEntry = exerciseLogMapper.selectById(logId);
+        // 越权即视为不存在，不泄漏「这条记录存在但不属于你」
+        if (logEntry == null || !userId.equals(logEntry.getUserId())) {
+            return null;
+        }
+
+        QuestionInfo info = questionInfoMapper.selectById(logEntry.getQuestionId());
+        QuestionContent content = questionContentMapper.selectOne(
+                new LambdaQueryWrapper<QuestionContent>()
+                        .eq(QuestionContent::getQuestionId, logEntry.getQuestionId()));
+
+        String stem = content != null ? content.getStem() : null;
+        String correctAnswer = content != null ? content.getCorrectAnswer() : null;
+        String userAnswer = logEntry.getUserAnswer();
+
+        // 语法题与历史列表保持同一套展示口径，避免同一道题在两处显示不一致
+        if (logEntry.getModuleType() != null && logEntry.getModuleType() == 2 && content != null) {
+            String[] display = buildGrammarDisplay(content, userAnswer);
+            stem = display[0];
+            correctAnswer = display[1];
+            userAnswer = display[2];
+        }
+
+        return ExerciseHistoryVO.builder()
+                .logId(logEntry.getId())
+                .questionId(logEntry.getQuestionId())
+                .stem(stem)
+                .userAnswer(userAnswer)
+                .correctAnswer(correctAnswer)
+                .isCorrect(logEntry.getIsCorrect())
+                .durationSeconds(logEntry.getDurationSeconds())
+                .moduleType(logEntry.getModuleType())
+                .questionType(info != null ? info.getQuestionType() : null)
+                .analysis(content != null ? content.getAnalysis() : null)
+                .difficultyLevel(info != null ? info.getDifficultyLevel() : null)
+                .createdAt(logEntry.getCreatedAt())
+                .build();
     }
 
     @Override

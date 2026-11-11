@@ -360,8 +360,29 @@ public class ExerciseController {
         return Result.success(result);
     }
 
-    // ========== 错题驱动同类题生成 ==========
+    /**
+     * 按答题记录ID反查单次提交的上下文。
+     * GET /exercise/log/{logId}?userId=1
+     *
+     * <p>供 AI 对话流展开结构化反馈卡时调用：消息里只存 recordId，
+     * 内容按需回捞，避免把业务模型塞进前端对话 store。</p>
+     */
+    @GetMapping("/log/{logId}")
+    public Result<ExerciseHistoryVO> getExerciseLogDetail(
+            @PathVariable Long logId,
+            @RequestParam Long userId,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
+        }
+        ExerciseHistoryVO detail = exerciseService.getExerciseLogDetail(logId, userId);
+        if (detail == null) {
+            return Result.error("答题记录不存在");
+        }
+        return Result.success(detail);
+    }
 
+    // ========== 错题驱动同类题生成 ==========
     /**
      * 获取用户薄弱知识点列表
      * GET /exercise/weak-points/{userId}

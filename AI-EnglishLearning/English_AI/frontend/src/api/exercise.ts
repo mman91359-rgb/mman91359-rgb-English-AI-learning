@@ -81,6 +81,11 @@ export interface SubmitResponse {
     analysis: string
     /** 追踪ID */
     traceId: string
+    /**
+     * 本次答题记录ID（user_exercise_log 主键）。
+     * 供 AI 对话流反查这次提交的完整上下文；practiceOnly 提交不写日志，此时为空。
+     */
+    logId?: number
     /** 启发式反馈提示 */
     heuristicHint?: string
     /** 错误类型 */
@@ -430,6 +435,18 @@ export interface HistoryPage {
     total: number
     page: number
     size: number
+}
+
+/**
+ * 按答题记录ID反查单次提交的上下文。
+ * GET /exercise/log/{logId}?userId=
+ *
+ * 用于 AI 对话流的结构化反馈卡：消息只存 recordId，展开时才回捞内容。
+ * 注意返回体只包含题库自带的 analysis，不含判分当时的启发式提示与建议
+ * （user_exercise_log 不落这两个字段）。
+ */
+export const fetchExerciseLogDetail = (logId: number, userId: number): Promise<ExerciseHistoryVO> => {
+    return get(`/exercise/log/${logId}`, { userId })
 }
 
 export const getExerciseHistory = (

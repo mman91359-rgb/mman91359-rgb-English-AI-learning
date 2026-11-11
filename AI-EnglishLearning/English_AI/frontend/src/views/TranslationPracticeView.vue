@@ -146,6 +146,17 @@
             @lookup="handleLookup"
           />
 
+          <!-- 追问入口：打开 AI 面板并投一张可折叠的批改速览卡，不自动发问 -->
+          <button
+            v-if="submitted && result"
+            type="button"
+            class="flex h-11 w-full items-center justify-center gap-2 rounded-[16px] border border-outline-variant/60 bg-surface-container-lowest font-label-lg text-label-lg text-on-surface-variant transition-colors hover:bg-surface-container-low"
+            @click="askAi"
+          >
+            <span class="material-symbols-outlined text-icon-md" aria-hidden="true">forum</span>
+            {{ $t('translation.askAi') }}
+          </button>
+
           <div v-if="submitted && result?.suggestions?.length" class="bg-tertiary-container/15 rounded-[20px] p-5 border border-tertiary/20">
             <div class="flex items-center gap-2 mb-3">
               <span class="material-symbols-outlined text-tertiary text-[20px]">bookmark</span>
@@ -171,6 +182,7 @@ import AiFeedbackPanel from '../components/ai/AiFeedbackPanel.vue'
 import QuizProgressBar from '../components/quiz/QuizProgressBar.vue'
 import { useToast } from '../composables/useToast'
 import { useUserStore } from '../stores/user'
+import { useAiStore } from '../stores/ai'
 import { selectTranslationQuestions, submitTranslation, isPassageTranslation } from '../api/translation'
 import { addFavorite } from '../api/exercise'
 import type { QuestionVO } from '../api/exercise'
@@ -181,6 +193,7 @@ const router = useRouter()
 const { t } = useI18n()
 const { show: toast } = useToast()
 const userStore = useUserStore()
+const aiStore = useAiStore()
 
 const questions = ref<QuestionVO[]>([])
 const currentIndex = ref(0)
@@ -190,6 +203,12 @@ const submitted = ref(false)
 const submitting = ref(false)
 const loading = ref(true)
 const result = ref<SubmitResponse | null>(null)
+/**
+ * 本次提交的答题记录ID。
+ * AI 对话流只存 recordId，展开卡片时用它反查题干/译文/解析，
+ * 因此必须在提交成功的那一刻抓住，切题后即失效。
+ */
+const logId = ref<number | null>(null)
 
 const currentQuestion = computed(() => questions.value[currentIndex.value] ?? null)
 const answeredCount = computed(() => submitted.value ? currentIndex.value + 1 : currentIndex.value)
@@ -269,6 +288,7 @@ const submit = async () => {
       moduleType: 3,
     })
     result.value = res
+    logId.value = res.logId ?? null
     submitted.value = true
   } catch (e: any) {
     toast(e?.message || t('translation.submitFailed'), 'error')
@@ -284,6 +304,7 @@ const next = () => {
     submitted.value = false
     result.value = null
     showHint.value = false
+    logId.value = null
   } else {
     router.push({ path: '/learning', query: { tab: 'translation' } })
   }
@@ -294,6 +315,26 @@ const reset = () => {
   showHint.value = false
   submitted.value = false
   result.value = null
+  logId.value = null
+}
+
+/**
+ * 追问入口：打开 AI 面板并投一张翻译批改速览卡。
+ * 不自动发问——预设提问会直接消耗一次模型调用，且未必是用户想问的。
+ * 卡片只带 recordId，正文由 AI 卡展开时按 id 回捞。
+ */
+const askAi = () => {
+  if (!currentQuestion.value) return
+  if (!logId.value) {
+    toast(t('ai.card.recordNotFound'), 'warning')
+    return
+  }
+  aiStore.open({
+    contextType: 'translation',
+    questionContent: currentQuestion.value.stem,
+    userAnswer: text.value.trim(),
+  })
+  aiStore.injectFeedback('translation', String(logId.value), true)
 }
 
 const addReferenceToFavorites = async () => {

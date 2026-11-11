@@ -139,13 +139,17 @@ export const useAiStore = defineStore('ai', () => {
   /**
    * 注入一张结构化结果卡（批改速览），不发起模型调用。
    * 与 sendMessage 的区别：不产生 isLoading，也不清空既有对话——追问是延续，不是新开一题。
+   *
+   * @param expand 是否立即展开。用户主动点开追问入口时传 true——
+   *   否则他会看到一张写着「点击展开」的折叠条，等于强制多点一次。
+   *   注意展开仍不会预取数据：正文由 AiCard 挂载时才请求。
    */
-  function injectFeedback(kind: FeedbackKind, recordId: string) {
+  function injectFeedback(kind: FeedbackKind, recordId: string, expand = false): string {
     const msg = addMessage('ai', '')
     msg.meta = { kind, recordId }
-    // 新卡进来时收起上一张，保持同时只展开一张
-    expandedCardId.value = null
     isOpen.value = true
+    expandedCardId.value = expand ? msg.id : null
+    return msg.id
   }
 
   function sendScoreRequest(content: string, scoreType: 'speaking' | 'writing') {

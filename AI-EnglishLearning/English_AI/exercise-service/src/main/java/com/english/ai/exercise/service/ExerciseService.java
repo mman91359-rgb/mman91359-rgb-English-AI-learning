@@ -133,6 +133,16 @@ public interface ExerciseService {
      */
     long getExerciseHistoryCount(Long userId, Integer moduleType, Integer isCorrect, String startTime);
 
+    /**
+     * 按答题记录ID反查单次提交的上下文（题干 / 标准答案 / 解析 / 用户作答）。
+     *
+     * <p>供 AI 对话流的结构化反馈卡使用：消息里只存 recordId，
+     * 展开时用它在服务端还原内容，避免把业务模型塞进对话 store。</p>
+     *
+     * @return 记录不存在或不属于该用户时返回 null
+     */
+    ExerciseHistoryVO getExerciseLogDetail(Long logId, Long userId);
+
     // ========== 错题驱动同类题生成 ==========
 
     /**

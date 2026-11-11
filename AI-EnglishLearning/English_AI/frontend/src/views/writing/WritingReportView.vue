@@ -195,7 +195,7 @@ const rewrite = () => {
 const askAi = () => {
   if (!submission.value) return
   aiStore.open({ contextType: 'general', userAnswer: submission.value.content })
-  aiStore.injectFeedback('writing', submission.value.id)
+  aiStore.injectFeedback('writing', submission.value.id, true)
 }
 
 onMounted(load)

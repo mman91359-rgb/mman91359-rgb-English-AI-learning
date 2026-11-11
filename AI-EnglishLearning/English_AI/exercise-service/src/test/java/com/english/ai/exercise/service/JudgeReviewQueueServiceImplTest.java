@@ -273,6 +273,41 @@ class JudgeReviewQueueServiceImplTest {
     }
 
     @Test
+    void staleCurveMarkerTriggersReclaim() {
+        JudgeReviewQueueItem item = reviewedItem();
+        // 10 分钟前抢过但没完成（进程被杀）→ 超过 5 分钟租约，应重新抢占
+        item.setCurveScoredAt(java.time.LocalDateTime.now().minusMinutes(10));
+        item.setEloScoredAt(java.time.LocalDateTime.now());
+        when(judgeReviewQueueMapper.selectById(12L)).thenReturn(item);
+        when(exerciseLogMapper.selectById(88L)).thenReturn(boundLog(1));
+        when(judgeReviewQueueMapper.claimCurveScored(12L)).thenReturn(1);
+
+        assertTrue(service.rescore(12L));
+
+        verify(judgeReviewQueueMapper).claimCurveScored(12L);
+        verify(judgeReviewQueueMapper, never()).claimEloScored(any());
+        verify(auditRestTemplate, org.mockito.Mockito.times(1))
+                .postForEntity(any(String.class), any(), eq(String.class));
+    }
+
+    @Test
+    void staleEloMarkerTriggersOnlyEloReclaim() {
+        JudgeReviewQueueItem item = reviewedItem();
+        item.setCurveScoredAt(java.time.LocalDateTime.now());
+        item.setEloScoredAt(java.time.LocalDateTime.now().minusMinutes(10));
+        when(judgeReviewQueueMapper.selectById(12L)).thenReturn(item);
+        when(exerciseLogMapper.selectById(88L)).thenReturn(boundLog(0));
+        when(judgeReviewQueueMapper.claimEloScored(12L)).thenReturn(1);
+
+        assertTrue(service.rescore(12L));
+
+        verify(judgeReviewQueueMapper, never()).claimCurveScored(any());
+        verify(judgeReviewQueueMapper).claimEloScored(12L);
+        verify(auditRestTemplate, org.mockito.Mockito.times(1))
+                .postForEntity(any(String.class), any(), eq(String.class));
+    }
+
+    @Test
     void claimReturningZeroMeansAlreadyHandled() {
         JudgeReviewQueueItem item = reviewedItem();
         when(judgeReviewQueueMapper.selectById(12L)).thenReturn(item);

@@ -40,6 +40,13 @@ public class JudgeReviewQueueServiceImpl implements JudgeReviewQueueService {
     private static final String STATUS_PENDING = "PENDING";
     private static final String STATUS_REVIEWED = "REVIEWED";
 
+    /**
+     * 补记租约：与 Mapper 里的 {@code INTERVAL 5 MINUTE} 必须一致。
+     * 必须远大于单次 HTTP 时长（auditRestTemplate 读超时 2s），
+     * 又要小于定时任务的 10 分钟间隔，保证崩溃后下一轮能捞回。
+     */
+    private static final java.time.Duration SCORING_LEASE = java.time.Duration.ofMinutes(5);
+
     private final JudgeReviewQueueMapper judgeReviewQueueMapper;
     private final UserExerciseLogMapper exerciseLogMapper;
     private final UserErrorBookMapper errorBookMapper;
@@ -73,6 +80,13 @@ public class JudgeReviewQueueServiceImpl implements JudgeReviewQueueService {
         item.setJudgeContext(request.getJudgeContext());
         item.setReason(isBlank(request.getReason()) ? DEFAULT_REASON : request.getReason());
         item.setStatus(STATUS_PENDING);
+
+        if (request.getModuleType() == null || request.getDifficultyLevel() == null) {
+            // 这类行不会被补记（扫描侧已排除），入队时留一次痕即可，不刷屏
+            log.warn("审核入队缺少计分上下文（moduleType/difficultyLevel），该行不会补记: "
+                    + "questionId={}, moduleType={}, difficultyLevel={}",
+                    request.getQuestionId(), request.getModuleType(), request.getDifficultyLevel());
+        }
 
         int affected = judgeReviewQueueMapper.enqueueIgnoreDuplicate(item);
         if (affected > 0) {
@@ -146,7 +160,7 @@ public class JudgeReviewQueueServiceImpl implements JudgeReviewQueueService {
             log.warn("审核记录缺少 log_id，无法推断复核结论，跳过补记: reviewId={}", reviewId);
             return false;
         }
-        if (item.getCurveScoredAt() != null && item.getEloScoredAt() != null) {
+        if (isFresh(item.getCurveScoredAt()) && isFresh(item.getEloScoredAt())) {
             return false;
         }
         UserExerciseLog boundLog = exerciseLogMapper.selectById(item.getLogId());
@@ -205,7 +219,7 @@ public class JudgeReviewQueueServiceImpl implements JudgeReviewQueueService {
      * 各发一次 → 曲线阶梯推两级。</p>
      */
     private boolean ensureCurve(JudgeReviewQueueItem item, boolean isCorrect) {
-        if (item.getCurveScoredAt() != null) {
+        if (isFresh(item.getCurveScoredAt())) {
             return true;
         }
         if (item.getModuleType() == null) {
@@ -232,9 +246,18 @@ public class JudgeReviewQueueServiceImpl implements JudgeReviewQueueService {
         }
     }
 
+    /**
+     * 标记非空且在租约内，才算"已补记完成"。
+     *
+     * <p>超租约的标记视为"抢了但没做完"（进程可能已崩溃），允许重新抢占。</p>
+     */
+    private boolean isFresh(java.time.LocalDateTime scoredAt) {
+        return scoredAt != null && scoredAt.isAfter(java.time.LocalDateTime.now().minus(SCORING_LEASE));
+    }
+
     /** 补记 ELO，与 {@link #ensureCurve} 同一套抢占协议 */
     private boolean ensureElo(JudgeReviewQueueItem item, boolean isCorrect) {
-        if (item.getEloScoredAt() != null) {
+        if (isFresh(item.getEloScoredAt())) {
             return true;
         }
         if (item.getModuleType() == null || item.getDifficultyLevel() == null) {

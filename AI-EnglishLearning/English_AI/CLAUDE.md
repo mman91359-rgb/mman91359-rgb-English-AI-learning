@@ -1107,6 +1107,12 @@ npm run build
 4. 新增 `POST /internal/judge/review/rescore`；定时任务 `ReviewScoringRetryTask` 每 10 分钟扫最多 50 条 `REVIEWED AND log_id IS NOT NULL AND (两标记有 NULL)` 逐条补。
 5. verdict 不新加列：FAIL 时绑定 log 已被改成 0，PASS 保持 1，直接拿 `is_correct` 当 `isCorrect`；`log_id` 为空的手工入队跳过并 warn。
 
+**租约（同日修订）**：抢占不是永久的——`claim` 的 `WHERE` 增加 `OR x < NOW() - INTERVAL 5 MINUTE`，扫描条件同步放宽。否则进程在 claim 与请求之间被杀，标记停在 `NOW()`、扫描永远看不到，又变成"看起来已补记、实际没补记"。内存里的 `isFresh()` 判断也必须跟着放宽，否则 SQL 改了不生效。
+
+- 租约 5 分钟的取值依据：HTTP 读超时 2s，正常补记毫秒级；5 分钟足以区分"在跑"与"死了"，又小于扫描间隔 10 分钟。
+- **残留风险**：实例卡住超过租约才恢复时，会与其他实例各补一次（曲线/ELO 重复）。彻底消除需租约续期或下游幂等键，成本不划算。**调超时或调租约时两处必须同步改。**
+- 扫描侧排除 `module_type` / `difficulty_level` 为空的行（无法补记），入队时对这类行只 warn 一次，避免每 10 分钟刷 error。
+
 **两个运维事实**：
 
 - **AUTO_INCREMENT 排查**：`information_schema.tables` 的 AUTO_INCREMENT 默认缓存 86400 秒，会报旧值（当时显示 296/3，真实是 298/5）。要看准值用 `SHOW CREATE TABLE` 或 `SET SESSION information_schema_stats_expiry=0`。冒烟数据确实写进生产库，证据链成立。

@@ -1,8 +1,7 @@
 <template>
   <button
     type="button"
-    :role="role"
-    :aria-checked="role ? selected : undefined"
+    :aria-pressed="selected"
     :disabled="disabled"
     class="inline-flex shrink-0 items-center whitespace-nowrap rounded-full transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:pointer-events-none disabled:opacity-50"
     :class="[sizeClass, selected ? SELECTED_CLASS : UNSELECTED_CLASS]"
@@ -22,7 +21,7 @@ import { computed } from 'vue'
  * ## 与 Tag / StatusBadge / 按钮的三条界线（硬红线）
  * | 组件 | 可点击 | 语义 | 选中态 |
  * |---|---|---|---|
- * | `Chip` | ✅ 是 | 筛选条件 | 有（`aria-checked`） |
+ * | `Chip` | ✅ 是 | 筛选条件 | 有（`aria-pressed`） |
  * | `Tag` | ❌ 否 | 静态分类 | 无 |
  * | `StatusBadge` | ❌ 否 | 结果状态 | 无 |
  * | `btnPrimary` 等 | ✅ 是 | 执行动作 | 无（只有 hover/active） |
@@ -47,7 +46,13 @@ const props = withDefaults(defineProps<{
   selected?: boolean
   /** 是否禁用 */
   disabled?: boolean
-  /** 无障碍角色，由 ChipGroup 按单选/多选传入 radio 或 checkbox */
+  /**
+   * @deprecated 已废弃，无效果。
+   * 早期版本把原生 button 覆写成 `role="radio"` / `role="checkbox"`，但读屏会按 radio 的
+   * 规范期待「方向键切换 + 组内单一 tab stop」，实现里两者都没有，键盘用户反而更难用。
+   * 现在改回原生 button + `aria-pressed`，语义诚实、键盘行为就是原生 button。
+   * 该 prop 仅保留以兼容旧调用，ChipGroup 已不再传入，新代码不要使用。
+   */
   role?: 'radio' | 'checkbox'
 }>(), {
   label: '',

@@ -16,6 +16,7 @@ import { computed } from 'vue'
  *
  * 圆角固定 rounded-3xl（24px），内边距只有两档：compact=p-6（24px）/ regular=p-8（32px）。
  * 阴影固定 shadow-soft-glow，不带 hover:shadow-md 之类的第二档。
+ * 底色四档：surface / container-low / container-lowest / container-high。
  *
  * ## 禁止用法
  * - 禁止传 class="rounded-[20px]" / "rounded-xl" 覆盖圆角：圆角是契约的一部分，不是可选项。
@@ -26,8 +27,8 @@ import { computed } from 'vue'
  * - 禁止给 padding="regular" 的卡片再手动加 p-* 类，两者会叠加成不对称间距。
  */
 const props = withDefaults(defineProps<{
-  /** 底色三档：surface / container-low / container-high */
-  tone?: 'surface' | 'container-low' | 'container-high'
+  /** 底色四档：surface / container-low / container-lowest / container-high */
+  tone?: 'surface' | 'container-low' | 'container-lowest' | 'container-high'
   /** 内边距档：compact=24px，regular=32px */
   padding?: 'compact' | 'regular'
   /** 可点击态：渲染为 button，带 hover 底与键盘焦点环 */
@@ -44,6 +45,9 @@ const props = withDefaults(defineProps<{
 const TONE_CLASS = {
   surface: 'bg-surface',
   'container-low': 'bg-surface-container-low',
+  // 最亮一档：StatsView / Favorites / Vocabulary / History 的列表与统计卡都在用。
+  // 它比 container-low 更浅，暗色下更暗，是与页面背景拉开层次的那一档。
+  'container-lowest': 'bg-surface-container-lowest',
   'container-high': 'bg-surface-container-high',
 } as const
 

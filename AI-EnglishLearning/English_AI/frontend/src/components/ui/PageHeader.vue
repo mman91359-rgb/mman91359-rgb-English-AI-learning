@@ -1,5 +1,5 @@
 <template>
-  <header class="mb-8 flex items-start justify-between gap-4">
+  <header class="flex items-start justify-between gap-4" :class="flush ? '' : 'mb-8'">
     <div class="flex min-w-0 items-center gap-4">
       <slot name="leading" />
       <button
@@ -39,6 +39,7 @@ import { btnIcon } from './buttonStyles'
  *
  * ## 禁止用法
  * - 禁止在页面里再手写返回钮 + headline-lg 标题栏，会与本组件形成两套间距（mb-8 vs mb-6）。
+ * - 禁止用 `class="!mb-0"` 覆盖外边距：需要去掉 mb-8 时传 `flush`。
  * - 禁止一个页面出现两个 PageHeader。区块级标题请用 SectionHeader。
  * - 禁止把主 CTA 放进 #actions 后再套一个外层按钮容器，动作区已有 shrink-0 + gap-2。
  * - 禁止传 title 里带 HTML：标题按纯文本渲染。
@@ -53,10 +54,17 @@ const props = withDefaults(defineProps<{
   back?: boolean
   /** 指定返回目标路由；留空则 router.back() */
   backTo?: string
+  /**
+   * 去掉自带的下外边距（mb-8）。
+   * 页面容器若已是 `space-y-6` 之类的纵向节奏，mb-8 会与之叠加成 56px —— 此时传 flush，
+   * 让外边距交还给容器统一管理。不要再在调用方写 `class="!mb-0"` 覆盖。
+   */
+  flush?: boolean
 }>(), {
   subtitle: '',
   back: false,
   backTo: '',
+  flush: false,
 })
 
 const router = useRouter()

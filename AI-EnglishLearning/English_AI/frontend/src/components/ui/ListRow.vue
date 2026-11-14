@@ -5,8 +5,8 @@
     :role="clickable ? 'button' : undefined"
     :tabindex="clickable ? 0 : undefined"
     @click="onClick"
-    @keydown.enter="onKeyEnter"
-    @keydown.space.prevent="onKeyEnter"
+    @keydown.enter.self="onKeyEnter"
+    @keydown.space.self.prevent="onKeyEnter"
   >
     <slot name="leading" />
     <div class="min-w-0 flex-1">
@@ -17,7 +17,8 @@
         </p>
       </slot>
     </div>
-    <!-- trailing 容器阻断冒泡：行内按钮的点击不应同时触发整行跳转 -->
+    <!-- trailing 容器阻断冒泡：行内按钮的点击不应同时触发整行跳转。
+         键盘侧由根节点的 .self 修饰符负责，见下方 onKeyEnter 注释。 -->
     <div v-if="$slots.trailing" class="flex shrink-0 items-center gap-2" @click.stop>
       <slot name="trailing" />
     </div>
@@ -38,8 +39,9 @@ import { computed } from 'vue'
  * - 禁止给整行加 shadow-soft-glow：行是「卡片内的行」，抬升由外层 AppCard 负责，
  *   逐行加阴影会形成 10 层嵌套投影。
  * - 禁止用 ListRow 表示表格行；admin 的表格继续用 AdminDataTable。
- * - clickable 为真时，trailing 内的按钮会自动阻断冒泡，但仍建议只放 1 个动作；
- *   超过 2 个请收进行内菜单，否则窄屏下标题会被挤成省略号。
+ * - `clickable` 为真时，`trailing` 内的按钮不会触发行点击（容器 `@click.stop`），
+ *   键盘事件也不会（根节点 `@keydown.enter.self` / `@keydown.space.self.prevent`）。
+ *   仍建议只放 1 个动作；超过 2 个请收进行内菜单，否则窄屏下标题会被挤成省略号。
  * - 禁止在默认 slot 里再输出一个完整的卡片结构，那等于行中套卡。
  * - 禁止用 title 传已拼接的多段文案（如「模块 · 等级 · 耗时」），副信息请走 subtitle 或默认 slot。
  */
@@ -73,7 +75,9 @@ const onClick = () => {
   if (props.clickable) emit('click')
 }
 
-/** 竖屏键盘/读屏用户无法触发 click，需要显式响应 Enter 与 Space */
+/** 竖屏键盘/读屏用户无法触发 click，需要显式响应 Enter 与 Space。
+ *  `.self` 只拦行本身，trailing 内的输入框与按钮不受影响：焦点在行内 input 时按空格
+ *  不会被打断，焦点在行内 button 时按 Enter 也不会同时触发整行。 */
 const onKeyEnter = () => {
   if (props.clickable) emit('click')
 }

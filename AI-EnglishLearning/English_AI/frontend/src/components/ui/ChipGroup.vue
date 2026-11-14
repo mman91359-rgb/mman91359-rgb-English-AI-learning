@@ -1,5 +1,9 @@
 <template>
-  <div :role="multiple ? 'group' : 'radiogroup'" :class="containerClass">
+  <div
+    :role="multiple ? 'group' : 'radiogroup'"
+    :aria-label="ariaLabel || undefined"
+    :class="containerClass"
+  >
     <Chip
       v-for="option in options"
       :key="String(option.value)"
@@ -8,7 +12,6 @@
       :size="size"
       :selected="isSelected(option.value)"
       :disabled="option.disabled"
-      :role="multiple ? 'checkbox' : 'radio'"
       @click="pick(option.value)"
     />
   </div>
@@ -42,8 +45,10 @@ import Chip from './Chip.vue'
  * （如 History 的「模块类型 / 结果 / 时间」`w-16` 标签），标签留在组外由页面排版。
  *
  * ## 无障碍
- * 单选输出 `role="radiogroup"` + 子项 `role="radio"`；多选输出 `role="group"` +
- * 子项 `role="checkbox"`。选中态通过 `aria-checked` 暴露，键盘沿用原生 button 行为。
+ * 容器按单选/多选输出 `role="radiogroup"` / `role="group"`，子项是**原生 button**
+ * 加 `aria-pressed`（不再把 button 覆写成 radio/checkbox —— 那会让读屏期待方向键切换与
+ * 单一 tab stop，而实现里都没有）。
+ * 容器名称请务必传 `ariaLabel`，否则读屏读到的是几个没有名字的分组。
  *
  * ## 禁止用法
  * - 禁止用它承载静态标签：不可点的分类请用 `Tag`，结果状态请用 `StatusBadge`。
@@ -65,10 +70,17 @@ const props = withDefaults(defineProps<{
   size?: 'sm' | 'md'
   /** 是否换行；false 时横向滚动（用于窄屏一行放不下且不希望折行的场景） */
   wrap?: boolean
+  /**
+   * 组的无障碍名称，如「模块类型」「时间范围」。
+   * 不给的话读屏会把三个组连续读成三个没有名字的分组，用户无法分辨在筛什么。
+   * 页面上的可见字段标签（History 的 `w-16` 那列）不能替代它：那是视觉标签，不进无障碍树。
+   */
+  ariaLabel?: string
 }>(), {
   multiple: false,
   size: 'md',
   wrap: true,
+  ariaLabel: '',
 })
 
 const emit = defineEmits<{

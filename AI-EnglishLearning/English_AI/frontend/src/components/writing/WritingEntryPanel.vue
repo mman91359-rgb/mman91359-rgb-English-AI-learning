@@ -1,6 +1,6 @@
 <template>
   <div class="grid grid-cols-1 gap-gutter md:grid-cols-12">
-    <div class="relative flex flex-col overflow-hidden rounded-[24px] bg-warning p-8 md:col-span-8">
+    <div class="relative flex flex-col overflow-hidden rounded-3xl bg-warning p-8 md:col-span-8">
       <div class="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-warning-container/30 blur-3xl" aria-hidden="true" />
       <div class="relative z-10">
         <div class="mb-2 flex flex-wrap items-center gap-2">
@@ -13,7 +13,7 @@
 
         <div class="mb-5">
           <div class="mb-3 flex items-center gap-1 font-label-lg text-label-lg text-on-warning/90">
-            <span class="material-symbols-outlined text-icon-sm">category</span>
+            <AppIcon name="category" size="sm" />
             {{ $t('writing.entry.typeLabel') }}
           </div>
           <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -21,25 +21,25 @@
               v-for="type in WRITING_TYPES"
               :key="type"
               type="button"
-              class="flex items-center justify-between rounded-[16px] border-2 p-4 text-left transition-all"
+              class="flex items-center justify-between rounded-2xl border-2 p-4 text-left transition-all"
               :class="selectedType === type
                 ? 'border-surface-container-lowest bg-surface-container-lowest/25'
                 : 'border-on-warning/30 bg-surface-container-lowest/10 hover:border-on-warning hover:bg-surface-container-lowest/20'"
               @click="selectedType = type"
             >
               <span class="flex items-center gap-3">
-                <span class="material-symbols-outlined text-on-warning">{{ WRITING_TYPE_META[type].icon }}</span>
+                <AppIcon :name="WRITING_TYPE_META[type].icon" size="lg" class="text-on-warning" />
                 <span class="flex flex-col gap-0.5">
                   <span class="font-label-lg text-label-lg text-on-warning">{{ $t(WRITING_TYPE_META[type].labelKey) }}</span>
                   <span class="font-label-md text-label-md text-on-warning/70">{{ $t(WRITING_TYPE_META[type].descKey) }}</span>
                 </span>
               </span>
-              <span v-if="selectedType === type" class="material-symbols-outlined text-on-warning">check_circle</span>
+              <AppIcon v-if="selectedType === type" name="check_circle" size="lg" class="text-on-warning" />
             </button>
           </div>
         </div>
 
-        <div class="mb-6 flex flex-col gap-3 rounded-[16px] bg-on-warning/10 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div class="mb-6 flex flex-col gap-3 rounded-2xl bg-on-warning/10 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div class="flex items-center gap-2">
             <span class="font-label-lg text-label-lg text-on-warning/90">{{ $t('writing.entry.levelLabel') }}</span>
             <div class="flex rounded-full bg-on-warning/10 p-1">
@@ -62,81 +62,26 @@
 
         <button
           type="button"
-          class="flex w-full items-center justify-center gap-2 rounded-[16px] bg-surface-container-lowest px-8 py-4 font-label-lg text-label-lg text-warning transition-colors hover:bg-surface-container-lowest/90 sm:w-auto"
+          class="flex w-full items-center justify-center gap-2 rounded-2xl bg-surface-container-lowest px-8 py-4 font-label-lg text-label-lg text-warning transition-colors hover:bg-surface-container-lowest/90 sm:w-auto"
           @click="startPractice"
         >
-          <span class="material-symbols-outlined">play_arrow</span>
+          <AppIcon name="play_arrow" size="lg" />
           {{ $t('writing.entry.startPractice') }}
         </button>
       </div>
     </div>
 
     <div class="flex flex-col gap-4 md:col-span-4">
-      <button type="button" class="flex items-center justify-between rounded-[24px] bg-surface-container-lowest p-6 text-left shadow-soft-glow transition-colors hover:bg-surface-container-lowest/80" @click="favoritesOpen = true">
-        <span class="flex items-center gap-4">
-          <span class="flex h-10 w-10 items-center justify-center rounded-full bg-error-container/30">
-            <span class="material-symbols-outlined text-error" style="font-variation-settings: 'FILL' 1;">favorite</span>
-          </span>
-          <span class="flex flex-col gap-0.5">
-            <span class="font-body-lg text-body-lg text-on-surface">{{ $t('writing.entry.favorites') }}</span>
-            <span class="font-label-md text-label-md text-on-surface-variant">{{ $t('writing.entry.favoritesDesc') }}</span>
-          </span>
-        </span>
-        <span class="material-symbols-outlined text-outline">chevron_right</span>
-      </button>
+      <EntryCard icon="favorite" tone="error" filled :title="$t('writing.entry.favorites')" :description="$t('writing.entry.favoritesDesc')" @click="favoritesOpen = true" />
 
-      <button type="button" class="flex items-center justify-between rounded-[24px] bg-surface-container-lowest p-6 text-left shadow-soft-glow transition-colors hover:bg-surface-container-lowest/80" @click="router.push({ path: '/writing/history', query: { low: '1' } })">
-        <span class="flex items-center gap-4">
-          <span class="flex h-10 w-10 items-center justify-center rounded-full bg-secondary-container/30">
-            <span class="material-symbols-outlined text-secondary">build</span>
-          </span>
-          <span class="flex flex-col gap-0.5">
-            <span class="font-body-lg text-body-lg text-on-surface">{{ $t('writing.entry.errors') }}</span>
-            <span class="font-label-md text-label-md text-on-surface-variant">{{ $t('writing.entry.errorsDesc') }}</span>
-          </span>
-        </span>
-        <span class="material-symbols-outlined text-outline">chevron_right</span>
-      </button>
+      <EntryCard icon="build" tone="secondary" :title="$t('writing.entry.errors')" :description="$t('writing.entry.errorsDesc')" @click="router.push({ path: '/writing/history', query: { low: '1' } })" />
     </div>
 
-    <button type="button" class="flex items-center justify-between rounded-[24px] bg-surface-container-lowest p-6 text-left shadow-soft-glow transition-colors hover:bg-surface-container-lowest/80 md:col-span-4" @click="router.push('/writing/history')">
-      <span class="flex items-center gap-4">
-        <span class="flex h-10 w-10 items-center justify-center rounded-full bg-tertiary-container/30">
-          <span class="material-symbols-outlined text-tertiary">hourglass_bottom</span>
-        </span>
-        <span class="flex flex-col gap-0.5">
-          <span class="font-body-lg text-body-lg text-on-surface">{{ $t('writing.entry.history') }}</span>
-          <span class="font-label-md text-label-md text-on-surface-variant">{{ $t('writing.entry.historyDesc') }}</span>
-        </span>
-      </span>
-      <span class="material-symbols-outlined text-outline">chevron_right</span>
-    </button>
+    <EntryCard icon="hourglass_bottom" tone="tertiary" :title="$t('writing.entry.history')" :description="$t('writing.entry.historyDesc')" class="md:col-span-4" @click="router.push('/writing/history')" />
 
-    <button type="button" class="flex items-center justify-between rounded-[24px] bg-surface-container-lowest p-6 text-left shadow-soft-glow transition-colors hover:bg-surface-container-lowest/80 md:col-span-4" @click="openLatestReport">
-      <span class="flex items-center gap-4">
-        <span class="flex h-10 w-10 items-center justify-center rounded-full bg-primary-container/30">
-          <span class="material-symbols-outlined text-primary">insights</span>
-        </span>
-        <span class="flex flex-col gap-0.5">
-          <span class="font-body-lg text-body-lg text-on-surface">{{ $t('writing.entry.report') }}</span>
-          <span class="font-label-md text-label-md text-on-surface-variant">{{ $t('writing.entry.reportDesc') }}</span>
-        </span>
-      </span>
-      <span class="material-symbols-outlined text-outline">chevron_right</span>
-    </button>
+    <EntryCard icon="insights" tone="primary" :title="$t('writing.entry.report')" :description="$t('writing.entry.reportDesc')" class="md:col-span-4" @click="openLatestReport" />
 
-    <button type="button" class="flex items-center justify-between rounded-[24px] bg-surface-container-lowest p-6 text-left shadow-soft-glow transition-colors hover:bg-surface-container-lowest/80 md:col-span-4" @click="toast($t('writing.entry.aiComingSoon'), 'info')">
-      <span class="flex items-center gap-4">
-        <span class="flex h-10 w-10 items-center justify-center rounded-full bg-secondary-container/30">
-          <span class="material-symbols-outlined text-secondary">forum</span>
-        </span>
-        <span class="flex flex-col gap-0.5">
-          <span class="font-body-lg text-body-lg text-on-surface">{{ $t('writing.entry.ai') }}</span>
-          <span class="font-label-md text-label-md text-on-surface-variant">{{ $t('writing.entry.aiDesc') }}</span>
-        </span>
-      </span>
-      <span class="material-symbols-outlined text-outline">chevron_right</span>
-    </button>
+    <EntryCard icon="forum" tone="secondary" :title="$t('writing.entry.ai')" :description="$t('writing.entry.aiDesc')" class="md:col-span-4" @click="toast($t('writing.entry.aiComingSoon'), 'info')" />
 
     <WritingTopicPickerDialog
       v-model:visible="favoritesOpen"
@@ -154,6 +99,8 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import WritingTopicPickerDialog from './WritingTopicPickerDialog.vue'
+import EntryCard from '../ui/EntryCard.vue'
+import AppIcon from '../ui/AppIcon.vue'
 import { useToast } from '../../composables/useToast'
 import { fetchFavoriteIds, fetchSubmissions, fetchWritingTopics, setFavorite } from '../../api/writing'
 import type { WritingLevel, WritingTopic, WritingTopicType } from '../../types/writing'

@@ -2,23 +2,25 @@
   <div class="flex flex-col">
     <span class="font-label-md text-label-md text-on-surface-variant">{{ labelText }}</span>
     <!--
-      两段式：左段是专用文字区（数字 + 单位），右段是火焰。
-      文字区自己成块、宽度随内容自适应，火焰紧贴它的右缘——
-      原来火焰挂在固定 w-12 的槽位里居中，左右各多出 6px 死白，
-      再加 gap + ml 合计让文字到火焰的净间距有 22px，看起来是飘着的。
-      槽位高度仍固定 h-8，尺寸变化只是视觉溢出，不推动下方导航。
+      两段式：左段火焰，右段专用文字区（数字 + 单位）。
+
+      槽位锁死 w-9（36px）并让火焰居中，是为了把数字左缘钉在 40px
+      （36 槽位 + mr-1 4px）——数字是读数，位置必须可预期：
+      跨档位不横跳、位数从 1 位涨到 3 位也只向右生长。
+
+      「死白守恒」：槽位宽 − 火焰墨迹宽 的差值只能分配出去，要么给
+      「火焰 → 数字」的间距，要么给「左缘 → 火焰」。这里分给火焰侧，
+      靠收窄字号档差（35/38/42/46）把总量压到 3px 以内：
+      火焰墨迹左缘 2~5.5px（仍与上方标签左缘对齐），净间距 6~9.5px
+      （与调好的 8~11px 同档）。槽位锁死后超出的火焰盒只是视觉溢出，
+      墨迹右缘最大 34px，不会压到 40px 的数字。
+
+      槽位高度仍固定 h-8，尺寸变化不推动下方导航；
+      槽位同时是 halo/aura/ground/火星的定位基准，火焰居中即与它们同心。
     -->
     <div class="flex h-8 items-center">
-      <span class="flex shrink-0 items-baseline gap-1">
-        <span
-          class="streak-days font-headline-md text-headline-md font-bold tabular-nums text-primary"
-          :class="{ 'is-igniting': igniting }"
-        >{{ days }}</span>
-        <span class="font-label-lg text-label-lg text-primary/60">{{ unitText }}</span>
-      </span>
-
       <span
-        class="flame-slot relative ml-1 inline-flex h-8 shrink-0 items-center"
+        class="flame-slot relative mr-1 inline-flex h-8 w-9 shrink-0 items-center justify-center"
         :class="{ 'is-lit': visual.lit }"
         :style="slotStyle"
         aria-hidden="true"
@@ -75,6 +77,14 @@
           :class="ember.burst ? 'flame-ember-burst' : ''"
           :style="{ left: ember.left, animationDelay: ember.delay, '--ember-drift': ember.drift }"
         ></span>
+      </span>
+
+      <span class="flex shrink-0 items-baseline gap-1">
+        <span
+          class="streak-days font-headline-md text-headline-md font-bold tabular-nums text-primary"
+          :class="{ 'is-igniting': igniting }"
+        >{{ days }}</span>
+        <span class="font-label-lg text-label-lg text-primary/60">{{ unitText }}</span>
       </span>
 
       <span class="sr-only">{{ visual.lit ? t('checkIn.checkedIn') : t('checkIn.notCheckedIn') }}</span>
@@ -260,6 +270,23 @@ const embers = computed<EmberSpec[]>(() => {
   line-height: 1;
   paint-order: stroke fill;
   -webkit-text-stroke: var(--flame-stroke-width, 0px) rgb(var(--color-flame-deep) / var(--flame-stroke-alpha, 0));
+}
+
+/* 熄灭态必须整体去暖：火色描边 + 火色投影会在灰火上留一圈橙红边和一摊暖晕，
+   和「死灰」的语义直接打架。描边改中性 outline，内焰/焰心直接不描边
+   （它们只有火身的 0.55/0.26 倍，1px 描边会把一个小字形糊成黑点），
+   投影也从火色换成中性灰。 */
+.flame-slot:not(.is-lit) .flame-glyph {
+  -webkit-text-stroke-color: rgb(var(--color-outline) / 0.55);
+}
+
+.flame-slot:not(.is-lit) .flame-inner,
+.flame-slot:not(.is-lit) .flame-heart {
+  -webkit-text-stroke-width: 0;
+}
+
+.flame-slot:not(.is-lit) .flame-plume {
+  filter: drop-shadow(0 1.5px 1.5px rgb(var(--color-outline) / 0.2));
 }
 
 .flame-inner {

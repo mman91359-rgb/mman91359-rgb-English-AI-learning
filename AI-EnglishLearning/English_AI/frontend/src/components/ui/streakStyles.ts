@@ -10,7 +10,11 @@
  * 火焰形状统一用 Material Symbols 的 `local_fire_department`：
  * - 渐变靠 `bg-clip-text` 按字形裁切实现（图标字体本质是文字）
  * - 火芯是同一图标缩小后叠在火身中部，形成「橙火包黄芯」的双层火
- * - 焰心高光再叠一层更小的亮色，只在 34px 以上开启（更小尺寸会糊成一团）
+ * - 焰心高光再叠一层更小的亮色，只在 42px 以上开启（更小尺寸会糊成一团）
+ *
+ * 字号四档压得很窄（35/38/42/46），不是随手取的：侧栏槽位锁死 36px
+ * 让数字左缘恒定，字号差直接等于「火焰侧要吃掉多少死白」，差越小
+ * 火焰与数字之间的净间距越稳。档位的区分度主要交给颜色、光晕、火星数与摆动周期。
  */
 
 export type StreakTierKey = 'spark' | 'steady' | 'blaze' | 'inferno'
@@ -134,7 +138,7 @@ export function resolveStreakVisual(days: number, lit: boolean): StreakVisual {
       lit: false,
       sizeClass: everLit ? resolveStreakTier(safeDays).sizeClass : 'text-flame-xs',
       bodyClass: everLit ? 'text-outline/75' : 'text-outline/50',
-      coreClass: everLit ? 'text-flame-deep/12' : null,
+      coreClass: everLit ? 'text-flame-deep/10' : null,
       highlightClass: null,
       auraScale: 0,
       duration: '0s',

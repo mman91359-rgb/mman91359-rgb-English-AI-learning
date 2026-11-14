@@ -129,11 +129,14 @@ export default {
         "icon-xl": ["32px", { lineHeight: "32px" }],
         "icon-2xl": ["36px", { lineHeight: "36px" }],
         "icon-3xl": ["48px", { lineHeight: "48px" }],
+        // 火焰四档刻意压窄（35→46，共 11px）。档位感主要由颜色/光晕/火星承担，
+        // 尺寸只做微调：槽位锁定后，字号差就是「火焰侧要吃掉多少死白」，
+        // 差越小，火焰与数字之间的净间距越稳，见 StreakDisplay.vue 的槽位说明。
         "flame-xs": ["20px", { lineHeight: "20px" }],
-        "flame-sm": ["30px", { lineHeight: "30px" }],
-        "flame-md": ["36px", { lineHeight: "36px" }],
+        "flame-sm": ["35px", { lineHeight: "35px" }],
+        "flame-md": ["38px", { lineHeight: "38px" }],
         "flame-lg": ["42px", { lineHeight: "42px" }],
-        "flame-xl": ["48px", { lineHeight: "48px" }],
+        "flame-xl": ["46px", { lineHeight: "46px" }],
         "display-lg": ["48px", { lineHeight: "56px", fontWeight: "700" }],
       },
       boxShadow: {

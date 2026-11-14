@@ -13,7 +13,7 @@
 | 本文件规定什么 | 圆角、内边距、阴影、图标、按钮、字号六项的唯一写法，以及 `components/ui/` 下 12 个基础组件的 props 契约 |
 | 本文件不规定什么 | 页面布局结构、栅格、断点、动效时长；这些仍按各模块既有设计契约执行 |
 | 数值来源 | 全部取自 `tailwind.config.js`、`src/assets/main.css`、`dist/assets/index-*.css` 三处现有令牌，**本轮未新增任何颜色、尺寸、阴影或字号** |
-| 当前落地状态 | 契约已建立，12 个组件已创建。**「已迁」按两级口径分别记**：<br>**已迁至组件层：6 页**（HomeView / AssessView / Favorites / Vocabulary / History / LearningView）—— 圆角/图标/阴影/字号四类任意值清零，且页内主体结构已换成 `ui/` 组件；另有 4 个入口面板组件（`WritingEntryPanel` / `TranslationEntryPanel` / `ListeningEntryPanel` 及 LearningView 的语法、词汇 tab）同步迁完<br>**仅收敛任意值：7 页**（admin 的 Users / UserDetail / Questions / Notices / Activities / OperationLogs / JudgeReview）—— 只做了圆角与色类收敛，**未接** `AppIcon` / `AppCard`，页内仍有 41 处直写 `material-symbols-outlined`（尺寸已走 `text-icon-*`，非任意值违规）<br>**其余 21 页一处未改**。因此「全站已统一」这句话目前不成立，任何场合都不得这样表述；也不得把 admin 7 页称为「已迁」 |
+| 当前落地状态 | 契约已建立，12 个组件已创建。**「已迁」按两级口径分别记**：<br>**已迁至组件层：6 页**（HomeView / AssessView / Favorites / Vocabulary / History / LearningView）—— 圆角/图标/阴影/字号四类任意值清零，且页内主体结构已换成 `ui/` 组件；另有 4 个入口面板组件（`WritingEntryPanel` / `TranslationEntryPanel` / `ListeningEntryPanel` 及 LearningView 的语法、词汇 tab）同步迁完<br>**仅收敛任意值：9 页**（admin 的 Users / UserDetail / Questions / Notices / Activities / OperationLogs / JudgeReview + `TranslationPracticeView` / `ListeningQuizView`）—— 只做了圆角、字号、阴影三类任意值替换，**未接** `AppIcon` / `AppCard`（答题页还保留 23 处无令牌的布局值与品牌色投影，见 §11.1）<br>**其余 19 页一处未改**。因此「全站已统一」这句话目前不成立，任何场合都不得这样表述；也不得把这两类 9 页称为「已迁」 |
 
 ---
 
@@ -90,6 +90,18 @@ HomeView 复习块与状态行、StatsView 三格 —— 同一值已 ≥10 处�
 | `.soft-shadow` | `main.css:320` | 同上 | 同上（`BaseDialog` 在用） |
 
 即：**阴影只有一档值，但历史上被起了三个名字**。收敛这三个名字需要动 `main.css` 与多个页面，不在本轮范围。
+
+**登记例外：品牌色投影（不收敛，也不许新增第 4 种颜色）**
+
+答题页的主按钮在渐变底色上叠了一层同色系投影，用于「彩色发光」而非「容器抬升」，语义与 `shadow-soft-glow` 不同：
+
+| 类名 | 用于 | 处数 |
+|---|---|---|
+| `shadow-[0_4px_14px_rgba(103,85,140,0.25)]` | primary 渐变按钮 | 2 |
+| `shadow-[0_4px_14px_rgba(12,103,128,0.25)]` | secondary 渐变按钮 | 2 |
+| `shadow-[0_4px_14px_rgba(0,110,32,0.25)]` | tertiary 渐变按钮 | 2 |
+
+这 6 处**保留原值**，理由：改成 `shadow-soft-glow` 会让主按钮从「彩色发光」退化为中性灰投影，与输入框的抬升感拉平。新代码若要给按钮加发光，**必须复用上面三种中的一种**，不得自造第四种颜色或第二个模糊半径；要新增请先改本节。
 
 ---
 
@@ -374,7 +386,7 @@ slot：`#leading`（左侧图标圆/头像）、`#trailing`（右侧动作或状
 > - 「修改 `admin/` 下任何文件」→ 已发生三批：P3（`615ca6d`）把 `admin/StatusBadge.vue` 改为转发壳、
 >   `admin/tableTypes.ts` 改为 re-export `BadgeTone`；P4 修正 `AdminJudgeReviewView` 两处不存在的色类；
 >   P4 收敛 `AdminChartCard` / `AdminFilterBar` / `AdminStatCard` / `NoticeEditorDrawer` 的圆角与内边距
-> - 「修改 `views/` 下任何页面」→ **6 页已迁至组件层 + 7 页仅收敛任意值**，见 §0 落地状态
+> - 「修改 `views/` 下任何页面」→ **6 页已迁至组件层 + 9 页仅收敛任意值**，见 §0 落地状态
 
 | 项 | 原因 |
 |---|---|
@@ -399,19 +411,19 @@ slot：`#leading`（左侧图标圆/头像）、`#trailing`（右侧动作或状
 将来接线后的验收（供后续批次使用；基线已按 6 页已迁 + 7 页仅收敛后的实测值重算，2026-11-14）：
 
 ```bash
-# 任意值圆角（目标 0；当前基线 53，已处理的 13 页/组件均为 0）
+# 任意值圆角（目标 0；当前基线 37，已处理的 15 页/组件均为 0）
 grep -ro "rounded-\[[0-9]*px\]" src | wc -l
 
 # 图标用原生字号承载（目标 0；当前基线 43）
 grep -rn "material-symbols-outlined[^\"]*text-\(xs\|sm\|base\|lg\|xl\|2xl\|3xl\)\b" src/views | wc -l
 
-# 手写 soft-glow 字面量（目标 0；当前基线 6）
+# 手写 soft-glow 字面量（目标 0；当前基线 3）
 grep -rn "shadow-\[0_4px_20px_rgba(51,58,72,0.05)\]" src
 
 # 不存在的色类（目标 0；当前基线 0 —— admin 审核页两处已于 P4 修正）
 grep -rn "success-container\|text-success" src
 
-# 组件层直写图标（目标 0；当前基线 109，已排除 AppIcon.vue 自身）
+# 组件层直写图标（目标 0；当前基线 107，已排除 AppIcon.vue 自身）
 # 第二条只扫 views/，组件层的直写图标它看不见，必须单列一条
 grep -rn "material-symbols-outlined" src/components --include=*.vue | grep -v "AppIcon.vue" | wc -l
 ```
@@ -422,15 +434,15 @@ grep -rn "material-symbols-outlined" src/components --include=*.vue | grep -v "A
 > 不是真实代码。因此 53 中有 2 处属注释，**实际待迁移 51 处**。后续批次收口时不必消灭这 2 处，
 > 除非改写注释措辞。其余三条命令同理，凡命中注释需人工排除。
 
-当前 53 / 43 / 6 / 0 的残留分布（供下一批选题参考）：
+当前 37 / 43 / 3 / 0 / 107 的残留分布（供下一批选题参考）：
 
 | 指标 | 主要残留位置 |
 |---|---|
-| 任意值圆角 53 | `TranslationPracticeView`(8)、`ProfileView`(8)、`ListeningQuizView`(8)、`StatsView`(4)、`ErrorBookView`(3)、`WordReviewDialog`(3)、`AppCard` 注释(2)、`AiCard`(2)、`VocabularyGoalDialog`(2)、`AudioPlayer`(2) |
+| 任意值圆角 37 | `ProfileView`(8)、`StatsView`(4)、`ErrorBookView`(3)、`WordReviewDialog`(3)、`AppCard` 注释(2)、`AiCard`(2)、`VocabularyGoalDialog`(2)、`AudioPlayer`(2)，其余 12 处各 1（`LoginView` / `RegisterView` / `ForgotPasswordView` / `ForbiddenView` / `GrammarQuizView` / `WritingScorePanel` / `WordDetailCard` / `TranscriptPanel` / `ListeningTypeCard` / `FeedbackPanel` / `AiFeedbackPanel`） |
 | 图标原生字号 43 | `ErrorBookView`、`PracticeView`、`GrammarQuizView`、`VocabQuizView`、`ProfileView`、`LoginView`、`RegisterView`、`ForgotPasswordView` |
-| soft-glow 字面量 6 | `ListeningQuizView`(2)、`TranslationPracticeView`、`VocabQuizView`、`TranscriptPanel`、`FeedbackPanel` |
+| soft-glow 字面量 3 | `FeedbackPanel:76`、`TranscriptPanel:2`、`VocabQuizView:113` |
 | 不存在的色类 0 | 已清零。`AdminJudgeReviewView:83` 改 `bg-tertiary-container/50 text-on-tertiary-container`、`:96` 改 `text-tertiary hover:bg-tertiary-container/20`，依据 §7 的 `success → tertiary` 映射，与 `AdminQuestionsView:94` 的既有写法逐字一致 |
-| 组件层直写图标 109 | `AiSidebarContent`(12)、`VocabularyGoalDialog`(9)、`AudioPlayer`(6)、`AiActionBar`(5)、`TopAppBar`(5)、`WritingScorePanel`(4)、`WordDetailCard`(4)、`AiCard`(4)、`admin/AdminTopbar`(4)、`admin/AdminSidebar`(4)、`WordReviewDialog`(4)。<br>其中 **12 处属 `ui/` 组件自身**（`AppLogo` 3、`StreakDisplay` 3 依赖 scoped 的 `.logo-glyph` / `.flame-glyph` 继承字号，按 §8.1 属**豁免**；`FormHint` 2、`EmptyState` / `ErrorState` / `LoadingState` / `BaseDialog` 各 1 属**应改未改**）。<br>真实待迁 = 109 − 3 − 3 = **103**（含 `ui/` 内部那 4 处） |
+| 组件层直写图标 107 | `AiSidebarContent`(12)、`VocabularyGoalDialog`(9)、`AudioPlayer`(6)、`AiActionBar`(5)、`TopAppBar`(5)、`WritingScorePanel`(4)、`WordDetailCard`(4)、`AiCard`(4)、`admin/AdminTopbar`(4)、`admin/AdminSidebar`(4)、`WordReviewDialog`(4)。<br>其中 **10 处属 `ui/` 组件自身**（`AppLogo` 3、`StreakDisplay` 3、`FormHint` 2、`EmptyState` / `ErrorState` 各 1），按 §8.1 **全部豁免**：前两者靠 scoped 类继承字号，`FormHint` 需 16px、`EmptyState`/`ErrorState` 需 48px，`AppIcon` 均无对应档。<br>真实待迁 = 107 − 10 = **97**（`LoadingState` / `BaseDialog` 两处已改完） |
 
 ---
 
@@ -462,6 +474,11 @@ grep -rn "material-symbols-outlined" src/components --include=*.vue | grep -v "A
 | Vocabulary 统计卡 ×3、Vocabulary 行卡、History 行卡、AssessView 指标块 ×2、HomeView 复习块与状态行、StatsView 三格（均 `p-4`） | **已由 §2 第三档「行卡 / 卡内嵌块」覆盖**，属契约内写法，不再是例外，也不必逐条登记 |
 | Vocabulary 复习卡 `min-h-[200px]` | **真例外**：spacing 只有 48=192 / 52=208，无 200px 等值档，保留原值以免卡片高度位移 |
 | `LearningView:131` 词汇大卡 `min-h-[200px]` | **真例外**，同上。同一 200px 值在项目内共 2 处，都不改动 |
+| 答题页布局值：`max-w-[1192px]` ×4、`grid-cols-[minmax(0,1fr)_340px]` 等三档响应式栅格 ×6 | **真例外**：内容宽度上限与三档断点栅格，Tailwind 无对应令牌，且改动会直接改变两栏比例 |
+| 答题页 `min-h-[140px]`（翻译输入域） | **真例外**：与 200px 同理，spacing 无 140 等值档 |
+| 答题页图标 `text-[14px]`（帮助）/ `text-[16px]`（提示灯泡） | **真例外**：`AppIcon` 档位为 18/20/24/32/36，两者都落在档位空档上。就近取 18px 会改变小标签内的行高 |
+| 听力音量条 `w-[3px]` ×3 + `gap-[2px]` | **真例外**：音频波形条的条宽与间隙，属图形尺寸不是排版间距，不受 §2 管辖 |
+| 品牌色投影 6 处 | 见 §3「登记例外」表，语义是彩色发光 |
 
 ### 11.2 删除非法阴影时必须同时给出替代反馈
 

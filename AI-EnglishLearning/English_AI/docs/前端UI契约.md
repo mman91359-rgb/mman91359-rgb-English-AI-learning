@@ -13,7 +13,7 @@
 | 本文件规定什么 | 圆角、内边距、阴影、图标、按钮、字号六项的唯一写法，以及 `components/ui/` 下 12 个基础组件的 props 契约 |
 | 本文件不规定什么 | 页面布局结构、栅格、断点、动效时长；这些仍按各模块既有设计契约执行 |
 | 数值来源 | 全部取自 `tailwind.config.js`、`src/assets/main.css`、`dist/assets/index-*.css` 三处现有令牌，**本轮未新增任何颜色、尺寸、阴影或字号** |
-| 当前落地状态 | 契约已建立，12 个组件已创建。**「已迁」按两级口径分别记**：<br>**已迁至组件层：6 页**（HomeView / AssessView / Favorites / Vocabulary / History / LearningView）—— 圆角/图标/阴影/字号四类任意值清零，且页内主体结构已换成 `ui/` 组件；另有 4 个入口面板组件（`WritingEntryPanel` / `TranslationEntryPanel` / `ListeningEntryPanel` 及 LearningView 的语法、词汇 tab）同步迁完<br>**仅收敛任意值：9 页**（admin 的 Users / UserDetail / Questions / Notices / Activities / OperationLogs / JudgeReview + `TranslationPracticeView` / `ListeningQuizView`）—— 只做了圆角、字号、阴影三类任意值替换，**未接** `AppIcon` / `AppCard`（答题页还保留 23 处无令牌的布局值与品牌色投影，见 §11.1）<br>**其余 19 页一处未改**。因此「全站已统一」这句话目前不成立，任何场合都不得这样表述；也不得把这两类 9 页称为「已迁」 |
+| 当前落地状态 | 契约已建立，12 个组件已创建。**「已迁」按两级口径分别记**：<br>**已迁至组件层：6 页**（HomeView / AssessView / Favorites / Vocabulary / History / LearningView）—— 圆角/图标/阴影/字号四类任意值清零，且页内主体结构已换成 `ui/` 组件；另有 4 个入口面板组件（`WritingEntryPanel` / `TranslationEntryPanel` / `ListeningEntryPanel` 及 LearningView 的语法、词汇 tab）同步迁完<br>**仅收敛任意值：10 页**（admin 的 Users / UserDetail / Questions / Notices / Activities / OperationLogs / JudgeReview + `TranslationPracticeView` / `ListeningQuizView` / `StatsView`）—— 只做了任意值的等值替换，**未接** `AppIcon` / `AppCard`（答题页还保留 23 处无令牌的布局值与品牌色投影，`StatsView` 保留 10 处图形尺寸与配对字号行高，均见 §11.1）<br>**其余 18 页一处未改**。因此「全站已统一」这句话目前不成立，任何场合都不得这样表述；也不得把这两类 9 页称为「已迁」 |
 
 ---
 
@@ -386,7 +386,7 @@ slot：`#leading`（左侧图标圆/头像）、`#trailing`（右侧动作或状
 > - 「修改 `admin/` 下任何文件」→ 已发生三批：P3（`615ca6d`）把 `admin/StatusBadge.vue` 改为转发壳、
 >   `admin/tableTypes.ts` 改为 re-export `BadgeTone`；P4 修正 `AdminJudgeReviewView` 两处不存在的色类；
 >   P4 收敛 `AdminChartCard` / `AdminFilterBar` / `AdminStatCard` / `NoticeEditorDrawer` 的圆角与内边距
-> - 「修改 `views/` 下任何页面」→ **6 页已迁至组件层 + 9 页仅收敛任意值**，见 §0 落地状态
+> - 「修改 `views/` 下任何页面」→ **6 页已迁至组件层 + 10 页仅收敛任意值**，见 §0 落地状态
 
 | 项 | 原因 |
 |---|---|
@@ -408,11 +408,17 @@ slot：`#leading`（左侧图标圆/头像）、`#trailing`（右侧动作或状
 3. `git status` 中的新增文件仅限 `components/ui/` 下 8 个 `.vue` 与本文件
 4. 全站 `views/` 与 `components/` 既有文件零改动
 
-将来接线后的验收（供后续批次使用；基线已按 6 页已迁 + 9 页仅收敛后的实测值重算，2026-11-14）：
+将来接线后的验收（供后续批次使用；基线已按 6 页已迁 + 10 页仅收敛后的实测值重算，2026-11-14，StatsView 收口后）：
 
 ```bash
-# 任意值圆角（目标 0；当前基线 37，已处理的 15 页/组件均为 0）
-grep -ro "rounded-\[[0-9]*px\]" src | wc -l
+# L1a 任意值圆角（半径族，含 rounded-t/-b/-l/-r；目标 0；当前基线 35）
+# ⚠️ 旧命令 grep -ro "rounded-\[[0-9]*px\]" 漏掉带方向后缀的形式（WordDetailCard 的 rounded-t-[28px]），
+#    旧 L1b 的 grep -v "^rounded-" 又把这类一起滤掉，于是 37 + 149 = 186 ≠ 全量 187 —— 有 1 处谁都没数。
+#    此处改用半径族正则，L1a + L1b 恒等于全量实测（当前 35 + 145 = 180）。
+grep -roE "rounded(-[trblse]{1,2})?-\[[0-9]*px\]" src --include=*.vue --include=*.ts | wc -l
+
+# L1b 除圆角外其他属性的任意值（目标 0；当前基线 145）
+grep -rhoE "[a-z-]+-\[[^]]*\]" --include=*.vue --include=*.ts src | grep -vE "^rounded" | wc -l
 
 # 图标用原生字号承载（目标 0；当前基线 43）
 grep -rn "material-symbols-outlined[^\"]*text-\(xs\|sm\|base\|lg\|xl\|2xl\|3xl\)\b" src/views | wc -l
@@ -428,17 +434,22 @@ grep -rn "success-container\|text-success" src
 grep -rn "material-symbols-outlined" src/components --include=*.vue | grep -v "AppIcon.vue" | wc -l
 ```
 
-> 基线值来自 `docs/前端UI审计与组件契约.md` §7，随每批迁移完成后更新本节。**每次更新必须重跑上面四条命令取实数，不许估算或按批减扣。**
+> 基线值来自 `docs/前端UI审计与组件契约.md` §7，随每批迁移完成后更新本节。**每次更新必须重跑上面六条命令取实数，不许估算或按批减扣。**
 >
 > ⚠️ 第一条命令会把**注释里的示例**一并计入：`ui/AppCard.vue:22-23` 的 `rounded-[20px]` 是禁用示例，
-> 不是真实代码。因此 53 中有 2 处属注释，**实际待迁移 51 处**。后续批次收口时不必消灭这 2 处，
-> 除非改写注释措辞。其余三条命令同理，凡命中注释需人工排除。
+> 不是真实代码。因此 L1a 的 35 中有 2 处属注释，**实际待迁移 33 处**。后续批次收口时不必消灭这 2 处，
+> 除非改写注释措辞。其余各条命令同理，凡命中注释需人工排除。
+>
+> **L1 为什么必须拆成 L1a / L1b**：§11.1 的规则管的是「所有属性上的任意值」，基线却长期只统计圆角。
+> 结果是「本批改了 7 处」与「基线只减 3」在两份报表里永远对不上 —— 不是改少了，是另外 4 处（`h-[12px]`→`h-3`、`w-[12px]`→`w-3`）
+> 根本不在旧基线里。拆开后每批可写「A 类 N 处（L1a −a、L1b −b）」，两边能相加对上。
 
-当前 37 / 43 / 3 / 0 / 107 的残留分布（供下一批选题参考）：
+当前 L1a 35 / L1b 145 / 43 / 3 / 0 / 107 的残留分布（供下一批选题参考）：
 
 | 指标 | 主要残留位置 |
 |---|---|
-| 任意值圆角 37 | `ProfileView`(8)、`StatsView`(4)、`ErrorBookView`(3)、`WordReviewDialog`(3)、`AppCard` 注释(2)、`AiCard`(2)、`VocabularyGoalDialog`(2)、`AudioPlayer`(2)，其余 12 处各 1（`LoginView` / `RegisterView` / `ForgotPasswordView` / `ForbiddenView` / `GrammarQuizView` / `WritingScorePanel` / `WordDetailCard` / `TranscriptPanel` / `ListeningTypeCard` / `FeedbackPanel` / `AiFeedbackPanel`） |
+| 任意值圆角 L1a 35 | `ProfileView`(8)、`ErrorBookView`(3)、`WordReviewDialog`(3)、`WordDetailCard`(2，含 1 处 `rounded-t-[28px]`)、`AppCard` 注释(2)、`AiCard`(2)、`VocabularyGoalDialog`(2)、`AudioPlayer`(2)、`StatsView`(1)，其余 10 处各 1（`LoginView` / `RegisterView` / `ForgotPasswordView` / `ForbiddenView` / `GrammarQuizView` / `WritingScorePanel` / `TranscriptPanel` / `ListeningTypeCard` / `FeedbackPanel` / `AiFeedbackPanel`） |
+| 其他属性任意值 L1b 145 | 按属性：`shadow-[…]` 22、`text-[…]` 21、`scale-[…]` 16、`max-w-[…]` 14、`grid-cols-[…]` 9、`w-[…]` 8、`min-h-[…]` 8、`z-[…]` 7、`h-[…]` 6、`bg-[…]` 6、`gap-[…]` 5、`min-w-[…]` 4、`leading-[…]` 4、`max-h-[…]` 3，其余 1~2 处各 1（`transition` 2 / `ml` 2 / `-translate-y` 2 / `tracking` / `pt` / `border-t` / `border-r` / `border-l` / `backdrop-blur`）。<br>**A/B 分类尚未做**：本批只处理了 `StatsView` 一页的 7 处，其余 `shadow` 22 处、`scale` 16 处等都还没分过 A/B —— 下一批若要动它们，必须先在 §11.1 建立对应分组，不得直接按「阴影都是 B 类」推断 |
 | 图标原生字号 43 | `ErrorBookView`、`PracticeView`、`GrammarQuizView`、`VocabQuizView`、`ProfileView`、`LoginView`、`RegisterView`、`ForgotPasswordView` |
 | soft-glow 字面量 3 | `FeedbackPanel:76`、`TranscriptPanel:2`、`VocabQuizView:113` |
 | 不存在的色类 0 | 已清零。`AdminJudgeReviewView:83` 改 `bg-tertiary-container/50 text-on-tertiary-container`、`:96` 改 `text-tertiary hover:bg-tertiary-container/20`，依据 §7 的 `success → tertiary` 映射，与 `AdminQuestionsView:94` 的既有写法逐字一致 |
@@ -450,12 +461,21 @@ grep -rn "material-symbols-outlined" src/components --include=*.vue | grep -v "A
 
 ### 11.1 任意值分两类，不许混称「等值」
 
+**适用范围**：本节的 A/B 判定**对所有属性通用，不只圆角** —— `h-[12px]`→`h-3` 与 `rounded-[24px]`→`rounded-3xl` 是同一种操作（逐像素相等的换名），`shadow-[…]` / `text-[…]` / `gap-[…]` / `max-w-[…]` 同理。任何一批都不得只给圆角做分类，再把其他属性的任意值笼统记为「保留」。基线的口径也据此拆成 §10 的 L1a（圆角）/ L1b（其他属性），两边必须能相加对上。
+
 | 类 | 判定 | 处置 | 记录要求 |
 |---|---|---|---|
-| **A 类** | 契约内存在**逐像素相等**的令牌（24 / 16 / 12 / 8px） | 直接替换 | 交付说明可写「等值替换」，无需额外授权 |
+| **A 类** | 契约内存在**逐像素相等**的令牌（24 / 16 / 12 / 8 / 2px …） | 直接替换 | 交付说明可写「等值替换」，无需额外授权 |
 | **B 类** | 契约内**没有等值档**（20px / 200px / 13px / 52px …） | 二选一：① 保留原值，登记例外；② 经批准就近取档 | **必须写明「就近对齐」与实际像素位移**，禁止写成「等值」 |
 
 理由：「等值」与「就近取档」是两种不同的授权。前者不改像素，后者改，必须逐条登记，否则交付说明里看不出任何位移。
+
+**判定细则（可复算，不许凭档位名猜）**：
+
+1. **先取令牌实际值**。权威来源两个，必须一致：`node -e "const t=require('tailwindcss/defaultTheme');console.log(t.borderRadius.sm, t.lineHeight['3'], t.spacing['3'])"` 与构建产物 `dist/assets/index-*.css` 里的 `.rounded-sm{border-radius:.125rem}`。本项目 `tailwind.config.js` 用 `extend` 覆盖，**未被覆盖的档位仍是框架默认值**，不能因为「配置里没写」就断定档位不存在。
+2. **成对的字号 / 行高不可拆**。典型：`StatsView` 热力图小格的 `text-[10px]` + `leading-[12px]` 是同一元素的 10/12 配对；`label-xs` 是 10/**14**（`tailwind.config.js:125`），换过去行高 +2px，会把 12px 高的格子撑破。这种必须整对保留，且要在登记表写明「配对」二字，防止后来者只换其中一个。
+3. **只有一侧有等值档时，允许只换那一侧**。`leading-[12px]` 有 `leading-3`=12px 的等值档，换它不破坏配对；但本批按「B 类一律保留」的指令未动，见本节末「待裁定」表。
+4. **位移为 0 才是 A 类**。只要算出来的 px 有变化（哪怕 1px），就是 B 类就近取档，必须逐条登记位移，禁止写成「等值」。
 
 已发生的 B 类 —— **已改**（逐条登记位移）：
 
@@ -479,6 +499,19 @@ grep -rn "material-symbols-outlined" src/components --include=*.vue | grep -v "A
 | 答题页图标 `text-[14px]`（帮助）/ `text-[16px]`（提示灯泡） | **真例外**：`AppIcon` 档位为 18/20/24/32/36，两者都落在档位空档上。就近取 18px 会改变小标签内的行高 |
 | 听力音量条 `w-[3px]` ×3 + `gap-[2px]` | **真例外**：音频波形条的条宽与间隙，属图形尺寸不是排版间距，不受 §2 管辖 |
 | 品牌色投影 6 处 | 见 §3「登记例外」表，语义是彩色发光 |
+| `StatsView` 热力图 `text-[10px]`×2 + `leading-[12px]`×2 | **成对保留**（细则 2）：10/12 配对，`label-xs` 是 10/14，换则行高 +2px、撑破 12px 高的格子 |
+| `StatsView` 热力图 `rounded-[2px]`×1 · `gap-[3px]`×2 | **保留（图形尺寸）**：格子圆角与列间距属图形参数，与 `heatmapGrid = { cellSize: 12, gap: 3, colWidth: 15 }`（`StatsView:293`）联动，改间隙会让月份标签的 `left` 偏移算错 |
+| `StatsView` 热力图 `min-w-[680px]`×1 | **保留**：53 列固定宽栅格的横向滚动保底宽度，无等值档 |
+| `StatsView` 图表 `h-[300px]`×1 | **保留**：ECharts 容器高度，spacing 无 300 档（`h-72`=288 / `h-80`=320） |
+| `StatsView` 星期标签 `pt-[18px]`×1 | **保留**：4.5 无档（`pt-4`=16 / `pt-5`=20），改则星期标签与热力图首行纵向错位 |
+| `ErrorBookView` `rounded-[20px]`×3 · `max-h-[85dvh]` · `min-h-[100px]` · `min-w-[50px]` · `w-[90vw]` · `z-[120]` | **整页不进本批，只登记**：A 类为 0，唯一可动的是 3 处 `rounded-[20px]`→`rounded-2xl`（−4px、无收益）；该页是答题族（审计第 3 批）成员，后续要整体迁 `QuizOptionList` / `AnswerFeedback`，现在单独改一趟等于同页改两次。`z-[120]` 与 `BaseDrawer` 同值，沿用既有先例 |
+
+**待裁定（2 项，按现行标准其实属 A 类）**：本批指令把 `StatsView` 的 B 类定为「一律保留」，以下两项因此**未改**，但它们存在逐像素等值的令牌，与「B 类＝没有等值档」的定义冲突，需裁定后归位（要么改并同步减基线，要么在契约里把这两个值登记为显式例外）：
+
+| 位置 | 现值 | 等值令牌 | 证据 | 状态 |
+|---|---|---|---|---|
+| `StatsView:87` 热力图格子 | `rounded-[2px]` | `rounded-sm` = 0.125rem = **2px** | `defaultTheme.borderRadius.sm` + 构建产物 `.rounded-sm{border-radius:.125rem}`；同文件 `:51` 图例方块已在用 `rounded-sm`，两者视觉应一致 | 未改，待裁定 |
+| `StatsView:66,73` 标签（2 处） | `leading-[12px]` | `leading-3` = 0.75rem = **12px** | `defaultTheme.lineHeight['3']` | 未改，待裁定（配对约束只禁止动 `text-[10px]`，行高本身有等值档） |
 
 ### 11.2 删除非法阴影时必须同时给出替代反馈
 

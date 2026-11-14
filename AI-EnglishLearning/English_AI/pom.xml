@@ -33,6 +33,7 @@
         <mybatis-plus.version>3.5.5</mybatis-plus.version>
         <jjwt.version>0.12.3</jjwt.version>
         <spring-cloud.version>2023.0.3</spring-cloud.version>
+        <testcontainers.version>1.20.4</testcontainers.version>
     </properties>
 
     <dependencyManagement>
@@ -71,7 +72,37 @@
                 <artifactId>common</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <!-- Testcontainers：集成测试用真实 MySQL / RabbitMQ 容器 -->
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-bom</artifactId>
+                <version>${testcontainers.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <build>
+        <plugins>
+            <!-- 单元测试与集成测试分离：
+                 默认 mvn test 只跑单元测试（排除 @Tag("integration")），
+                 保证本地无 Docker 也能通过；
+                 集成测试用 -Dgroups=integration 显式运行（需 Docker）。
+                 JUnit5 的 tag 通过 surefire 的 groups 属性过滤。 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <!-- 默认 mvn test 排除集成测试（*IntegrationTest，需 Docker），
+                         本地无 Docker 也能跑单元测试；
+                         跑集成测试：mvn test -Dtest='*IntegrationTest' -->
+                    <excludes>
+                        <exclude>**/*IntegrationTest.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

@@ -24,9 +24,9 @@ spring:
     table: flyway_schema_history
     fail-on-missing-locations: true
 
-  # RabbitMQ 消息队列（本地无RabbitMQ时设为enabled: false）
+  # RabbitMQ 消息队列（本地无RabbitMQ时设为enabled: false；可通过环境变量 RABBITMQ_ENABLED=true 开启）
   rabbitmq:
-    enabled: false
+    enabled: ${RABBITMQ_ENABLED:false}
     host: localhost
     port: 5672
     username: ${RABBITMQ_USERNAME:admin}

@@ -36,7 +36,8 @@ public class UserPreferenceServiceImpl implements UserPreferenceService {
         Integer groupSize = preference != null ? preference.getVocabGroupSize() : null;
         Integer dailyNewWords = preference != null ? preference.getDailyNewWords() : null;
         Integer dailyReviewWords = preference != null ? preference.getDailyReviewWords() : null;
-        return buildResponse(userId, groupSize, dailyNewWords, dailyReviewWords);
+        Long activeWordBookId = preference != null ? preference.getActiveWordBookId() : null;
+        return buildResponse(userId, groupSize, dailyNewWords, dailyReviewWords, activeWordBookId);
     }
 
     @Override
@@ -64,7 +65,8 @@ public class UserPreferenceServiceImpl implements UserPreferenceService {
 
         log.info("更新每组单词数量: userId={}, size={}", userId, vocabGroupSize);
         return buildResponse(userId, vocabGroupSize,
-                preference.getDailyNewWords(), preference.getDailyReviewWords());
+                preference.getDailyNewWords(), preference.getDailyReviewWords(),
+                preference.getActiveWordBookId());
     }
 
     @Override
@@ -101,7 +103,34 @@ public class UserPreferenceServiceImpl implements UserPreferenceService {
 
         log.info("更新每日词汇目标: userId={}, newWords={}, reviewWords={}",
                 userId, dailyNewWords, dailyReviewWords);
-        return buildResponse(userId, preference.getVocabGroupSize(), dailyNewWords, dailyReviewWords);
+        return buildResponse(userId, preference.getVocabGroupSize(), dailyNewWords, dailyReviewWords,
+                preference.getActiveWordBookId());
+    }
+
+    @Override
+    @Transactional
+    public PreferenceResponse updateActiveWordBook(Long userId, Long activeWordBookId) {
+        if (userId == null || userMapper.selectById(userId) == null) {
+            throw new IllegalArgumentException("用户不存在");
+        }
+        if (activeWordBookId == null) {
+            throw new IllegalArgumentException("词书ID不能为空");
+        }
+
+        UserPreference preference = selectByUserId(userId);
+        if (preference == null) {
+            preference = new UserPreference();
+            preference.setUserId(userId);
+            preference.setActiveWordBookId(activeWordBookId);
+            preferenceMapper.insert(preference);
+        } else {
+            preference.setActiveWordBookId(activeWordBookId);
+            preferenceMapper.updateById(preference);
+        }
+
+        log.info("更新当前词书: userId={}, activeWordBookId={}", userId, activeWordBookId);
+        return buildResponse(userId, preference.getVocabGroupSize(),
+                preference.getDailyNewWords(), preference.getDailyReviewWords(), activeWordBookId);
     }
 
     private UserPreference selectByUserId(Long userId) {
@@ -113,7 +142,8 @@ public class UserPreferenceServiceImpl implements UserPreferenceService {
     }
 
     private PreferenceResponse buildResponse(Long userId, Integer groupSize,
-                                             Integer dailyNewWords, Integer dailyReviewWords) {
+                                             Integer dailyNewWords, Integer dailyReviewWords,
+                                             Long activeWordBookId) {
         return PreferenceResponse.builder()
                 .userId(userId)
                 .vocabGroupSize(groupSize)
@@ -122,6 +152,7 @@ public class UserPreferenceServiceImpl implements UserPreferenceService {
                 .maxGroupSize(MAX_GROUP_SIZE)
                 .dailyNewWords(dailyNewWords)
                 .dailyReviewWords(dailyReviewWords)
+                .activeWordBookId(activeWordBookId)
                 .vocabularyGoalsConfigured(dailyNewWords != null && dailyReviewWords != null)
                 .minDailyNewWords(MIN_DAILY_NEW_WORDS)
                 .maxDailyNewWords(MAX_DAILY_NEW_WORDS)

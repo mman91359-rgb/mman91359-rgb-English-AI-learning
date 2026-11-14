@@ -32,6 +32,9 @@ public class PreferenceResponse {
     /** 每日复习单词数，null 表示尚未设置 */
     private Integer dailyReviewWords;
 
+    /** 当前选中的词书ID（关联 exercise_db.word_book.id），null 表示未选 */
+    private Long activeWordBookId;
+
     /** 每日新背/复习目标是否都已设置 */
     private Boolean vocabularyGoalsConfigured;
 

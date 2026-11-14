@@ -1,6 +1,11 @@
 package com.english.ai.exercise.service;
 
 import com.english.ai.exercise.dto.QuestionVO;
+import com.english.ai.exercise.dto.NewWordItemVO;
+import com.english.ai.exercise.dto.UserWordLearnLogVO;
+import com.english.ai.exercise.dto.WordBookVO;
+import com.english.ai.exercise.dto.WordBookStatsVO;
+import com.english.ai.exercise.dto.UserWordFavoriteVO;
 import com.english.ai.exercise.dto.SubmitRequest;
 import com.english.ai.exercise.dto.SubmitResponse;
 import com.english.ai.exercise.dto.ReviewTaskVO;
@@ -36,6 +41,12 @@ public interface ExerciseService {
 
     /** 选择新词练习题目，排除用户单词本中已存在的单词 */
     List<QuestionVO> selectNewVocabularyQuestions(Long userId, int count);
+
+    /**
+     * 选择新词练习条目（按当前词书 + 同等级约束，禁止跨书/跨等级兜底）。
+     * 有题词返回题目，无题词返回词卡（从 word_dictionary 取释义/音标/例句）。
+     */
+    List<NewWordItemVO> selectNewWordItems(Long userId, int count);
 
     /**
      * 获取定级测试题（20题: 12词汇+8语法，难度均匀分布1~8）
@@ -88,6 +99,28 @@ public interface ExerciseService {
     /** 删除收藏 */
     void removeFavorite(Long id, Long userId);
 
+    // ========== 词书 ==========
+
+    /** 词书列表（含每本总词数） */
+    List<WordBookVO> getWordBooks();
+
+    /** 词书学习统计（待背/已学/忽略/已掌握/今日计划） */
+    WordBookStatsVO getWordBookStats(Long userId, String bookCode);
+
+    // ========== 单词收藏 ==========
+
+    /** 收藏单词（未学词不创建 user_vocabulary，不影响新词池与复习队列） */
+    UserWordFavoriteVO addWordFavorite(Long userId, String word);
+
+    /** 取消收藏单词 */
+    void removeWordFavorite(Long userId, String word);
+
+    /** 收藏单词列表 */
+    List<UserWordFavoriteVO> getWordFavorites(Long userId);
+
+    /** 忽略单词（status=IGNORE，退出新词池与复习） */
+    VocabularyVO ignoreWord(Long id, Long userId);
+
     // ========== 单词本 ==========
 
     /** 添加单词，source 缺省为 manual，新词学习循环传 quiz */
@@ -102,6 +135,12 @@ public interface ExerciseService {
     /** 单词本列表 */
     List<VocabularyVO> getVocabulary(Long userId);
 
+    /** 单词本列表（分页 + 词书筛选 + 状态筛选） */
+    List<VocabularyVO> getVocabulary(Long userId, Integer page, Integer size, String bookCode, String status);
+
+    /** 单词本总数（与分页口径一致） */
+    long getVocabularyCount(Long userId, String bookCode, String status);
+
     /** 删除单词 */
     void removeVocabulary(Long id, Long userId);
 
@@ -110,9 +149,14 @@ public interface ExerciseService {
 
     /**
      * 获取今日待复习单词列表
-     * 规则：next_review_at <= 现在 且 isMastered = 0
+     * 规则：next_review_at <= 现在 且 isMastered = 0，最多返回 limit 条
      */
     List<VocabularyVO> getReviewList(Long userId);
+
+    /**
+     * 获取今日待复习单词列表（带上限，默认 50）
+     */
+    List<VocabularyVO> getReviewList(Long userId, Integer limit);
 
     /**
      * 提交单词复习结果
@@ -129,9 +173,29 @@ public interface ExerciseService {
     List<ExerciseHistoryVO> getExerciseHistory(Long userId, Integer page, Integer size, Integer moduleType, Integer isCorrect, String startTime);
 
     /**
+     * 答题历史（分页，支持起止时间）
+     */
+    List<ExerciseHistoryVO> getExerciseHistory(Long userId, Integer page, Integer size, Integer moduleType, Integer isCorrect, String startTime, String endTime);
+
+    /**
+     * 单词事件历史（分页，支持起止时间、事件类型、词书筛选）
+     */
+    List<UserWordLearnLogVO> getWordLearnHistory(Long userId, Integer page, Integer size, String eventType, String bookCode, String startTime, String endTime);
+
+    /**
      * 获取学习历史总数
      */
     long getExerciseHistoryCount(Long userId, Integer moduleType, Integer isCorrect, String startTime);
+
+    /**
+     * 获取学习历史总数（带结束时间）
+     */
+    long getExerciseHistoryCount(Long userId, Integer moduleType, Integer isCorrect, String startTime, String endTime);
+
+    /**
+     * 单词事件历史总数
+     */
+    long getWordLearnHistoryCount(Long userId, String eventType, String bookCode, String startTime, String endTime);
 
     /**
      * 按答题记录ID反查单次提交的上下文（题干 / 标准答案 / 解析 / 用户作答）。

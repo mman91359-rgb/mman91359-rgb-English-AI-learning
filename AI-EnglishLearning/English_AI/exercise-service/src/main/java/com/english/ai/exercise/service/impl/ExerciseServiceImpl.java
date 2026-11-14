@@ -24,6 +24,12 @@ import com.english.ai.exercise.dto.TranslationReviewDraft;
 import com.english.ai.exercise.dto.WeakKnowledgePoint;
 import com.english.ai.exercise.dto.CoinAwardResult;
 import com.english.ai.exercise.dto.PreferenceResult;
+import com.english.ai.exercise.dto.WordBookVO;
+import com.english.ai.exercise.dto.WordBookStatsVO;
+import com.english.ai.exercise.dto.NewWordItemVO;
+import com.english.ai.exercise.dto.WordCardVO;
+import com.english.ai.exercise.dto.UserWordFavoriteVO;
+import com.english.ai.exercise.dto.UserWordLearnLogVO;
 import com.english.ai.exercise.entity.*;
 import com.english.ai.exercise.event.ExerciseCompletedEvent;
 import com.english.ai.exercise.mapper.*;
@@ -75,6 +81,10 @@ public class ExerciseServiceImpl implements ExerciseService {
     private final UserFavoriteMapper favoriteMapper;
     private final UserVocabularyMapper vocabularyMapper;
     private final WordDictionaryMapper wordDictionaryMapper;
+    private final WordBookMapper wordBookMapper;
+    private final WordBookItemMapper wordBookItemMapper;
+    private final UserWordFavoriteMapper userWordFavoriteMapper;
+    private final UserWordLearnLogMapper userWordLearnLogMapper;
     private final DailyWordMapper dailyWordMapper;
     private final RestTemplate restTemplate;
     private final JudgmentEngine judgmentEngine;
@@ -259,31 +269,258 @@ public class ExerciseServiceImpl implements ExerciseService {
 
     @Override
     public List<QuestionVO> selectNewVocabularyQuestions(Long userId, int count) {
-        int safeCount = Math.max(1, Math.min(50, count));
-        // 多取一些候选，过滤掉单词本中已有的词后再截取
-        int candidateCount = Math.min(50, Math.max(safeCount * 2, safeCount));
-        List<QuestionVO> candidates = selectQuestions(userId, 1, candidateCount);
+        // 词书约束：只返回有题词，无题词由 selectNewWordItems 以词卡降级
+        return selectNewWordItems(userId, count).stream()
+                .filter(item -> "QUESTION".equals(item.getType()) && item.getQuestion() != null)
+                .map(NewWordItemVO::getQuestion)
+                .collect(Collectors.toList());
+    }
 
-        Set<String> knownWords = vocabularyMapper.selectList(
+    // ============= 词书 =============
+
+    @Override
+    public List<WordBookVO> getWordBooks() {
+        List<WordBook> books = wordBookMapper.selectList(
+                new LambdaQueryWrapper<WordBook>().orderByAsc(WordBook::getSortOrder));
+        List<WordBookVO> result = new ArrayList<>();
+        for (WordBook book : books) {
+            Long total = wordBookItemMapper.selectCount(
+                    new LambdaQueryWrapper<WordBookItem>().eq(WordBookItem::getBookCode, book.getCode()));
+            result.add(WordBookVO.builder()
+                    .id(book.getId())
+                    .code(book.getCode())
+                    .name(book.getName())
+                    .level(book.getLevel())
+                    .description(book.getDescription())
+                    .total(total != null ? total.intValue() : 0)
+                    .build());
+        }
+        return result;
+    }
+
+    @Override
+    public WordBookStatsVO getWordBookStats(Long userId, String bookCode) {
+        WordBook book = wordBookMapper.selectOne(
+                new LambdaQueryWrapper<WordBook>().eq(WordBook::getCode, bookCode));
+        if (book == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND, "词书不存在");
+        }
+
+        Long total = wordBookItemMapper.selectCount(
+                new LambdaQueryWrapper<WordBookItem>().eq(WordBookItem::getBookCode, bookCode));
+        int totalCount = total != null ? total.intValue() : 0;
+
+        // 已学（user_vocabulary 中存在且非 IGNORE）：按词书内 word 匹配
+        List<String> bookWords = wordBookItemMapper.selectList(
+                        new LambdaQueryWrapper<WordBookItem>().eq(WordBookItem::getBookCode, bookCode))
+                .stream().map(WordBookItem::getWord).collect(Collectors.toList());
+        int learned = 0;
+        int mastered = 0;
+        int ignored = 0;
+        if (!bookWords.isEmpty()) {
+            List<UserVocabulary> userWords = vocabularyMapper.selectList(
+                    new LambdaQueryWrapper<UserVocabulary>()
+                            .eq(UserVocabulary::getUserId, userId)
+                            .in(UserVocabulary::getWord, bookWords));
+            learned = (int) userWords.stream()
+                    .filter(v -> !"IGNORE".equals(v.getStatus()))
+                    .count();
+            mastered = (int) userWords.stream()
+                    .filter(v -> v.getIsMastered() != null && v.getIsMastered() == 1)
+                    .count();
+            ignored = (int) userWords.stream()
+                    .filter(v -> "IGNORE".equals(v.getStatus()))
+                    .count();
+        }
+
+        int toLearn = Math.max(0, totalCount - learned - ignored);
+
+        // 今日计划 = min(dailyNewWords, toLearn)
+        int dailyNewWords = getDailyNewWords(userId);
+        int todayPlan = Math.min(dailyNewWords, toLearn);
+
+        return WordBookStatsVO.builder()
+                .bookCode(bookCode)
+                .total(totalCount)
+                .learned(learned)
+                .mastered(mastered)
+                .ignored(ignored)
+                .toLearn(toLearn)
+                .todayPlan(todayPlan)
+                .build();
+    }
+
+    /**
+     * 选择新词练习条目：按当前词书 + 同等级取题，禁止跨书/跨等级兜底，无题词返回词卡。
+     */
+    @Override
+    public List<NewWordItemVO> selectNewWordItems(Long userId, int count) {
+        int safeCount = Math.max(1, Math.min(50, count));
+        WordBook book = resolveActiveWordBook(userId);
+        if (book == null) {
+            log.warn("新词选题: userId={} 未设置词书，返回空", userId);
+            return Collections.emptyList();
+        }
+
+        String bookCode = book.getCode();
+        String level = book.getLevel();
+
+        // 1. 词书内所有词（按 rank_no 升序，优先高频）
+        List<WordBookItem> items = wordBookItemMapper.selectList(
+                new LambdaQueryWrapper<WordBookItem>()
+                        .eq(WordBookItem::getBookCode, bookCode)
+                        .orderByAsc(WordBookItem::getRankNo));
+
+        // 2. 已学/已忽略词集合（排除这些词，保证不重复学）
+        Set<String> learnedWords = vocabularyMapper.selectList(
                         new LambdaQueryWrapper<UserVocabulary>()
                                 .eq(UserVocabulary::getUserId, userId))
                 .stream()
                 .map(v -> VocabularyLearningHelper.normalizeWord(v.getWord()).toLowerCase(Locale.ROOT))
-                .filter(word -> !word.isEmpty())
+                .filter(w -> !w.isEmpty())
                 .collect(Collectors.toSet());
 
-        if (knownWords.isEmpty()) {
-            return candidates.stream().limit(safeCount).collect(Collectors.toList());
+        List<String> candidateWords = items.stream()
+                .map(WordBookItem::getWord)
+                .filter(w -> w != null && !learnedWords.contains(w.toLowerCase(Locale.ROOT)))
+                .collect(Collectors.toList());
+
+        // 3. 最近 7 天已做题目（避免重复）
+        LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
+        Set<Long> recentQuestionIds = exerciseLogMapper.selectList(
+                        new LambdaQueryWrapper<UserExerciseLog>()
+                                .eq(UserExerciseLog::getUserId, userId)
+                                .ge(UserExerciseLog::getCreatedAt, sevenDaysAgo))
+                .stream().map(UserExerciseLog::getQuestionId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        // 4. 对候选词匹配题目（同等级，不跨级兜底）
+        List<NewWordItemVO> result = new ArrayList<>();
+        int questionBudget = safeCount * 2; // 多取一些，避免全无题时不够
+        int scanned = 0;
+        int maxScan = Math.min(candidateWords.size(), 200); // 最多扫 200 个词，避免全表扫描
+
+        for (String word : candidateWords) {
+            if (result.size() >= safeCount || scanned >= maxScan) break;
+            scanned++;
+
+            QuestionInfo qi = findQuestionByWord(word, level);
+            if (qi != null && !recentQuestionIds.contains(qi.getId())) {
+                result.add(NewWordItemVO.builder()
+                        .type("QUESTION")
+                        .question(toQuestionVO(qi, false))
+                        .build());
+            } else {
+                // 无题（或最近做过）→ 词卡降级
+                WordDictionary wd = wordDictionaryMapper.selectOne(
+                        new LambdaQueryWrapper<WordDictionary>()
+                                .eq(WordDictionary::getWord, word.toLowerCase(Locale.ROOT)));
+                if (wd != null) {
+                    result.add(NewWordItemVO.builder()
+                            .type("CARD")
+                            .card(WordCardVO.builder()
+                                    .word(wd.getWord())
+                                    .phonetic(wd.getPhonetic())
+                                    .translation(wd.getTranslation())
+                                    .pos(wd.getPos())
+                                    .example(wd.getExample())
+                                    .exampleTranslation(wd.getExampleTranslation())
+                                    .rankNo(null)
+                                    .build())
+                            .build());
+                }
+            }
         }
 
-        return candidates.stream()
-                .filter(q -> {
-                    String answer = VocabularyLearningHelper.normalizeWord(q.getAnswerWord())
-                            .toLowerCase(Locale.ROOT);
-                    return answer.isEmpty() || !knownWords.contains(answer);
-                })
-                .limit(safeCount)
-                .collect(Collectors.toList());
+        log.info("新词选题(词书约束): userId={}, book={}, level={}, 需求{}条, 返回{}条",
+                userId, bookCode, level, safeCount, result.size());
+        return result;
+    }
+
+    /** 按 answer_word 匹配题目（同等级） */
+    private QuestionInfo findQuestionByWord(String word, String level) {
+        String lower = word.toLowerCase(Locale.ROOT);
+        List<QuestionInfo> matches = questionInfoMapper.selectList(
+                new LambdaQueryWrapper<QuestionInfo>()
+                        .eq(QuestionInfo::getModuleType, 1)
+                        .eq(QuestionInfo::getTargetLevel, level)
+                        .eq(QuestionInfo::getIsDeleted, 0)
+                        .and(w -> w.eq(QuestionInfo::getAnswerWord, lower)
+                                .or().isNull(QuestionInfo::getAnswerWord)));
+        if (matches.isEmpty()) return null;
+        // 优先 answer_word 精确匹配
+        for (QuestionInfo qi : matches) {
+            if (qi.getAnswerWord() != null && qi.getAnswerWord().equalsIgnoreCase(lower)) {
+                return qi;
+            }
+        }
+        // 回落：取 content 的 correct_answer 匹配
+        for (QuestionInfo qi : matches) {
+            QuestionContent content = questionContentMapper.selectOne(
+                    new LambdaQueryWrapper<QuestionContent>().eq(QuestionContent::getQuestionId, qi.getId()));
+            if (content != null && content.getCorrectAnswer() != null
+                    && VocabularyLearningHelper.normalizeWord(content.getCorrectAnswer()).equalsIgnoreCase(lower)) {
+                return qi;
+            }
+        }
+        return null;
+    }
+
+    /** 解析当前词书：调 user-service 拿 activeWordBookId，未设置默认 basic_500 */
+    private WordBook resolveActiveWordBook(Long userId) {
+        Long bookId = null;
+        try {
+            String url = userServiceUrl + "/internal/user/preference/" + userId;
+            HttpHeaders headers = new HttpHeaders();
+            if (internalToken != null && !internalToken.isBlank()) {
+                headers.set("X-Internal-Token", internalToken);
+            }
+            ResponseEntity<Result<PreferenceResult>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, new HttpEntity<>(headers),
+                    new ParameterizedTypeReference<Result<PreferenceResult>>() {
+                    });
+            if (response.getBody() != null && response.getBody().getCode() == 200
+                    && response.getBody().getData() != null) {
+                bookId = response.getBody().getData().getActiveWordBookId();
+            }
+        } catch (Exception e) {
+            log.warn("获取当前词书失败(userId={}): {}", userId, e.getMessage());
+        }
+
+        WordBook book = null;
+        if (bookId != null) {
+            book = wordBookMapper.selectById(bookId);
+        }
+        if (book == null) {
+            // 默认回落到 basic_500
+            book = wordBookMapper.selectOne(
+                    new LambdaQueryWrapper<WordBook>().eq(WordBook::getCode, "basic_500"));
+        }
+        return book;
+    }
+
+    /** 读取每日新背单词数，失败默认 10 */
+    private int getDailyNewWords(Long userId) {
+        try {
+            String url = userServiceUrl + "/internal/user/preference/" + userId;
+            HttpHeaders headers = new HttpHeaders();
+            if (internalToken != null && !internalToken.isBlank()) {
+                headers.set("X-Internal-Token", internalToken);
+            }
+            ResponseEntity<Result<PreferenceResult>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, new HttpEntity<>(headers),
+                    new ParameterizedTypeReference<Result<PreferenceResult>>() {
+                    });
+            if (response.getBody() != null && response.getBody().getCode() == 200
+                    && response.getBody().getData() != null
+                    && response.getBody().getData().getDailyNewWords() != null) {
+                return response.getBody().getData().getDailyNewWords();
+            }
+        } catch (Exception e) {
+            log.warn("获取每日新词目标失败(userId={}): {}", userId, e.getMessage());
+        }
+        return 10;
     }
 
     // ============= 定级测试题 =============
@@ -433,6 +670,8 @@ public class ExerciseServiceImpl implements ExerciseService {
 
         // 新词循环的练习尝试只判题，不写日志、不更新 ELO/遗忘曲线、不触发金币组
         boolean practiceOnly = Boolean.TRUE.equals(request.getPracticeOnly());
+        // practiceOnly 优先：只判题时不写任何记录；statsOnly 写记录但只累加正确率
+        boolean statsOnly = !practiceOnly && Boolean.TRUE.equals(request.getStatsOnly());
         CoinAwardResult coinAward = null;
         // 答题记录ID：insert 后由 MyBatis-Plus 回填自增主键，供前端反查本次提交的上下文
         Long logId = null;
@@ -447,6 +686,7 @@ public class ExerciseServiceImpl implements ExerciseService {
             logEntry.setDurationSeconds(request.getDurationSeconds());
             logEntry.setModuleType(moduleType);
             logEntry.setTraceId(traceId);
+            logEntry.setBatchKey(normalizeBatchKey(request.getBatchKey()));
             // 统一使用 Asia/Shanghai，保证按日统计与词汇组判定一致
             logEntry.setCreatedAt(LocalDateTime.now(clock));
 
@@ -454,32 +694,43 @@ public class ExerciseServiceImpl implements ExerciseService {
             Long questionId = request.getQuestionId();
             new TransactionTemplate(transactionManager).executeWithoutResult(status -> {
                 exerciseLogMapper.insert(logEntry);
-                if (!isCorrect) {
-                    upsertErrorBook(userId, questionId);
-                } else {
-                    resolveErrorBook(userId, questionId);
+                // 只记统计时不动错题本：复习答错不该把已掌握的词重新打成错题
+                if (!statsOnly) {
+                    if (!isCorrect) {
+                        upsertErrorBook(userId, questionId);
+                    } else {
+                        resolveErrorBook(userId, questionId);
+                    }
                 }
             });
             // 事务提交后主键已回填，此处读取即可拿到自增ID
             logId = logEntry.getId();
 
-            // 事务提交后再执行跨服务/消息副作用，避免长事务与本地回滚不一致
-            // 词汇答题刚好完成一组时发放金币，失败不影响答题主流程
-            if (moduleType == 1) {
-                coinAward = maybeAwardVocabGroup(request.getUserId());
+            if (statsOnly) {
+                // 复习只计入正确率，不重复发放金币、不推进 ELO 与遗忘曲线、不入复核队列
+                recordModuleStatOnly(request.getUserId(), moduleType, isCorrect);
+            } else {
+                // 事务提交后再执行跨服务/消息副作用，避免长事务与本地回滚不一致
+                // 词汇答题刚好完成一组时发放金币，失败不影响答题主流程
+                if (moduleType == 1) {
+                    coinAward = maybeAwardVocabGroup(request.getUserId());
+                }
+
+                // 灰区（reviewDraft 非空）跳过计分，等复核结论出来再补记一次，避免不可逆的"先加后减"
+                applyLearningSideEffects(request, info, moduleType, isCorrect,
+                        judgmentResult.getReviewDraft(), logId, traceId, judgeCorrectAnswer);
+
+                // 发布RabbitMQ事件（异步解耦，fire-and-forget）
+                // 灰区必须一并跳过：consumer 会无条件写遗忘曲线，发了就等于计了两次
+                publishCompletedEvent(request, moduleType, isCorrect, traceId, judgmentResult.getReviewDraft());
             }
-
-            // 灰区（reviewDraft 非空）跳过计分，等复核结论出来再补记一次，避免不可逆的"先加后减"
-            applyLearningSideEffects(request, info, moduleType, isCorrect,
-                    judgmentResult.getReviewDraft(), logId, traceId, judgeCorrectAnswer);
-
-            // 发布RabbitMQ事件（异步解耦，fire-and-forget）
-            // 灰区必须一并跳过：consumer 会无条件写遗忘曲线，发了就等于计了两次
-            publishCompletedEvent(request, moduleType, isCorrect, traceId, judgmentResult.getReviewDraft());
         }
 
         if (practiceOnly) {
             log.info("练习提交(不计分): userId={}, questionId={}, correct={}, traceId={}",
+                    request.getUserId(), request.getQuestionId(), isCorrect, traceId);
+        } else if (statsOnly) {
+            log.info("复习提交(只计正确率): userId={}, questionId={}, correct={}, traceId={}",
                     request.getUserId(), request.getQuestionId(), isCorrect, traceId);
         } else {
             log.info("答题提交: userId={}, questionId={}, correct={}, matchedLevel={}, errorType={}, traceId={}",
@@ -887,8 +1138,8 @@ public class ExerciseServiceImpl implements ExerciseService {
         LocalDateTime tomorrowStart = today.plusDays(1).atStartOfDay();
         Long learnedCount = vocabularyMapper.selectCount(new LambdaQueryWrapper<UserVocabulary>()
                 .eq(UserVocabulary::getUserId, userId)
-                .ge(UserVocabulary::getCreatedAt, todayStart)
-                .lt(UserVocabulary::getCreatedAt, tomorrowStart));
+                .ge(UserVocabulary::getFirstLearnedAt, todayStart)
+                .lt(UserVocabulary::getFirstLearnedAt, tomorrowStart));
         Long reviewedCount = vocabularyMapper.selectCount(new LambdaQueryWrapper<UserVocabulary>()
                 .eq(UserVocabulary::getUserId, userId)
                 .ge(UserVocabulary::getLastReviewedAt, todayStart)
@@ -905,12 +1156,11 @@ public class ExerciseServiceImpl implements ExerciseService {
         Set<LocalDate> sessionDates = StudyDurationAggregator.sessionDates(studySessions);
         int activeDays = StudyDurationAggregator.activeDays(sessionDates, byDate.keySet());
 
-        // 6. 已掌握单词数 = 正确答题数（词汇题占70%权重）
-        long vocabCorrect = allLogs.stream()
-                .filter(l -> l.getIsCorrect() != null && l.getIsCorrect() == 1)
-                .filter(l -> l.getModuleType() == null || l.getModuleType() == 1)
-                .count();
-        int masteredWords = (int) Math.max(vocabCorrect * 1L, correctCount);
+        // 6. 已掌握单词数 = user_vocabulary.is_mastered=1 的数量（不再用答题次数）
+        Long masteredCount = vocabularyMapper.selectCount(new LambdaQueryWrapper<UserVocabulary>()
+                .eq(UserVocabulary::getUserId, userId)
+                .eq(UserVocabulary::getIsMastered, 1));
+        int masteredWords = masteredCount != null ? masteredCount.intValue() : 0;
 
         // 7. 全国排名估算（基于正确率和答题量）
         double score = correctRate * 0.6 + Math.min(totalAnswered / 200.0, 1.0) * 40;
@@ -1108,6 +1358,112 @@ public class ExerciseServiceImpl implements ExerciseService {
                 .build();
     }
 
+    // ============= 单词收藏 =============
+
+    @Override
+    public UserWordFavoriteVO addWordFavorite(Long userId, String word) {
+        String normalized = VocabularyLearningHelper.normalizeWord(word);
+        if (normalized.isEmpty()) {
+            throw new RuntimeException("单词不能为空");
+        }
+        String lower = normalized.toLowerCase(Locale.ROOT);
+
+        // 幂等：已收藏直接返回
+        UserWordFavorite existing = userWordFavoriteMapper.selectOne(
+                new LambdaQueryWrapper<UserWordFavorite>()
+                        .eq(UserWordFavorite::getUserId, userId)
+                        .eq(UserWordFavorite::getWord, lower));
+        if (existing != null) {
+            return toUserWordFavoriteVO(existing);
+        }
+
+        // 关联 word_dictionary
+        WordDictionary wd = wordDictionaryMapper.selectOne(
+                new LambdaQueryWrapper<WordDictionary>().eq(WordDictionary::getWord, lower));
+
+        UserWordFavorite fav = new UserWordFavorite();
+        fav.setUserId(userId);
+        fav.setWordId(wd != null ? wd.getId() : null);
+        fav.setWord(lower);
+        userWordFavoriteMapper.insert(fav);
+
+        // 记录收藏事件（不创建 user_vocabulary）
+        logWordLearnEvent(userId, wd != null ? wd.getId() : null, lower, "FAVORITE", null);
+
+        return toUserWordFavoriteVO(fav);
+    }
+
+    @Override
+    public void removeWordFavorite(Long userId, String word) {
+        String normalized = VocabularyLearningHelper.normalizeWord(word);
+        String lower = normalized.toLowerCase(Locale.ROOT);
+        userWordFavoriteMapper.delete(
+                new LambdaQueryWrapper<UserWordFavorite>()
+                        .eq(UserWordFavorite::getUserId, userId)
+                        .eq(UserWordFavorite::getWord, lower));
+        // 记录取消收藏事件
+        WordDictionary wd = wordDictionaryMapper.selectOne(
+                new LambdaQueryWrapper<WordDictionary>().eq(WordDictionary::getWord, lower));
+        logWordLearnEvent(userId, wd != null ? wd.getId() : null, lower, "UNFAVORITE", null);
+    }
+
+    @Override
+    public List<UserWordFavoriteVO> getWordFavorites(Long userId) {
+        List<UserWordFavorite> list = userWordFavoriteMapper.selectList(
+                new LambdaQueryWrapper<UserWordFavorite>()
+                        .eq(UserWordFavorite::getUserId, userId)
+                        .orderByDesc(UserWordFavorite::getCreatedAt));
+        return list.stream().map(this::toUserWordFavoriteVO).collect(Collectors.toList());
+    }
+
+    private UserWordFavoriteVO toUserWordFavoriteVO(UserWordFavorite f) {
+        String phonetic = null;
+        String translation = null;
+        String pos = null;
+        if (f.getWordId() != null) {
+            WordDictionary wd = wordDictionaryMapper.selectById(f.getWordId());
+            if (wd != null) {
+                phonetic = wd.getPhonetic();
+                translation = wd.getTranslation();
+                pos = wd.getPos();
+            }
+        }
+        return UserWordFavoriteVO.builder()
+                .id(f.getId())
+                .userId(f.getUserId())
+                .wordId(f.getWordId())
+                .word(f.getWord())
+                .phonetic(phonetic)
+                .translation(translation)
+                .pos(pos)
+                .createdAt(f.getCreatedAt())
+                .build();
+    }
+
+    /** 记录单词学习事件 */
+    private void logWordLearnEvent(Long userId, Long wordId, String word, String eventType, String bookCode) {
+        UserWordLearnLog logEntry = new UserWordLearnLog();
+        logEntry.setUserId(userId);
+        logEntry.setWordId(wordId);
+        logEntry.setWord(word == null ? "" : word.toLowerCase(Locale.ROOT));
+        logEntry.setEventType(eventType);
+        logEntry.setBookCode(bookCode);
+        userWordLearnLogMapper.insert(logEntry);
+    }
+
+    @Override
+    public VocabularyVO ignoreWord(Long id, Long userId) {
+        UserVocabulary v = vocabularyMapper.selectOne(
+                new LambdaQueryWrapper<UserVocabulary>()
+                        .eq(UserVocabulary::getId, id)
+                        .eq(UserVocabulary::getUserId, userId));
+        if (v == null) throw new RuntimeException("单词不存在");
+        v.setStatus("IGNORE");
+        vocabularyMapper.updateById(v);
+        logWordLearnEvent(userId, v.getWordId(), v.getWord(), "IGNORE", null);
+        return toVocabularyVO(v);
+    }
+
     // ============= 单词本 =============
 
     @Override
@@ -1143,6 +1499,53 @@ public class ExerciseServiceImpl implements ExerciseService {
     }
 
     @Override
+    public List<VocabularyVO> getVocabulary(Long userId, Integer page, Integer size, String bookCode, String status) {
+        int offset = (page == null || page < 1 ? 0 : page - 1) * (size == null ? 20 : size);
+        int limit = size == null ? 20 : size;
+
+        LambdaQueryWrapper<UserVocabulary> wrapper = new LambdaQueryWrapper<UserVocabulary>()
+                .eq(UserVocabulary::getUserId, userId);
+
+        // 按词书筛选：只筛 user_vocabulary.book_id 对应的词（需要反查 word_book_item）
+        if (bookCode != null && !bookCode.isBlank()) {
+            List<String> bookWords = wordBookItemMapper.selectList(
+                            new LambdaQueryWrapper<WordBookItem>().eq(WordBookItem::getBookCode, bookCode))
+                    .stream().map(WordBookItem::getWord).collect(Collectors.toList());
+            if (bookWords.isEmpty()) {
+                return Collections.emptyList();
+            }
+            wrapper.in(UserVocabulary::getWord, bookWords);
+        }
+        if (status != null && !status.isBlank()) {
+            wrapper.eq(UserVocabulary::getStatus, status);
+        }
+
+        wrapper.orderByAsc(UserVocabulary::getIsMastered)
+                .orderByDesc(UserVocabulary::getCreatedAt)
+                .last("LIMIT " + offset + "," + limit);
+        return vocabularyMapper.selectList(wrapper).stream().map(this::toVocabularyVO).collect(Collectors.toList());
+    }
+
+    @Override
+    public long getVocabularyCount(Long userId, String bookCode, String status) {
+        LambdaQueryWrapper<UserVocabulary> wrapper = new LambdaQueryWrapper<UserVocabulary>()
+                .eq(UserVocabulary::getUserId, userId);
+        if (bookCode != null && !bookCode.isBlank()) {
+            List<String> bookWords = wordBookItemMapper.selectList(
+                            new LambdaQueryWrapper<WordBookItem>().eq(WordBookItem::getBookCode, bookCode))
+                    .stream().map(WordBookItem::getWord).collect(Collectors.toList());
+            if (bookWords.isEmpty()) {
+                return 0;
+            }
+            wrapper.in(UserVocabulary::getWord, bookWords);
+        }
+        if (status != null && !status.isBlank()) {
+            wrapper.eq(UserVocabulary::getStatus, status);
+        }
+        return vocabularyMapper.selectCount(wrapper);
+    }
+
+    @Override
     public void removeVocabulary(Long id, Long userId) {
         vocabularyMapper.delete(
                 new LambdaQueryWrapper<UserVocabulary>()
@@ -1174,6 +1577,13 @@ public class ExerciseServiceImpl implements ExerciseService {
                 .exampleTranslation(v.getExampleTranslation())
                 .collocation(v.getCollocation())
                 .source(v.getSource())
+                .status(v.getStatus())
+                .wordId(v.getWordId())
+                .bookId(v.getBookId())
+                .firstLearnedAt(v.getFirstLearnedAt())
+                .correctCount(v.getCorrectCount())
+                .wrongCount(v.getWrongCount())
+                .lastResult(v.getLastResult())
                 .reviewCount(v.getReviewCount())
                 .masteryLevel(v.getMasteryLevel())
                 .lastReviewedAt(v.getLastReviewedAt())
@@ -1192,15 +1602,34 @@ public class ExerciseServiceImpl implements ExerciseService {
     public VocabularyVO addVocabularySmart(Long userId, String word, String source) {
         String w = word == null ? "" : word.trim();
         if (w.isEmpty()) throw new RuntimeException("单词不能为空");
+        String lower = w.toLowerCase(Locale.ROOT);
+
+        // 幂等去重：已存在同词直接返回，避免重复插入
+        UserVocabulary existing = vocabularyMapper.selectOne(
+                new LambdaQueryWrapper<UserVocabulary>()
+                        .eq(UserVocabulary::getUserId, userId)
+                        .eq(UserVocabulary::getWord, lower));
+        if (existing != null) {
+            return toVocabularyVO(existing);
+        }
 
         // 调用 ai-service 获取单词详情
         WordDetailVO detail = fetchWordDetailFromAi(w);
 
+        // 关联 word_dictionary
+        WordDictionary wd = wordDictionaryMapper.selectOne(
+                new LambdaQueryWrapper<WordDictionary>().eq(WordDictionary::getWord, lower));
+
         UserVocabulary v = new UserVocabulary();
         v.setUserId(userId);
-        v.setWord(w);
+        v.setWord(lower);
         v.setIsMastered(0);
         v.setSource(source == null || source.isBlank() ? "manual" : source);
+        v.setStatus("LEARNING");
+        v.setWordId(wd != null ? wd.getId() : null);
+        v.setFirstLearnedAt(LocalDateTime.now(clock));
+        v.setCorrectCount(0);
+        v.setWrongCount(0);
         v.setReviewCount(0);
         v.setMasteryLevel(0);
         v.setNextReviewAt(EbbinghausUtil.nextReviewAt(0, LocalDateTime.now(clock)));
@@ -1213,13 +1642,24 @@ public class ExerciseServiceImpl implements ExerciseService {
             v.setExample(detail.getExample());
             v.setExampleTranslation(detail.getExampleTranslation());
             v.setCollocation(detail.getCollocation());
+        } else if (wd != null) {
+            // AI 不可用：回落到 word_dictionary
+            v.setPhonetic(wd.getPhonetic());
+            v.setPos(wd.getPos());
+            v.setTranslation(wd.getTranslation());
+            v.setExample(wd.getExample());
+            v.setExampleTranslation(wd.getExampleTranslation());
         } else {
-            // AI 不可用兜底：translation 留空，前端引导用户手动补
+            // 都拿不到：translation 留空
             v.setTranslation("");
         }
 
         vocabularyMapper.insert(v);
-        log.info("智能添加单词: userId={}, word={}, source={}", userId, w, v.getSource());
+
+        // 记录 LEARN 事件
+        logWordLearnEvent(userId, v.getWordId(), lower, "LEARN", null);
+
+        log.info("智能添加单词: userId={}, word={}, source={}", userId, lower, v.getSource());
         return toVocabularyVO(v);
     }
 
@@ -1255,12 +1695,20 @@ public class ExerciseServiceImpl implements ExerciseService {
      */
     @Override
     public List<VocabularyVO> getReviewList(Long userId) {
+        return getReviewList(userId, 50);
+    }
+
+    @Override
+    public List<VocabularyVO> getReviewList(Long userId, Integer limit) {
+        int safeLimit = limit == null ? 50 : Math.max(1, Math.min(200, limit));
         List<UserVocabulary> list = vocabularyMapper.selectList(
                 new LambdaQueryWrapper<UserVocabulary>()
                         .eq(UserVocabulary::getUserId, userId)
                         .eq(UserVocabulary::getIsMastered, 0)
+                        .ne(UserVocabulary::getStatus, "IGNORE")
                         .le(UserVocabulary::getNextReviewAt, LocalDateTime.now())
-                        .orderByAsc(UserVocabulary::getNextReviewAt));
+                        .orderByAsc(UserVocabulary::getNextReviewAt)
+                        .last("LIMIT " + safeLimit));
         return list.stream().map(this::toVocabularyVO).collect(Collectors.toList());
     }
 
@@ -1292,14 +1740,30 @@ public class ExerciseServiceImpl implements ExerciseService {
         v.setLastReviewedAt(now);
         v.setNextReviewAt(EbbinghausUtil.nextReviewAt(newMastery, now));
 
+        // 更新答对/答错计数与最近结果
+        if (isCorrect) {
+            v.setCorrectCount((v.getCorrectCount() == null ? 0 : v.getCorrectCount()) + 1);
+            v.setLastResult("CORRECT");
+        } else {
+            v.setWrongCount((v.getWrongCount() == null ? 0 : v.getWrongCount()) + 1);
+            v.setLastResult("WRONG");
+        }
+
         // 达到最高掌握度且本次答对 → 标记为已掌握
-        if (EbbinghausUtil.isMastered(newMastery, isCorrect)) {
+        boolean mastered = EbbinghausUtil.isMastered(newMastery, isCorrect);
+        if (mastered) {
             v.setIsMastered(1);
+            v.setStatus("MASTERED");
         } else {
             v.setIsMastered(0);
+            v.setStatus("REVIEWING");
         }
 
         vocabularyMapper.updateById(v);
+
+        // 记录 REVIEW/MASTER 事件
+        logWordLearnEvent(userId, v.getWordId(), v.getWord(), mastered ? "MASTER" : "REVIEW", null);
+
         log.info("单词复习: id={}, userId={}, isCorrect={}, newMastery={}, nextReviewAt={}",
                 id, userId, isCorrect, newMastery, v.getNextReviewAt());
         return toVocabularyVO(v);
@@ -1309,6 +1773,11 @@ public class ExerciseServiceImpl implements ExerciseService {
 
     @Override
     public List<ExerciseHistoryVO> getExerciseHistory(Long userId, Integer page, Integer size, Integer moduleType, Integer isCorrect, String startTime) {
+        return getExerciseHistory(userId, page, size, moduleType, isCorrect, startTime, null);
+    }
+
+    @Override
+    public List<ExerciseHistoryVO> getExerciseHistory(Long userId, Integer page, Integer size, Integer moduleType, Integer isCorrect, String startTime, String endTime) {
         int offset = (page - 1) * size;
         LambdaQueryWrapper<UserExerciseLog> wrapper = new LambdaQueryWrapper<UserExerciseLog>()
                 .eq(UserExerciseLog::getUserId, userId);
@@ -1325,6 +1794,14 @@ public class ExerciseServiceImpl implements ExerciseService {
                 wrapper.ge(UserExerciseLog::getCreatedAt, start);
             } catch (Exception e) {
                 log.warn("解析 startTime 失败: {}", startTime);
+            }
+        }
+        if (endTime != null && !endTime.isBlank()) {
+            try {
+                LocalDateTime end = LocalDateTime.parse(endTime);
+                wrapper.lt(UserExerciseLog::getCreatedAt, end);
+            } catch (Exception e) {
+                log.warn("解析 endTime 失败: {}", endTime);
             }
         }
 
@@ -1447,6 +1924,11 @@ public class ExerciseServiceImpl implements ExerciseService {
 
     @Override
     public long getExerciseHistoryCount(Long userId, Integer moduleType, Integer isCorrect, String startTime) {
+        return getExerciseHistoryCount(userId, moduleType, isCorrect, startTime, null);
+    }
+
+    @Override
+    public long getExerciseHistoryCount(Long userId, Integer moduleType, Integer isCorrect, String startTime, String endTime) {
         LambdaQueryWrapper<UserExerciseLog> wrapper = new LambdaQueryWrapper<UserExerciseLog>()
                 .eq(UserExerciseLog::getUserId, userId);
 
@@ -1464,8 +1946,85 @@ public class ExerciseServiceImpl implements ExerciseService {
                 log.warn("解析 startTime 失败: {}", startTime);
             }
         }
+        if (endTime != null && !endTime.isBlank()) {
+            try {
+                LocalDateTime end = LocalDateTime.parse(endTime);
+                wrapper.lt(UserExerciseLog::getCreatedAt, end);
+            } catch (Exception e) {
+                log.warn("解析 endTime 失败: {}", endTime);
+            }
+        }
 
         return exerciseLogMapper.selectCount(wrapper);
+    }
+
+    @Override
+    public List<UserWordLearnLogVO> getWordLearnHistory(Long userId, Integer page, Integer size, String eventType, String bookCode, String startTime, String endTime) {
+        int offset = (page == null || page < 1 ? 0 : page - 1) * (size == null ? 20 : size);
+        int limit = size == null ? 20 : size;
+
+        LambdaQueryWrapper<UserWordLearnLog> wrapper = new LambdaQueryWrapper<UserWordLearnLog>()
+                .eq(UserWordLearnLog::getUserId, userId);
+        if (eventType != null && !eventType.isBlank()) {
+            wrapper.eq(UserWordLearnLog::getEventType, eventType);
+        }
+        if (bookCode != null && !bookCode.isBlank()) {
+            wrapper.eq(UserWordLearnLog::getBookCode, bookCode);
+        }
+        if (startTime != null && !startTime.isBlank()) {
+            try {
+                wrapper.ge(UserWordLearnLog::getCreatedAt, LocalDateTime.parse(startTime));
+            } catch (Exception e) {
+                log.warn("解析 startTime 失败: {}", startTime);
+            }
+        }
+        if (endTime != null && !endTime.isBlank()) {
+            try {
+                wrapper.lt(UserWordLearnLog::getCreatedAt, LocalDateTime.parse(endTime));
+            } catch (Exception e) {
+                log.warn("解析 endTime 失败: {}", endTime);
+            }
+        }
+
+        List<UserWordLearnLog> list = userWordLearnLogMapper.selectList(
+                wrapper.orderByDesc(UserWordLearnLog::getCreatedAt)
+                        .last("LIMIT " + offset + "," + limit));
+        return list.stream().map(l -> UserWordLearnLogVO.builder()
+                .id(l.getId())
+                .userId(l.getUserId())
+                .wordId(l.getWordId())
+                .word(l.getWord())
+                .eventType(l.getEventType())
+                .bookCode(l.getBookCode())
+                .createdAt(l.getCreatedAt())
+                .build()).collect(Collectors.toList());
+    }
+
+    @Override
+    public long getWordLearnHistoryCount(Long userId, String eventType, String bookCode, String startTime, String endTime) {
+        LambdaQueryWrapper<UserWordLearnLog> wrapper = new LambdaQueryWrapper<UserWordLearnLog>()
+                .eq(UserWordLearnLog::getUserId, userId);
+        if (eventType != null && !eventType.isBlank()) {
+            wrapper.eq(UserWordLearnLog::getEventType, eventType);
+        }
+        if (bookCode != null && !bookCode.isBlank()) {
+            wrapper.eq(UserWordLearnLog::getBookCode, bookCode);
+        }
+        if (startTime != null && !startTime.isBlank()) {
+            try {
+                wrapper.ge(UserWordLearnLog::getCreatedAt, LocalDateTime.parse(startTime));
+            } catch (Exception e) {
+                log.warn("解析 startTime 失败: {}", startTime);
+            }
+        }
+        if (endTime != null && !endTime.isBlank()) {
+            try {
+                wrapper.lt(UserWordLearnLog::getCreatedAt, LocalDateTime.parse(endTime));
+            } catch (Exception e) {
+                log.warn("解析 endTime 失败: {}", endTime);
+            }
+        }
+        return userWordLearnLogMapper.selectCount(wrapper);
     }
 
     /**
@@ -1816,6 +2375,44 @@ public class ExerciseServiceImpl implements ExerciseService {
         size = Math.max(5, Math.min(50, size));
         groupSizeCache.put(userId, new CachedGroupSize(size, now + 60_000L));
         return size;
+    }
+
+    /**
+     * 只累加模块答题统计（正确率口径）。
+     *
+     * <p>词汇复习走这条链路：需要正确率数据，但不能重复发放金币、不能推进 ELO 与遗忘曲线。
+     * 统计累加挂在 user-service 的模块维度更新里，因此复用同一个入口、只跳过 ELO 计算。</p>
+     */
+    private void recordModuleStatOnly(Long userId, int moduleType, boolean isCorrect) {
+        try {
+            String url = userServiceUrl + "/user/radar/record-module-answer";
+            Map<String, Object> body = new HashMap<>();
+            body.put("userId", userId);
+            body.put("moduleType", moduleType);
+            body.put("isCorrect", isCorrect);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+            restTemplate.postForEntity(url, entity, String.class);
+        } catch (Exception e) {
+            log.warn("调用user-service记录模块统计失败: userId={}, moduleType={}, reason={}",
+                    userId, moduleType, e.getMessage());
+        }
+    }
+
+    /**
+     * 练习组键归一化：空白或超长一律视为未分组，避免脏值进入索引列。
+     */
+    private String normalizeBatchKey(String batchKey) {
+        if (batchKey == null) {
+            return null;
+        }
+        String trimmed = batchKey.trim();
+        if (trimmed.isEmpty() || trimmed.length() > 64) {
+            return null;
+        }
+        return trimmed;
     }
 
     /**

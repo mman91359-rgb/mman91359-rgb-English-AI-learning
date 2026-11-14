@@ -5,9 +5,11 @@ import { get } from './request'
  */
 export interface RadarData {
     userId: number
+    /** ELO 内部隐藏分，仅用于选题难度匹配，画像页不再展示 */
     eloScore: number
     eloLevel: string
     targetLevel: string
+    /** 六维得分：非写作维度为累计正确率，写作维度为 AI 评分得分率 */
     vocabularyScore: number
     grammarScore: number
     listeningScore: number
@@ -20,6 +22,48 @@ export interface RadarData {
     readingPercent: number
     translationPercent: number
     writingPercent: number
+    /** 六维累计作答题数 */
+    vocabularyTotal: number
+    grammarTotal: number
+    listeningTotal: number
+    readingTotal: number
+    translationTotal: number
+    writingTotal: number
+    /** 六维累计答对题数 */
+    vocabularyCorrect: number
+    grammarCorrect: number
+    listeningCorrect: number
+    readingCorrect: number
+    translationCorrect: number
+    writingCorrect: number
+    /** 六维是否达到 60% 计分门槛（未达标不计入综合能力分） */
+    vocabularyCounted: boolean
+    grammarCounted: boolean
+    listeningCounted: boolean
+    readingCounted: boolean
+    translationCounted: boolean
+    writingCounted: boolean
+    /** 六维是否有可展示数据（样本不足 5 题时为 false） */
+    vocabularyHasData: boolean
+    grammarHasData: boolean
+    listeningHasData: boolean
+    readingHasData: boolean
+    translationHasData: boolean
+    writingHasData: boolean
+    /** 已达标模块的算术平均；全部未达标为 null */
+    overallAbilityScore: number | null
+    /** 累计练习积分 */
+    practicePoints: number
+    /** 当前称号 */
+    practiceTitle: string
+    /** 当前称号区间下界 */
+    titleFloor: number
+    /** 当前称号区间上界 */
+    titleCeil: number
+    /** 当前称号内进度百分比 */
+    titleProgress: number
+    /** 下一称号；已封顶为 null */
+    nextTitle: string | null
     eloFloor: number
     eloCeil: number
     eloProgress: number
@@ -75,19 +119,35 @@ export type AbilityDimensionKey =
 /** 单维度得分（0~100，保留一位小数） */
 export interface AbilityDimension {
     key: AbilityDimensionKey
+    /** 非写作维度为累计正确率，写作维度为 AI 评分得分率 */
     score: number
-    /** 该维度是否已有可用数据；false 时页面展示「—」且不计入雷达面积 */
+    /** 是否达到 60% 计分门槛并计入综合能力分 */
+    counted: boolean
+    /** 该维度是否已有可用数据；false 时页面展示「—」且不计入综合分 */
     hasData: boolean
+    /** 累计作答总题数（写作维度为 0） */
+    total: number
+    /** 累计答对题数（写作维度为 0） */
+    correct: number
 }
 
-/** 能力画像：ELO 总分 + 六维得分 */
+/** 能力画像：累计练习积分 + 称号 + 六维正确率 */
 export interface AbilityRadar {
     userId: number
-    eloScore: number
-    eloLevel: string
-    eloFloor: number
-    eloCeil: number
-    eloProgress: number
+    /** 累计练习积分（只增不减） */
+    practicePoints: number
+    /** 当前称号 */
+    practiceTitle: string
+    /** 当前称号区间下界 */
+    titleFloor: number
+    /** 当前称号区间上界 */
+    titleCeil: number
+    /** 当前称号内进度百分比 */
+    titleProgress: number
+    /** 下一称号；已封顶为 null */
+    nextTitle: string | null
+    /** 已达标模块的算术平均；全部未达标为 null */
+    overallAbilityScore: number | null
     dimensions: AbilityDimension[]
 }
 
@@ -95,35 +155,52 @@ export interface AbilityRadar {
 const round1 = (value: number): number => Math.round(value * 10) / 10
 
 /**
- * 获取能力画像：一次请求拿到 ELO 与六维得分。
- * 旧后端可能不返回 translationScore / writingScore，用 ?? 0 兜底并标记为无数据。
+ * 获取能力画像：一次请求拿到练习积分、称号与六维正确率。
+ * 旧后端可能缺少新增字段，统一用 ?? 兜底，避免整页报错。
  */
 export const getAbilityRadar = async (userId: number): Promise<AbilityRadar> => {
     const radar = await getRadarData(userId)
 
-    /** 后端分值即百分制，>0 视为已有数据 */
-    const direct = (
+    const dimension = (
         key: AbilityDimensionKey,
         score: number | undefined,
-    ): AbilityDimension => {
-        const value = round1(score ?? 0)
-        return { key, score: value, hasData: value > 0 }
-    }
+        total: number | undefined,
+        correct: number | undefined,
+        counted: boolean | undefined,
+        hasData: boolean | undefined,
+    ): AbilityDimension => ({
+        key,
+        score: round1(score ?? 0),
+        counted: counted ?? false,
+        hasData: hasData ?? false,
+        total: total ?? 0,
+        correct: correct ?? 0,
+    })
 
     return {
         userId,
-        eloScore: radar.eloScore || 0,
-        eloLevel: radar.eloLevel || '',
-        eloFloor: radar.eloFloor || 0,
-        eloCeil: radar.eloCeil || 0,
-        eloProgress: radar.eloProgress || 0,
+        practicePoints: radar.practicePoints ?? 0,
+        practiceTitle: radar.practiceTitle ?? '',
+        titleFloor: radar.titleFloor ?? 0,
+        titleCeil: radar.titleCeil ?? 0,
+        titleProgress: radar.titleProgress ?? 0,
+        nextTitle: radar.nextTitle ?? null,
+        overallAbilityScore: radar.overallAbilityScore == null
+            ? null
+            : round1(radar.overallAbilityScore),
         dimensions: [
-            direct('vocabulary', radar.vocabularyScore),
-            direct('grammar', radar.grammarScore),
-            direct('reading', radar.readingScore),
-            direct('listening', radar.listeningScore),
-            direct('translation', radar.translationScore),
-            direct('writing', radar.writingScore),
+            dimension('vocabulary', radar.vocabularyScore, radar.vocabularyTotal,
+                radar.vocabularyCorrect, radar.vocabularyCounted, radar.vocabularyHasData),
+            dimension('grammar', radar.grammarScore, radar.grammarTotal,
+                radar.grammarCorrect, radar.grammarCounted, radar.grammarHasData),
+            dimension('reading', radar.readingScore, radar.readingTotal,
+                radar.readingCorrect, radar.readingCounted, radar.readingHasData),
+            dimension('listening', radar.listeningScore, radar.listeningTotal,
+                radar.listeningCorrect, radar.listeningCounted, radar.listeningHasData),
+            dimension('translation', radar.translationScore, radar.translationTotal,
+                radar.translationCorrect, radar.translationCounted, radar.translationHasData),
+            dimension('writing', radar.writingScore, radar.writingTotal,
+                radar.writingCorrect, radar.writingCounted, radar.writingHasData),
         ],
     }
 }

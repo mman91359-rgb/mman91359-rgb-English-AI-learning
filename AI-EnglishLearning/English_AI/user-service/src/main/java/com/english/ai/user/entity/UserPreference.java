@@ -31,6 +31,9 @@ public class UserPreference {
     /** 每日复习单词数（0-50），NULL 表示尚未设置 */
     private Integer dailyReviewWords;
 
+    /** 当前选中的词书ID（关联 exercise_db.word_book.id），NULL 表示未选 */
+    private Long activeWordBookId;
+
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
 

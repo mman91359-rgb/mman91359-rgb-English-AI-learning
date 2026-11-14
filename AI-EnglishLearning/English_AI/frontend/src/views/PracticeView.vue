@@ -177,6 +177,9 @@
               <p class="font-label-md text-label-md text-on-surface-variant">{{ $t('learning.accuracy') }}</p>
             </div>
           </div>
+
+          <!-- 练习积分结算：达标才发分，未达标明确告知差距 -->
+          <PracticeSettleCard :result="batchSettle" :loading="batchSettling" />
         </div>
 
         <!-- 逐题回顾 -->
@@ -235,7 +238,9 @@ import { useUserStore } from '@/stores/user'
 import { moduleName as moduleLabel } from '@/config/modules'
 import { selectQuestions, submitAnswer } from '@/api/exercise'
 import { useSentenceFavorite } from '@/composables/useSentenceFavorite'
+import { usePracticeSettlement } from '@/composables/usePracticeSettlement'
 import type { QuestionVO, SubmitResponse } from '@/api/exercise'
+import PracticeSettleCard from '@/components/PracticeSettleCard.vue'
 import { btnIcon } from '@/components/ui/buttonStyles'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
@@ -268,6 +273,9 @@ export interface QuestionResultItem {
 }
 const questionResults = ref<QuestionResultItem[]>([])
 const showResults = ref(false)
+
+/** 练习组结算：一组题共用一个结算键，整组做完后结算积分 */
+const { batchKey, batchSettle, batchSettling, startBatch, settleBatch } = usePracticeSettlement()
 
 const correctCount = computed(() =>
   questionResults.value.filter(r => r.submitResult?.isCorrect).length
@@ -401,6 +409,8 @@ const loadQuestions = async () => {
   try {
     const qs = await selectQuestions(userId, moduleType.value, count.value)
     questions.value = qs || []
+    // 每组题重新生成结算键，并清空上一组的结算结果
+    startBatch(moduleType.value)
   } catch (e) {
     console.warn('获取题目失败', e)
   } finally {
@@ -434,6 +444,7 @@ const submitCurrentAnswer = async () => {
       userAnswer: answerToSubmit,
       moduleType: q.moduleType || moduleType.value,
       durationSeconds: Math.round((Date.now() - practiceStartTime.value) / 1000),
+      batchKey: batchKey.value || undefined,
     })
     submitResult.value = result
     showResult.value = true
@@ -459,6 +470,8 @@ const goNext = () => {
   } else {
     showResults.value = true
     clearProgress()
+    // 整组答完再结算，避免单题提交时把未完成的分发出去
+    void settleBatch(userStore.userId)
   }
 }
 

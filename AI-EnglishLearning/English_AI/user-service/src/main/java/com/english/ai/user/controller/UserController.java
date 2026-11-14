@@ -9,6 +9,7 @@ import com.english.ai.user.dto.AssessSubmitRequest;
 import com.english.ai.user.dto.LoginRequest;
 import com.english.ai.user.dto.LoginResponse;
 import com.english.ai.user.dto.ModuleScoreUpdateRequest;
+import com.english.ai.user.dto.ModuleStatRequest;
 import com.english.ai.user.dto.RegisterRequest;
 import com.english.ai.user.entity.SysUser;
 import com.english.ai.user.service.UserAbilityRadarService;
@@ -331,6 +332,28 @@ public class UserController {
             throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
         }
         Map<String, Object> data = radarService.getRadarData(userId);
+        return Result.success(data);
+    }
+
+    /**
+     * 只累加模块答题统计（由 exercise-service 在词汇复习时调用）
+     * POST /user/radar/record-module-answer
+     * Body: {"userId": 1, "moduleType": 1, "isCorrect": true}
+     *
+     * <p>与 update-elo 的区别：不参与 ELO 计算，只累加 total/correct 并回写维度正确率。
+     * 词汇复习需要正确率数据，但不应重复推进 ELO 与遗忘曲线。</p>
+     */
+    @PostMapping("/radar/record-module-answer")
+    public Result<Map<String, Object>> recordModuleAnswer(@RequestBody ModuleStatRequest request) {
+        if (request.getUserId() == null || request.getModuleType() == null) {
+            return Result.badRequest("userId和moduleType不能为空");
+        }
+        radarService.updateModuleScore(request.getUserId(),
+                request.getModuleType(),
+                Boolean.TRUE.equals(request.getIsCorrect()));
+        Map<String, Object> data = radarService.getRadarData(request.getUserId());
+        log.info("模块统计累加: userId={}, moduleType={}, correct={}",
+                request.getUserId(), request.getModuleType(), request.getIsCorrect());
         return Result.success(data);
     }
 

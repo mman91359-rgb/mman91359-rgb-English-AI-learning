@@ -17,4 +17,13 @@ public class PreferenceResult {
     private Integer minGroupSize;
 
     private Integer maxGroupSize;
+
+    /** 当前选中的词书ID（关联 exercise_db.word_book.id），null 表示未选 */
+    private Long activeWordBookId;
+
+    /** 每日新背单词数 */
+    private Integer dailyNewWords;
+
+    /** 每日复习单词数 */
+    private Integer dailyReviewWords;
 }

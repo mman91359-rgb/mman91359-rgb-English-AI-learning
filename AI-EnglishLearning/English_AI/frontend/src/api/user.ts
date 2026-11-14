@@ -57,6 +57,7 @@ export interface PreferenceResponse {
   maxDailyNewWords: number
   minDailyReviewWords: number
   maxDailyReviewWords: number
+  activeWordBookId: number | null
 }
 
 export const login = (data: LoginRequest): Promise<LoginResponse> => {
@@ -103,6 +104,11 @@ export const updateVocabularyGoals = (
   dailyReviewWords: number,
 ): Promise<PreferenceResponse> => {
   return put('/user/preference/vocabulary-goals', { userId, dailyNewWords, dailyReviewWords })
+}
+
+/** 更新当前词书 */
+export const updateActiveWordBook = (userId: number, activeWordBookId: number): Promise<PreferenceResponse> => {
+  return put('/user/preference/word-book', { userId, activeWordBookId })
 }
 
 export const submitAssessAnswer = (data: AssessSubmitRequest): Promise<any> => {

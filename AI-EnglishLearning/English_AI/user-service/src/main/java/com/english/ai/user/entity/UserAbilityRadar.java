@@ -43,6 +43,9 @@ public class UserAbilityRadar {
     /** 目标等级 */
     private String targetLevel;
 
+    /** 累计练习积分（只增不减，驱动称号段位） */
+    private Integer practicePoints;
+
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
 

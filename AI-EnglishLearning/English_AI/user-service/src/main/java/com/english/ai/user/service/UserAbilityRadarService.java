@@ -12,10 +12,14 @@ public interface UserAbilityRadarService {
     /** 根据用户ID查询雷达数据 */
     UserAbilityRadar getByUserId(Long userId);
 
-    /** 更新ELO分（答题后调） */
+    /** 更新ELO分（答题后调，仅用于选题难度匹配，不参与画像展示） */
     int updateElo(Long userId, int questionDifficulty, boolean isCorrect, boolean isAssess);
 
-    /** 更新模块维度分（答题后调用，移动加权平均） */
+    /**
+     * 答题后更新模块维度分。
+     *
+     * <p>口径为「模块累计正确率」：答错只增加分母、压低正确率，不再额外扣分。</p>
+     */
     void updateModuleScore(Long userId, int moduleType, boolean isCorrect);
 
     /**

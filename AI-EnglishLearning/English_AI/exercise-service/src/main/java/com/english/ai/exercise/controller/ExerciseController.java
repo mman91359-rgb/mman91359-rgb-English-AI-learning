@@ -199,6 +199,76 @@ public class ExerciseController {
         return Result.success("已删除");
     }
 
+    // ========== 词书 ==========
+
+    /** GET /exercise/word-books */
+    @GetMapping("/word-books")
+    public Result<List<WordBookVO>> getWordBooks() {
+        return Result.success(exerciseService.getWordBooks());
+    }
+
+    /** GET /exercise/word-books/{bookCode}/stats?userId=1 */
+    @GetMapping("/word-books/{bookCode}/stats")
+    public Result<WordBookStatsVO> getWordBookStats(
+            @PathVariable String bookCode,
+            @RequestParam Long userId,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
+        }
+        try {
+            return Result.success(exerciseService.getWordBookStats(userId, bookCode));
+        } catch (BusinessException e) {
+            return Result.error(e.getCode(), e.getMessage());
+        } catch (RuntimeException e) {
+            return Result.error(e.getMessage());
+        }
+    }
+
+    // ========== 单词收藏 ==========
+
+    /** POST /exercise/word-favorites */
+    @PostMapping("/word-favorites")
+    public Result<UserWordFavoriteVO> addWordFavorite(
+            @Valid @RequestBody AddWordFavoriteRequest request,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (request.getUserId() == null || request.getWord() == null || request.getWord().isBlank()) {
+            return Result.badRequest("userId和word不能为空");
+        }
+        if (UserIdentityUtil.isForbidden(headerUserId, request.getUserId())) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
+        }
+        try {
+            return Result.success(exerciseService.addWordFavorite(request.getUserId(), request.getWord()));
+        } catch (RuntimeException e) {
+            return Result.error(e.getMessage());
+        }
+    }
+
+    /** DELETE /exercise/word-favorites?userId=1&word=xxx */
+    @DeleteMapping("/word-favorites")
+    public Result<String> removeWordFavorite(
+            @RequestParam Long userId,
+            @RequestParam String word,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
+        }
+        exerciseService.removeWordFavorite(userId, word);
+        return Result.success("已取消收藏");
+    }
+
+    /** GET /exercise/word-favorites/{userId} */
+    @GetMapping("/word-favorites/{userId}")
+    public Result<List<UserWordFavoriteVO>> getWordFavorites(
+            @PathVariable Long userId,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
+        }
+        return Result.success(exerciseService.getWordFavorites(userId));
+    }
+
     // ========== 单词本 ==========
 
     /** POST /exercise/vocabulary */
@@ -242,14 +312,25 @@ public class ExerciseController {
         }
     }
 
-    /** GET /exercise/vocabulary/{userId} */
+    /** GET /exercise/vocabulary/{userId}?page=1&size=20&bookCode=basic_500&status=LEARNING */
     @GetMapping("/vocabulary/{userId}")
-    public Result<List<VocabularyVO>> getVocabulary(@PathVariable Long userId,
-                                                    @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+    public Result<Map<String, Object>> getVocabulary(@PathVariable Long userId,
+                                                     @RequestParam(defaultValue = "1") Integer page,
+                                                     @RequestParam(defaultValue = "20") Integer size,
+                                                     @RequestParam(required = false) String bookCode,
+                                                     @RequestParam(required = false) String status,
+                                                     @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
         if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
             throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
         }
-        return Result.success(exerciseService.getVocabulary(userId));
+        List<VocabularyVO> list = exerciseService.getVocabulary(userId, page, size, bookCode, status);
+        long total = exerciseService.getVocabularyCount(userId, bookCode, status);
+        Map<String, Object> result = new java.util.HashMap<>();
+        result.put("records", list);
+        result.put("total", total);
+        result.put("page", page);
+        result.put("size", size);
+        return Result.success(result);
     }
 
     /**
@@ -268,6 +349,43 @@ public class ExerciseController {
         List<QuestionVO> questions = exerciseService.selectNewVocabularyQuestions(userId, safeCount);
         log.info("新词选题: userId={}, 需求{}题, 返回{}题", userId, safeCount, questions.size());
         return Result.success(questions);
+    }
+
+    /**
+     * 新词练习条目（按当前词书 + 同等级约束，无题词返回词卡）
+     * GET /exercise/vocabulary/new-items?userId=1&count=10
+     */
+    @GetMapping("/vocabulary/new-items")
+    public Result<List<NewWordItemVO>> selectNewWordItems(
+            @RequestParam Long userId,
+            @RequestParam(defaultValue = "10") Integer count,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
+        }
+        int safeCount = Math.max(1, Math.min(50, count));
+        List<NewWordItemVO> items = exerciseService.selectNewWordItems(userId, safeCount);
+        log.info("新词条目: userId={}, 需求{}条, 返回{}条", userId, safeCount, items.size());
+        return Result.success(items);
+    }
+
+    /**
+     * 忽略单词（status=IGNORE，退出新词池与复习）
+     * PUT /exercise/vocabulary/{id}/ignore?userId=1
+     */
+    @PutMapping("/vocabulary/{id}/ignore")
+    public Result<VocabularyVO> ignoreWord(
+            @PathVariable Long id,
+            @RequestParam Long userId,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
+        }
+        try {
+            return Result.success(exerciseService.ignoreWord(id, userId));
+        } catch (RuntimeException e) {
+            return Result.error(e.getMessage());
+        }
     }
 
     /** DELETE /exercise/vocabulary/{id}?userId=1 */
@@ -337,7 +455,7 @@ public class ExerciseController {
 
     // ========== 学习历史 ==========
 
-    /** GET /exercise/history/{userId}?page=1&size=20&moduleType=1&isCorrect=1&startTime=2024-01-01T00:00:00 */
+    /** GET /exercise/history/{userId}?page=1&size=20&moduleType=1&isCorrect=1&startTime=...&endTime=... */
     @GetMapping("/history/{userId}")
     public Result<Map<String, Object>> getExerciseHistory(
             @PathVariable Long userId,
@@ -346,12 +464,40 @@ public class ExerciseController {
             @RequestParam(required = false) Integer moduleType,
             @RequestParam(required = false) Integer isCorrect,
             @RequestParam(required = false) String startTime,
+            @RequestParam(required = false) String endTime,
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
         if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
             throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
         }
-        List<ExerciseHistoryVO> list = exerciseService.getExerciseHistory(userId, page, size, moduleType, isCorrect, startTime);
-        long total = exerciseService.getExerciseHistoryCount(userId, moduleType, isCorrect, startTime);
+        List<ExerciseHistoryVO> list = exerciseService.getExerciseHistory(userId, page, size, moduleType, isCorrect, startTime, endTime);
+        long total = exerciseService.getExerciseHistoryCount(userId, moduleType, isCorrect, startTime, endTime);
+        Map<String, Object> result = new java.util.HashMap<>();
+        result.put("records", list);
+        result.put("total", total);
+        result.put("page", page);
+        result.put("size", size);
+        return Result.success(result);
+    }
+
+    /**
+     * 单词事件历史（LEARN/REVIEW/MASTER/FAVORITE/UNFAVORITE/IGNORE）
+     * GET /exercise/word-history/{userId}?page=1&size=20&eventType=LEARN&bookCode=basic_500&startTime=...&endTime=...
+     */
+    @GetMapping("/word-history/{userId}")
+    public Result<Map<String, Object>> getWordLearnHistory(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "20") Integer size,
+            @RequestParam(required = false) String eventType,
+            @RequestParam(required = false) String bookCode,
+            @RequestParam(required = false) String startTime,
+            @RequestParam(required = false) String endTime,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
+        }
+        List<UserWordLearnLogVO> list = exerciseService.getWordLearnHistory(userId, page, size, eventType, bookCode, startTime, endTime);
+        long total = exerciseService.getWordLearnHistoryCount(userId, eventType, bookCode, startTime, endTime);
         Map<String, Object> result = new java.util.HashMap<>();
         result.put("records", list);
         result.put("total", total);

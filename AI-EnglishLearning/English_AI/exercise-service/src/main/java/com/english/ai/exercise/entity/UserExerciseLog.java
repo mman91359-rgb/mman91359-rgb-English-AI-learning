@@ -36,6 +36,9 @@ public class UserExerciseLog {
     /** 全链路追踪ID */
     private String traceId;
 
+    /** 练习组唯一键，用于单次练习结算；普通单题提交为空 */
+    private String batchKey;
+
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
 }

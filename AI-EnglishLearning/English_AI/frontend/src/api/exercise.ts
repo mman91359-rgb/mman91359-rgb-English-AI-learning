@@ -63,6 +63,10 @@ export interface SubmitRequest {
     durationSeconds?: number
     /** 仅练习：只判题，不写答题记录/不更新 ELO/金币 */
     practiceOnly?: boolean
+    /** 只记统计：写答题记录并计入正确率，但不发金币、不推进 ELO 与遗忘曲线；practiceOnly 优先 */
+    statsOnly?: boolean
+    /** 练习组唯一键（≤64 位），用于一组题做完后结算积分；不传则不参与结算 */
+    batchKey?: string
 }
 
 /**
@@ -166,6 +170,57 @@ export const getQuestionById = (id: number, showAnswer: boolean = false): Promis
  */
 export const submitAnswer = (data: SubmitRequest): Promise<SubmitResponse> => {
     return post('/exercise/submit', data)
+}
+
+/** 练习组积分结算结果 */
+export interface PracticeSettleResult {
+    /** 本组是否正确率达到 60% 计分门槛 */
+    qualified: boolean
+    /** 本次是否实际发放积分（幂等重复请求为 false） */
+    awarded: boolean
+    /** 本组正确率(0~100) */
+    accuracy: number
+    /** 本组总题数 */
+    totalCount: number
+    /** 本组答对题数 */
+    correctCount: number
+    /** 扣除每日上限前应得积分 */
+    rawPoints: number
+    /** 本次实发积分 */
+    points: number
+    /** 是否触发每日上限 */
+    dailyLimitReached: boolean
+    /** 结算后累计积分 */
+    totalPoints?: number
+    /** 当前称号 */
+    title?: string
+    /** 下一称号；已封顶为 null */
+    nextTitle?: string | null
+    /** 当前称号区间下界 */
+    titleFloor?: number
+    /** 当前称号区间上界 */
+    titleCeil?: number
+    /** 当前称号内进度百分比 */
+    titleProgress?: number
+    /** 未结算原因：NO_RECORD / SETTLE_FAILED；正常为 null */
+    reason?: string | null
+}
+
+/**
+ * 结算一组练习的积分（幂等：同一 batchKey 重复调用返回首次结果）
+ * POST /exercise/practice/settle
+ */
+export const settlePractice = (
+    userId: number,
+    batchKey: string,
+): Promise<PracticeSettleResult> => {
+    return post('/exercise/practice/settle', { userId, batchKey })
+}
+
+/** 生成练习组唯一键：时间戳 + 随机串，长度远小于 64 位上限 */
+export const newPracticeBatchKey = (moduleType: number): string => {
+    const random = Math.random().toString(36).slice(2, 10)
+    return `p${moduleType}-${Date.now().toString(36)}-${random}`
 }
 
 /** 听力答题统计 */
@@ -329,6 +384,20 @@ export interface VocabularyVO {
     collocation?: string
     /** 来源: manual/daily_word/quiz */
     source?: string
+    /** 学习状态: LEARNING/REVIEWING/MASTERED/IGNORE */
+    status?: string
+    /** 关联 word_dictionary.id */
+    wordId?: number
+    /** 词书归属 word_book.id */
+    bookId?: number
+    /** 首次学习时间 */
+    firstLearnedAt?: string
+    /** 累计答对次数 */
+    correctCount?: number
+    /** 累计答错次数 */
+    wrongCount?: number
+    /** 最近一次复习结果 */
+    lastResult?: string
     /** 累计复习次数 */
     reviewCount?: number
     /** 掌握度等级 0-5 */
@@ -373,8 +442,18 @@ export const addVocabularySmart = (data: AddVocabularySmartRequest): Promise<Voc
     return post('/exercise/vocabulary/smart', data)
 }
 
-export const getVocabulary = (userId: number): Promise<VocabularyVO[]> => {
-    return get(`/exercise/vocabulary/${userId}`)
+/** 分页查询单词本（带词书/状态筛选） */
+export const getVocabularyPage = (
+    userId: number,
+    page: number = 1,
+    size: number = 20,
+    bookCode?: string,
+    status?: string,
+): Promise<{ records: VocabularyVO[]; total: number; page: number; size: number }> => {
+    const params: Record<string, any> = { page, size }
+    if (bookCode) params.bookCode = bookCode
+    if (status) params.status = status
+    return get(`/exercise/vocabulary/${userId}`, params)
 }
 
 export const removeVocabulary = (id: number, userId: number): Promise<string> => {
@@ -393,6 +472,123 @@ export const getReviewList = (userId: number): Promise<VocabularyVO[]> => {
 /** 提交单词复习结果（记住/没记住） */
 export const reviewWord = (id: number, data: ReviewResultRequest): Promise<VocabularyVO> => {
     return put(`/exercise/vocabulary/${id}/review`, data)
+}
+
+/** 忽略单词 */
+export const ignoreWord = (id: number, userId: number): Promise<VocabularyVO> => {
+    return put(`/exercise/vocabulary/${id}/ignore?userId=${userId}`)
+}
+
+// ========== 词书 ==========
+
+export interface WordBookVO {
+    id: number
+    code: string
+    name: string
+    level: string
+    description?: string
+    total: number
+}
+
+export interface WordBookStatsVO {
+    bookCode: string
+    total: number
+    learned: number
+    mastered: number
+    ignored: number
+    toLearn: number
+    todayPlan: number
+}
+
+export const getWordBooks = (): Promise<WordBookVO[]> => {
+    return get('/exercise/word-books')
+}
+
+export const getWordBookStats = (bookCode: string, userId: number): Promise<WordBookStatsVO> => {
+    return get(`/exercise/word-books/${bookCode}/stats`, { userId })
+}
+
+// ========== 单词收藏 ==========
+
+export interface UserWordFavoriteVO {
+    id: number
+    userId: number
+    wordId?: number
+    word: string
+    phonetic?: string
+    translation?: string
+    pos?: string
+    createdAt: string
+}
+
+export const addWordFavorite = (userId: number, word: string): Promise<UserWordFavoriteVO> => {
+    return post('/exercise/word-favorites', { userId, word })
+}
+
+export const removeWordFavorite = (userId: number, word: string): Promise<string> => {
+    return del(`/exercise/word-favorites?userId=${userId}&word=${encodeURIComponent(word)}`)
+}
+
+export const getWordFavorites = (userId: number): Promise<UserWordFavoriteVO[]> => {
+    return get(`/exercise/word-favorites/${userId}`)
+}
+
+// ========== 新词条目（词书约束 + 词卡降级） ==========
+
+export interface WordCardVO {
+    word: string
+    phonetic?: string
+    translation?: string
+    pos?: string
+    example?: string
+    exampleTranslation?: string
+    rankNo?: number
+}
+
+export interface NewWordItemVO {
+    type: 'QUESTION' | 'CARD'
+    question?: QuestionVO
+    card?: WordCardVO
+}
+
+export const selectNewWordItems = (userId: number, count: number = 10): Promise<NewWordItemVO[]> => {
+    return get('/exercise/vocabulary/new-items', { userId, count })
+}
+
+// ========== 单词事件历史 ==========
+
+export interface UserWordLearnLogVO {
+    id: number
+    userId: number
+    wordId?: number
+    word: string
+    eventType: string
+    bookCode?: string
+    createdAt: string
+}
+
+export interface WordHistoryPage {
+    records: UserWordLearnLogVO[]
+    total: number
+    page: number
+    size: number
+}
+
+export const getWordLearnHistory = (
+    userId: number,
+    page: number = 1,
+    size: number = 20,
+    eventType?: string,
+    bookCode?: string,
+    startTime?: string,
+    endTime?: string,
+): Promise<WordHistoryPage> => {
+    const params: Record<string, any> = { page, size }
+    if (eventType) params.eventType = eventType
+    if (bookCode) params.bookCode = bookCode
+    if (startTime) params.startTime = startTime
+    if (endTime) params.endTime = endTime
+    return get(`/exercise/word-history/${userId}`, params)
 }
 
 // ========== 每日单词 ==========
@@ -455,12 +651,14 @@ export const getExerciseHistory = (
     size: number = 20,
     moduleType?: number,
     isCorrect?: number,
-    startTime?: string
+    startTime?: string,
+    endTime?: string,
 ): Promise<HistoryPage> => {
     const params: Record<string, any> = { page, size }
     if (moduleType !== undefined && moduleType !== 0) params.moduleType = moduleType
     if (isCorrect !== undefined && isCorrect >= 0) params.isCorrect = isCorrect
     if (startTime) params.startTime = startTime
+    if (endTime) params.endTime = endTime
     return get(`/exercise/history/${userId}`, params)
 }
 

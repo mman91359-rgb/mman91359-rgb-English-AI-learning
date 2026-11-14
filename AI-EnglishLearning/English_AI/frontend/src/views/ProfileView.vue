@@ -185,7 +185,7 @@
             v-if="radar"
             class="px-3 py-1 rounded-full bg-primary-container/20 font-label-sm text-label-sm text-primary whitespace-nowrap"
           >
-            {{ radar.eloLevel || $t('profile.beginner') }}
+            {{ radar.practiceTitle || $t('profile.beginner') }}
           </span>
         </div>
 
@@ -214,23 +214,32 @@
 
         <template v-else>
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-            <!-- 左：ELO 总分与等级区间 -->
+            <!-- 左：练习积分与称号段位 -->
             <div class="text-center lg:text-left">
               <p class="font-label-md text-label-md uppercase tracking-wider text-on-surface-variant">
-                {{ $t('profile.ability.totalScore') }}
+                {{ $t('profile.ability.practicePoints') }}
               </p>
-              <p class="mt-1 font-display-lg text-display-lg text-primary tabular-nums">{{ radar?.eloScore ?? 0 }}</p>
+              <p class="mt-1 font-display-lg text-display-lg text-primary tabular-nums">
+                {{ radar?.practicePoints ?? 0 }}
+              </p>
               <div class="mt-5">
                 <div class="flex items-center justify-between font-label-sm text-label-sm text-on-surface-variant tabular-nums">
-                  <span>{{ radar?.eloFloor ?? 0 }}</span>
-                  <span>{{ radar?.eloCeil ?? 0 }}</span>
+                  <span>{{ radar?.titleFloor ?? 0 }}</span>
+                  <span>{{ radar?.titleCeil ?? 0 }}</span>
                 </div>
                 <div class="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-outline-variant/30">
                   <div
                     class="h-full rounded-full bg-primary transition-all"
-                    :style="{ width: `${radar?.eloProgress ?? 0}%` }"
+                    :style="{ width: `${radar?.titleProgress ?? 0}%` }"
                   ></div>
                 </div>
+                <p class="mt-2 font-label-sm text-label-sm text-on-surface-variant">
+                  {{ nextTitleHint }}
+                </p>
+              </div>
+              <div class="mt-4 flex items-center justify-center lg:justify-start gap-2">
+                <span class="font-label-md text-label-md text-on-surface-variant">{{ $t('profile.ability.overallAbility') }}</span>
+                <span class="font-headline-sm text-headline-sm text-on-surface tabular-nums">{{ overallAbilityText }}</span>
               </div>
             </div>
 
@@ -238,22 +247,33 @@
             <AbilityRadarChart :items="radarAxes" />
           </div>
 
-          <!-- 六维分数明细 -->
+          <!-- 六维正确率明细 -->
           <div class="mt-6 grid grid-cols-1 gap-x-8 lg:grid-cols-2 border-t border-outline-variant/20 pt-4">
-            <div v-for="axis in radarAxes" :key="axis.key" class="flex items-center gap-3 py-2">
+            <div v-for="axis in radarAxes" :key="axis.key" class="flex items-center gap-2 py-2">
               <span class="material-symbols-outlined text-icon-sm text-on-surface-variant">{{ axis.icon }}</span>
-              <span class="w-20 shrink-0 truncate font-body-sm text-body-sm text-on-surface">{{ axis.label }}</span>
+              <span class="w-16 shrink-0 truncate font-body-sm text-body-sm text-on-surface">{{ axis.label }}</span>
               <div class="h-1 flex-1 overflow-hidden rounded-full bg-outline-variant/30">
                 <div
-                  class="h-full rounded-full bg-primary transition-all"
+                  class="h-full rounded-full transition-all"
+                  :class="axis.counted ? 'bg-primary' : 'bg-outline'"
                   :style="{ width: `${axis.hasData ? axis.score : 0}%` }"
                 ></div>
               </div>
               <span
-                class="w-10 shrink-0 text-right font-label-lg text-label-lg tabular-nums"
+                class="w-12 shrink-0 text-right font-label-lg text-label-lg tabular-nums"
                 :class="axis.hasData ? 'text-on-surface' : 'text-on-surface-variant/50'"
               >
-                {{ axis.hasData ? axis.score : '—' }}
+                {{ axis.hasData ? `${axis.score}%` : '—' }}
+              </span>
+              <span class="w-16 shrink-0 text-right font-label-sm text-label-sm text-on-surface-variant/70 tabular-nums">
+                {{ axis.total > 0 ? `${axis.correct}/${axis.total}` : '' }}
+              </span>
+              <span
+                v-if="axis.hasData && !axis.counted"
+                class="shrink-0 rounded-full bg-error-container/40 px-2 py-0.5 font-label-sm text-label-sm text-on-error-container"
+                :title="$t('profile.ability.notCountedTip')"
+              >
+                {{ $t('profile.ability.notCounted') }}
               </span>
             </div>
           </div>
@@ -482,7 +502,7 @@ const DIMENSION_META: ReadonlyArray<{
   { key: 'writing', icon: 'edit_note', labelKey: 'dashboard.moduleWriting' },
 ]
 
-/** 雷达图与分数明细共用的轴数据；标签在这里统一 i18n 化 */
+/** 雷达图与明细共用的轴数据；标签在这里统一 i18n 化 */
 const radarAxes = computed(() =>
   DIMENSION_META.map((meta) => {
     const dimension = radar.value?.dimensions.find((item) => item.key === meta.key)
@@ -492,9 +512,32 @@ const radarAxes = computed(() =>
       label: t(meta.labelKey),
       score: dimension?.score ?? 0,
       hasData: dimension?.hasData ?? false,
+      /** 是否达到 60% 门槛并计入综合能力分 */
+      counted: dimension?.counted ?? false,
+      /** 累计作答总题数 */
+      total: dimension?.total ?? 0,
+      /** 累计答对题数 */
+      correct: dimension?.correct ?? 0,
     }
   }),
 )
+
+/** 距离下一称号还差多少分；已封顶给出提示文案 */
+const nextTitleHint = computed(() => {
+  const data = radar.value
+  if (!data) return ''
+  if (!data.nextTitle) {
+    return t('profile.ability.maxTitle')
+  }
+  const remain = Math.max(0, data.titleCeil + 1 - data.practicePoints)
+  return t('profile.ability.nextTitleHint', { title: data.nextTitle, points: remain })
+})
+
+/** 综合能力分：只统计达到 60% 的模块，全部未达标时展示「—」 */
+const overallAbilityText = computed(() => {
+  const value = radar.value?.overallAbilityScore
+  return value == null ? '—' : String(value)
+})
 
 const loadRadar = async () => {
   const userId = userStore.userId
@@ -504,7 +547,7 @@ const loadRadar = async () => {
   try {
     const data = await getAbilityRadar(userId)
     radar.value = data
-    userLevel.value = data.eloLevel || t('profile.beginner')
+    userLevel.value = data.practiceTitle || t('profile.beginner')
   } catch (e) {
     console.warn('获取能力画像失败', e)
     radarError.value = e instanceof Error ? e.message : t('profile.ability.loadFailed')

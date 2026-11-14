@@ -277,7 +277,7 @@ import AppIcon from '@/components/ui/AppIcon.vue'
 import VocabularyGoalDialog from '@/components/VocabularyGoalDialog.vue'
 import { useUserStore } from '@/stores/user'
 import { useAiStore } from '@/stores/ai'
-import { getErrorBook, getFavorites, getVocabulary } from '@/api/exercise'
+import { getErrorBook, getFavorites, getVocabularyPage } from '@/api/exercise'
 import { getCurveStats } from '@/api/learning'
 import { useToast } from '@/composables/useToast'
 
@@ -456,8 +456,8 @@ const loadLearningData = async () => {
   }
 
   try {
-    const words = await getVocabulary(userId)
-    wordBookCount.value = words?.length || 0
+    const res = await getVocabularyPage(userId, 1, 1)
+    wordBookCount.value = res?.total || 0
   } catch (e) {
     console.warn('获取单词本数量失败', e)
     wordBookCount.value = 0

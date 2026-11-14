@@ -190,6 +190,7 @@ import { useUserStore } from '../stores/user'
 import { useAiStore } from '../stores/ai'
 import { selectTranslationQuestions, submitTranslation, isPassageTranslation } from '../api/translation'
 import { useSentenceFavorite } from '@/composables/useSentenceFavorite'
+import { usePracticeSettlement } from '@/composables/usePracticeSettlement'
 import type { QuestionVO } from '../api/exercise'
 import type { SubmitResponse } from '../api/exercise'
 import { btnIcon } from '@/components/ui/buttonStyles'
@@ -215,6 +216,9 @@ const result = ref<SubmitResponse | null>(null)
  * 因此必须在提交成功的那一刻抓住，切题后即失效。
  */
 const logId = ref<number | null>(null)
+
+/** 练习组结算：整组翻译做完后按分组键结算积分 */
+const { batchKey, batchSettle, startBatch, settleBatch } = usePracticeSettlement()
 
 const currentQuestion = computed(() => questions.value[currentIndex.value] ?? null)
 const answeredCount = computed(() => submitted.value ? currentIndex.value + 1 : currentIndex.value)
@@ -277,6 +281,8 @@ onMounted(async () => {
   void sentenceFavorite.load()
   try {
     questions.value = await selectTranslationQuestions(userId, 5)
+    // 本组翻译题共用一个结算键
+    startBatch(3)
     if (questions.value.length === 0) {
       toast(t('translation.noQuestions'), 'info')
     }
@@ -300,6 +306,7 @@ const submit = async () => {
       questionId: currentQuestion.value.id,
       userAnswer: text.value.trim(),
       moduleType: 3,
+      batchKey: batchKey.value || undefined,
     })
     result.value = res
     logId.value = res.logId ?? null
@@ -322,8 +329,23 @@ const next = () => {
     // 切题时关掉查词弹层，避免弹层里还留着上一题的词
     showWordDetail.value = false
   } else {
-    router.push({ path: '/learning', query: { tab: 'translation' } })
+    void finishBatch()
   }
+}
+
+/**
+ * 最后一题完成后结算本组积分，再返回翻译练习入口。
+ * 该页没有独立结算页，用 toast 给出本次得分与未达标原因。
+ */
+const finishBatch = async () => {
+  await settleBatch(userStore.userId)
+  const settle = batchSettle.value
+  if (settle?.points && settle.points > 0) {
+    toast(t('learning.practiceSettle.earned', { points: settle.points }), 'success')
+  } else if (settle && !settle.qualified && !settle.reason) {
+    toast(t('learning.practiceSettle.notQualified', { accuracy: settle.accuracy }), 'info')
+  }
+  router.push({ path: '/learning', query: { tab: 'translation' } })
 }
 
 const reset = () => {

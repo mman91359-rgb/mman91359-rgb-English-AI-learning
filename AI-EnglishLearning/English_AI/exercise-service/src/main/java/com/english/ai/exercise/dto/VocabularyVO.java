@@ -24,6 +24,20 @@ public class VocabularyVO {
     private String collocation;
     /** 来源: manual/daily_word/quiz */
     private String source;
+    /** 学习状态: LEARNING/REVIEWING/MASTERED/IGNORE */
+    private String status;
+    /** 关联 word_dictionary.id（可空） */
+    private Long wordId;
+    /** 词书归属 word_book.id（可空） */
+    private Long bookId;
+    /** 首次学习时间 */
+    private LocalDateTime firstLearnedAt;
+    /** 累计答对次数 */
+    private Integer correctCount;
+    /** 累计答错次数 */
+    private Integer wrongCount;
+    /** 最近一次复习结果: CORRECT/WRONG */
+    private String lastResult;
     /** 累计复习次数 */
     private Integer reviewCount;
     /** 掌握度等级 0-5 */

@@ -8,6 +8,7 @@ import {
   getPreference,
   updateVocabGroupSize as updateVocabGroupSizeApi,
   updateVocabularyGoals as updateVocabularyGoalsApi,
+  updateActiveWordBook as updateActiveWordBookApi,
   type LoginRequest,
   type RegisterRequest,
   type LoginResponse,
@@ -81,6 +82,9 @@ export const useUserStore = defineStore('user', () => {
   const minDailyReviewWords = ref(0)
   const maxDailyReviewWords = ref(50)
 
+  // 当前选中的词书ID（null 表示未选）
+  const activeWordBookId = ref<number | null>(null)
+
   const isLoggedIn = computed(() => isTokenValid(token.value) && !!user.value)
   const userId = computed(() => user.value?.userId)
   const username = computed(() => user.value?.username || '')
@@ -138,6 +142,7 @@ export const useUserStore = defineStore('user', () => {
       maxDailyNewWords.value = preference.maxDailyNewWords || 50
       minDailyReviewWords.value = preference.minDailyReviewWords || 0
       maxDailyReviewWords.value = preference.maxDailyReviewWords || 50
+      activeWordBookId.value = preference.activeWordBookId ?? null
       preferenceLoaded.value = true
     } catch (e) {
       console.warn('获取学习偏好失败', e)
@@ -189,6 +194,17 @@ export const useUserStore = defineStore('user', () => {
     return preference
   }
 
+  /** 更新当前词书 */
+  const setActiveWordBook = async (wordBookId: number): Promise<PreferenceResponse> => {
+    if (!userId.value) {
+      throw new Error('用户未登录')
+    }
+    const preference = await updateActiveWordBookApi(userId.value, wordBookId)
+    activeWordBookId.value = preference.activeWordBookId ?? null
+    preferenceLoaded.value = true
+    return preference
+  }
+
   const login = async (data: LoginRequest): Promise<void> => {
     isLoading.value = true
     try {
@@ -236,6 +252,7 @@ export const useUserStore = defineStore('user', () => {
     dailyNewWords.value = null
     dailyReviewWords.value = null
     vocabularyGoalsConfigured.value = false
+    activeWordBookId.value = null
     coinLoaded.value = false
     preferenceLoaded.value = false
     statsLoaded.value = false
@@ -329,6 +346,7 @@ export const useUserStore = defineStore('user', () => {
     maxDailyNewWords,
     minDailyReviewWords,
     maxDailyReviewWords,
+    activeWordBookId,
     login,
     register,
     logout,
@@ -344,6 +362,7 @@ export const useUserStore = defineStore('user', () => {
     signIn,
     setVocabGroupSize,
     setVocabularyGoals,
+    setActiveWordBook,
   }
 })
 

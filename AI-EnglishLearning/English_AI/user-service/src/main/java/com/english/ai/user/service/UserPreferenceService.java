@@ -15,4 +15,7 @@ public interface UserPreferenceService {
 
     /** 更新每日新背/复习单词目标 */
     PreferenceResponse updateVocabularyGoals(Long userId, Integer dailyNewWords, Integer dailyReviewWords);
+
+    /** 更新当前词书 */
+    PreferenceResponse updateActiveWordBook(Long userId, Long activeWordBookId);
 }

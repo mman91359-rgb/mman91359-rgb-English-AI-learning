@@ -61,6 +61,9 @@
           <p class="font-body-lg text-body-lg text-on-surface-variant mt-2">
             {{ $t('listening.completeSummary', { correct: correctCount, total: questions.length, rate: accuracy }) }}
           </p>
+          <div class="text-left">
+            <PracticeSettleCard :result="batchSettle" :loading="batchSettling" />
+          </div>
           <div class="flex flex-col sm:flex-row gap-3 justify-center mt-6">
             <button
               type="button"
@@ -253,7 +256,9 @@ import {
   type SubmitResponse,
 } from '../api/exercise'
 import { useSentenceFavorite } from '@/composables/useSentenceFavorite'
+import { usePracticeSettlement } from '@/composables/usePracticeSettlement'
 import { btnIcon } from '@/components/ui/buttonStyles'
+import PracticeSettleCard from '@/components/PracticeSettleCard.vue'
 
 interface ParsedOption {
   key: string
@@ -289,6 +294,9 @@ const submittedContent = ref<Record<number, SubmittedContent>>({})
 const audioAbsoluteTime = ref(0)
 const playbackRate = ref(1)
 const gainLevel = ref(0)
+
+/** 练习组结算：整组听完做完后按分组键结算积分 */
+const { batchKey, batchSettle, batchSettling, startBatch, settleBatch } = usePracticeSettlement()
 
 const currentQuestion = computed(() => questions.value[currentIndex.value])
 const currentContent = computed(() => {
@@ -391,6 +399,8 @@ const loadQuestions = async () => {
     results.value = []
     submittedContent.value = {}
     audioAbsoluteTime.value = 0
+    // 新一组听力题重新生成结算键
+    startBatch(4)
   } catch (error) {
     loadError.value = errorMessage(error, t('listening.loadError'))
   } finally {
@@ -413,6 +423,7 @@ const submitCurrentAnswer = async () => {
       questionId: question.id,
       userAnswer: selectedAnswer.value,
       durationSeconds: 1,
+      batchKey: batchKey.value || undefined,
     })
     submitResult.value = response
     showResult.value = true
@@ -439,6 +450,8 @@ const handleNext = async () => {
   }
   if (isLastQuestion.value) {
     showSummary.value = true
+    // 整组听完做完再结算积分
+    void settleBatch(userStore.userId)
     return
   }
   currentIndex.value += 1

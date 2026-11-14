@@ -3,9 +3,12 @@ package com.english.ai.user.controller;
 import com.english.ai.common.Result;
 import com.english.ai.user.dto.AwardCoinRequest;
 import com.english.ai.user.dto.AwardCoinResponse;
+import com.english.ai.user.dto.PracticeSettleRequest;
+import com.english.ai.user.dto.PracticeSettlementResult;
 import com.english.ai.user.dto.PreferenceResponse;
 import com.english.ai.user.entity.UserCoinAccount;
 import com.english.ai.user.service.CoinService;
+import com.english.ai.user.service.PracticePointService;
 import com.english.ai.user.service.UserPreferenceService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +33,7 @@ public class InternalController {
 
     private final CoinService coinService;
     private final UserPreferenceService preferenceService;
+    private final PracticePointService practicePointService;
 
     /**
      * 服务间幂等发币（目前只允许词汇组奖励）
@@ -71,5 +75,32 @@ public class InternalController {
     @GetMapping("/user/preference/{userId}")
     public Result<PreferenceResponse> preference(@PathVariable Long userId) {
         return Result.success(preferenceService.get(userId));
+    }
+
+    /**
+     * 服务间结算一次练习组积分（幂等，batchKey 重复提交返回首次结果）
+     * POST /internal/practice/settle
+     */
+    @PostMapping("/practice/settle")
+    public Result<PracticeSettlementResult> settlePractice(@RequestBody PracticeSettleRequest request) {
+        if (request == null || request.getUserId() == null || request.getModuleType() == null
+                || request.getTotalCount() == null || request.getCorrectCount() == null) {
+            return Result.badRequest("userId、moduleType、totalCount、correctCount不能为空");
+        }
+        try {
+            return Result.success(practicePointService.settle(
+                    request.getUserId(),
+                    request.getBatchKey(),
+                    request.getModuleType(),
+                    request.getTotalCount(),
+                    request.getCorrectCount(),
+                    request.getSumDifficulty() == null ? 0L : request.getSumDifficulty()));
+        } catch (IllegalArgumentException e) {
+            return Result.badRequest(e.getMessage());
+        } catch (RuntimeException e) {
+            log.warn("练习组结算失败: userId={}, batchKey={}, reason={}",
+                    request.getUserId(), request.getBatchKey(), e.getMessage());
+            return Result.error("练习积分结算失败");
+        }
     }
 }

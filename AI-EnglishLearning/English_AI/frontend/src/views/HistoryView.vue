@@ -5,6 +5,17 @@
 
     <!-- 筛选栏 -->
     <div class="mb-6 space-y-3">
+      <!-- 事件来源 tab：全部/答题/单词/写作 -->
+      <div class="flex items-center gap-2">
+        <span class="font-label-md text-label-md text-on-surface-variant shrink-0 w-16">{{ $t('learning.source') }}</span>
+        <ChipGroup
+          :model-value="sourceTab"
+          :options="sourceTabFilters"
+          size="sm"
+          :aria-label="$t('learning.source')"
+          @update:model-value="switchSourceTab($event as 'all' | 'answer' | 'word' | 'writing')"
+        />
+      </div>
       <!-- 模块类型筛选 -->
       <div class="flex items-center gap-2">
         <span class="font-label-md text-label-md text-on-surface-variant shrink-0 w-16">{{ $t('learning.moduleType') }}</span>
@@ -38,6 +49,34 @@
           @update:model-value="timeRangeFilter = $event as string; applyFilter()"
         />
       </div>
+      <!-- 词书筛选 -->
+      <div v-if="wordBooks.length > 0" class="flex items-center gap-2">
+        <span class="font-label-md text-label-md text-on-surface-variant shrink-0 w-16">{{ $t('learning.wordBook') }}</span>
+        <ChipGroup
+          :model-value="bookFilter"
+          :options="bookFilters"
+          size="sm"
+          :aria-label="$t('learning.wordBook')"
+          @update:model-value="bookFilter = $event as string; applyFilter()"
+        />
+      </div>
+      <!-- 起止日期 -->
+      <div class="flex items-center gap-2">
+        <span class="font-label-md text-label-md text-on-surface-variant shrink-0 w-16">{{ $t('learning.dateRange') }}</span>
+        <input
+          v-model="startDate"
+          type="date"
+          class="bg-surface-container-lowest border border-outline-variant rounded-lg px-2 py-1 font-body-sm text-body-sm text-on-surface"
+          @change="applyFilter()"
+        />
+        <span class="text-on-surface-variant">—</span>
+        <input
+          v-model="endDate"
+          type="date"
+          class="bg-surface-container-lowest border border-outline-variant rounded-lg px-2 py-1 font-body-sm text-body-sm text-on-surface"
+          @change="applyFilter()"
+        />
+      </div>
     </div>
 
     <!-- 加载中 -->
@@ -52,15 +91,40 @@
 
     <!-- 空状态 -->
     <EmptyState
-      v-else-if="history.length === 0"
+      v-else-if="history.length === 0 && wordHistory.length === 0"
       icon="filter_alt_off"
       :title="$t('learning.noFilterResult')"
       :action-label="$t('learning.resetFilter')"
-      @action="moduleFilter = 0; correctFilter = -1; timeRangeFilter = 'all'; applyFilter()"
+      @action="moduleFilter = 0; correctFilter = -1; timeRangeFilter = 'all'; bookFilter = ''; startDate = ''; endDate = ''; applyFilter()"
     />
 
     <!-- 历史记录列表 -->
     <div v-else class="space-y-3">
+      <!-- 单词事件记录 -->
+      <div
+        v-for="w in wordHistory"
+        :key="'word-' + w.id"
+        class="bg-surface-container-lowest rounded-2xl shadow-soft-glow p-4 flex items-center gap-4"
+      >
+        <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-primary-container/40">
+          <AppIcon :name="wordEventIcon(w.eventType)" size="lg" class="text-primary" />
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="font-body-md text-body-md text-on-surface truncate">
+            {{ w.word }}
+          </p>
+          <div class="flex items-center gap-3 mt-1">
+            <span class="font-label-sm text-label-sm text-primary">{{ wordEventLabel(w.eventType) }}</span>
+            <span v-if="w.bookCode" class="font-label-sm text-label-sm text-on-surface-variant">{{ w.bookCode }}</span>
+          </div>
+        </div>
+        <div class="text-right shrink-0">
+          <span class="font-label-sm text-label-sm text-on-surface-variant block">
+            {{ formatDateTime(w.createdAt, locale) }}
+          </span>
+        </div>
+      </div>
+
       <!-- 每条历史记录 -->
       <div
         v-for="item in history"
@@ -248,7 +312,7 @@ import ErrorState from '@/components/ui/ErrorState.vue'
 import { useUserStore } from '@/stores/user'
 import { moduleName } from '@/config/modules'
 import { formatDateTime } from '@/utils/format'
-import { getExerciseHistory, type ExerciseHistoryVO } from '@/api/exercise'
+import { getExerciseHistory, getWordLearnHistory, getWordBooks, type ExerciseHistoryVO, type UserWordLearnLogVO } from '@/api/exercise'
 import { btnSecondarySm } from '@/components/ui/buttonStyles'
 
 const { t, locale } = useI18n()
@@ -256,15 +320,31 @@ const userStore = useUserStore()
 
 // ========== 数据状态 ==========
 const history = ref<ExerciseHistoryVO[]>([])
+const wordHistory = ref<UserWordLearnLogVO[]>([])
 const loading = ref(true)
 const loadError = ref('')
 const page = ref(1)
 const total = ref(0)
 const size = 20
 
+// 事件来源 tab：all=全部 / answer=答题 / word=单词 / writing=写作
+const sourceTab = ref<'all' | 'answer' | 'word' | 'writing'>('all')
+
 const totalPages = computed(() => Math.max(1, Math.ceil(total.value / size)))
 
 // ========== 筛选配置 ==========
+const sourceTabFilters = computed(() => [
+  { label: t('learning.all'), value: 'all' },
+  { label: t('learning.tabAnswer'), value: 'answer' },
+  { label: t('learning.tabWord'), value: 'word' },
+  { label: t('learning.tabWriting'), value: 'writing' }
+])
+
+const bookFilters = computed(() => [
+  { label: t('learning.all'), value: '' },
+  ...wordBooks.value.map(b => ({ label: b.name, value: b.code }))
+])
+
 const moduleFilters = computed(() => [
   { label: t('learning.all'), value: 0 },
   { label: t('dashboard.moduleVocabulary'), value: 1 },
@@ -289,6 +369,14 @@ const timeRangeFilters = computed(() => [
 const moduleFilter = ref(0)
 const correctFilter = ref(-1)
 const timeRangeFilter = ref('all')
+const bookFilter = ref('')
+
+// 起止日期（自定义筛选，YYYY-MM-DD）
+const startDate = ref('')
+const endDate = ref('')
+
+// 词书列表（用于词书筛选）
+const wordBooks = ref<{ code: string; name: string }[]>([])
 
 // ========== 展开状态 ==========
 const expandedLogId = ref<number | null>(null)
@@ -327,7 +415,52 @@ const applyFilter = () => {
   load()
 }
 
+const switchSourceTab = (tab: 'all' | 'answer' | 'word' | 'writing') => {
+  sourceTab.value = tab
+  applyFilter()
+}
+
+// ========== 单词事件展示辅助 ==========
+const wordEventLabel = (eventType: string): string => {
+  const map: Record<string, string> = {
+    LEARN: t('learning.eventLearn'),
+    REVIEW: t('learning.eventReview'),
+    MASTER: t('learning.eventMaster'),
+    FAVORITE: t('learning.eventFavorite'),
+    UNFAVORITE: t('learning.eventUnfavorite'),
+    IGNORE: t('learning.eventIgnore'),
+  }
+  return map[eventType] || eventType
+}
+
+const wordEventIcon = (eventType: string): string => {
+  const map: Record<string, string> = {
+    LEARN: 'school',
+    REVIEW: 'schedule',
+    MASTER: 'check_circle',
+    FAVORITE: 'favorite',
+    UNFAVORITE: 'heart_broken',
+    IGNORE: 'visibility_off',
+  }
+  return map[eventType] || 'circle'
+}
+
 // ========== 数据加载 ==========
+// 计算筛选起止时间（优先自定义日期，其次快捷时间范围）
+const resolveTimeRange = (): { start?: string; end?: string } => {
+  let start: string | undefined
+  let end: string | undefined
+  if (startDate.value) {
+    start = new Date(startDate.value + 'T00:00:00').toISOString()
+  } else if (timeRangeFilter.value !== 'all') {
+    start = getTimeRangeStart(timeRangeFilter.value)?.toISOString()
+  }
+  if (endDate.value) {
+    end = new Date(endDate.value + 'T23:59:59').toISOString()
+  }
+  return { start, end }
+}
+
 const load = async () => {
   const uid = userStore.userId
   if (!uid) return
@@ -335,15 +468,36 @@ const load = async () => {
   loadError.value = ''
   expandedLogId.value = null
   try {
-    const startTime = timeRangeFilter.value !== 'all' 
-      ? getTimeRangeStart(timeRangeFilter.value)?.toISOString() 
-      : undefined
-    const res = await getExerciseHistory(uid, page.value, size, 
-      moduleFilter.value, 
-      correctFilter.value >= 0 ? correctFilter.value : undefined, 
-      startTime)
-    history.value = res.records || []
-    total.value = res.total || 0
+    const { start, end } = resolveTimeRange()
+
+    if (sourceTab.value === 'word') {
+      // 单词事件：新学/复习/收藏/忽略/掌握
+      const res = await getWordLearnHistory(uid, page.value, size, undefined, bookFilter.value || undefined, start, end)
+      wordHistory.value = res.records || []
+      total.value = res.total || 0
+      history.value = []
+    } else if (sourceTab.value === 'writing') {
+      // 写作：moduleType=6 的答题
+      const res = await getExerciseHistory(uid, page.value, size, 6, correctFilter.value >= 0 ? correctFilter.value : undefined, start, end)
+      history.value = res.records || []
+      total.value = res.total || 0
+      wordHistory.value = []
+    } else if (sourceTab.value === 'answer') {
+      // 答题
+      const res = await getExerciseHistory(uid, page.value, size, moduleFilter.value, correctFilter.value >= 0 ? correctFilter.value : undefined, start, end)
+      history.value = res.records || []
+      total.value = res.total || 0
+      wordHistory.value = []
+    } else {
+      // 全部：合并答题 + 单词事件（按时间降序）
+      const [answerRes, wordRes] = await Promise.all([
+        getExerciseHistory(uid, page.value, size, moduleFilter.value, correctFilter.value >= 0 ? correctFilter.value : undefined, start, end),
+        getWordLearnHistory(uid, 1, size, undefined, bookFilter.value || undefined, start, end),
+      ])
+      history.value = answerRes.records || []
+      wordHistory.value = wordRes.records || []
+      total.value = (answerRes.total || 0) + (wordRes.total || 0)
+    }
   } catch (e) {
     console.warn('加载学习历史失败', e)
     loadError.value = e instanceof Error ? e.message : '加载学习历史失败'
@@ -486,5 +640,13 @@ const getGrammarErrorHint = (item: ExerciseHistoryVO): string => {
   return '* 语法使用错误，请仔细核对语法规则'
 }
 
-onMounted(load)
+onMounted(async () => {
+  // 加载词书列表（用于词书筛选）
+  try {
+    wordBooks.value = await getWordBooks()
+  } catch (e) {
+    console.warn('加载词书列表失败', e)
+  }
+  load()
+})
 </script>

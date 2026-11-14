@@ -309,6 +309,8 @@
                   <p class="font-label-md text-label-md text-on-surface-variant">{{ $t('learning.accuracy') }}</p>
                 </div>
               </div>
+
+              <PracticeSettleCard :result="batchSettle" :loading="batchSettling" />
             </div>
 
             <div class="flex gap-4">
@@ -365,8 +367,10 @@ import { selectQuestions, submitAnswer as submitAnswerApi, getQuestionById } fro
 import { useSentenceFavorite } from '@/composables/useSentenceFavorite'
 import { useSpeechRecognition } from '@/composables/useSpeechRecognition'
 import { useAiStore } from '@/stores/ai'
+import { usePracticeSettlement } from '@/composables/usePracticeSettlement'
 import { shuffle } from '@/utils/array'
 import type { QuestionVO, SubmitResponse } from '@/api/exercise'
+import PracticeSettleCard from '@/components/PracticeSettleCard.vue'
 import { btnIcon } from '@/components/ui/buttonStyles'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
@@ -405,6 +409,9 @@ const isCorrect = ref(false)
 const submitResult = ref<SubmitResponse | null>(null)
 const showResults = ref(false)
 const startTime = ref(Date.now())
+
+/** 练习组结算：整组做完后按分组键结算积分 */
+const { batchKey, batchSettle, batchSettling, startBatch, settleBatch } = usePracticeSettlement()
 
 // 造句相关
 const knowledgePoint = ref('')     // 知识点（analysis 前半段）
@@ -780,13 +787,16 @@ interface SavedGrammarProgress {
   questions: QuestionVO[]
   currentIndex: number
   results: { correct: number; total: number; items: ResultItem[] }
+  /** 本组结算键，随进度一起保存，避免刷新后同组被拆成两组 */
+  batchKey?: string
 }
 
 const saveProgress = () => {
   const userId = userStore.userId
   if (!userId || questions.value.length === 0) return
   sessionStorage.setItem(SAVE_KEY, JSON.stringify({
-    userId, questions: questions.value, currentIndex: currentIndex.value, results: results.value
+    userId, questions: questions.value, currentIndex: currentIndex.value,
+    results: results.value, batchKey: batchKey.value,
   }))
 }
 
@@ -822,6 +832,12 @@ const loadQuestions = async () => {
     currentIndex.value = resumeIndex
     showFeedback.value = false
     showResults.value = false
+    // 续做时沿用原分组键，保证同一组题的积分不被刷新拆成两段
+    if (saved.batchKey) {
+      batchKey.value = saved.batchKey
+    } else {
+      startBatch(2)
+    }
     if (questions.value[currentIndex.value]) parseQuestionIntoSentence(questions.value[currentIndex.value])
     loading.value = false
     startTime.value = Date.now()
@@ -835,6 +851,8 @@ const loadQuestions = async () => {
   showFeedback.value = false
   showResults.value = false
   results.value = { correct: 0, total: 0, items: [] }
+  // 新一组题重新生成结算键
+  startBatch(2)
   try {
     const qs = await selectQuestions(userId, 2, Number(localStorage.getItem('dailyTarget_grammar')) || 10)
     const fullQuestions = await ensureQuestionsWithAnswers(qs || [])
@@ -877,6 +895,7 @@ const handleSubmit = async () => {
       userAnswer: ans,
       moduleType: 2,
       durationSeconds: Math.round((Date.now() - startTime.value) / 1000),
+      batchKey: batchKey.value || undefined,
     })
     submitResult.value = result
     const localOK = normalize(ans) === normalize(correctSentence.value)
@@ -906,6 +925,8 @@ const goNextOrResults = () => {
   if (isLastQuestion.value) {
     showResults.value = true
     clearProgress()
+    // 整组答完再结算积分
+    void settleBatch(userStore.userId)
   } else {
     nextQuestion()
   }

@@ -2,6 +2,53 @@
   <AppLayout>
     <PageHeader :title="$t('app.title') + ' - ' + $t('learning.myVocabulary')" back />
 
+    <!-- 词书选择器 + 收藏入口 -->
+    <div class="flex items-center gap-2 mb-4 overflow-x-auto">
+      <span class="font-label-md text-label-md text-on-surface-variant shrink-0">词书</span>
+      <div class="flex items-center gap-2 flex-1 overflow-x-auto">
+        <button
+          v-for="b in wordBooks"
+          :key="b.code"
+          class="px-3 py-1.5 rounded-full font-label-sm text-label-sm whitespace-nowrap transition-colors shrink-0"
+          :class="activeBookCode === b.code ? 'bg-primary text-on-primary' : 'bg-surface-container-lowest text-on-surface-variant'"
+          @click="switchBook(b.code)"
+        >
+          {{ b.name }}
+        </button>
+      </div>
+      <button
+        class="shrink-0 w-9 h-9 rounded-full flex items-center justify-center bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container-low transition-colors"
+        :title="'收藏本'"
+        @click="showFavorites = !showFavorites"
+      >
+        <AppIcon name="favorite" size="md" :tone="showFavorites ? 'primary' : undefined" />
+      </button>
+    </div>
+
+    <!-- 收藏单词列表 -->
+    <div v-if="showFavorites" class="bg-surface-container-lowest rounded-2xl p-4 shadow-soft-glow mb-6">
+      <div class="flex items-center gap-2 mb-3">
+        <AppIcon name="favorite" size="lg" tone="primary" />
+        <span class="font-label-lg text-label-lg text-on-surface">收藏单词（{{ favorites.length }}）</span>
+      </div>
+      <div v-if="favorites.length === 0" class="font-body-sm text-body-sm text-on-surface-variant">暂无收藏单词</div>
+      <div v-else class="space-y-2">
+        <div v-for="f in favorites" :key="f.id" class="flex items-center gap-3">
+          <div class="flex-1 min-w-0">
+            <div class="flex items-baseline gap-2 flex-wrap">
+              <span class="font-body-md text-body-md text-on-surface">{{ f.word }}</span>
+              <span v-if="f.pos" class="font-label-sm text-label-sm text-primary italic">{{ f.pos }}</span>
+              <span v-if="f.phonetic" class="font-body-sm text-body-sm text-on-surface-variant">{{ f.phonetic }}</span>
+            </div>
+            <p class="font-body-sm text-body-sm text-on-surface-variant">{{ f.translation || '暂无释义' }}</p>
+          </div>
+          <button :class="btnIcon" @click="toggleFavorite(f.word)">
+            <AppIcon name="favorite" size="lg" tone="error" />
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- 顶部统计卡片 -->
     <div class="grid grid-cols-3 gap-3 mb-6">
       <div class="bg-surface-container-lowest rounded-2xl p-4 shadow-soft-glow text-center">
@@ -135,12 +182,20 @@
             </div>
           </div>
 
-          <button
-            :class="btnIconDanger"
-            @click="handleRemove(w)"
-          >
-            <AppIcon name="delete" size="lg" tone="error" />
-          </button>
+          <div class="flex flex-col items-center gap-1">
+            <button :class="btnIcon" @click="toggleFavorite(w.word)">
+              <AppIcon :name="isFavorite(w.word) ? 'favorite' : 'favorite_border'" size="lg" :tone="isFavorite(w.word) ? 'primary' : undefined" />
+            </button>
+            <button :class="btnIcon" @click="handleIgnore(w)">
+              <AppIcon name="visibility_off" size="lg" tone="error" />
+            </button>
+            <button
+              :class="btnIconDanger"
+              @click="handleRemove(w)"
+            >
+              <AppIcon name="delete" size="lg" tone="error" />
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -272,13 +327,20 @@ import ErrorState from '@/components/ui/ErrorState.vue'
 import { useUserStore } from '@/stores/user'
 import { useModalBehavior } from '@/composables/useModalBehavior'
 import {
-  getVocabulary,
+  getVocabularyPage,
   addVocabularySmart,
   removeVocabulary,
   toggleMastered,
+  ignoreWord,
   getReviewList,
   reviewWord,
+  getWordBooks,
+  addWordFavorite,
+  removeWordFavorite,
+  getWordFavorites,
   type VocabularyVO,
+  type WordBookVO,
+  type UserWordFavoriteVO,
 } from '@/api/exercise'
 import { btnIcon, btnIconDanger, btnPrimary } from '@/components/ui/buttonStyles'
 import { inputClassOnCard } from '@/components/ui/formStyles'
@@ -291,6 +353,12 @@ const adding = ref(false)
 const newWord = ref('')
 const addHint = ref('')
 const activeTab = ref<'all' | 'review' | 'mastered'>('all')
+
+// ===== 词书与收藏 =====
+const wordBooks = ref<WordBookVO[]>([])
+const activeBookCode = ref('')
+const favorites = ref<UserWordFavoriteVO[]>([])
+const showFavorites = ref(false)
 
 // ===== 统计 =====
 const stats = computed(() => ({
@@ -329,13 +397,79 @@ const load = async () => {
   loading.value = true
   loadError.value = ''
   try {
-    words.value = await getVocabulary(uid)
+    const res = await getVocabularyPage(uid, 1, 200, activeBookCode.value || undefined)
+    words.value = res.records || []
   } catch (e) {
     console.warn('加载单词本失败', e)
     loadError.value = e instanceof Error ? e.message : '加载单词本失败'
   } finally {
     loading.value = false
   }
+}
+
+// ===== 加载词书列表 =====
+const loadWordBooks = async () => {
+  try {
+    wordBooks.value = await getWordBooks()
+    // 默认选中第一本（basic_500）
+    if (!activeBookCode.value && wordBooks.value.length > 0) {
+      activeBookCode.value = wordBooks.value[0].code
+    }
+  } catch (e) {
+    console.warn('加载词书列表失败', e)
+  }
+}
+
+// ===== 切换词书 =====
+const switchBook = async (code: string) => {
+  activeBookCode.value = code
+  await load()
+}
+
+// ===== 加载收藏 =====
+const loadFavorites = async () => {
+  const uid = userStore.userId
+  if (!uid) return
+  try {
+    favorites.value = await getWordFavorites(uid)
+  } catch (e) {
+    console.warn('加载收藏失败', e)
+  }
+}
+
+// ===== 收藏切换 =====
+const toggleFavorite = async (word: string) => {
+  const uid = userStore.userId
+  if (!uid) return
+  try {
+    const exists = favorites.value.some(f => f.word === word.toLowerCase())
+    if (exists) {
+      await removeWordFavorite(uid, word)
+      favorites.value = favorites.value.filter(f => f.word !== word.toLowerCase())
+    } else {
+      await addWordFavorite(uid, word)
+      await loadFavorites()
+    }
+  } catch (e) {
+    console.warn('切换收藏失败', e)
+  }
+}
+
+// ===== 忽略单词 =====
+const handleIgnore = async (w: VocabularyVO) => {
+  const uid = userStore.userId
+  if (!uid) return
+  try {
+    await ignoreWord(w.id, uid)
+    await load()
+  } catch (e) {
+    console.warn('忽略单词失败', e)
+  }
+}
+
+// ===== 是否已收藏 =====
+const isFavorite = (word: string): boolean => {
+  return favorites.value.some(f => f.word === word.toLowerCase())
 }
 
 // ===== 智能添加 =====
@@ -471,7 +605,11 @@ useModalBehavior({
   onEscape: exitReview,
 })
 
-onMounted(load)
+onMounted(async () => {
+  await loadWordBooks()
+  await loadFavorites()
+  await load()
+})
 </script>
 
 <style scoped>

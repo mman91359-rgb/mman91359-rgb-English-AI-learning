@@ -408,6 +408,36 @@
           </div>
         </template>
 
+        <!-- 无题但有词卡：词卡降级学习 -->
+        <div v-else-if="cardFallback.length > 0" class="flex-1 overflow-y-auto px-gutter py-6 space-y-3">
+          <p class="font-label-md text-label-md text-on-surface-variant text-center">
+            {{ $t('learning.wordCardFallback') }}
+          </p>
+          <div
+            v-for="c in cardFallback"
+            :key="c.word"
+            class="bg-surface-container-lowest rounded-2xl p-4 shadow-soft-glow"
+          >
+            <div class="flex items-baseline gap-3 flex-wrap">
+              <p class="font-headline-md text-headline-md text-on-surface">{{ c.word }}</p>
+              <span v-if="c.pos" class="font-label-md text-label-md text-primary italic">{{ c.pos }}</span>
+              <span v-if="c.phonetic" class="font-body-sm text-body-sm text-on-surface-variant">{{ c.phonetic }}</span>
+            </div>
+            <p class="font-body-md text-body-md text-on-surface-variant mt-2">{{ c.translation || '暂无释义' }}</p>
+            <div v-if="c.example" class="mt-2 pl-3 border-l-2 border-primary/40">
+              <p class="font-body-sm text-body-sm text-on-surface italic">{{ c.example }}</p>
+              <p v-if="c.exampleTranslation" class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+                {{ c.exampleTranslation }}
+              </p>
+            </div>
+          </div>
+          <div class="flex justify-center pt-2">
+            <button class="px-4 py-2 bg-primary text-on-primary rounded-full font-label-md text-label-md" @click="loadNewWordSession">
+              {{ $t('common.retry') }}
+            </button>
+          </div>
+        </div>
+
         <!-- 无题 -->
         <EmptyState
           v-else
@@ -466,7 +496,7 @@ import { useUserStore } from '@/stores/user'
 import { useAppStore } from '@/stores/app'
 import { useToast } from '@/composables/useToast'
 import {
-  selectNewVocabularyQuestions,
+  selectNewWordItems,
   submitAnswer as submitAnswerApi,
   getQuestionById,
   getReviewList,
@@ -476,7 +506,7 @@ import { useSentenceFavorite } from '@/composables/useSentenceFavorite'
 import { useSpeechRecognition } from '@/composables/useSpeechRecognition'
 import { useAiStore } from '@/stores/ai'
 import { shuffle } from '@/utils/array'
-import type { QuestionVO, SubmitResponse, VocabularyVO } from '@/api/exercise'
+import type { QuestionVO, SubmitResponse, VocabularyVO, WordCardVO } from '@/api/exercise'
 import { btnIcon } from '@/components/ui/buttonStyles'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
@@ -516,6 +546,7 @@ const reviewCompleted = ref(false)
 // 新词循环：N 个词，连续答对 3 次才掌握
 const newWordPool = ref<QuestionVO[]>([])
 const activeQueue = ref<QuestionVO[]>([])
+const cardFallback = ref<WordCardVO[]>([])
 const streaks = ref<Record<number, number>>({})
 const masteredIds = ref<number[]>([])
 const attempts = ref(0)
@@ -896,6 +927,7 @@ const loadNewWordSession = async () => {
   showResults.value = false
   newWordPool.value = []
   activeQueue.value = []
+  cardFallback.value = []
   streaks.value = {}
   masteredIds.value = []
   attempts.value = 0
@@ -910,9 +942,17 @@ const loadNewWordSession = async () => {
 
   try {
     const count = userStore.dailyNewWords ?? 10
-    const pool = await selectNewVocabularyQuestions(userId, count)
-    newWordPool.value = pool || []
-    activeQueue.value = shuffle(pool || [])
+    const items = await selectNewWordItems(userId, count)
+    // 拆成题目队列 + 词卡降级队列
+    const questions = (items || [])
+      .filter(it => it.type === 'QUESTION' && it.question)
+      .map(it => it.question!)
+    const cards = (items || [])
+      .filter(it => it.type === 'CARD' && it.card)
+      .map(it => it.card!)
+    newWordPool.value = questions
+    activeQueue.value = shuffle(questions)
+    cardFallback.value = cards
     if (activeQueue.value.length > 0) {
       await preloadQuestionAnswer(activeQueue.value[0].id)
       nextTick(() => blankInput.value?.focus())
@@ -1010,7 +1050,9 @@ const handleSubmit = async () => {
       userAnswer: userAnswer.value.trim(),
       moduleType: q.moduleType || 1,
       durationSeconds: Math.round((Date.now() - startTime.value) / 1000),
-      practiceOnly: true,
+      // 新词是学习，只判题不计分；复习是测验，计入正确率但不重复发奖励
+      practiceOnly: vocabMode.value === 'new',
+      statsOnly: vocabMode.value === 'review',
     })
     submitResult.value = result
     isCorrect.value = result.isCorrect

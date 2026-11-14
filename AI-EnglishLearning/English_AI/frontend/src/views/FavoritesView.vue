@@ -40,7 +40,7 @@
       <div
         v-for="fav in filteredFavorites"
         :key="fav.id"
-        class="bg-surface-container-lowest rounded-2xl p-5 shadow-soft-glow flex items-start justify-between gap-4"
+        class="bg-surface-container-lowest rounded-2xl p-4 shadow-soft-glow flex items-start justify-between gap-4"
       >
         <div class="flex items-start gap-3 flex-1 min-w-0">
           <AppIcon name="favorite" size="lg" filled tone="error" class="shrink-0 mt-0.5" />

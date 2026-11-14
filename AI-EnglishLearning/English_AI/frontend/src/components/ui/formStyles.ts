@@ -24,6 +24,11 @@ export const inputClassLg = `${base} rounded-2xl bg-surface-container-lowest px-
  * 选档规则：**输入框底色必须与所在容器差一档**。
  * 容器是 `container-lowest` → 用本档；容器是 `surface` → 用 `inputClassLg`。
  * 不要把两者叠用，也不要自行在调用处覆盖 `bg-*`。
+ *
+ * 色差只到 Δ7（亮）/ Δ5（暗）就够，**不要加深到 `container-low`**：
+ * 可辨性由 1px 描边 + `focus:border-primary` + `focus:ring-2 ring-primary/20` 三层承担，
+ * 加深底色会让输入框变成「凹槽」，与「卡片是白的」这个整体印象冲突。
+ * 详见 `docs/前端UI契约.md` §11.3。
  */
 export const inputClassOnCard = `${base} rounded-2xl bg-surface px-4 py-3.5 font-body-md text-body-md`
 

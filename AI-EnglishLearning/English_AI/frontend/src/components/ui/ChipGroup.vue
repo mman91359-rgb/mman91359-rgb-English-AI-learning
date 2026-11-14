@@ -1,6 +1,6 @@
 <template>
   <div
-    :role="multiple ? 'group' : 'radiogroup'"
+    role="group"
     :aria-label="ariaLabel || undefined"
     :class="containerClass"
   >
@@ -45,9 +45,9 @@ import Chip from './Chip.vue'
  * （如 History 的「模块类型 / 结果 / 时间」`w-16` 标签），标签留在组外由页面排版。
  *
  * ## 无障碍
- * 容器按单选/多选输出 `role="radiogroup"` / `role="group"`，子项是**原生 button**
- * 加 `aria-pressed`（不再把 button 覆写成 radio/checkbox —— 那会让读屏期待方向键切换与
- * 单一 tab stop，而实现里都没有）。
+ * 容器统一 `role="group"`（单选、多选都是 group），子项是**原生 button** 加 `aria-pressed`。
+ * 不用 `radiogroup`/`radio`：那会让读屏期待「方向键切换 + 组内单一 tab stop」，
+ * 而实现里两者都没有，键盘用户反而更难用；也不用 `checkbox`，因为这里是筛选而非表单勾选。
  * 容器名称请务必传 `ariaLabel`，否则读屏读到的是几个没有名字的分组。
  *
  * ## 禁止用法

@@ -36,19 +36,36 @@
 
 ---
 
-## 2. 内边距（卡片两档 + 列表行一档）
+## 2. 内边距（三档）
 
 | 场景 | 类名 | 实际值 | 说明 |
 |---|---|---|---|
-| 卡片 · 紧凑 | `p-6` | 24px | 信息密度高的卡片、统计小卡、表格容器 |
-| 卡片 · 常规 | `p-8` | 32px | 内容主体卡片、弹窗正文、报告页段落容器 |
-| 列表行 | `px-4 py-3` | 左右 16px / 上下 12px | 所有「一行一个条目」的列表项，覆盖 History / ErrorBook / Favorites |
+| 大内容卡 | `p-8` | 32px | 内容主体卡片、弹窗正文、报告页段落容器（`AppCard padding="regular"`） |
+| 标准卡 | `p-6` | 24px | 信息密度高的卡片、统计小卡、表格容器（`AppCard padding="compact"`） |
+| 行卡 / 卡内嵌块 | `p-4` | 16px | 列表行卡片、卡内小统计块、嵌入块。**不套 `AppCard`** |
+| 列表行（行式布局） | `px-4 py-3` | 左右 16 / 上下 12 | 仅 `ListRow` 的「卡片内行」，覆盖 History / ErrorBook / Favorites 的行式变体 |
+
+`p-4` 之所以独立成档：Favorites 行卡、Vocabulary 统计卡 ×3 与行卡、History 行卡、AssessView 指标块 ×2、
+HomeView 复习块与状态行、StatsView 三格 —— 同一值已 ≥10 处在用，逐个登记例外比立档更贵。
+
+**圆角 ↔ 内边距 配对**
+
+| 圆角 | 内边距 | 场景 |
+|---|---|---|
+| `rounded-3xl` | `p-8` | 大内容卡 |
+| `rounded-3xl` | `p-6` | 标准卡（紧凑场景） |
+| `rounded-2xl` | `p-6` | 内嵌块 |
+| `rounded-2xl` | `p-4` | 行卡（列表行卡片，不套 `AppCard`） |
+| `rounded-xl` | `p-4` | 小嵌入块（例句块、指标小块） |
+
+> 前三条为原有配对；后两条是 P3.6 新增。行卡固定 `rounded-2xl + p-4`：
+> 圆角保持 16px（与列表卡的视觉体量匹配），内边距收到 16px（避免行卡被撑胖）。
 
 **禁止**
 
-- 禁止 `p-5`、`p-7`、`px-5 py-2.5` 这类介于两档之间的自选值。`p-5` 目前在 Favorites / ErrorBook 共 30+ 处，属待收敛项，新代码不得再写。
+- 禁止 `p-5`、`p-7`、`px-5 py-2.5` 这类介于三档之间的自选值。`p-5` 仍是待收敛项，新代码不得再写。
 - 同一列表内所有行必须同档；不得出现首行 `p-4`、次行 `p-5`。
-- 卡片内边距与卡片圆角必须配对使用：`rounded-3xl` 配 `p-8`（或紧凑场景 `p-6`），不得 `rounded-3xl` 配 `p-4`。
+- 圆角与内边距必须按上表配对，不得自选组合（如 `rounded-3xl + p-4`）。
 
 ---
 
@@ -414,14 +431,21 @@ grep -rn "success-container\|text-success" src
 
 理由：「等值」与「就近取档」是两种不同的授权。前者不改像素，后者改，必须逐条登记，否则交付说明里看不出任何位移。
 
-已发生的 B 类：
+已发生的 B 类 —— **已改**（逐条登记位移）：
 
-| 位置 | 原值 | 现值 | 位移 | 性质 |
+| 位置 | 原值 | 现值 | 位移 | 说明 |
 |---|---|---|---|---|
-| Favorites 行卡片、搜索外框 | `rounded-[20px]` | `rounded-2xl` 16px | −4px | 就近对齐（20px 无令牌） |
-| Favorites / Vocabulary 卡片、History 筛选栏外距 | `p-5` 20px | `p-6` 24px | +4px | 就近对齐（§2 只有 24/32 两档） |
-| Favorites 模块标签 | `text-xs` 12px | `Tag size="sm"` → `label-sm` 11px | −1px | 就近对齐（Tag 无 12px 档） |
-| Vocabulary 复习卡 | `min-h-[200px]` | **保留原值** | 0 | 登记例外（spacing 只有 48=192 / 52=208） |
+| Favorites 行卡、搜索外框 | `rounded-[20px]` | `rounded-2xl` 16px | −4px | 20px 无令牌，就近并入 16px |
+| Favorites 搜索外框 | `p-5` 20px | `p-6` 24px | +4px | 归入 §2 标准卡档 |
+| Favorites 行卡 | `p-5` 20px | `p-4` 16px | −4px | 归入 §2 行卡档，与 `rounded-2xl` 配对 |
+| Favorites 模块标签 | `text-xs` 12px | `Tag size="sm"` → `label-sm` 11px | −1px | `Tag` 无 12px 档 |
+
+**保留**（要么已进契约，要么是真例外）：
+
+| 位置 | 处理 |
+|---|---|
+| Vocabulary 统计卡 ×3、Vocabulary 行卡、History 行卡、AssessView 指标块 ×2、HomeView 复习块与状态行、StatsView 三格（均 `p-4`） | **已由 §2 第三档「行卡 / 卡内嵌块」覆盖**，属契约内写法，不再是例外，也不必逐条登记 |
+| Vocabulary 复习卡 `min-h-[200px]` | **真例外**：spacing 只有 48=192 / 52=208，无 200px 等值档，保留原值以免卡片高度位移 |
 
 ### 11.2 删除非法阴影时必须同时给出替代反馈
 
@@ -435,3 +459,14 @@ grep -rn "success-container\|text-success" src
 | `Favorites` 行卡片（行不可点） | `hover:shadow-md` | 无需替代：行本身无点击，标题已有 `hover:underline` |
 | `Vocabulary` 行卡片（行不可点） | `hover:shadow-md` | 无需替代：行内只有按钮可点 |
 | `HomeView` 每日单词卡（整卡可点） | `hover:shadow-md` | 装饰色块 `group-hover:scale-*` 放大（位移） |
+
+### 11.3 卡片内输入框靠描边界定，不靠底色差
+
+卡片内输入框用 `inputClassOnCard`（底色 `surface`），与 `container-lowest` 卡片的色差只有
+Δ7（亮）/ Δ5（暗）。**这是刻意的，不是没做到位**，不要再加深到 `container-low`：
+
+- 可辨性由三层承担：1px `border-outline-variant`、`focus:border-primary`、`focus:ring-2 ring-primary/20`；
+- M3 的卡片内输入框本来就靠描边而非底色凹槽界定；
+- 加深成 `container-low` 会让输入框看起来像「凹槽」，与「卡片是白的」这个统一印象打架。
+
+判断标准：把页面缩到 100% 缩放、正常亮度下能一眼找到输入区即可，不追求色块式对比。

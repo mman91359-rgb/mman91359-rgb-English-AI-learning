@@ -1,18 +1,13 @@
 <template>
   <AppLayout>
-    <div class="flex items-center gap-4 mb-8">
-      <button :class="btnIcon" @click="$router.back()">
-        <span class="material-symbols-outlined text-on-surface">arrow_back</span>
-      </button>
-      <h2 class="font-headline-lg text-headline-lg text-on-surface">{{ $t('app.title') }} - {{ $t('learning.myFavorites') }}</h2>
-    </div>
+    <PageHeader :title="$t('app.title') + ' - ' + $t('learning.myFavorites')" back />
 
-    <div class="bg-surface-container-lowest rounded-[20px] p-5 shadow-soft-glow mb-6">
+    <div class="bg-surface-container-lowest rounded-2xl p-6 shadow-soft-glow mb-6">
       <div class="relative">
-        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">search</span>
+        <AppIcon name="search" size="lg" class="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-outline" />
         <input
           v-model="searchKeyword"
-          class="w-full pl-12 pr-4 py-3 bg-background border border-outline-variant rounded-xl text-on-surface placeholder-outline font-body-md text-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+          :class="[inputClassLg, 'pl-12']"
           :placeholder="$t('learning.searchFavorites')"
         />
       </div>
@@ -45,10 +40,10 @@
       <div
         v-for="fav in filteredFavorites"
         :key="fav.id"
-        class="bg-surface-container-lowest rounded-[20px] p-5 shadow-soft-glow flex items-start justify-between gap-4 hover:shadow-md transition-shadow"
+        class="bg-surface-container-lowest rounded-2xl p-5 shadow-soft-glow flex items-start justify-between gap-4"
       >
         <div class="flex items-start gap-3 flex-1 min-w-0">
-          <span class="material-symbols-outlined fill text-error shrink-0 mt-0.5">favorite</span>
+          <AppIcon name="favorite" size="lg" filled tone="error" class="shrink-0 mt-0.5" />
           <div class="min-w-0 flex-1">
             <p
               :class="[
@@ -65,29 +60,30 @@
               <span class="font-label-sm text-label-sm text-on-surface-variant">
                 {{ formatDate(fav.createdAt, locale) }}
               </span>
-              <span
+              <Tag
                 v-if="fav.questionId && getModuleInfo(fav.sourceType)"
-                class="px-2 py-0.5 rounded-full bg-primary-container/30 text-primary text-xs font-medium"
+                tone="primary"
+                size="sm"
               >
                 {{ getModuleInfo(fav.sourceType)?.name }}
-              </span>
+              </Tag>
             </div>
           </div>
         </div>
         <div class="flex items-center gap-2 shrink-0">
           <button
             v-if="fav.questionId && getModuleInfo(fav.sourceType)"
-            class="px-4 py-2 bg-primary text-on-primary rounded-xl font-label-sm text-label-sm hover:bg-primary/90 transition-colors flex items-center gap-1 shrink-0"
+            :class="btnPrimarySm"
             @click="handleReanswer(fav)"
           >
-            <span class="material-symbols-outlined text-base">replay</span>
+            <AppIcon name="replay" size="sm" />
             {{ $t('learning.retry') }}
           </button>
           <button
             :class="btnIconDanger"
             @click="handleRemove(fav)"
           >
-            <span class="material-symbols-outlined text-error">delete</span>
+            <AppIcon name="delete" size="lg" tone="error" />
           </button>
         </div>
       </div>
@@ -100,6 +96,9 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import AppLayout from '../components/AppLayout.vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
+import PageHeader from '@/components/ui/PageHeader.vue'
+import Tag from '@/components/ui/Tag.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
@@ -107,7 +106,8 @@ import { useUserStore } from '@/stores/user'
 import { moduleName, moduleTypeFromSource } from '@/config/modules'
 import { formatDate } from '@/utils/format'
 import { getFavorites, removeFavorite, type FavoriteVO } from '@/api/exercise'
-import { btnIcon, btnIconDanger } from '@/components/ui/buttonStyles'
+import { btnIconDanger, btnPrimarySm } from '@/components/ui/buttonStyles'
+import { inputClassLg } from '@/components/ui/formStyles'
 
 const { t, locale } = useI18n()
 const router = useRouter()

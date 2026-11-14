@@ -5,6 +5,7 @@ import com.english.ai.common.ErrorCode;
 import com.english.ai.common.Result;
 import com.english.ai.common.UserIdentityUtil;
 import com.english.ai.user.config.CoinRewardProperties;
+import com.english.ai.user.dto.CheckInCalendarVO;
 import com.english.ai.user.dto.CheckInRequest;
 import com.english.ai.user.dto.CheckInResponse;
 import com.english.ai.user.dto.CheckInStatus;
@@ -22,7 +23,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 
 /**
  * 金币与签到接口
@@ -71,6 +77,49 @@ public class CoinController {
         } catch (RuntimeException e) {
             log.warn("查询金币信息失败: userId={}, reason={}", userId, e.getMessage());
             return Result.error("查询金币信息失败");
+        }
+    }
+
+    /**
+     * 签到日历：查询日期区间内的签到记录（只读）
+     * GET /user/check-in/records/{userId}?from=2026-11-01&to=2026-11-30
+     *
+     * 用区间而不是 month，是因为「本周」可能跨月（周一是上月最后一天），
+     * 前端把「当月首尾 ∪ 本周首尾」合成一个区间，一次请求覆盖卡片与日历。
+     */
+    @GetMapping("/check-in/records/{userId}")
+    public Result<CheckInCalendarVO> getCheckInRecords(
+            @PathVariable Long userId,
+            @RequestParam("from") String from,
+            @RequestParam("to") String to,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
+        }
+        if (!coinService.userExists(userId)) {
+            return Result.error(404, "用户不存在");
+        }
+
+        LocalDate start;
+        LocalDate end;
+        try {
+            start = LocalDate.parse(from);
+            end = LocalDate.parse(to);
+        } catch (DateTimeParseException e) {
+            return Result.badRequest("日期格式应为 yyyy-MM-dd");
+        }
+        if (start.isAfter(end)) {
+            return Result.badRequest("from 不能晚于 to");
+        }
+        if (ChronoUnit.DAYS.between(start, end) > 366) {
+            return Result.badRequest("查询区间不能超过 366 天");
+        }
+
+        try {
+            return Result.success(checkInService.listRecords(userId, start, end));
+        } catch (RuntimeException e) {
+            log.warn("查询签到记录失败: userId={}, reason={}", userId, e.getMessage());
+            return Result.error("查询签到记录失败");
         }
     }
 

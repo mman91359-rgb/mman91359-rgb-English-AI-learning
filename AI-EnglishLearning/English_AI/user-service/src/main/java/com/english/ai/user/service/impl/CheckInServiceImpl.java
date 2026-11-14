@@ -2,6 +2,8 @@ package com.english.ai.user.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.english.ai.user.dto.AwardCoinResponse;
+import com.english.ai.user.dto.CheckInCalendarVO;
+import com.english.ai.user.dto.CheckInRecordItem;
 import com.english.ai.user.dto.CheckInResponse;
 import com.english.ai.user.dto.CheckInStatus;
 import com.english.ai.user.entity.UserCheckIn;
@@ -17,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * 每日签到实现
@@ -122,6 +125,31 @@ public class CheckInServiceImpl implements CheckInService {
                 .build();
     }
 
+    @Override
+    public CheckInCalendarVO listRecords(Long userId, LocalDate from, LocalDate to) {
+        CheckInStatus status = getStatus(userId);
+
+        List<UserCheckIn> rows = checkInMapper.selectList(new LambdaQueryWrapper<UserCheckIn>()
+                .eq(UserCheckIn::getUserId, userId)
+                .between(UserCheckIn::getCheckInDate, from, to)
+                .orderByAsc(UserCheckIn::getCheckInDate));
+
+        List<CheckInRecordItem> records = rows.stream()
+                .map(row -> CheckInRecordItem.builder()
+                        .date(row.getCheckInDate())
+                        .rewardCoins(row.getRewardCoins())
+                        .streakDays(row.getStreakDays())
+                        .build())
+                .toList();
+
+        return CheckInCalendarVO.builder()
+                .todayCheckedIn(status.getTodayCheckedIn())
+                .streakDays(status.getStreakDays())
+                .earliestDate(selectEarliestDate(userId))
+                .records(records)
+                .build();
+    }
+
     private CheckInResponse buildAlreadyCheckedIn(UserCheckIn existing) {
         UserCoinAccount account = coinService.getAccount(existing.getUserId());
         int balance = account != null && account.getBalance() != null ? account.getBalance() : 0;
@@ -147,5 +175,14 @@ public class CheckInServiceImpl implements CheckInService {
                 .eq(UserCheckIn::getUserId, userId)
                 .orderByDesc(UserCheckIn::getCheckInDate)
                 .last("LIMIT 1"));
+    }
+
+    /** 用户最早一条签到日期；无记录返回 null */
+    private LocalDate selectEarliestDate(Long userId) {
+        UserCheckIn earliest = checkInMapper.selectOne(new LambdaQueryWrapper<UserCheckIn>()
+                .eq(UserCheckIn::getUserId, userId)
+                .orderByAsc(UserCheckIn::getCheckInDate)
+                .last("LIMIT 1"));
+        return earliest != null ? earliest.getCheckInDate() : null;
     }
 }

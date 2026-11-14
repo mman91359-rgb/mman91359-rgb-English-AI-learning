@@ -111,13 +111,27 @@
       <AppCard tone="surface" padding="regular" class="col-span-1 md:col-span-4 flex flex-col">
         <SectionHeader :title="$t('dashboard.streakDays')" :level="3">
           <template #actions>
-            <AppIcon name="event_available" size="lg" filled tone="primary" />
+            <button
+              type="button"
+              :class="btnIconSm"
+              :aria-label="$t('checkIn.calendar.open')"
+              aria-haspopup="dialog"
+              @click="showCheckInCalendar = true"
+            >
+              <span class="material-symbols-outlined text-icon-md" aria-hidden="true">calendar_month</span>
+            </button>
           </template>
         </SectionHeader>
         <div class="flex items-end gap-2 mb-4">
           <span class="font-display-lg text-display-lg text-on-surface leading-none">{{ checkInStreak }}</span>
           <span class="font-body-lg text-body-lg text-on-surface-variant pb-1">{{ $t('stats.days') }}</span>
         </div>
+        <CheckInWeekStrip
+          :days="weekDays"
+          :loading="checkInLoading"
+          :loaded="checkInLoaded"
+          class="mb-4"
+        />
         <div class="mt-auto flex items-center justify-between rounded-2xl bg-surface-container-low p-4">
           <span class="font-body-md text-body-md text-on-surface-variant">
             {{ userStore.todayCheckedIn ? $t('checkIn.checkedInTip') : $t('checkIn.notCheckedIn') }}
@@ -250,6 +264,22 @@
       @save="handleVocabularyGoalSave"
       @close="closeVocabularyGoalDialog"
     />
+
+    <CheckInCalendarDialog
+      :visible="showCheckInCalendar"
+      :month-label="calendarMonthLabel"
+      :days="calendarMonthDays"
+      :loading="checkInLoading"
+      :loaded="checkInLoaded"
+      :error="checkInError"
+      :can-go-next="calendarCanGoNext"
+      :month-checked-count="calendarMonthCheckedCount"
+      :streak-days="calendarStreakDays"
+      @update:visible="showCheckInCalendar = $event"
+      @prev="prevCheckInMonth"
+      @next="nextCheckInMonth"
+      @retry="reloadCheckInCalendar"
+    />
   </AppLayout>
 </template>
 <script setup lang="ts">
@@ -262,6 +292,9 @@ import VocabularyGoalDialog from '@/components/VocabularyGoalDialog.vue'
 import AppCard from '@/components/ui/AppCard.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import SectionHeader from '@/components/ui/SectionHeader.vue'
+import CheckInWeekStrip from '@/components/checkin/CheckInWeekStrip.vue'
+import CheckInCalendarDialog from '@/components/checkin/CheckInCalendarDialog.vue'
+import { useCheckInCalendar } from '@/composables/useCheckInCalendar'
 import { btnIconSm, btnPrimary } from '@/components/ui/buttonStyles'
 import { useToast } from '@/composables/useToast'
 import { useUserStore } from '@/stores/user'
@@ -551,6 +584,32 @@ const goToDailyWordDetail = () => {
 watch(() => userStore.userId, (newId) => {
   if (newId) loadHomeData()
 }, { immediate: true })
+
+// ========== 签到日历 ==========
+const showCheckInCalendar = ref(false)
+const {
+  weekDays,
+  monthDays: calendarMonthDays,
+  monthLabel: calendarMonthLabel,
+  monthCheckedCount: calendarMonthCheckedCount,
+  streakDays: calendarStreakDays,
+  loading: checkInLoading,
+  loaded: checkInLoaded,
+  error: checkInError,
+  canGoNext: calendarCanGoNext,
+  reload: reloadCheckInCalendar,
+  prevMonth: prevCheckInMonth,
+  nextMonth: nextCheckInMonth,
+} = useCheckInCalendar()
+
+// 首次进入与切换用户时加载；签到成功（signInNonce 自增）后刷新圆圈
+watch(
+  () => [userStore.userId, userStore.signInNonce] as const,
+  ([userId]) => {
+    if (userId) void reloadCheckInCalendar()
+  },
+  { immediate: true },
+)
 
 // 每次进入首页都刷新数据（练习完回来时进度能更新）
 watch(() => route.path, (newPath) => {

@@ -129,15 +129,33 @@
               </p>
             </div>
           </div>
-          <span
-            class="px-3 py-1 rounded-full font-label-sm text-label-sm whitespace-nowrap"
-            :class="userStore.todayCheckedIn
-              ? 'bg-primary-container/20 text-primary'
-              : 'bg-surface-container-high text-on-surface-variant'"
-          >
-            {{ userStore.todayCheckedIn ? $t('checkIn.checkedIn') : $t('checkIn.notCheckedIn') }}
-          </span>
+          <div class="flex items-center gap-2 shrink-0">
+            <span
+              class="px-3 py-1 rounded-full font-label-sm text-label-sm whitespace-nowrap"
+              :class="userStore.todayCheckedIn
+                ? 'bg-primary-container/20 text-primary'
+                : 'bg-surface-container-high text-on-surface-variant'"
+            >
+              {{ userStore.todayCheckedIn ? $t('checkIn.checkedIn') : $t('checkIn.notCheckedIn') }}
+            </span>
+            <button
+              type="button"
+              :class="btnIconSm"
+              :aria-label="$t('checkIn.calendar.open')"
+              aria-haspopup="dialog"
+              @click="showCheckInCalendar = true"
+            >
+              <span class="material-symbols-outlined text-icon-md" aria-hidden="true">calendar_month</span>
+            </button>
+          </div>
         </div>
+
+        <CheckInWeekStrip
+          :days="weekDays"
+          :loading="checkInLoading"
+          :loaded="checkInLoaded"
+          class="mb-5"
+        />
 
         <button
           v-if="!userStore.todayCheckedIn"
@@ -285,6 +303,22 @@
         </div>
       </div>
     </section>
+
+    <CheckInCalendarDialog
+      :visible="showCheckInCalendar"
+      :month-label="calendarMonthLabel"
+      :days="calendarMonthDays"
+      :loading="checkInLoading"
+      :loaded="checkInLoaded"
+      :error="checkInError"
+      :can-go-next="calendarCanGoNext"
+      :month-checked-count="calendarMonthCheckedCount"
+      :streak-days="calendarStreakDays"
+      @update:visible="showCheckInCalendar = $event"
+      @prev="prevCheckInMonth"
+      @next="nextCheckInMonth"
+      @retry="reloadCheckInCalendar"
+    />
   </AppLayout>
 </template>
 
@@ -299,9 +333,12 @@ import { getExerciseStats } from '@/api/exercise'
 import { uploadAvatar, updateNickname } from '@/api/user'
 import { useToast } from '@/composables/useToast'
 import AbilityRadarChart from '@/components/profile/AbilityRadarChart.vue'
+import CheckInWeekStrip from '@/components/checkin/CheckInWeekStrip.vue'
+import CheckInCalendarDialog from '@/components/checkin/CheckInCalendarDialog.vue'
+import { useCheckInCalendar } from '@/composables/useCheckInCalendar'
 import BaseDialog from '@/components/ui/BaseDialog.vue'
 import { inputClassLg } from '@/components/ui/formStyles'
-import { btnDialogPrimary, btnDialogSecondary } from '@/components/ui/buttonStyles'
+import { btnDialogPrimary, btnDialogSecondary, btnIconSm } from '@/components/ui/buttonStyles'
 import type { AbilityDimensionKey, AbilityRadar } from '@/api/stats'
 
 const { t } = useI18n()
@@ -532,4 +569,29 @@ const loadProfileData = async () => {
 watch(() => userStore.userId, (newId) => {
   if (newId) loadProfileData()
 }, { immediate: true })
+
+// ========== 签到日历 ==========
+const showCheckInCalendar = ref(false)
+const {
+  weekDays,
+  monthDays: calendarMonthDays,
+  monthLabel: calendarMonthLabel,
+  monthCheckedCount: calendarMonthCheckedCount,
+  streakDays: calendarStreakDays,
+  loading: checkInLoading,
+  loaded: checkInLoaded,
+  error: checkInError,
+  canGoNext: calendarCanGoNext,
+  reload: reloadCheckInCalendar,
+  prevMonth: prevCheckInMonth,
+  nextMonth: nextCheckInMonth,
+} = useCheckInCalendar()
+
+watch(
+  () => [userStore.userId, userStore.signInNonce] as const,
+  ([userId]) => {
+    if (userId) void reloadCheckInCalendar()
+  },
+  { immediate: true },
+)
 </script>

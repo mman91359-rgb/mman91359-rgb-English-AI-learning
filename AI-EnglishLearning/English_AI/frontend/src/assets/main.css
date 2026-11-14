@@ -244,7 +244,6 @@ button, a {
   font-family: 'Material Symbols Outlined';
   font-weight: normal;
   font-style: normal;
-  font-size: 24px;
   line-height: 1;
   letter-spacing: normal;
   text-transform: none;
@@ -260,6 +259,20 @@ button, a {
 
 .material-symbols-outlined.fill {
   font-variation-settings: 'FILL' 1;
+}
+
+/* 图标缺省字号 24px —— 必须单独成条，不能写回上面的基础类。
+   原因：本条声明在 @tailwind utilities 之后，与 .text-icon-* 同为 (0,1,0)，
+   打平时后置者胜，会把全站显式尺寸类（126 处）全部吃掉，图标恒 24px。
+   两道守卫：
+   1) :not([class*="text-icon-"]) —— 只兜底「没写尺寸类」的图标，让工具类赢；
+   2) :where() —— 把特异性压到 (0,1,0) 并保持不升，
+      低于组件 scoped 的 .flame-glyph / .logo-glyph（(0,2,0)），
+      使「外层挂令牌 + font-size: 1em 继承」的写法继续有效。
+   注意 :not() 只包裹字号这一条；font-family 等仍留在基础类里，
+   否则带尺寸类的图标会失去图标字体、退化成连字文字。 */
+:where(.material-symbols-outlined):not([class*="text-icon-"]) {
+  font-size: 24px;
 }
 
 @keyframes dash {

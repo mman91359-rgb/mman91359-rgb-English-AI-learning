@@ -43,7 +43,7 @@
       </AdminFilterField>
     </AdminFilterBar>
 
-    <section class="overflow-hidden rounded-[16px] border border-outline-variant/40 bg-surface-container-lowest shadow-soft-glow">
+    <section class="overflow-hidden rounded-2xl border border-outline-variant/40 bg-surface-container-lowest shadow-soft-glow">
       <ErrorState
         v-if="error"
         :message="error instanceof Error ? error.message : $t('adminConsole.error.generic')"
@@ -80,7 +80,7 @@
             <span
               v-else
               class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 font-label-sm text-label-sm"
-              :class="row.curveScored && row.eloScored ? 'bg-success-container text-on-success-container' : 'bg-warning-container text-on-warning-container'"
+              :class="row.curveScored && row.eloScored ? 'bg-tertiary-container/50 text-on-tertiary-container' : 'bg-warning-container text-on-warning-container'"
             >
               {{ row.curveScored && row.eloScored ? $t('adminConsole.judgeReview.scored') : $t('adminConsole.judgeReview.pendingScore') }}
             </span>
@@ -93,7 +93,7 @@
           </template>
           <template #cell-actions="{ row }">
             <div v-if="row.status === 'PENDING'" class="flex justify-end gap-2">
-              <button type="button" class="flex items-center gap-1 rounded-full px-3 py-1.5 font-label-lg text-label-lg text-success hover:bg-success-container/20" @click="resolveTarget = { row, verdict: 'PASS' }">
+              <button type="button" class="flex items-center gap-1 rounded-full px-3 py-1.5 font-label-lg text-label-lg text-tertiary hover:bg-tertiary-container/20" @click="resolveTarget = { row, verdict: 'PASS' }">
                 <span class="material-symbols-outlined text-icon-sm">check</span>
                 {{ $t('adminConsole.judgeReview.pass') }}
               </button>

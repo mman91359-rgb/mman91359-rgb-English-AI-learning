@@ -21,11 +21,25 @@
         <p class="font-body-md text-body-md text-on-surface-variant">{{ error }}</p>
       </div>
 
-      <component
-        :is="templateComponent"
-        v-else-if="data"
+      <!--
+        显式分支，不用动态 <component :is> + 统一 data：
+        三个模板的 props 名不同（writing 是 score，另两个是 data），
+        统一塞 :score="data" 会让翻译/听力模板把对象透传到根元素上，
+        DOM 里留下 score="[object Object]"，且 vue-tsc 完全校验不到。
+      -->
+      <WritingFeedback
+        v-else-if="type === 'writing' && data"
+        :score="(data as unknown as WritingScore)"
+        @lookup="emit('lookup', $event)"
+      />
+      <TranslationFeedback
+        v-else-if="type === 'translation' && data"
         :data="data"
-        :score="data"
+        @lookup="emit('lookup', $event)"
+      />
+      <ListeningFeedback
+        v-else-if="type === 'listening' && data"
+        :data="data"
         @lookup="emit('lookup', $event)"
       />
     </div>
@@ -49,6 +63,7 @@ import AiActionBar from './AiActionBar.vue'
 import WritingFeedback from './templates/WritingFeedback.vue'
 import TranslationFeedback from './templates/TranslationFeedback.vue'
 import ListeningFeedback from './templates/ListeningFeedback.vue'
+import type { WritingScore } from '../../types/writing'
 
 type PanelType = 'writing' | 'translation' | 'listening'
 
@@ -82,14 +97,6 @@ const emit = defineEmits<{
   (e: 'addVocab'): void
   (e: 'mastered'): void
 }>()
-
-const TEMPLATE_MAP: Record<PanelType, unknown> = {
-  writing: WritingFeedback,
-  translation: TranslationFeedback,
-  listening: ListeningFeedback,
-}
-
-const templateComponent = computed(() => TEMPLATE_MAP[props.type])
 
 /** 操作条本身有上边框与内边距，无任何按钮时不应渲染，否则留出一条空白线 */
 const hasActions = computed(() => Object.values(props.actions ?? {}).some(Boolean))

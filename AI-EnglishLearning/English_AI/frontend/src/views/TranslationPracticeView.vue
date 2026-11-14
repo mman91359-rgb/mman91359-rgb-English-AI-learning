@@ -20,12 +20,12 @@
     <div class="flex-1 w-full max-w-[1192px] mx-auto px-gutter py-8 pb-24 md:pb-8">
       <!-- 加载 / 空态 -->
       <div v-if="loading" class="flex flex-col items-center justify-center py-24 gap-4 text-on-surface-variant">
-        <span class="material-symbols-outlined text-[48px] animate-spin">progress_activity</span>
+        <span class="material-symbols-outlined text-icon-3xl animate-spin">progress_activity</span>
         <p class="font-body-lg">{{ $t('common.loading') }}</p>
       </div>
 
       <div v-else-if="!currentQuestion" class="flex flex-col items-center justify-center py-24 gap-4">
-        <span class="material-symbols-outlined text-[48px] text-outline-variant">translate</span>
+        <span class="material-symbols-outlined text-icon-3xl text-outline-variant">translate</span>
         <p class="font-body-lg text-on-surface-variant">{{ $t('translation.noQuestions') }}</p>
         <button type="button" class="px-6 py-3 bg-primary text-on-primary rounded-full font-label-lg" @click="router.push({ path: '/learning', query: { tab: 'translation' } })">
           {{ $t('common.back') }}
@@ -34,7 +34,7 @@
 
       <div v-else class="flex flex-col lg:grid lg:grid-cols-[minmax(0,1fr)_340px] xl:grid-cols-[minmax(0,1fr)_360px] 2xl:grid-cols-[minmax(0,768px)_400px] justify-center gap-gutter flex-1">
         <section class="w-full max-w-3xl flex flex-col gap-6 min-w-0">
-          <div class="bg-surface-container-lowest rounded-[24px] p-8 md:p-10 shadow-[0_4px_20px_rgba(51,58,72,0.05)] border border-outline-variant/20 relative flex flex-col">
+          <div class="bg-surface-container-lowest rounded-3xl p-8 md:p-10 shadow-soft-glow border border-outline-variant/20 relative flex flex-col">
             <div class="flex items-center justify-between mb-8">
               <div class="flex items-center gap-2">
                 <span class="bg-secondary-fixed/50 text-secondary font-label-md text-label-md px-3 py-1 rounded-full flex items-center gap-1">
@@ -46,13 +46,13 @@
             </div>
 
             <div class="flex items-center gap-2 mb-4">
-              <span class="material-symbols-outlined text-secondary text-[18px]">menu_book</span>
+              <span class="material-symbols-outlined text-secondary text-icon-sm">menu_book</span>
               <span class="font-label-md text-label-md text-on-surface-variant">{{ $t('translation.sourceLabel') }}</span>
             </div>
 
-            <div class="bg-secondary-container/10 rounded-[16px] p-6 mb-6">
+            <div class="bg-secondary-container/10 rounded-2xl p-6 mb-6">
               <div class="flex items-center gap-2 mb-3">
-                <span class="material-symbols-outlined text-secondary text-[20px]">translate</span>
+                <span class="material-symbols-outlined text-secondary text-icon-md">translate</span>
                 <span class="font-label-lg text-label-lg text-secondary">{{ $t('translation.translatePrompt') }}</span>
               </div>
               <p class="font-headline-md text-headline-md text-on-surface leading-relaxed">{{ currentQuestion.stem }}</p>
@@ -60,13 +60,13 @@
 
             <div class="flex flex-col gap-2 flex-1">
               <div class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-primary text-[20px]">edit</span>
+                <span class="material-symbols-outlined text-primary text-icon-md">edit</span>
                 <span class="font-label-lg text-label-lg text-on-surface-variant">{{ $t('translation.yourTranslation') }}</span>
               </div>
               <textarea
                 v-model="text"
                 :disabled="submitted"
-                class="w-full min-h-[140px] bg-surface-container-low border-2 border-outline-variant/30 focus:border-secondary focus:ring-0 focus:outline-none rounded-[16px] p-4 font-body-lg text-body-lg text-on-surface resize-none transition-colors placeholder-outline-variant/40 disabled:opacity-70"
+                class="w-full min-h-[140px] bg-surface-container-low border-2 border-outline-variant/30 focus:border-secondary focus:ring-0 focus:outline-none rounded-2xl p-4 font-body-lg text-body-lg text-on-surface resize-none transition-colors placeholder-outline-variant/40 disabled:opacity-70"
                 :placeholder="$t('translation.placeholder')"
               ></textarea>
               <div class="flex items-center justify-between">
@@ -84,7 +84,7 @@
               class="self-start mt-4 flex items-center gap-2 bg-primary-container/15 text-primary px-4 py-2 rounded-full font-label-lg text-label-lg hover:bg-primary-container/25 transition-colors"
               @click="showHint = !showHint"
             >
-              <span class="material-symbols-outlined text-[18px]">lightbulb</span>{{ $t('translation.viewHint') }}
+              <span class="material-symbols-outlined text-icon-sm">lightbulb</span>{{ $t('translation.viewHint') }}
             </button>
           </div>
 
@@ -92,7 +92,7 @@
             <button
               v-if="!submitted"
               type="button"
-              class="flex-1 bg-gradient-to-r from-primary to-primary-fixed-dim text-on-primary py-4 rounded-[16px] font-label-lg text-label-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-[0_4px_14px_rgba(103,85,140,0.25)] disabled:opacity-60"
+              class="flex-1 bg-gradient-to-r from-primary to-primary-fixed-dim text-on-primary py-4 rounded-2xl font-label-lg text-label-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-[0_4px_14px_rgba(103,85,140,0.25)] disabled:opacity-60"
               :disabled="submitting"
               @click="submit"
             >
@@ -102,7 +102,7 @@
             <button
               v-else
               type="button"
-              class="flex-1 bg-gradient-to-r from-tertiary to-tertiary-fixed-dim text-on-tertiary py-4 rounded-[16px] font-label-lg text-label-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-[0_4px_14px_rgba(0,110,32,0.25)]"
+              class="flex-1 bg-gradient-to-r from-tertiary to-tertiary-fixed-dim text-on-tertiary py-4 rounded-2xl font-label-lg text-label-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-[0_4px_14px_rgba(0,110,32,0.25)]"
               @click="next"
             >
               <span class="material-symbols-outlined">arrow_forward</span>{{ currentIndex < questions.length - 1 ? $t('translation.nextQuestion') : $t('translation.finish') }}
@@ -110,7 +110,7 @@
             <button
               v-if="!submitted"
               type="button"
-              class="flex-1 bg-gradient-to-r from-secondary to-secondary-fixed-dim text-on-secondary py-4 rounded-[16px] font-label-lg text-label-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-[0_4px_14px_rgba(12,103,128,0.25)]"
+              class="flex-1 bg-gradient-to-r from-secondary to-secondary-fixed-dim text-on-secondary py-4 rounded-2xl font-label-lg text-label-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-[0_4px_14px_rgba(12,103,128,0.25)]"
               @click="reset"
             >
               <span class="material-symbols-outlined">replay</span>{{ $t('translation.reset') }}
@@ -151,16 +151,16 @@
           <button
             v-if="submitted && result"
             type="button"
-            class="flex h-11 w-full items-center justify-center gap-2 rounded-[16px] border border-outline-variant/60 bg-surface-container-lowest font-label-lg text-label-lg text-on-surface-variant transition-colors hover:bg-surface-container-low"
+            class="flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-outline-variant/60 bg-surface-container-lowest font-label-lg text-label-lg text-on-surface-variant transition-colors hover:bg-surface-container-low"
             @click="askAi"
           >
             <span class="material-symbols-outlined text-icon-md" aria-hidden="true">forum</span>
             {{ $t('translation.askAi') }}
           </button>
 
-          <div v-if="submitted && result?.suggestions?.length" class="bg-tertiary-container/15 rounded-[20px] p-5 border border-tertiary/20">
+          <div v-if="submitted && result?.suggestions?.length" class="bg-tertiary-container/15 rounded-2xl p-5 border border-tertiary/20">
             <div class="flex items-center gap-2 mb-3">
-              <span class="material-symbols-outlined text-tertiary text-[20px]">bookmark</span>
+              <span class="material-symbols-outlined text-tertiary text-icon-md">bookmark</span>
               <span class="font-label-lg text-label-lg text-tertiary">{{ $t('translation.suggestions') }}</span>
             </div>
             <ul class="space-y-2">

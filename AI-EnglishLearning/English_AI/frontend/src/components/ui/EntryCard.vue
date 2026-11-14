@@ -77,17 +77,23 @@ const emit = defineEmits<{ click: [] }>()
 
 const tag = computed(() => (props.to ? RouterLink : 'button'))
 
+/**
+ * 图标圆底色：**必须是完整字面量**，禁止写成 `'bg-primary-container' + '/30'`。
+ *
+ * Tailwind 只扫描源码里的完整类名字符串，拼接出来的是运行时值，它看不见。
+ * 一旦其他页面不再写这些字面量（例如迁移收口清掉旧卡），拼出来的类就再也生成不了 CSS，
+ * 图标圆会**静默变透明** —— type-check 绿、build 绿，只有肉眼能发现。见契约 §11.4。
+ */
 const ICON_WRAP_ALPHA = {
-  primary: 'bg-primary-container',
-  secondary: 'bg-secondary-container',
-  tertiary: 'bg-tertiary-container',
-  error: 'bg-error-container',
+  primary: { 20: 'bg-primary-container/20', 30: 'bg-primary-container/30' },
+  secondary: { 20: 'bg-secondary-container/20', 30: 'bg-secondary-container/30' },
+  tertiary: { 20: 'bg-tertiary-container/20', 30: 'bg-tertiary-container/30' },
+  error: { 20: 'bg-error-container/20', 30: 'bg-error-container/30' },
 } as const
 
-const iconWrapClass = computed(() => {
-  const alpha = props.iconAlpha === 20 ? '/20' : '/30'
-  return `flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${ICON_WRAP_ALPHA[props.tone]}${alpha}`
-})
+const iconWrapClass = computed(
+  () => `flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${ICON_WRAP_ALPHA[props.tone][props.iconAlpha]}`,
+)
 
 const cardClass = computed(() => [
   'flex items-center justify-between rounded-3xl bg-surface-container-lowest p-6 text-left shadow-soft-glow transition-colors hover:bg-surface-container-lowest/80',

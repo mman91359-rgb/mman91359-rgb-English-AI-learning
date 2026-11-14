@@ -40,7 +40,7 @@
         </div>
 
         <!-- 年度贡献热力图 -->
-        <div class="bg-surface-container-lowest rounded-[24px] p-6 md:p-8 card-shadow">
+        <div class="bg-surface-container-lowest rounded-3xl p-6 md:p-8 card-shadow">
           <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
             <h3 class="font-headline-md text-headline-md text-on-surface">{{ $t('stats.yearlyHeatmap') }}</h3>
             <div class="flex items-center gap-1 text-label-sm font-label-sm text-on-surface-variant">
@@ -63,14 +63,14 @@
                 <span
                   v-for="(day, di) in dayLabels"
                   :key="di"
-                  class="text-[10px] leading-[12px] text-on-surface-variant/50 h-[12px]"
+                  class="text-[10px] leading-[12px] text-on-surface-variant/50 h-3"
                   :style="{ marginTop: di % 2 === 0 ? '0' : '0' }"
                 >{{ di % 2 === 1 ? '' : day }}</span>
               </div>
 
               <div class="flex-1">
                 <!-- 月份标签 -->
-                <div class="flex text-[10px] leading-[12px] text-on-surface-variant/50 mb-1 h-[12px] relative ml-0">
+                <div class="flex text-[10px] leading-[12px] text-on-surface-variant/50 mb-1 h-3 relative ml-0">
                   <span
                     v-for="(ml, mi) in monthLabelPositions"
                     :key="mi"
@@ -84,7 +84,7 @@
                   <div
                     v-for="(cell, i) in paddedHeatmap"
                     :key="i"
-                    class="w-[12px] h-[12px] rounded-[2px] transition-colors duration-200 border border-surface/30"
+                    class="w-3 h-3 rounded-[2px] transition-colors duration-200 border border-surface/30"
                     :class="cell.level > 0 ? 'cursor-pointer hover:ring-2 hover:ring-primary/30' : ''"
                     :style="{ backgroundColor: heatmapColor(cell.level) }"
                     :title="cell.tooltip"
@@ -106,7 +106,7 @@
         </div>
 
         <!-- 学习时间曲线图 -->
-        <div class="bg-surface-container-lowest rounded-[24px] p-6 md:p-8 card-shadow">
+        <div class="bg-surface-container-lowest rounded-3xl p-6 md:p-8 card-shadow">
           <div class="flex justify-between items-center mb-2">
             <h3 class="font-headline-md text-headline-md text-on-surface">{{ $t('stats.recent7DaysStudyTime') }}</h3>
           </div>
@@ -119,7 +119,7 @@
 
       <!-- 右侧：词汇量卡片 -->
       <div class="lg:col-span-4 space-y-6">
-        <div class="bg-gradient-to-br from-primary-fixed to-surface-container-lowest rounded-[24px] p-8 card-shadow relative overflow-hidden">
+        <div class="bg-gradient-to-br from-primary-fixed to-surface-container-lowest rounded-3xl p-8 card-shadow relative overflow-hidden">
           <div class="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
           <div class="relative z-10 text-center mb-6">
             <div class="inline-flex items-center justify-center w-20 h-20 bg-surface-container-lowest rounded-full shadow-sm mb-4">

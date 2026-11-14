@@ -25,7 +25,7 @@
     <!-- ========== 语法 tab：与翻译/听力/写作一致的 8/4 布局 ========== -->
     <template v-if="activeTab === 'grammar'">
       <div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
-        <div class="relative flex flex-col overflow-hidden rounded-[24px] bg-info p-8 md:col-span-8">
+        <div class="relative flex flex-col overflow-hidden rounded-3xl bg-info p-8 md:col-span-8">
           <div class="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-info-container/30 blur-3xl" aria-hidden="true" />
           <div class="relative z-10">
             <h3 class="font-headline-md text-headline-md mb-2 text-on-info">{{ $t('learning.grammarPractice') }}</h3>
@@ -47,99 +47,64 @@
                 </template>
                 <template v-else>
                   <span class="cursor-pointer" @click="startEditTarget">{{ dailyTarget }} {{ $t('learning.questions') }}</span>
-                  <span class="material-symbols-outlined cursor-pointer text-sm" @click="startEditTarget">edit</span>
+                  <AppIcon name="edit" size="lg" class="cursor-pointer" @click="startEditTarget" />
                 </template>
               </div>
             </div>
 
             <button
               type="button"
-              class="flex w-full items-center justify-center gap-2 rounded-[16px] bg-surface-container-lowest px-8 py-4 font-label-lg text-label-lg text-info transition-colors hover:bg-surface-container-lowest/90 sm:w-auto sm:inline-flex"
+              class="flex w-full items-center justify-center gap-2 rounded-2xl bg-surface-container-lowest px-8 py-4 font-label-lg text-label-lg text-info transition-colors hover:bg-surface-container-lowest/90 sm:w-auto sm:inline-flex"
               @click="startPractice"
             >
-              <span class="material-symbols-outlined">play_arrow</span>{{ $t('learning.grammarStart') }}
+              <AppIcon name="play_arrow" size="lg" />{{ $t('learning.grammarStart') }}
             </button>
           </div>
         </div>
 
         <div class="col-span-1 flex flex-col gap-4 md:col-span-4">
-          <div
-            class="flex cursor-pointer items-center justify-between rounded-[24px] bg-surface-container-lowest p-6 shadow-soft-glow transition-colors hover:bg-surface-container-lowest/80"
+          <EntryCard
+            icon="favorite"
+            tone="error"
+            filled
+            :title="$t('learning.myFavorites')"
+            :description="$t('learning.favoritesCount', { count: favoriteCount })"
             @click="goToFavorites"
-          >
-            <div class="flex items-center gap-4">
-              <div class="flex h-10 w-10 items-center justify-center rounded-full bg-error-container/30">
-                <span class="material-symbols-outlined fill text-error">favorite</span>
-              </div>
-              <div class="flex flex-col gap-0.5">
-                <span class="font-body-lg text-body-lg text-on-surface">{{ $t('learning.myFavorites') }}</span>
-                <span class="font-label-md text-label-md text-on-surface-variant">{{ $t('learning.favoritesCount', { count: favoriteCount }) }}</span>
-              </div>
-            </div>
-            <span class="material-symbols-outlined text-outline">chevron_right</span>
-          </div>
-          <div
-            class="flex cursor-pointer items-center justify-between rounded-[24px] bg-surface-container-lowest p-6 shadow-soft-glow transition-colors hover:bg-surface-container-lowest/80"
+          />
+          <EntryCard
+            icon="build"
+            tone="secondary"
+            :title="$t('learning.myErrorBook')"
+            :description="$t('learning.errorCountLabel', { count: errorCount })"
             @click="goToErrorBook"
-          >
-            <div class="flex items-center gap-4">
-              <div class="flex h-10 w-10 items-center justify-center rounded-full bg-secondary-container/30">
-                <span class="material-symbols-outlined text-secondary">build</span>
-              </div>
-              <div class="flex flex-col gap-0.5">
-                <span class="font-body-lg text-body-lg text-on-surface">{{ $t('learning.myErrorBook') }}</span>
-                <span class="font-label-md text-label-md text-on-surface-variant">{{ $t('learning.errorCountLabel', { count: errorCount }) }}</span>
-              </div>
-            </div>
-            <span class="material-symbols-outlined text-outline">chevron_right</span>
-          </div>
+          />
         </div>
 
-        <div
-          class="col-span-1 flex cursor-pointer items-center justify-between rounded-[24px] bg-surface-container-lowest p-6 shadow-soft-glow transition-colors hover:bg-surface-container-lowest/80 md:col-span-4"
+        <EntryCard
+          icon="hourglass_bottom"
+          tone="tertiary"
+          :title="$t('learning.learningHistory')"
+          :description="$t('learning.answeredCountLabel', { count: totalAnswered })"
+          class="col-span-1 md:col-span-4"
           @click="goToHistory"
-        >
-          <div class="flex items-center gap-4">
-            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-tertiary-container/30">
-              <span class="material-symbols-outlined text-tertiary">hourglass_bottom</span>
-            </div>
-            <div class="flex flex-col gap-0.5">
-              <span class="font-body-lg text-body-lg text-on-surface">{{ $t('learning.learningHistory') }}</span>
-              <span class="font-label-md text-label-md text-on-surface-variant">{{ $t('learning.answeredCountLabel', { count: totalAnswered }) }}</span>
-            </div>
-          </div>
-          <span class="material-symbols-outlined text-outline">chevron_right</span>
-        </div>
-        <div
-          class="col-span-1 flex cursor-pointer items-center justify-between rounded-[24px] bg-surface-container-lowest p-6 shadow-soft-glow transition-colors hover:bg-surface-container-lowest/80 md:col-span-4"
+        />
+        <EntryCard
+          icon="hourglass"
+          tone="primary"
+          filled
+          :title="$t('learning.studiedGrammar')"
+          :description="$t('learning.grammarPractice')"
+          class="col-span-1 md:col-span-4"
           @click="goToStudiedGrammar"
-        >
-          <div class="flex items-center gap-4">
-            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-primary-container/30">
-              <span class="material-symbols-outlined fill text-primary">hourglass</span>
-            </div>
-            <div class="flex flex-col gap-0.5">
-              <span class="font-body-lg text-body-lg text-on-surface">{{ $t('learning.studiedGrammar') }}</span>
-              <span class="font-label-md text-label-md text-on-surface-variant">{{ $t('learning.grammarPractice') }}</span>
-            </div>
-          </div>
-          <span class="material-symbols-outlined text-outline">chevron_right</span>
-        </div>
-        <div
-          class="col-span-1 flex cursor-pointer items-center justify-between rounded-[24px] bg-surface-container-lowest p-6 shadow-soft-glow transition-colors hover:bg-surface-container-lowest/80 md:col-span-4"
+        />
+        <EntryCard
+          icon="forum"
+          tone="secondary"
+          :title="$t('learning.aiQA')"
+          :description="$t('learning.aiAssistant')"
+          class="col-span-1 md:col-span-4"
           @click="toastComingSoon"
-        >
-          <div class="flex items-center gap-4">
-            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-secondary-container/30">
-              <span class="material-symbols-outlined text-secondary">forum</span>
-            </div>
-            <div class="flex flex-col gap-0.5">
-              <span class="font-body-lg text-body-lg text-on-surface">{{ $t('learning.aiQA') }}</span>
-              <span class="font-label-md text-label-md text-on-surface-variant">{{ $t('learning.aiAssistant') }}</span>
-            </div>
-          </div>
-          <span class="material-symbols-outlined text-outline">chevron_right</span>
-        </div>
+        />
       </div>
     </template>
 
@@ -163,7 +128,7 @@
       <div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
         <!-- 主练习入口 -->
         <div
-          class="col-span-1 md:col-span-8 bg-primary rounded-[24px] p-8 flex flex-col justify-between relative overflow-hidden min-h-[200px]"
+          class="col-span-1 md:col-span-8 bg-primary rounded-3xl p-8 flex flex-col justify-between relative overflow-hidden min-h-[200px]"
         >
           <div class="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-primary-fixed/20 blur-3xl" aria-hidden="true" />
           <div class="relative z-10 text-on-primary">
@@ -176,109 +141,79 @@
               <span class="rounded-full bg-on-primary/15 px-3 py-1 font-label-md text-label-md">
                 {{ $t('learning.reviewWordsGoal', { count: dailyReviewWordsDisplay }) }}
               </span>
-              <span class="material-symbols-outlined text-sm opacity-70">tune</span>
+              <AppIcon name="tune" size="lg" class="opacity-70" />
             </div>
             <p class="mt-4 font-body-sm text-body-sm text-on-primary/70">
               {{ $t('learning.tapToSetGoal') }}
             </p>
             <button
               type="button"
-              class="mt-6 flex w-full items-center justify-center gap-2 rounded-[16px] bg-surface-container-lowest px-8 py-4 font-label-lg text-label-lg text-primary transition-colors hover:bg-surface-container-lowest/90 sm:w-auto sm:inline-flex"
+              class="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-surface-container-lowest px-8 py-4 font-label-lg text-label-lg text-primary transition-colors hover:bg-surface-container-lowest/90 sm:w-auto sm:inline-flex"
               @click="openVocabularyGoalDialog"
             >
-              <span class="material-symbols-outlined">play_arrow</span>{{ $t('learning.vocabStart') }}
+              <AppIcon name="play_arrow" size="lg" />{{ $t('learning.vocabStart') }}
             </button>
           </div>
         </div>
 
         <!-- 收藏 & 错题 -->
         <div class="col-span-1 md:col-span-4 flex flex-col gap-4">
-          <div
-            class="bg-surface-container-lowest rounded-[24px] p-6 shadow-soft-glow flex items-center justify-between cursor-pointer hover:bg-surface-container-lowest/80 transition-colors"
+          <EntryCard
+            icon="favorite"
+            tone="error"
+            filled
+            :title="$t('learning.myFavorites')"
+            :description="$t('learning.favoritesCount', { count: favoriteCount })"
             @click="goToFavorites"
-          >
-            <div class="flex items-center gap-4">
-              <div class="w-10 h-10 rounded-full bg-error-container/30 flex items-center justify-center">
-                <span class="material-symbols-outlined text-error fill">favorite</span>
-              </div>
-              <div>
-                <span class="font-body-lg text-body-lg text-on-surface block">{{ $t('learning.myFavorites') }}</span>
-                <span class="font-label-md text-label-md text-on-surface-variant">{{ $t('learning.favoritesCount', { count: favoriteCount }) }}</span>
-              </div>
-            </div>
-            <span class="material-symbols-outlined text-outline">chevron_right</span>
-          </div>
-          <div
-            class="bg-surface-container-lowest rounded-[24px] p-6 shadow-soft-glow flex items-center justify-between cursor-pointer hover:bg-surface-container-lowest/80 transition-colors"
+          />
+          <EntryCard
+            icon="build"
+            tone="secondary"
+            :title="$t('learning.myErrorBook')"
+            :description="$t('learning.errorCountLabel', { count: errorCount })"
             @click="goToErrorBook"
-          >
-            <div class="flex items-center gap-4">
-              <div class="w-10 h-10 rounded-full bg-secondary-container/30 flex items-center justify-center">
-                <span class="material-symbols-outlined text-secondary">build</span>
-              </div>
-              <div>
-                <span class="font-body-lg text-body-lg text-on-surface block">{{ $t('learning.myErrorBook') }}</span>
-                <span class="font-label-md text-label-md text-on-surface-variant">{{ $t('learning.errorCountLabel', { count: errorCount }) }}</span>
-              </div>
-            </div>
-            <span class="material-symbols-outlined text-outline">chevron_right</span>
-          </div>
+          />
         </div>
 
         <!-- 学习历史 & 单词本 & AI问答 -->
-        <div class="col-span-1 md:col-span-4 bg-surface-container-lowest rounded-[24px] p-6 shadow-soft-glow flex items-center justify-between cursor-pointer hover:bg-surface-container-lowest/80 transition-colors" @click="goToHistory">
-          <div class="flex items-center gap-4">
-            <div class="w-10 h-10 rounded-full bg-tertiary-container/30 flex items-center justify-center">
-              <span class="material-symbols-outlined text-tertiary">hourglass_bottom</span>
-            </div>
-            <div>
-              <span class="font-body-lg text-body-lg text-on-surface block">{{ $t('learning.learningHistory') }}</span>
-              <span class="font-label-md text-label-md text-on-surface-variant">{{ $t('learning.answeredCountLabel', { count: totalAnswered }) }}</span>
-            </div>
-          </div>
-          <span class="material-symbols-outlined text-outline">chevron_right</span>
-        </div>
-        <div class="col-span-1 md:col-span-4 bg-surface-container-lowest rounded-[24px] p-6 shadow-soft-glow flex items-center justify-between cursor-pointer hover:bg-surface-container-lowest/80 transition-colors" @click="goToVocabulary">
-          <div class="flex items-center gap-4">
-            <div class="w-10 h-10 rounded-full bg-primary-container/30 flex items-center justify-center">
-              <span class="material-symbols-outlined text-primary">bookmark</span>
-            </div>
-            <div>
-              <span class="font-body-lg text-body-lg text-on-surface block">{{ $t('learning.myVocabulary') }}</span>
-              <span class="font-label-md text-label-md text-on-surface-variant">{{ $t('learning.wordBookCountLabel', { count: wordBookCount }) }}</span>
-            </div>
-          </div>
-          <span class="material-symbols-outlined text-outline">chevron_right</span>
-        </div>
-        <div class="col-span-1 md:col-span-4 bg-surface-container-lowest rounded-[24px] p-6 shadow-soft-glow flex items-center justify-between cursor-pointer hover:bg-surface-container-lowest/80 transition-colors" @click="openAiChat">
-          <div class="flex items-center gap-4">
-            <div class="w-10 h-10 rounded-full bg-secondary-container/30 flex items-center justify-center">
-              <span class="material-symbols-outlined text-secondary">forum</span>
-            </div>
-            <div>
-              <span class="font-body-lg text-body-lg text-on-surface block">{{ $t('learning.aiQA') }}</span>
-              <span class="font-label-md text-label-md text-on-surface-variant">{{ $t('learning.aiAssistant') }}</span>
-            </div>
-          </div>
-          <span class="material-symbols-outlined text-outline">chevron_right</span>
-        </div>
+        <EntryCard
+          icon="hourglass_bottom"
+          tone="tertiary"
+          :title="$t('learning.learningHistory')"
+          :description="$t('learning.answeredCountLabel', { count: totalAnswered })"
+          class="col-span-1 md:col-span-4"
+          @click="goToHistory"
+        />
+        <EntryCard
+          icon="bookmark"
+          tone="primary"
+          :title="$t('learning.myVocabulary')"
+          :description="$t('learning.wordBookCountLabel', { count: wordBookCount })"
+          class="col-span-1 md:col-span-4"
+          @click="goToVocabulary"
+        />
+        <EntryCard
+          icon="forum"
+          tone="secondary"
+          :title="$t('learning.aiQA')"
+          :description="$t('learning.aiAssistant')"
+          class="col-span-1 md:col-span-4"
+          @click="openAiChat"
+        />
       </div>
 
       <!-- 词典 -->
       <div class="mt-12">
         <h3 class="font-headline-md text-headline-md text-on-surface mb-6">{{ $t('learning.dictionary') }}</h3>
-        <div class="col-span-1 md:col-span-4 bg-surface-container-lowest rounded-[24px] p-6 shadow-soft-glow flex items-center justify-between cursor-pointer hover:bg-surface-container-lowest/80 transition-colors" @click="toastComingSoon">
-          <div class="flex items-center gap-4">
-            <div class="w-10 h-10 rounded-full bg-secondary-container/20 flex items-center justify-center">
-              <span class="material-symbols-outlined text-secondary">search</span>
-            </div>
-            <div>
-              <span class="font-body-lg text-body-lg text-on-surface block">{{ $t('learning.englishDictionary') }}</span>
-              <span class="font-label-md text-label-md text-on-surface-variant">{{ $t('learning.dictionaryHint') }}</span>
-            </div>
-          </div>
-          <span class="material-symbols-outlined text-outline">chevron_right</span>
-        </div>
+        <EntryCard
+          icon="search"
+          tone="secondary"
+          :icon-alpha="20"
+          :title="$t('learning.englishDictionary')"
+          :description="$t('learning.dictionaryHint')"
+          class="col-span-1 md:col-span-4"
+          @click="toastComingSoon"
+        />
       </div>
     </template>
 
@@ -308,6 +243,8 @@ import AppLayout from '../components/AppLayout.vue'
 import ListeningEntryPanel from '../components/listening/ListeningEntryPanel.vue'
 import TranslationEntryPanel from '../components/translation/TranslationEntryPanel.vue'
 import WritingEntryPanel from '../components/writing/WritingEntryPanel.vue'
+import EntryCard from '@/components/ui/EntryCard.vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
 import VocabularyGoalDialog from '@/components/VocabularyGoalDialog.vue'
 import { useUserStore } from '@/stores/user'
 import { useAiStore } from '@/stores/ai'

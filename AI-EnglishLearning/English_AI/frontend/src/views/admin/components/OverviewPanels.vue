@@ -1,6 +1,6 @@
 <template>
   <section class="grid grid-cols-1 gap-gutter xl:grid-cols-2">
-    <section class="flex flex-col rounded-[16px] border border-outline-variant/40 bg-surface-container-lowest shadow-soft-glow">
+    <section class="flex flex-col rounded-2xl border border-outline-variant/40 bg-surface-container-lowest shadow-soft-glow">
       <header class="flex items-center justify-between border-b border-outline-variant/40 px-6 py-4">
         <h2 class="font-headline-sm text-headline-sm text-on-surface">{{ $t('adminConsole.overview.recentLogs') }}</h2>
         <RouterLink to="/admin/operation-logs" class="font-label-md text-label-md text-primary hover:underline">
@@ -26,7 +26,7 @@
       </ul>
     </section>
 
-    <section class="flex flex-col rounded-[16px] border border-outline-variant/40 bg-surface-container-lowest shadow-soft-glow">
+    <section class="flex flex-col rounded-2xl border border-outline-variant/40 bg-surface-container-lowest shadow-soft-glow">
       <header class="flex items-center justify-between border-b border-outline-variant/40 px-6 py-4">
         <h2 class="font-headline-sm text-headline-sm text-on-surface">{{ $t('adminConsole.overview.pendingQuestions') }}</h2>
         <RouterLink to="/admin/questions" class="font-label-md text-label-md text-primary hover:underline">

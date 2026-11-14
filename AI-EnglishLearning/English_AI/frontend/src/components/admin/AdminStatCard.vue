@@ -1,5 +1,5 @@
 <template>
-  <div class="group flex flex-col gap-4 rounded-[16px] border border-outline-variant/40 bg-surface-container-lowest p-6 shadow-soft-glow transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/30">
+  <div class="group flex flex-col gap-4 rounded-2xl border border-outline-variant/40 bg-surface-container-lowest p-6 shadow-soft-glow transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/30">
     <div class="flex items-center justify-between">
       <span class="font-label-md text-label-md text-on-surface-variant">{{ label }}</span>
       <span class="flex h-10 w-10 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110" :class="toneClass">

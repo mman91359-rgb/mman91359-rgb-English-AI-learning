@@ -47,7 +47,7 @@
 
       <section :aria-label="$t('adminConsole.notice.preview')" class="flex flex-col gap-3">
         <span class="font-label-lg text-label-lg text-on-surface">{{ $t('adminConsole.notice.preview') }}</span>
-        <div class="flex flex-col gap-3 rounded-[16px] border border-outline-variant/40 bg-surface-container-low p-5">
+        <div class="flex flex-col gap-3 rounded-2xl border border-outline-variant/40 bg-surface-container-low p-4">
           <div class="flex items-center gap-2">
             <span class="material-symbols-outlined text-icon-md text-primary">notifications</span>
             <span class="font-label-lg text-label-lg text-on-surface">

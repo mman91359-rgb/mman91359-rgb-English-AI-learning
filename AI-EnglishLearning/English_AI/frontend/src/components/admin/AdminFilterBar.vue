@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-wrap items-end gap-3 rounded-[16px] border border-outline-variant/40 bg-surface-container-lowest p-4 shadow-soft-glow">
+  <div class="flex flex-wrap items-end gap-3 rounded-2xl border border-outline-variant/40 bg-surface-container-lowest p-4 shadow-soft-glow">
     <slot />
     <button
       type="button"

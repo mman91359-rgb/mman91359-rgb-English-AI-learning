@@ -1,5 +1,5 @@
 <template>
-  <section class="flex flex-col gap-4 rounded-[16px] border border-outline-variant/40 bg-surface-container-lowest p-6 shadow-soft-glow">
+  <section class="flex flex-col gap-4 rounded-2xl border border-outline-variant/40 bg-surface-container-lowest p-6 shadow-soft-glow">
     <h3 class="font-headline-sm text-headline-sm text-on-surface">{{ title }}</h3>
     <p v-if="entries.length === 0" class="font-body-sm text-body-sm text-on-surface-variant">
       {{ $t('adminConsole.detail.unavailable') }}

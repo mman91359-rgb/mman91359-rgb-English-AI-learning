@@ -1,5 +1,5 @@
 <template>
-  <section class="flex flex-col gap-6 rounded-[16px] border border-outline-variant/40 bg-surface-container-lowest p-6 shadow-soft-glow">
+  <section class="flex flex-col gap-6 rounded-2xl border border-outline-variant/40 bg-surface-container-lowest p-6 shadow-soft-glow">
     <header class="flex flex-col gap-1">
       <h2 class="font-headline-sm text-headline-sm text-on-surface">{{ title }}</h2>
       <p v-if="description" class="font-body-sm text-body-sm text-on-surface-variant">{{ description }}</p>

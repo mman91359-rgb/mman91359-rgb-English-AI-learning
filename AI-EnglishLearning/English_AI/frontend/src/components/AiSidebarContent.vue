@@ -127,7 +127,7 @@
                 :summary="t('ai.card.clickToView')"
                 @toggle="aiStore.toggleCard(msg.id)"
               >
-                <FeedbackCardBody :kind="feedback.kind" :record-id="feedback.recordId" />
+                <FeedbackCardBody :kind="feedback.kind" :record-id="feedback.recordId" @lookup="handleLookup" />
               </AiCard>
 
               <AiCard
@@ -214,6 +214,13 @@
         </p>
       </div>
     </div>
+
+    <!--
+      查词弹层：对话流卡片里的 WordToken 与页面里的共用同一个组件。
+      组件内部 Teleport 到 body，因此在侧栏（overlay/inline）里挂载也不会被
+      400px 宽度或 overflow 裁掉。
+    -->
+    <WordDetailCard :word="lookupWord" :open="showWordDetail" @close="showWordDetail = false" />
   </div>
 </template>
 
@@ -225,10 +232,21 @@ import { useToast } from '@/composables/useToast'
 import { btnIconSm } from '@/components/ui/buttonStyles'
 import AiCard from '@/components/ai/AiCard.vue'
 import FeedbackCardBody from '@/components/ai/FeedbackCardBody.vue'
+import WordDetailCard from '@/components/word/WordDetailCard.vue'
 import { formatAiContent, splitSections, type AiCardType, type AiSection } from '@/utils/aiContent'
 
 const { t } = useI18n()
 const { show: toast } = useToast()
+
+/** 查词弹层状态：对话流卡片里的逐词点击都落到这里 */
+const lookupWord = ref('')
+const showWordDetail = ref(false)
+
+function handleLookup(word: string) {
+  if (!word) return
+  lookupWord.value = word
+  showWordDetail.value = true
+}
 
 const emit = defineEmits<{
   (e: 'close'): void

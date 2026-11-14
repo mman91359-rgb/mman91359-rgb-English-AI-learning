@@ -66,7 +66,6 @@ import WritingFeedback from './templates/WritingFeedback.vue'
 import TranslationFeedback from './templates/TranslationFeedback.vue'
 import { fetchSubmission } from '../../api/writing'
 import { fetchExerciseLogDetail, type ExerciseHistoryVO } from '../../api/exercise'
-import { useToast } from '../../composables/useToast'
 import { useUserStore } from '../../stores/user'
 import type { WritingScore } from '../../types/writing'
 import type { FeedbackKind } from '../../stores/ai'
@@ -84,7 +83,6 @@ const props = defineProps<{
 const router = useRouter()
 const { t } = useI18n()
 const userStore = useUserStore()
-const { show: toast } = useToast()
 
 const loading = ref(true)
 const error = ref('')
@@ -112,9 +110,11 @@ const translationData = computed(() => {
   }
 })
 
+/** 查词交给宿主处理：侧栏挂在全局，由它统一管理弹层 */
+const emit = defineEmits<{ (e: 'lookup', word: string): void }>()
+
 function onLookup(word: string) {
-  // 对话流里没有查词侧栏宿主，先给一句明确提示，避免点了毫无反应
-  toast(t('translation.wordLookupPending', { word }))
+  emit('lookup', word)
 }
 
 async function load() {

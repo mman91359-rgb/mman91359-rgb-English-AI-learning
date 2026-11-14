@@ -170,6 +170,9 @@
         </aside>
       </div>
     </div>
+
+    <!-- 单词详情弹层：内部 Teleport 到 body，挂在哪一层都不影响定位 -->
+    <WordDetailCard :word="lookupWord" :open="showWordDetail" @close="showWordDetail = false" />
   </AppLayout>
 </template>
 
@@ -181,6 +184,7 @@ import AppLayout from '../components/AppLayout.vue'
 import FeedbackPanel from '../components/listening/FeedbackPanel.vue'
 import AiFeedbackPanel from '../components/ai/AiFeedbackPanel.vue'
 import QuizProgressBar from '../components/quiz/QuizProgressBar.vue'
+import WordDetailCard from '../components/word/WordDetailCard.vue'
 import { useToast } from '../composables/useToast'
 import { useUserStore } from '../stores/user'
 import { useAiStore } from '../stores/ai'
@@ -250,11 +254,18 @@ const translationFeedback = computed<Record<string, unknown>>(() => ({
 }))
 
 /**
- * 逐词查词。Step 1 只验证链路是否连通（WordToken → 模板 → 面板 → 页面），
- * 真正的查词弹层留到后续迭代，避免这里顺带引入新的产品行为。
+ * 逐词查词：点原文/译文里的单词 → 打开单词详情弹层。
+ * WordToken 已清掉粘连标点，但仍可能剩下纯符号（如破折号）归一化后为空，
+ * 这种直接忽略，否则会打开一个空白弹层。
+ * 弹层自己负责拉数据、收藏、Esc 关闭与滚动锁，页面只管开关。
  */
+const lookupWord = ref('')
+const showWordDetail = ref(false)
+
 const handleLookup = (word: string) => {
-  toast(t('translation.wordLookupPending', { word }), 'info')
+  if (!word) return
+  lookupWord.value = word
+  showWordDetail.value = true
 }
 
 onMounted(async () => {
@@ -308,6 +319,8 @@ const next = () => {
     result.value = null
     showHint.value = false
     logId.value = null
+    // 切题时关掉查词弹层，避免弹层里还留着上一题的词
+    showWordDetail.value = false
   } else {
     router.push({ path: '/learning', query: { tab: 'translation' } })
   }
@@ -319,6 +332,7 @@ const reset = () => {
   submitted.value = false
   result.value = null
   logId.value = null
+  showWordDetail.value = false
 }
 
 /**

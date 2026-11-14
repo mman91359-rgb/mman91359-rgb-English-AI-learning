@@ -56,7 +56,7 @@
 
     <p v-if="dateInvalid" class="font-label-md text-label-md text-error">{{ $t('adminConsole.users.dateRangeInvalid') }}</p>
 
-    <section class="overflow-hidden rounded-[16px] border border-outline-variant/40 bg-surface-container-lowest shadow-soft-glow">
+    <section class="overflow-hidden rounded-2xl border border-outline-variant/40 bg-surface-container-lowest shadow-soft-glow">
       <ErrorState
         v-if="error"
         :message="error instanceof Error ? error.message : $t('adminConsole.error.generic')"

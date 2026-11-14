@@ -12,7 +12,7 @@
       {{ $t('adminConsole.users.backToList') }}
     </RouterLink>
 
-    <section class="flex flex-col gap-6 rounded-[16px] border border-outline-variant/40 bg-surface-container-lowest p-6 shadow-soft-glow md:flex-row md:items-center">
+    <section class="flex flex-col gap-6 rounded-2xl border border-outline-variant/40 bg-surface-container-lowest p-6 shadow-soft-glow md:flex-row md:items-center">
       <UserAvatar :name="displayName" :avatar-url="data.user.avatarUrl" size="lg" />
       <div class="flex min-w-0 flex-1 flex-col gap-2">
         <div class="flex flex-wrap items-center gap-3">
@@ -57,7 +57,7 @@
     </section>
 
     <section class="grid grid-cols-1 gap-gutter lg:grid-cols-2">
-      <section class="flex flex-col gap-4 rounded-[16px] border border-outline-variant/40 bg-surface-container-lowest p-6 shadow-soft-glow">
+      <section class="flex flex-col gap-4 rounded-2xl border border-outline-variant/40 bg-surface-container-lowest p-6 shadow-soft-glow">
         <h3 class="font-headline-sm text-headline-sm text-on-surface">{{ $t('adminConsole.detail.basicInfo') }}</h3>
         <dl class="grid grid-cols-2 gap-x-6 gap-y-4">
           <div class="flex flex-col gap-1">
@@ -79,7 +79,7 @@
         </dl>
       </section>
 
-      <section class="flex flex-col gap-4 rounded-[16px] border border-outline-variant/40 bg-surface-container-lowest p-6 shadow-soft-glow">
+      <section class="flex flex-col gap-4 rounded-2xl border border-outline-variant/40 bg-surface-container-lowest p-6 shadow-soft-glow">
         <h3 class="font-headline-sm text-headline-sm text-on-surface">{{ $t('adminConsole.detail.coinInfo') }}</h3>
         <div class="flex flex-col gap-1">
           <span class="font-label-md text-label-md text-on-surface-variant">{{ $t('adminConsole.users.colCoin') }}</span>

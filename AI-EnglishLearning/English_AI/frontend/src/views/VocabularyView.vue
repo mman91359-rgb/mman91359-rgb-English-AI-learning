@@ -1,24 +1,19 @@
 <template>
   <AppLayout>
-    <div class="flex items-center gap-4 mb-6">
-      <button :class="btnIcon" @click="$router.back()">
-        <span class="material-symbols-outlined text-on-surface">arrow_back</span>
-      </button>
-      <h2 class="font-headline-lg text-headline-lg text-on-surface">{{ $t('app.title') }} - {{ $t('learning.myVocabulary') }}</h2>
-    </div>
+    <PageHeader :title="$t('app.title') + ' - ' + $t('learning.myVocabulary')" back />
 
     <!-- 顶部统计卡片 -->
     <div class="grid grid-cols-3 gap-3 mb-6">
-      <div class="bg-surface-container-lowest rounded-[16px] p-4 shadow-soft-glow text-center">
+      <div class="bg-surface-container-lowest rounded-2xl p-4 shadow-soft-glow text-center">
         <p class="font-headline-lg text-headline-lg text-primary">{{ stats.total }}</p>
         <p class="font-label-md text-label-md text-on-surface-variant mt-1">单词总数</p>
       </div>
-      <div class="bg-surface-container-lowest rounded-[16px] p-4 shadow-soft-glow text-center">
+      <div class="bg-surface-container-lowest rounded-2xl p-4 shadow-soft-glow text-center">
         <p class="font-headline-lg text-headline-lg text-tertiary">{{ stats.mastered }}</p>
         <p class="font-label-md text-label-md text-on-surface-variant mt-1">已掌握</p>
       </div>
       <div
-        class="bg-surface-container-lowest rounded-[16px] p-4 shadow-soft-glow text-center cursor-pointer hover:bg-surface-container-low transition-colors"
+        class="bg-surface-container-lowest rounded-2xl p-4 shadow-soft-glow text-center cursor-pointer hover:bg-surface-container-low transition-colors"
         @click="goReview"
       >
         <p class="font-headline-lg text-headline-lg" :class="stats.review > 0 ? 'text-error' : 'text-on-surface-variant'">
@@ -29,44 +24,39 @@
     </div>
 
     <!-- 智能添加单词 -->
-    <form class="bg-surface-container-lowest rounded-[20px] p-5 shadow-soft-glow mb-6" @submit.prevent="handleAdd">
+    <form class="bg-surface-container-lowest rounded-2xl p-6 shadow-soft-glow mb-6" @submit.prevent="handleAdd">
       <div class="flex items-center gap-2 mb-3">
-        <span class="material-symbols-outlined text-primary text-xl">library_add</span>
+        <AppIcon name="library_add" size="lg" tone="primary" />
         <span class="font-label-lg text-label-lg text-on-surface">智能添加单词</span>
       </div>
       <div class="flex flex-col sm:flex-row gap-3">
         <input
           v-model="newWord"
-          class="flex-1 px-4 py-3 bg-background border border-outline-variant rounded-xl text-on-surface placeholder-outline font-body-md text-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+          :class="[inputClassLg, 'flex-1']"
           placeholder="输入单词，AI 自动补全音标、释义、例句"
           required
         />
         <button
           type="submit"
-          class="px-6 py-3 bg-primary text-on-primary rounded-xl font-label-md text-label-md hover:bg-primary/90 transition-colors shrink-0 flex items-center gap-2"
+          :class="btnPrimary"
           :disabled="adding"
         >
-          <span class="material-symbols-outlined text-lg">{{ adding ? 'progress_activity' : 'add' }}</span>
+          <AppIcon :name="adding ? 'progress_activity' : 'add'" size="sm" />
           {{ adding ? 'AI 生成中...' : '智能添加' }}
         </button>
       </div>
-      <p v-if="addHint" class="mt-2 text-sm text-on-surface-variant">{{ addHint }}</p>
+      <p v-if="addHint" class="mt-2 font-body-sm text-body-sm text-on-surface-variant">{{ addHint }}</p>
     </form>
 
     <!-- 筛选标签 -->
-    <div class="flex items-center gap-2 mb-4 overflow-x-auto pb-1">
-      <button
-        v-for="tab in tabs"
-        :key="tab.key"
-        class="px-4 py-2 rounded-full font-label-md text-label-md whitespace-nowrap transition-colors"
-        :class="activeTab === tab.key
-          ? 'bg-primary text-on-primary'
-          : 'bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container-low'"
-        @click="activeTab = tab.key"
-      >
-        {{ tab.label }}
-        <span class="ml-1 opacity-70">({{ tab.count }})</span>
-      </button>
+    <div class="mb-4">
+      <ChipGroup
+        :model-value="activeTab"
+        :options="tabs.map(tab => ({ value: tab.key, label: tab.label, count: tab.count }))"
+        size="md"
+        :wrap="false"
+        @update:model-value="activeTab = $event as 'all' | 'review' | 'mastered'"
+      />
     </div>
 
     <LoadingState v-if="loading" />
@@ -90,7 +80,7 @@
         v-for="w in filteredWords"
         :key="w.id"
         :class="[
-          'bg-surface-container-lowest rounded-[16px] p-4 shadow-soft-glow hover:shadow-md transition-shadow',
+          'bg-surface-container-lowest rounded-2xl p-4 shadow-soft-glow',
           w.isMastered ? 'opacity-60' : ''
         ]"
       >
@@ -102,7 +92,7 @@
             @click="handleToggle(w)"
             :title="`掌握度 ${w.masteryLevel ?? 0}/5`"
           >
-            <span class="material-symbols-outlined text-lg">{{ w.isMastered ? 'check_circle' : 'radio_button_unchecked' }}</span>
+            <AppIcon :name="w.isMastered ? 'check_circle' : 'radio_button_unchecked'" size="lg" />
           </button>
 
           <div class="flex-1 min-w-0">
@@ -132,18 +122,13 @@
             <!-- 掌握度进度条 + 复习信息 -->
             <div class="mt-2 flex items-center gap-3">
               <div class="flex-1 flex items-center gap-1">
-                <div class="flex-1 h-1.5 bg-outline-variant/20 rounded-full overflow-hidden">
-                  <div
-                    class="h-full bg-primary transition-all"
-                    :style="{ width: `${((w.masteryLevel ?? 0) / 5) * 100}%` }"
-                  ></div>
-                </div>
+                <ProgressBar class="flex-1" :value="w.masteryLevel ?? 0" :max="5" size="sm" />
                 <span class="font-label-sm text-label-sm text-on-surface-variant whitespace-nowrap">
                   Lv{{ w.masteryLevel ?? 0 }}/5
                 </span>
               </div>
               <span v-if="w.nextReviewAt && !w.isMastered" class="font-label-sm text-label-sm text-on-surface-variant/70 whitespace-nowrap">
-                <span class="material-symbols-outlined text-sm align-middle">schedule</span>
+                <AppIcon name="schedule" size="lg" class="align-middle" />
                 {{ formatReviewDate(w.nextReviewAt) }}
               </span>
             </div>
@@ -153,7 +138,7 @@
             :class="btnIconDanger"
             @click="handleRemove(w)"
           >
-            <span class="material-symbols-outlined text-error">delete</span>
+            <AppIcon name="delete" size="lg" tone="error" />
           </button>
         </div>
       </div>
@@ -175,7 +160,7 @@
       >
         <div class="mb-4 flex items-center justify-between">
           <div class="flex items-center gap-2">
-            <span class="material-symbols-outlined text-primary" aria-hidden="true">school</span>
+            <AppIcon name="school" size="lg" tone="primary" />
             <span id="review-dialog-title" class="font-headline-md text-headline-md text-on-surface">复习模式</span>
           </div>
           <button
@@ -184,7 +169,7 @@
             :aria-label="$t('common.close')"
             @click="exitReview"
           >
-            <span class="material-symbols-outlined text-on-surface" aria-hidden="true">close</span>
+            <AppIcon name="close" size="lg" />
           </button>
         </div>
 
@@ -193,11 +178,8 @@
           <span class="font-body-md text-body-md text-on-surface-variant">
             {{ reviewIndex + 1 }} / {{ reviewQueue.length }}
           </span>
-          <div class="flex-1 mx-4 h-1.5 bg-outline-variant/20 rounded-full overflow-hidden">
-            <div
-              class="h-full bg-primary transition-all"
-              :style="{ width: `${((reviewIndex + 1) / reviewQueue.length) * 100}%` }"
-            ></div>
+          <div class="flex-1 mx-4">
+            <ProgressBar :value="reviewIndex + 1" :max="reviewQueue.length" size="sm" />
           </div>
         </div>
 
@@ -229,7 +211,7 @@
               class="mt-6 px-4 py-2 bg-surface-container-low text-on-surface rounded-full font-label-md text-label-md hover:bg-surface-container transition-colors flex items-center gap-1"
               @click="flipped = true"
             >
-              <span class="material-symbols-outlined text-base">visibility</span>
+              <AppIcon name="visibility" size="lg" />
               查看释义
             </button>
           </div>
@@ -241,7 +223,7 @@
               :disabled="!flipped || reviewing"
               @click="handleReview(false)"
             >
-              <span class="material-symbols-outlined text-base">{{ reviewing ? 'progress_activity' : 'close' }}</span>
+              <AppIcon :name="reviewing ? 'progress_activity' : 'close'" size="lg" />
               没记住
             </button>
             <button
@@ -249,7 +231,7 @@
               :disabled="!flipped || reviewing"
               @click="handleReview(true)"
             >
-              <span class="material-symbols-outlined text-base">{{ reviewing ? 'progress_activity' : 'check' }}</span>
+              <AppIcon :name="reviewing ? 'progress_activity' : 'check'" size="lg" />
               记住了
             </button>
           </div>
@@ -263,7 +245,7 @@
             记住 {{ reviewCorrect }} 个，未记住 {{ reviewWrong }} 个
           </p>
           <button
-            class="mt-6 px-6 py-3 bg-primary text-on-primary rounded-xl font-label-md text-label-md hover:bg-primary/90 transition-colors"
+            :class="['mt-6', btnPrimary]"
             @click="exitReview"
           >
             完成
@@ -277,6 +259,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import AppLayout from '../components/AppLayout.vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
+import ChipGroup from '@/components/ui/ChipGroup.vue'
+import PageHeader from '@/components/ui/PageHeader.vue'
+import ProgressBar from '@/components/ui/ProgressBar.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
@@ -291,7 +277,8 @@ import {
   reviewWord,
   type VocabularyVO,
 } from '@/api/exercise'
-import { btnIcon, btnIconDanger } from '@/components/ui/buttonStyles'
+import { btnIcon, btnIconDanger, btnPrimary } from '@/components/ui/buttonStyles'
+import { inputClassLg } from '@/components/ui/formStyles'
 
 const userStore = useUserStore()
 const words = ref<VocabularyVO[]>([])

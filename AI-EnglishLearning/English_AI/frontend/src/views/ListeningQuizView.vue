@@ -55,7 +55,7 @@
       />
 
       <div v-else-if="showSummary" class="max-w-3xl mx-auto">
-        <div class="bg-surface-container-lowest rounded-[24px] p-8 shadow-[0_4px_20px_rgba(51,58,72,0.05)] text-center">
+        <div class="bg-surface-container-lowest rounded-3xl p-8 shadow-soft-glow text-center">
           <span class="material-symbols-outlined text-icon-3xl text-primary">headphones</span>
           <h3 class="font-headline-lg text-headline-lg text-on-surface mt-4">{{ $t('listening.completeTitle') }}</h3>
           <p class="font-body-lg text-body-lg text-on-surface-variant mt-2">
@@ -78,7 +78,7 @@
 
       <div v-else-if="currentQuestion" class="flex flex-col lg:grid lg:grid-cols-[minmax(0,1fr)_340px] xl:grid-cols-[minmax(0,1fr)_360px] 2xl:grid-cols-[minmax(0,768px)_400px] justify-center gap-gutter flex-1">
         <section class="w-full max-w-3xl flex flex-col gap-6 min-w-0">
-          <div class="bg-surface-container-lowest rounded-[24px] p-8 md:p-10 shadow-[0_4px_20px_rgba(51,58,72,0.05)] border border-outline-variant/20 relative flex flex-col">
+          <div class="bg-surface-container-lowest rounded-3xl p-8 md:p-10 shadow-soft-glow border border-outline-variant/20 relative flex flex-col">
             <div class="flex items-center justify-between mb-6">
               <div class="flex items-center gap-2">
                 <span class="bg-tertiary-fixed/50 text-tertiary font-label-md text-label-md px-3 py-1 rounded-full flex items-center gap-1">
@@ -111,7 +111,7 @@
             <div class="mt-6">
               <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center gap-2">
-                  <span class="material-symbols-outlined text-primary text-[20px]">quiz</span>
+                  <span class="material-symbols-outlined text-primary text-icon-md">quiz</span>
                   <span class="font-label-lg text-label-lg text-on-surface">{{ $t('listening.chooseAnswer') }}</span>
                 </div>
                 <button
@@ -131,7 +131,7 @@
                   v-for="option in parsedOptions"
                   :key="option.key"
                   type="button"
-                  class="w-full text-left border-2 rounded-[16px] p-4 transition-all flex items-center gap-3"
+                  class="w-full text-left border-2 rounded-2xl p-4 transition-all flex items-center gap-3"
                   :class="optionClass(option.key)"
                   :disabled="showResult || submitting"
                   @click="selectedAnswer = option.key"
@@ -152,19 +152,19 @@
           <div class="flex items-center gap-3 mt-auto">
             <button
               type="button"
-              class="flex-1 bg-gradient-to-r from-primary to-primary-fixed-dim text-on-primary py-4 rounded-[16px] font-label-lg text-label-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-[0_4px_14px_rgba(103,85,140,0.25)]"
+              class="flex-1 bg-gradient-to-r from-primary to-primary-fixed-dim text-on-primary py-4 rounded-2xl font-label-lg text-label-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-[0_4px_14px_rgba(103,85,140,0.25)]"
               @click="toggleRate"
             >
               <span class="material-symbols-outlined">speed</span>{{ rateLabel(playbackRate) }}
             </button>
             <button
               type="button"
-              class="bg-surface-container-lowest border border-outline-variant/40 text-on-surface-variant py-4 px-4 rounded-[16px] flex items-center justify-center gap-1 hover:bg-surface-variant transition-colors flex-shrink-0"
+              class="bg-surface-container-lowest border border-outline-variant/40 text-on-surface-variant py-4 px-4 rounded-2xl flex items-center justify-center gap-1 hover:bg-surface-variant transition-colors flex-shrink-0"
               :aria-label="$t('listening.volume')"
               :title="$t('listening.volume')"
               @click="toggleGain"
             >
-              <span class="material-symbols-outlined text-[20px]">{{ gainIcon }}</span>
+              <span class="material-symbols-outlined text-icon-md">{{ gainIcon }}</span>
               <span class="flex items-end gap-[2px]" aria-hidden="true">
                 <span class="w-[3px] rounded-full bg-current" :class="gainLevel >= 0 ? 'h-2' : 'h-2'" :style="{ opacity: gainLevel >= 0 ? 1 : 0.3 }"></span>
                 <span class="w-[3px] rounded-full bg-current" :class="gainLevel >= 1 ? 'h-3' : 'h-2'" :style="{ opacity: gainLevel >= 1 ? 1 : 0.3 }"></span>
@@ -173,14 +173,14 @@
             </button>
             <button
               type="button"
-              class="flex-1 bg-gradient-to-r from-secondary to-secondary-fixed-dim text-on-secondary py-4 rounded-[16px] font-label-lg text-label-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-[0_4px_14px_rgba(12,103,128,0.25)]"
+              class="flex-1 bg-gradient-to-r from-secondary to-secondary-fixed-dim text-on-secondary py-4 rounded-2xl font-label-lg text-label-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-[0_4px_14px_rgba(12,103,128,0.25)]"
               @click="replayCurrent"
             >
               <span class="material-symbols-outlined">replay</span>{{ $t('listening.replay') }}
             </button>
             <button
               type="button"
-              class="flex-1 bg-gradient-to-r from-tertiary to-tertiary-fixed-dim text-on-tertiary py-4 rounded-[16px] font-label-lg text-label-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-[0_4px_14px_rgba(0,110,32,0.25)] disabled:opacity-60"
+              class="flex-1 bg-gradient-to-r from-tertiary to-tertiary-fixed-dim text-on-tertiary py-4 rounded-2xl font-label-lg text-label-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-[0_4px_14px_rgba(0,110,32,0.25)] disabled:opacity-60"
               :disabled="submitting"
               @click="handleNext"
             >
@@ -217,9 +217,9 @@
             @favorite="favoriteCurrent"
           />
 
-          <div class="bg-tertiary-container/15 rounded-[20px] p-5 border border-tertiary/20">
+          <div class="bg-tertiary-container/15 rounded-2xl p-5 border border-tertiary/20">
             <div class="flex items-center gap-2 mb-3">
-              <span class="material-symbols-outlined text-tertiary text-[20px]">bookmark</span>
+              <span class="material-symbols-outlined text-tertiary text-icon-md">bookmark</span>
               <span class="font-label-lg text-label-lg text-tertiary">{{ $t('listening.corePhrases') }}</span>
             </div>
             <p class="font-body-md text-body-md text-on-surface-variant">{{ $t('listening.corePhrasesEmpty') }}</p>

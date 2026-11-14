@@ -1,71 +1,39 @@
 <template>
   <AppLayout>
     <!-- 顶部标题栏 -->
-    <div class="flex items-center gap-4 mb-6">
-      <button :class="btnIcon" @click="$router.back()">
-        <span class="material-symbols-outlined text-on-surface">arrow_back</span>
-      </button>
-      <h2 class="font-headline-lg text-headline-lg text-on-surface">{{ $t('app.title') }} - {{ $t('learning.learningHistory') }}</h2>
-    </div>
+    <PageHeader :title="$t('app.title') + ' - ' + $t('learning.learningHistory')" back />
 
     <!-- 筛选栏 -->
     <div class="mb-6 space-y-3">
       <!-- 模块类型筛选 -->
       <div class="flex items-center gap-2">
         <span class="font-label-md text-label-md text-on-surface-variant shrink-0 w-16">{{ $t('learning.moduleType') }}</span>
-        <div class="flex gap-1.5 flex-wrap">
-          <button
-            v-for="m in moduleFilters"
-            :key="m.value"
-            :class="[
-              'px-4 py-1.5 rounded-full font-label-sm text-label-sm transition-colors',
-              moduleFilter === m.value
-                ? 'bg-primary text-on-primary'
-                : 'bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
-            ]"
-            @click="moduleFilter = m.value; applyFilter()"
-          >
-            {{ m.label }}
-          </button>
-        </div>
+        <ChipGroup
+          :model-value="moduleFilter"
+          :options="moduleFilters"
+          size="sm"
+          @update:model-value="moduleFilter = $event as number; applyFilter()"
+        />
       </div>
       <!-- 正确/错误筛选 -->
       <div class="flex items-center gap-2">
         <span class="font-label-md text-label-md text-on-surface-variant shrink-0 w-16">{{ $t('learning.result') }}</span>
-        <div class="flex gap-1.5 flex-wrap">
-          <button
-            v-for="c in correctFilters"
-            :key="c.value"
-            :class="[
-              'px-4 py-1.5 rounded-full font-label-sm text-label-sm transition-colors',
-              correctFilter === c.value
-                ? 'bg-primary text-on-primary'
-                : 'bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
-            ]"
-            @click="correctFilter = c.value; applyFilter()"
-          >
-            {{ c.label }}
-          </button>
-        </div>
+        <ChipGroup
+          :model-value="correctFilter"
+          :options="correctFilters"
+          size="sm"
+          @update:model-value="correctFilter = $event as number; applyFilter()"
+        />
       </div>
       <!-- 时间范围筛选 -->
       <div class="flex items-center gap-2">
         <span class="font-label-md text-label-md text-on-surface-variant shrink-0 w-16">{{ $t('learning.time') }}</span>
-        <div class="flex gap-1.5 flex-wrap">
-          <button
-            v-for="r in timeRangeFilters"
-            :key="r.value"
-            :class="[
-              'px-4 py-1.5 rounded-full font-label-sm text-label-sm transition-colors',
-              timeRangeFilter === r.value
-                ? 'bg-primary text-on-primary'
-                : 'bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
-            ]"
-            @click="timeRangeFilter = r.value; applyFilter()"
-          >
-            {{ r.label }}
-          </button>
-        </div>
+        <ChipGroup
+          :model-value="timeRangeFilter"
+          :options="timeRangeFilters"
+          size="sm"
+          @update:model-value="timeRangeFilter = $event as string; applyFilter()"
+        />
       </div>
     </div>
 
@@ -94,8 +62,7 @@
       <div
         v-for="item in history"
         :key="item.logId"
-        class="bg-surface-container-lowest rounded-[16px] shadow-soft-glow overflow-hidden transition-shadow"
-        :class="expandedLogId === item.logId ? 'shadow-md' : 'hover:shadow-md'"
+        class="bg-surface-container-lowest rounded-2xl shadow-soft-glow overflow-hidden"
       >
         <!-- 紧凑行（可点击展开） -->
         <div
@@ -107,12 +74,11 @@
             class="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
             :class="item.isCorrect ? 'bg-tertiary-container/40' : 'bg-error-container/40'"
           >
-            <span
-              class="material-symbols-outlined text-lg"
+            <AppIcon
+              :name="item.isCorrect ? 'check' : 'close'"
+              size="lg"
               :class="item.isCorrect ? 'text-tertiary' : 'text-error'"
-            >
-              {{ item.isCorrect ? 'check' : 'close' }}
-            </span>
+            />
           </div>
           <!-- 题目摘要 -->
           <div class="flex-1 min-w-0">
@@ -148,12 +114,12 @@
             </span>
           </div>
           <!-- 展开箭头 -->
-          <span
-            class="material-symbols-outlined text-on-surface-variant shrink-0 transition-transform duration-200"
+          <AppIcon
+            name="expand_more"
+            size="lg"
+            class="shrink-0 transition-transform duration-200"
             :class="expandedLogId === item.logId ? 'rotate-180' : ''"
-          >
-            expand_more
-          </span>
+          />
         </div>
 
         <!-- 展开详情区 -->
@@ -245,7 +211,7 @@
       <!-- 分页 -->
       <div v-if="total > history.length" class="flex justify-center gap-4 pt-4 pb-8">
         <button
-          class="px-6 py-2 rounded-full border border-outline-variant text-on-surface-variant font-label-md text-label-md hover:bg-surface-variant transition-colors disabled:opacity-40"
+          :class="btnSecondarySm"
           :disabled="page <= 1"
           @click="changePage(page - 1)"
         >
@@ -255,7 +221,7 @@
           {{ page }} / {{ totalPages }}
         </span>
         <button
-          class="px-6 py-2 rounded-full border border-outline-variant text-on-surface-variant font-label-md text-label-md hover:bg-surface-variant transition-colors disabled:opacity-40"
+          :class="btnSecondarySm"
           :disabled="page >= totalPages"
           @click="changePage(page + 1)"
         >
@@ -270,6 +236,9 @@
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppLayout from '../components/AppLayout.vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
+import ChipGroup from '@/components/ui/ChipGroup.vue'
+import PageHeader from '@/components/ui/PageHeader.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
@@ -277,7 +246,7 @@ import { useUserStore } from '@/stores/user'
 import { moduleName } from '@/config/modules'
 import { formatDateTime } from '@/utils/format'
 import { getExerciseHistory, type ExerciseHistoryVO } from '@/api/exercise'
-import { btnIcon } from '@/components/ui/buttonStyles'
+import { btnSecondarySm } from '@/components/ui/buttonStyles'
 
 const { t, locale } = useI18n()
 const userStore = useUserStore()

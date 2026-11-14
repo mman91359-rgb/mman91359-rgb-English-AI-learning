@@ -10,10 +10,10 @@
 
 | 项 | 说明 |
 |---|---|
-| 本文件规定什么 | 圆角、内边距、阴影、图标、按钮、字号六项的唯一写法，以及 `components/ui/` 下 8 个基础组件的 props 契约 |
+| 本文件规定什么 | 圆角、内边距、阴影、图标、按钮、字号六项的唯一写法，以及 `components/ui/` 下 11 个基础组件的 props 契约 |
 | 本文件不规定什么 | 页面布局结构、栅格、断点、动效时长；这些仍按各模块既有设计契约执行 |
 | 数值来源 | 全部取自 `tailwind.config.js`、`src/assets/main.css`、`dist/assets/index-*.css` 三处现有令牌，**本轮未新增任何颜色、尺寸、阴影或字号** |
-| 当前落地状态 | 契约已建立，8 个组件已创建，**但 34 个页面一处未改**。因此「全站已统一」这句话目前不成立，任何场合都不得这样表述 |
+| 当前落地状态 | 契约已建立，11 个组件已创建，**34 个页面中 5 页已迁**（HomeView / AssessView / Favorites / Vocabulary / History），**其余 29 页一处未改**。因此「全站已统一」这句话目前不成立，任何场合都不得这样表述 |
 
 ---
 
@@ -23,12 +23,14 @@
 |---|---|---|---|
 | 卡片、弹窗面板、整块容器 | `rounded-3xl` | `1.5rem` = 24px | Tailwind 默认值（`borderRadius` 为 `extend`，未覆盖 `3xl`） |
 | 内嵌块：区块卡片、输入框、表格单元 | `rounded-2xl` | `1rem` = 16px | Tailwind 默认值 |
-| 控件：按钮、chip、小徽章 | `rounded-xl` | `0.75rem` = 12px | 项目 `tailwind.config.js` 显式声明 |
+| 控件：chip、小徽章 | `rounded-xl` | `0.75rem` = 12px | 项目 `tailwind.config.js` 显式声明 |
 | 胶囊：状态标签、图标按钮、进度条 | `rounded-full` | `9999px` | 项目 `tailwind.config.js` 显式声明 |
+
+> **按钮不在本节**：按钮的形状统一归 §5 管（底座固定 `rounded-full`），本节四档不适用于按钮。
 
 **禁止**
 
-- 禁止 `rounded-[24px]`、`rounded-[16px]`、`rounded-[12px]`、`rounded-[20px]` 等任意值写法。前三个是上表三档的重复书写；`20px` 无令牌，一律并入 `rounded-2xl`。
+- 禁止 `rounded-[24px]`、`rounded-[16px]`、`rounded-[12px]`、`rounded-[20px]` 等任意值写法。前三个是上表三档的**等值**书写（A 类），直接替换；`20px` 在令牌表里**没有等值档**（B 类），按 §11 处理：要么保留原值登记例外，要么经批准就近并入 `rounded-2xl` 并写明 −4px 位移。
 - 禁止在同一视图内混用「卡片 `rounded-xl`」与「卡片 `rounded-3xl`」。审计已记录 20 处方角主按钮与胶囊按钮同屏冲突（`ErrorBookView`），该类混用不再新增。
 - `rounded-lg`（8px）仅限 ≤24px 的小徽章内部，不得用于卡片。
 
@@ -110,6 +112,9 @@
 
 **唯一来源：`src/components/ui/buttonStyles.ts`。** 按层级与尺寸选导出常量，不得在页面内拼装。
 
+**按钮的形状与尺寸统一归本节，§1 圆角四档不适用于按钮。** 所有按钮底座固定 `rounded-full`，
+调用方不得覆盖。
+
 | 层级 | 默认档 (42px) | 小档 (36px) | 占位/全宽档 |
 |---|---|---|---|
 | 主 | `btnPrimary` | `btnPrimarySm` | `btnPrimaryBlock` |
@@ -189,9 +194,11 @@
 
 ---
 
-## 8. 组件契约（`components/ui/`，8 个）
+## 8. 组件契约（`components/ui/`，11 个）
 
-> 全部为**纯新增**文件，未修改任何既有文件，未在 `views/` 接线。因此下表的「替换对象」列是**未来接线时的对照**，不是已完成的替换。
+> 8.1–8.8 为 P1 建立的 8 个组件，均已在页面接线（5 页）。
+> 8.9–8.11 为 P3 增补的 `StatusBadge` / `Chip` / `ChipGroup`，props 见各自文件头注释，
+> 本节尚未逐一登记（下一批补），查签名请直接读源码，勿凭本节推断。
 
 ### 8.1 AppIcon
 
@@ -213,7 +220,7 @@
 
 | prop | 类型 | 默认 | 说明 |
 |---|---|---|---|
-| `tone` | `'surface'\|'container-low'\|'container-high'` | `'container-low'` | 底色三档 |
+| `tone` | `'surface'\|'container-low'\|'container-lowest'\|'container-high'` | `'container-low'` | 底色四档；`container-lowest` 为最亮一档，Favorites / Vocabulary / History 的卡片与列表行在用 |
 | `padding` | `'compact'\|'regular'` | `'compact'` | `compact`=`p-6`(24px)，`regular`=`p-8`(32px) |
 | `interactive` | `boolean` | `false` | 可点击态：渲染为 `<button>`，带 hover 底与 focus 环 |
 | `shadow` | `boolean` | `true` | 是否带 `shadow-soft-glow`；嵌入已有卡片时关闭 |
@@ -232,6 +239,7 @@
 | `subtitle` | `string` | `''` | 副标题，`body-sm` + `on-surface-variant` |
 | `back` | `boolean` | `false` | 显示返回按钮（`btnIcon` + `arrow_back`） |
 | `backTo` | `string` | `''` | 指定返回路由；留空则 `router.back()` |
+| `flush` | `boolean` | `false` | 去掉自带 `mb-8`；容器已是 `space-y-*` 节奏时传 true |
 
 slot：`#actions`（右侧动作区）、`#leading`（标题前的自定义元素）。
 
@@ -239,7 +247,12 @@ slot：`#actions`（右侧动作区）、`#leading`（标题前的自定义元�
 
 - 禁止在页面里再手写 `flex items-center gap-4 mb-8` + `arrow_back` 的标题栏（审计记录 4 处同构）。
 - 禁止自行拼接 `{{ $t('app.title') }} - {{ 模块名 }}`。该拼接应由调用方传完整 `title` 决定，避免 4 种拼法各自漂移。
+- 禁止用 `class="!mb-0"` 覆盖外边距：需要去掉 `mb-8` 时传 `flush` prop。
 - 禁止一个页面出现两个 `PageHeader`。
+
+> **已知偏离**：Favorites / Vocabulary / History 三页仍以 `:title="$t('app.title') + ' - ' + 模块名"` 的形式
+> 传拼接串。渲染文本与迁移前逐字相同，但形态仍属本节禁止的「自行拼接」。
+> 收敛需要新增 i18n key（改文案），不在表现层批次内，留待文案批次处理。
 
 ### 8.4 SectionHeader
 
@@ -291,6 +304,12 @@ slot：`#actions`（右侧操作，建议 `btnPrimarySm` / `btnSecondarySm`）�
 - 禁止用它替代 `QuizProgressBar` 的「奖杯 + 双层反白」形态。那套是答题专属，合并是 P2 的事。
 - 禁止在 `max` 未定义的情况传入已换算好的百分比（应传 `max=100`）。
 
+**已知例外**
+
+| 位置 | 形态 | 为什么不用 ProgressBar |
+|---|---|---|
+| `HomeView` 每日复习目标条 | 手写 `<div>` + `bg-gradient-to-r from-tertiary to-primary` | `ProgressBar` 的 `tone` 只有单色四档，无法表达「进行中」的渐变语义；改单色会丢信息。按 §11 登记为例外，不视为待收敛项 |
+
 ### 8.7 Tag
 
 | prop | 类型 | 默认 | 说明 |
@@ -328,9 +347,16 @@ slot：`#leading`（左侧图标圆/头像）、`#trailing`（右侧动作或状
 
 ## 9. 本轮明确不做的事（及原因）
 
+> 本节记录 **P1 建立契约那个批次**的范围，不是当前约束。以下三行已被后续批次超越，其余仍有效：
+>
+> - `StatusBadge` 提升 → **已完成**（P3，commit `615ca6d`），现为 `ui/StatusBadge.vue`
+> - 「修改 `admin/` 下任何文件」→ 已发生两处最小改动（P3，`615ca6d`）：`admin/StatusBadge.vue` 改为转发壳、
+>   `admin/tableTypes.ts` 改为 re-export `BadgeTone`。其余 admin 文件仍未改动
+> - 「修改 `views/` 下任何页面」→ **5 页已迁**，见 §0 落地状态
+
 | 项 | 原因 |
 |---|---|
-| `admin/FormField`、`ConfirmDialog`、`StatusBadge` 提升为 `ui/` 版本 | 本轮无用户端调用方，**转发壳的 props 兼容无法被真实调用验证**。提升推迟到 P2 出现第一个用户端调用点时再做，届时可用真实页面回归 |
+| `admin/FormField`、`ConfirmDialog` 提升为 `ui/` 版本 | **仍推迟**：用户端暂无调用方，转发壳的 props 兼容无法被真实调用验证。等出现第一个真实调用点再做（`ChipGroup` 缺 `ConfirmDialog` 的批量操作场景是候选） |
 | 修改 `admin/` 下任何文件 | 提升取消，admin 组件保持原状 |
 | 修改 `views/` 下任何页面 | 本轮只建立契约与组件，接线是 P1/P2 的独立任务 |
 | 修改 `i18n/locales` | `ConfirmDialog` 的提升一并推迟，无需新增 `common.confirm` / `common.cancel` 文案键 |
@@ -348,20 +374,64 @@ slot：`#leading`（左侧图标圆/头像）、`#trailing`（右侧动作或状
 3. `git status` 中的新增文件仅限 `components/ui/` 下 8 个 `.vue` 与本文件
 4. 全站 `views/` 与 `components/` 既有文件零改动
 
-将来接线后的验收（供后续批次使用）：
+将来接线后的验收（供后续批次使用；基线已按 5 页迁移后的实测值重算，2026-11-14）：
 
 ```bash
-# 任意值圆角（目标 0；当前基线 125）
+# 任意值圆角（目标 0；当前基线 108，已迁 5 页均为 0）
 grep -ro "rounded-\[[0-9]*px\]" src | wc -l
 
-# 图标用原生字号承载（目标 0；当前基线 60）
+# 图标用原生字号承载（目标 0；当前基线 45）
 grep -rn "material-symbols-outlined[^\"]*text-\(xs\|sm\|base\|lg\|xl\|2xl\|3xl\)\b" src/views | wc -l
 
-# 手写 soft-glow 字面量（目标 0；当前基线 7）
+# 手写 soft-glow 字面量（目标 0；当前基线 6）
 grep -rn "shadow-\[0_4px_20px_rgba(51,58,72,0.05)\]" src
 
 # 不存在的色类（目标 0；当前基线 2）
 grep -rn "success-container\|text-success" src
 ```
 
-> 基线值来自 `docs/前端UI审计与组件契约.md` §7，随每批迁移完成后更新本节。
+> 基线值来自 `docs/前端UI审计与组件契约.md` §7，随每批迁移完成后更新本节。**每次更新必须重跑上面四条命令取实数，不许估算或按批减扣。**
+
+当前 108 / 45 / 6 / 2 的残留分布（供下一批选题参考）：
+
+| 指标 | 主要残留位置 |
+|---|---|
+| 任意值圆角 108 | `LearningView`(15)、`WritingEntryPanel`(9)、`TranslationPracticeView`(8)、`ProfileView`(8)、`ListeningQuizView`(8)、`TranslationEntryPanel`(8)、`ListeningEntryPanel`(7)、`StatsView`(4) |
+| 图标原生字号 45 | `ErrorBookView`、`PracticeView`、`GrammarQuizView`、`VocabQuizView`、`LearningView`、`ProfileView`、`LoginView`、`RegisterView`、`ForgotPasswordView` |
+| soft-glow 字面量 6 | `ListeningQuizView`(2)、`TranslationPracticeView`、`VocabQuizView`、`TranscriptPanel`、`FeedbackPanel` |
+| 不存在的色类 2 | `AdminJudgeReviewView:83/96` 的 `bg-success-container` / `text-success` —— 令牌不存在，实际不生效 |
+
+---
+
+## 11. 两条硬规则
+
+### 11.1 任意值分两类，不许混称「等值」
+
+| 类 | 判定 | 处置 | 记录要求 |
+|---|---|---|---|
+| **A 类** | 契约内存在**逐像素相等**的令牌（24 / 16 / 12 / 8px） | 直接替换 | 交付说明可写「等值替换」，无需额外授权 |
+| **B 类** | 契约内**没有等值档**（20px / 200px / 13px / 52px …） | 二选一：① 保留原值，登记例外；② 经批准就近取档 | **必须写明「就近对齐」与实际像素位移**，禁止写成「等值」 |
+
+理由：「等值」与「就近取档」是两种不同的授权。前者不改像素，后者改，必须逐条登记，否则交付说明里看不出任何位移。
+
+已发生的 B 类：
+
+| 位置 | 原值 | 现值 | 位移 | 性质 |
+|---|---|---|---|---|
+| Favorites 行卡片、搜索外框 | `rounded-[20px]` | `rounded-2xl` 16px | −4px | 就近对齐（20px 无令牌） |
+| Favorites / Vocabulary 卡片、History 筛选栏外距 | `p-5` 20px | `p-6` 24px | +4px | 就近对齐（§2 只有 24/32 两档） |
+| Favorites 模块标签 | `text-xs` 12px | `Tag size="sm"` → `label-sm` 11px | −1px | 就近对齐（Tag 无 12px 档） |
+| Vocabulary 复习卡 | `min-h-[200px]` | **保留原值** | 0 | 登记例外（spacing 只有 48=192 / 52=208） |
+
+### 11.2 删除非法阴影时必须同时给出替代反馈
+
+`shadow-sm` / `shadow-md` 等非法阴影若承担「可交互」提示，删除时必须同时补一种替代反馈，**边框 / 底色 / 位移三者取一**。只删不加＝制造退化。
+
+已按此处理的四处：
+
+| 位置 | 删除项 | 替代 |
+|---|---|---|
+| `HistoryView` 行卡片（整行可点） | `hover:shadow-md` | `hover:bg-surface-container/40` + `transition-colors`（底色） |
+| `Favorites` 行卡片（行不可点） | `hover:shadow-md` | 无需替代：行本身无点击，标题已有 `hover:underline` |
+| `Vocabulary` 行卡片（行不可点） | `hover:shadow-md` | 无需替代：行内只有按钮可点 |
+| `HomeView` 每日单词卡（整卡可点） | `hover:shadow-md` | 装饰色块 `group-hover:scale-*` 放大（位移） |

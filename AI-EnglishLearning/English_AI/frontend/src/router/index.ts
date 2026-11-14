@@ -280,11 +280,22 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach((to, _from, next) => {
+router.beforeEach(async (to, _from, next) => {
   const userStore = useUserStore()
 
-  // 未登录 + 需要登录 → 强制跳转登录页
+  // 未登录 + 需要登录 → 先尝试静默刷新（用 Cookie 里的 Refresh Token 换回登录态）
   if (to.meta.requiresAuth && !userStore.isLoggedIn) {
+    const refreshed = await userStore.refreshAuth()
+    if (refreshed) {
+      // 刷新成功，放行；若目标需要管理员但刷新出的不是管理员，再走 403
+      if (to.meta.requiresAdmin && !userStore.isAdmin) {
+        next('/403')
+        return
+      }
+      next()
+      return
+    }
+    // 刷新失败，跳登录
     next({ path: '/login', query: { redirect: to.fullPath } })
     return
   }

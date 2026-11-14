@@ -30,7 +30,7 @@ spring:
         - id: user-service
           uri: ${USER_SERVICE_URL:http://localhost:8081}
           predicates:
-            - Path=/user/**
+            - Path=/user/**,/auth/**
         - id: exercise-service
           uri: ${EXERCISE_SERVICE_URL:http://localhost:8082}
           predicates:

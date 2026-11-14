@@ -38,7 +38,10 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
             // 手机号找回密码（本地模拟验证码；prod profile 由 user-service 拒绝）
             "/user/forgot-password",
             // 头像静态资源（浏览器 <img> 加载无法携带 JWT，单独放行）
-            "/user/avatar/"
+            "/user/avatar/",
+            // 记住我：刷新/登出走 Cookie 鉴权，无 Access Token，鉴权前移到 user-service 内部
+            "/auth/refresh",
+            "/auth/logout"
     );
 
     @Value("${jwt.secret}")

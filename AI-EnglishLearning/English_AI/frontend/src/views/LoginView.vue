@@ -115,6 +115,14 @@
                   {{ $t('auth.forgotPassword') }}
                 </router-link>
               </div>
+              <label class="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  v-model="rememberMe"
+                  type="checkbox"
+                  class="h-4 w-4 rounded border-outline-variant text-primary focus:ring-primary"
+                />
+                <span class="font-label-md text-label-md text-on-surface-variant">{{ $t('auth.rememberMe') }}</span>
+              </label>
               <FormHint v-if="formError" :message="formError" />
               <div class="pt-2">
                 <button
@@ -163,6 +171,7 @@ const isLogin = computed(() => route.path === '/login')
 const account = ref('')
 const password = ref('')
 const showPassword = ref(false)
+const rememberMe = ref(false)
 
 /** 字段级校验错误：与注册页一致，内联展示在输入框下方 */
 const errors = ref({ account: '', password: '' })
@@ -197,7 +206,7 @@ const handleLogin = async () => {
   if (!validate()) return
 
   try {
-    await userStore.login({ account: account.value.trim(), password: password.value })
+    await userStore.login({ account: account.value.trim(), password: password.value, rememberMe: rememberMe.value })
     toast(t('auth.loginSuccess'), 'success')
     // 等下一个微任务周期确保 store 状态已经更新，再导航
     await new Promise(r => setTimeout(r, 50))

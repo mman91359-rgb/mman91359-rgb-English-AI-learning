@@ -4,6 +4,7 @@ import instance from './request'
 export interface LoginRequest {
   account: string
   password: string
+  rememberMe?: boolean
 }
 
 export interface LoginResponse {
@@ -60,6 +61,16 @@ export interface PreferenceResponse {
 
 export const login = (data: LoginRequest): Promise<LoginResponse> => {
   return post('/user/login', data)
+}
+
+/** 刷新登录态：用 HttpOnly Cookie 里的 Refresh Token 换新 Access Token（无 Access Token，走 Cookie） */
+export const refreshAuth = (): Promise<LoginResponse> => {
+  return post('/auth/refresh')
+}
+
+/** 登出：吊销 Refresh Token + 清 Cookie（无 Access Token 也能调用） */
+export const logoutAuth = (): Promise<boolean> => {
+  return post('/auth/logout')
 }
 
 export const register = (data: RegisterRequest): Promise<number> => {

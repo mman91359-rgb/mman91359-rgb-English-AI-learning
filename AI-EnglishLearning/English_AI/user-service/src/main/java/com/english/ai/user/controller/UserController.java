@@ -13,6 +13,9 @@ import com.english.ai.user.dto.RegisterRequest;
 import com.english.ai.user.entity.SysUser;
 import com.english.ai.user.service.UserAbilityRadarService;
 import com.english.ai.user.service.UserService;
+import com.english.ai.user.service.RefreshTokenService;
+import com.english.ai.user.util.RefreshCookieUtil;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,6 +42,8 @@ public class UserController {
 
     private final UserService userService;
     private final UserAbilityRadarService radarService;
+    private final RefreshTokenService refreshTokenService;
+    private final RefreshCookieUtil refreshCookieUtil;
 
     /** 本地模拟验证码；生产 profile 不允许使用 */
     private static final String MOCK_SMS_CODE = "123456";
@@ -83,7 +88,8 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public Result<LoginResponse> login(@RequestBody LoginRequest request) {
+    public Result<LoginResponse> login(@RequestBody LoginRequest request,
+                                       HttpServletResponse response) {
         if (request.getAccount() == null || request.getAccount().isBlank()) {
             return Result.badRequest("请输入手机号或邮箱");
         }
@@ -91,9 +97,16 @@ public class UserController {
             return Result.badRequest("密码不能为空");
         }
         try {
-            LoginResponse response = userService.login(request);
+            LoginResponse loginResponse = userService.login(request);
+
+            // 记住我：勾选则生成 Refresh Token，通过 HttpOnly Cookie 下发
+            if (Boolean.TRUE.equals(request.getRememberMe())) {
+                String raw = refreshTokenService.issue(loginResponse.getUserId());
+                refreshCookieUtil.write(response, raw);
+            }
+
             log.info("登录接口调用成功: account={}", request.getAccount());
-            return Result.success(response);
+            return Result.success(loginResponse);
         } catch (RuntimeException e) {
             log.warn("登录失败: account={}, reason={}", request.getAccount(), e.getMessage());
             return Result.unauthorized(e.getMessage());
@@ -261,6 +274,8 @@ public class UserController {
         }
         try {
             userService.updatePassword(userId, oldPassword, newPassword);
+            // 改密成功 → 吊销该用户所有记住我凭证，强制所有设备重新登录
+            refreshTokenService.revokeAllByUserId(userId);
             log.info("密码修改成功: userId={}", userId);
             return Result.success(true);
         } catch (RuntimeException e) {

@@ -13,4 +13,7 @@ public class LoginRequest {
 
     /** 明文密码 */
     private String password;
+
+    /** 记住我：勾选则生成 Refresh Token（7 天自动续期），通过 HttpOnly Cookie 下发 */
+    private Boolean rememberMe;
 }

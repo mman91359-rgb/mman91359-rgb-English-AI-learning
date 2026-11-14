@@ -3,6 +3,8 @@ import { ref, computed } from 'vue'
 import {
   login as loginApi,
   register as registerApi,
+  refreshAuth as refreshAuthApi,
+  logoutAuth,
   getPreference,
   updateVocabGroupSize as updateVocabGroupSizeApi,
   updateVocabularyGoals as updateVocabularyGoalsApi,
@@ -33,25 +35,14 @@ function isTokenValid(token: string | null): boolean {
 }
 
 export const useUserStore = defineStore('user', () => {
-  // 使用 sessionStorage：刷新页面不丢失，关闭浏览器自动清除（无七天自动登录）
-  const storedToken = sessionStorage.getItem('token')
-  const validToken = isTokenValid(storedToken) ? storedToken : null
-  const storedUser = validToken ? sessionStorage.getItem('user') : null
-  if (storedToken && !validToken) {
-    sessionStorage.removeItem('token')
-    sessionStorage.removeItem('user')
-  }
-  const token = ref<string | null>(validToken)
-  let parsedUser: LoginResponse | null = null
-if (storedUser) {
-  try {
-    parsedUser = JSON.parse(storedUser)
-  } catch {
-    sessionStorage.removeItem('user')
-  }
-}
-const user = ref<LoginResponse | null>(parsedUser)
+  // 记住我改造：Access Token 只存内存（Pinia state），不落 sessionStorage。
+  // 刷新页面后靠 HttpOnly Cookie 里的 Refresh Token 静默换回新 Access Token。
+  // 这样 XSS 拿不到长效凭证，关浏览器后 7 天内仍可自动恢复登录态。
+  const token = ref<string | null>(null)
+  const user = ref<LoginResponse | null>(null)
   const isLoading = ref(false)
+  /** 是否已完成「静默刷新」尝试（防重复刷新） */
+  const refreshAttempted = ref(false)
 
   const activeDays = ref(0)
   const masteredWords = ref(0)
@@ -204,8 +195,7 @@ const user = ref<LoginResponse | null>(parsedUser)
       const response = await loginApi(data)
       token.value = response.token
       user.value = response
-      sessionStorage.setItem('token', response.token)
-      sessionStorage.setItem('user', JSON.stringify(response))
+      refreshAttempted.value = true
       // 登录成功后立即返回，统计数据/金币/偏好改为后台拉取，避免拖慢跳转
       // 两个 loader 内部均有 try/catch，失败只打 warn，不影响登录态
       void loadUserStats()
@@ -224,9 +214,16 @@ const user = ref<LoginResponse | null>(parsedUser)
     }
   }
 
-  const logout = (): void => {
+  const logout = async (): Promise<void> => {
+    // 先调后端登出（吊销 Refresh Token + 清 Cookie），失败也继续清本地态
+    try {
+      await logoutAuth()
+    } catch (e) {
+      console.warn('后端登出失败，忽略并清理本地态', e)
+    }
     token.value = null
     user.value = null
+    refreshAttempted.value = false
     activeDays.value = 0
     masteredWords.value = 0
     coinBalance.value = 0
@@ -242,20 +239,44 @@ const user = ref<LoginResponse | null>(parsedUser)
     coinLoaded.value = false
     preferenceLoaded.value = false
     statsLoaded.value = false
-    sessionStorage.removeItem('token')
-    sessionStorage.removeItem('user')
   }
 
   const setUser = (newUser: LoginResponse): void => {
     user.value = newUser
-    sessionStorage.setItem('user', JSON.stringify(newUser))
+  }
+
+  /**
+   * 静默刷新：页面加载/刷新后调用，用 Cookie 里的 Refresh Token 换回 Access Token。
+   * 成功后恢复登录态，失败则保持未登录（由路由守卫决定跳转）。
+   * 并发安全：同一时间只允许一次刷新（refreshAttempted 标记 + 调用方加锁）。
+   */
+  const refreshAuth = async (): Promise<boolean> => {
+    if (refreshAttempted.value && token.value) {
+      // 已登录，无需重复刷新
+      return true
+    }
+    if (refreshAttempted.value) {
+      // 已尝试过且失败，不再重复
+      return false
+    }
+    refreshAttempted.value = true
+    try {
+      const response = await refreshAuthApi()
+      token.value = response.token
+      user.value = response
+      void loadUserStats()
+      void loadUserExtras()
+      return true
+    } catch (e) {
+      console.warn('静默刷新失败，需要重新登录', e)
+      return false
+    }
   }
 
   /** 更新头像URL（上传成功后调用） */
   const updateAvatar = (newAvatarUrl: string): void => {
     if (user.value) {
       user.value = { ...user.value, avatarUrl: newAvatarUrl }
-      sessionStorage.setItem('user', JSON.stringify(user.value))
     }
   }
 
@@ -263,7 +284,6 @@ const user = ref<LoginResponse | null>(parsedUser)
   const updateNickname = (newNickname: string): void => {
     if (user.value) {
       user.value = { ...user.value, nickname: newNickname }
-      sessionStorage.setItem('user', JSON.stringify(user.value))
     }
   }
 
@@ -271,7 +291,6 @@ const user = ref<LoginResponse | null>(parsedUser)
   const updatePhone = (newPhone: string): void => {
     if (user.value) {
       user.value = { ...user.value, phone: newPhone }
-      sessionStorage.setItem('user', JSON.stringify(user.value))
     }
   }
 
@@ -313,6 +332,7 @@ const user = ref<LoginResponse | null>(parsedUser)
     login,
     register,
     logout,
+    refreshAuth,
     setUser,
     updateAvatar,
     updateNickname,

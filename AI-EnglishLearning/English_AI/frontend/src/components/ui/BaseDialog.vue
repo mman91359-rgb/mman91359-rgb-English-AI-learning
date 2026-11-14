@@ -28,7 +28,7 @@
                 :aria-label="$t('common.close')"
                 @click="close"
               >
-                <span class="material-symbols-outlined text-icon-md" aria-hidden="true">close</span>
+                <AppIcon name="close" size="md" />
               </button>
             </header>
             <div class="overflow-y-auto px-6 py-6">
@@ -51,6 +51,7 @@
 import { ref, useId } from 'vue'
 import { useModalBehavior } from '@/composables/useModalBehavior'
 import { btnIconSm } from '@/components/ui/buttonStyles'
+import AppIcon from '@/components/ui/AppIcon.vue'
 
 interface Props {
   visible: boolean

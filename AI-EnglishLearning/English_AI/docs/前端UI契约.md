@@ -13,7 +13,7 @@
 | 本文件规定什么 | 圆角、内边距、阴影、图标、按钮、字号六项的唯一写法，以及 `components/ui/` 下 11 个基础组件的 props 契约 |
 | 本文件不规定什么 | 页面布局结构、栅格、断点、动效时长；这些仍按各模块既有设计契约执行 |
 | 数值来源 | 全部取自 `tailwind.config.js`、`src/assets/main.css`、`dist/assets/index-*.css` 三处现有令牌，**本轮未新增任何颜色、尺寸、阴影或字号** |
-| 当前落地状态 | 契约已建立，11 个组件已创建，**34 个页面中 5 页已迁**（HomeView / AssessView / Favorites / Vocabulary / History），**其余 29 页一处未改**。因此「全站已统一」这句话目前不成立，任何场合都不得这样表述 |
+| 当前落地状态 | 契约已建立，11 个组件已创建，**34 个页面中 12 页已迁**（HomeView / AssessView / Favorites / Vocabulary / History + admin 的 Users / UserDetail / Questions / Notices / Activities / OperationLogs / JudgeReview），**其余 22 页一处未改**。因此「全站已统一」这句话目前不成立，任何场合都不得这样表述。注：admin 7 页本轮只完成圆角与色类收敛，页内仍有 41 处直写 `material-symbols-outlined`（尺寸已走 `text-icon-*`，非任意值违规，属未走 `AppIcon` 的组件复用缺口），不计入 §10 四条基线 |
 
 ---
 
@@ -367,9 +367,10 @@ slot：`#leading`（左侧图标圆/头像）、`#trailing`（右侧动作或状
 > 本节记录 **P1 建立契约那个批次**的范围，不是当前约束。以下三行已被后续批次超越，其余仍有效：
 >
 > - `StatusBadge` 提升 → **已完成**（P3，commit `615ca6d`），现为 `ui/StatusBadge.vue`
-> - 「修改 `admin/` 下任何文件」→ 已发生两处最小改动（P3，`615ca6d`）：`admin/StatusBadge.vue` 改为转发壳、
->   `admin/tableTypes.ts` 改为 re-export `BadgeTone`。其余 admin 文件仍未改动
-> - 「修改 `views/` 下任何页面」→ **5 页已迁**，见 §0 落地状态
+> - 「修改 `admin/` 下任何文件」→ 已发生三批：P3（`615ca6d`）把 `admin/StatusBadge.vue` 改为转发壳、
+>   `admin/tableTypes.ts` 改为 re-export `BadgeTone`；P4 修正 `AdminJudgeReviewView` 两处不存在的色类；
+>   P4 收敛 `AdminChartCard` / `AdminFilterBar` / `AdminStatCard` / `NoticeEditorDrawer` 的圆角与内边距
+> - 「修改 `views/` 下任何页面」→ **12 页已迁**（5 用户端 + 7 admin），见 §0 落地状态
 
 | 项 | 原因 |
 |---|---|
@@ -391,10 +392,10 @@ slot：`#leading`（左侧图标圆/头像）、`#trailing`（右侧动作或状
 3. `git status` 中的新增文件仅限 `components/ui/` 下 8 个 `.vue` 与本文件
 4. 全站 `views/` 与 `components/` 既有文件零改动
 
-将来接线后的验收（供后续批次使用；基线已按 5 页迁移后的实测值重算，2026-11-14）：
+将来接线后的验收（供后续批次使用；基线已按 12 页迁移后的实测值重算，2026-11-14）：
 
 ```bash
-# 任意值圆角（目标 0；当前基线 108，已迁 5 页均为 0）
+# 任意值圆角（目标 0；当前基线 92，已迁 12 页均为 0）
 grep -ro "rounded-\[[0-9]*px\]" src | wc -l
 
 # 图标用原生字号承载（目标 0；当前基线 45）
@@ -403,20 +404,20 @@ grep -rn "material-symbols-outlined[^\"]*text-\(xs\|sm\|base\|lg\|xl\|2xl\|3xl\)
 # 手写 soft-glow 字面量（目标 0；当前基线 6）
 grep -rn "shadow-\[0_4px_20px_rgba(51,58,72,0.05)\]" src
 
-# 不存在的色类（目标 0；当前基线 2）
+# 不存在的色类（目标 0；当前基线 0 —— admin 审核页两处已于本轮修正）
 grep -rn "success-container\|text-success" src
 ```
 
 > 基线值来自 `docs/前端UI审计与组件契约.md` §7，随每批迁移完成后更新本节。**每次更新必须重跑上面四条命令取实数，不许估算或按批减扣。**
 
-当前 108 / 45 / 6 / 2 的残留分布（供下一批选题参考）：
+当前 92 / 45 / 6 / 0 的残留分布（供下一批选题参考）：
 
 | 指标 | 主要残留位置 |
 |---|---|
-| 任意值圆角 108 | `LearningView`(15)、`WritingEntryPanel`(9)、`TranslationPracticeView`(8)、`ProfileView`(8)、`ListeningQuizView`(8)、`TranslationEntryPanel`(8)、`ListeningEntryPanel`(7)、`StatsView`(4) |
+| 任意值圆角 92 | `LearningView`(15)、`WritingEntryPanel`(9)、`TranslationPracticeView`(8)、`ProfileView`(8)、`ListeningQuizView`(8)、`TranslationEntryPanel`(8)、`ListeningEntryPanel`(7)、`StatsView`(4) |
 | 图标原生字号 45 | `ErrorBookView`、`PracticeView`、`GrammarQuizView`、`VocabQuizView`、`LearningView`、`ProfileView`、`LoginView`、`RegisterView`、`ForgotPasswordView` |
 | soft-glow 字面量 6 | `ListeningQuizView`(2)、`TranslationPracticeView`、`VocabQuizView`、`TranscriptPanel`、`FeedbackPanel` |
-| 不存在的色类 2 | `AdminJudgeReviewView:83/96` 的 `bg-success-container` / `text-success` —— 令牌不存在，实际不生效 |
+| 不存在的色类 0 | 已清零。`AdminJudgeReviewView:83` 改 `bg-tertiary-container/50 text-on-tertiary-container`、`:96` 改 `text-tertiary hover:bg-tertiary-container/20`，依据 §7 的 `success → tertiary` 映射，与 `AdminQuestionsView:94` 的既有写法逐字一致 |
 
 ---
 
@@ -439,6 +440,7 @@ grep -rn "success-container\|text-success" src
 | Favorites 搜索外框 | `p-5` 20px | `p-6` 24px | +4px | 归入 §2 标准卡档 |
 | Favorites 行卡 | `p-5` 20px | `p-4` 16px | −4px | 归入 §2 行卡档，与 `rounded-2xl` 配对 |
 | Favorites 模块标签 | `text-xs` 12px | `Tag size="sm"` → `label-sm` 11px | −1px | `Tag` 无 12px 档 |
+| `NoticeEditorDrawer:50` 通知预览块 | `p-5` 20px | `p-4` 16px | −4px | 归入 §2 卡内嵌块档，与 `rounded-2xl` 配对；同批唯一一处档外内边距 |
 
 **保留**（要么已进契约，要么是真例外）：
 

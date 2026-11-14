@@ -374,7 +374,7 @@ slot：`#leading`（左侧图标圆/头像）、`#trailing`（右侧动作或状
 > - 「修改 `admin/` 下任何文件」→ 已发生三批：P3（`615ca6d`）把 `admin/StatusBadge.vue` 改为转发壳、
 >   `admin/tableTypes.ts` 改为 re-export `BadgeTone`；P4 修正 `AdminJudgeReviewView` 两处不存在的色类；
 >   P4 收敛 `AdminChartCard` / `AdminFilterBar` / `AdminStatCard` / `NoticeEditorDrawer` 的圆角与内边距
-> - 「修改 `views/` 下任何页面」→ **5 页已迁至组件层 + 7 页仅收敛任意值**，见 §0 落地状态
+> - 「修改 `views/` 下任何页面」→ **6 页已迁至组件层 + 7 页仅收敛任意值**，见 §0 落地状态
 
 | 项 | 原因 |
 |---|---|
@@ -410,6 +410,10 @@ grep -rn "shadow-\[0_4px_20px_rgba(51,58,72,0.05)\]" src
 
 # 不存在的色类（目标 0；当前基线 0 —— admin 审核页两处已于 P4 修正）
 grep -rn "success-container\|text-success" src
+
+# 组件层直写图标（目标 0；当前基线 109，已排除 AppIcon.vue 自身）
+# 第二条只扫 views/，组件层的直写图标它看不见，必须单列一条
+grep -rn "material-symbols-outlined" src/components --include=*.vue | grep -v "AppIcon.vue" | wc -l
 ```
 
 > 基线值来自 `docs/前端UI审计与组件契约.md` §7，随每批迁移完成后更新本节。**每次更新必须重跑上面四条命令取实数，不许估算或按批减扣。**
@@ -426,6 +430,7 @@ grep -rn "success-container\|text-success" src
 | 图标原生字号 43 | `ErrorBookView`、`PracticeView`、`GrammarQuizView`、`VocabQuizView`、`ProfileView`、`LoginView`、`RegisterView`、`ForgotPasswordView` |
 | soft-glow 字面量 6 | `ListeningQuizView`(2)、`TranslationPracticeView`、`VocabQuizView`、`TranscriptPanel`、`FeedbackPanel` |
 | 不存在的色类 0 | 已清零。`AdminJudgeReviewView:83` 改 `bg-tertiary-container/50 text-on-tertiary-container`、`:96` 改 `text-tertiary hover:bg-tertiary-container/20`，依据 §7 的 `success → tertiary` 映射，与 `AdminQuestionsView:94` 的既有写法逐字一致 |
+| 组件层直写图标 109 | `AiSidebarContent`(12)、`VocabularyGoalDialog`(9)、`AudioPlayer`(6)、`AiActionBar`(5)、`TopAppBar`(5)、`WritingScorePanel`(4)、`WordDetailCard`(4)、`AiCard`(4)、`admin/AdminTopbar`(4)、`admin/AdminSidebar`(4)、`WordReviewDialog`(4)。<br>其中 **12 处属 `ui/` 组件自身**（`AppLogo` 3、`StreakDisplay` 3 依赖 scoped 的 `.logo-glyph` / `.flame-glyph` 继承字号，按 §8.1 属**豁免**；`FormHint` 2、`EmptyState` / `ErrorState` / `LoadingState` / `BaseDialog` 各 1 属**应改未改**）。<br>真实待迁 = 109 − 3 − 3 = **103**（含 `ui/` 内部那 4 处） |
 
 ---
 
@@ -481,3 +486,44 @@ grep -rn "success-container\|text-success" src
 - 加深成 `container-low` 会让输入框看起来像「凹槽」，与「卡片是白的」这个统一印象打架。
 
 判断标准：把页面缩到 100% 缩放、正常亮度下能一眼找到输入区即可，不追求色块式对比。
+
+### 11.4 Tailwind 类名必须是完整字面量，禁止 `${var}` 拼接
+
+**规则**：凡是带透明度后缀（`bg-*/NN`、`text-*/NN`、`border-*/NN`、`ring-*/NN`、`hover:bg-*/NN`）的类名，
+必须在源码里以**完整字符串**出现，禁止拆成「前缀 + `/NN`」两段再拼接。
+
+```ts
+// ❌ 禁止：两个片段都不是 Tailwind 认识的类名，拼出来的值它看不见
+const MAP = { primary: 'bg-primary-container' }
+const alpha = '/30'
+const cls = `${MAP.primary}${alpha}`
+
+// ✅ 正确：完整字面量，Tailwind 扫得到
+const MAP = { primary: { 20: 'bg-primary-container/20', 30: 'bg-primary-container/30' } }
+const cls = MAP.primary[30]
+```
+
+**为什么这条必须单列**：Tailwind 的 JIT 是**文本扫描**，不是运行时求值。拼接出来的类名没有任何
+CSS 规则与之对应，而浏览器对未知类名**不报错**。
+
+随之而来的失败是**静默的**：`type-check` 绿、`build` 绿、控制台无警告，只有肉眼能看出元素少了底色。
+
+更隐蔽的是它**会假装能用**：只要项目里任何其他地方还写着同一个完整字面量，那个类就会被生成，
+拼接的写法于是「工作正常」——直到那些字面量被清理掉的那一批，这个组件才突然坏掉，
+而 git blame 会指向很久以前那次「没问题」的改动。`EntryCard` 就踩过这个坑（2026-11-14 修复，
+commit `5e20a84`）：26 张卡的图标圆一度全靠其他页面的字面量续命。
+
+**验收方式**（可复现，不必改代码）：
+
+```bash
+# 正向：只有该组件自己作为扫描源时，类是否仍能生成
+npx tailwindcss -c tailwind.config.js -i src/assets/main.css --content "./src/components/ui/XxxCard.vue" -o /tmp/only.css
+grep -c 'bg-primary-container\\/30' /tmp/only.css   # 期望 ≥1
+```
+
+**自查口径**：在 `src/components/ui/` 或任何 `.ts` 类名常量里看到 `` `${...}` `` 且包含 `bg-` / `text-` /
+`border-` 前缀时，先确认拼接结果是否含 `/NN`；含则必须改写。
+
+> 与本条无关（不要误伤）：`buttonStyles.ts` 的 `` `${base} bg-primary hover:bg-primary/90` `` 是安全的
+> —— `base` 是布局类，`bg-primary` 与 `hover:bg-primary/90` 本身就是完整字面量。
+> 只有「把带斜杠的类拆成两段」才是违规。

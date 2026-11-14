@@ -14,5 +14,9 @@ export const inputClass = `${base} rounded-xl bg-surface-container-lowest px-4 p
 /** 宽松密度：用户端登录、注册、设置等独立表单 */
 export const inputClassLg = `${base} rounded-2xl bg-surface-container-lowest px-4 py-3.5 font-body-md text-body-md`
 
-/** 校验失败态：叠加在 inputClass / inputClassLg 之后使用 */
-export const inputErrorClass = 'border-error focus:border-error focus:ring-error/20'
+/**
+ * 校验失败态：叠加在 inputClass / inputClassLg 之后使用。
+ * 必须带 !（important）：Tailwind 按颜色名排序生成 .border-error 与 .border-outline-variant，
+ * 前者排在前面，不加 important 会被底座边框色覆盖，导致校验失败时边框不变红。
+ */
+export const inputErrorClass = '!border-error focus:!border-error focus:!ring-error/20'

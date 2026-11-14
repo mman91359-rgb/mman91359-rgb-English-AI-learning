@@ -63,53 +63,59 @@
               <p class="font-body-md text-body-md text-on-surface-variant">{{ $t('app.subtitle') }}</p>
             </div>
 
-            <form class="space-y-5" @submit.prevent="handleLogin">
-              <div class="relative group">
-                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <span class="material-symbols-outlined text-secondary group-focus-within:text-primary transition-colors">alternate_email</span>
+            <form class="space-y-5" novalidate @submit.prevent="handleLogin">
+              <div>
+                <div class="relative group">
+                  <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <span class="material-symbols-outlined text-secondary group-focus-within:text-primary transition-colors">alternate_email</span>
+                  </div>
+                  <input
+                    v-model="account"
+                    :class="[inputClassLg, 'pl-12 pr-4', errors.account ? inputErrorClass : '']"
+                    :placeholder="$t('auth.accountPlaceholder')"
+                    :aria-invalid="errors.account ? 'true' : 'false'"
+                    type="text"
+                    autocomplete="off"
+                    @input="errors.account = ''"
+                  />
                 </div>
-                <input
-                  v-model="account"
-                  :class="[inputClassLg, 'pl-12 pr-4']"
-                  :placeholder="$t('auth.accountPlaceholder')"
-                  required
-                  type="text"
-                  autocomplete="off"
-                />
+                <FormHint v-if="errors.account" :message="errors.account" />
               </div>
-              <div class="relative group">
-                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <span class="material-symbols-outlined text-secondary group-focus-within:text-primary transition-colors">lock</span>
+              <div>
+                <div class="relative group">
+                  <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <span class="material-symbols-outlined text-secondary group-focus-within:text-primary transition-colors">lock</span>
+                  </div>
+                  <input
+                    v-model="password"
+                    :type="showPassword ? 'text' : 'password'"
+                    :class="[inputClassLg, 'pl-12 pr-12', errors.password ? inputErrorClass : '']"
+                    :placeholder="$t('auth.password')"
+                    :aria-invalid="errors.password ? 'true' : 'false'"
+                    autocomplete="new-password"
+                    @input="errors.password = ''"
+                  />
+                  <button
+                    class="absolute inset-y-0 right-0 pr-4 flex items-center text-secondary hover:text-on-surface transition-colors"
+                    type="button"
+                    @click="togglePassword"
+                  >
+                    <Transition name="icon-fade" mode="out-in">
+                      <span :key="showPassword ? 'visible' : 'hidden'" class="material-symbols-outlined">
+                        {{ showPassword ? 'visibility' : 'visibility_off' }}
+                      </span>
+                    </Transition>
+                  </button>
                 </div>
-                <input
-                  v-model="password"
-                  :type="showPassword ? 'text' : 'password'"
-                  :class="[inputClassLg, 'pl-12 pr-12']"
-                  :placeholder="$t('auth.password')"
-                  required
-                  autocomplete="new-password"
-                />
-                <button
-                  class="absolute inset-y-0 right-0 pr-4 flex items-center text-secondary hover:text-on-surface transition-colors"
-                  type="button"
-                  @click="togglePassword"
-                >
-                  <Transition name="icon-fade" mode="out-in">
-                    <span :key="showPassword ? 'visible' : 'hidden'" class="material-symbols-outlined">
-                      {{ showPassword ? 'visibility' : 'visibility_off' }}
-                    </span>
-                  </Transition>
-                </button>
+                <FormHint v-if="errors.password" :message="errors.password" />
               </div>
               <div class="flex justify-between items-center">
-                <p class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
-                  <span class="material-symbols-outlined text-sm">info</span>
-                  {{ $t('auth.passwordRule') }}
-                </p>
+                <FormHint tone="hint" :message="$t('auth.passwordRule')" class="!mt-0" />
                 <router-link to="/forgot-password" class="font-label-md text-label-md text-primary hover:underline">
                   {{ $t('auth.forgotPassword') }}
                 </router-link>
               </div>
+              <FormHint v-if="formError" :message="formError" />
               <div class="pt-2">
                 <button
                   :disabled="isLoading"
@@ -141,7 +147,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useUserStore } from '@/stores/user'
 import { useToast } from '@/composables/useToast'
-import { inputClassLg } from '@/components/ui/formStyles'
+import { inputClassLg, inputErrorClass } from '@/components/ui/formStyles'
+import FormHint from '@/components/ui/FormHint.vue'
 import { btnIcon, btnPrimaryBlock } from '@/components/ui/buttonStyles'
 import AppLogo from '@/components/ui/AppLogo.vue'
 
@@ -157,21 +164,38 @@ const account = ref('')
 const password = ref('')
 const showPassword = ref(false)
 
+/** 字段级校验错误：与注册页一致，内联展示在输入框下方 */
+const errors = ref({ account: '', password: '' })
+/** 服务端返回的整体性错误（账号或密码错误等） */
+const formError = ref('')
+
 const isLoading = computed(() => userStore.isLoading)
 
 const togglePassword = () => {
   showPassword.value = !showPassword.value
 }
 
-const handleLogin = async () => {
+const validate = (): boolean => {
+  const err = { account: '', password: '' }
+  let valid = true
+
   if (!account.value.trim()) {
-    toast(t('auth.accountEmpty'), 'warning')
-    return
+    err.account = t('auth.accountEmpty')
+    valid = false
   }
   if (!password.value) {
-    toast(t('auth.password') + '不能为空', 'warning')
-    return
+    err.password = t('auth.passwordRequired')
+    valid = false
   }
+
+  errors.value = err
+  return valid
+}
+
+const handleLogin = async () => {
+  formError.value = ''
+  if (!validate()) return
+
   try {
     await userStore.login({ account: account.value.trim(), password: password.value })
     toast(t('auth.loginSuccess'), 'success')
@@ -184,7 +208,7 @@ const handleLogin = async () => {
     const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : '/dashboard'
     router.push(redirect)
   } catch (error: any) {
-    toast(error.message || t('auth.login') + '失败', 'error')
+    formError.value = error?.message || t('auth.loginFailed')
   }
 }
 </script>

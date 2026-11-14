@@ -2,12 +2,7 @@
   <div class="min-h-screen bg-background text-on-background flex">
     <aside class="hidden md:flex fixed left-0 top-0 z-50 h-screen w-sidebar-width flex-col border-r border-outline-variant bg-surface px-4 py-8">
       <div class="mb-10 px-4">
-        <AppLogo
-          to="/login"
-          icon="auto_stories"
-          badge="pill"
-          :subtitle="$t('app.subtitle')"
-        />
+        <AppLogo to="/login" />
       </div>
       <nav class="flex flex-col gap-2">
         <router-link to="/login" class="flex items-center gap-4 rounded-xl px-4 py-3 font-label-lg text-label-lg text-on-surface-variant transition-colors hover:bg-primary-container/10 hover:text-primary">
@@ -38,77 +33,92 @@
               <span>{{ $t('auth.mockSmsHint') }}</span>
             </p>
 
-            <form class="space-y-5" @submit.prevent="handleReset">
-              <div class="relative group">
-                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                  <span class="material-symbols-outlined text-secondary transition-colors group-focus-within:text-primary">smartphone</span>
-                </div>
-                <input
-                  v-model="phone"
-                  type="tel"
-                  required
-                  autocomplete="tel"
-                  :class="[inputClassLg, 'pl-12 pr-4']"
-                  :placeholder="$t('auth.phonePlaceholder')"
-                />
-              </div>
-
-              <div class="flex flex-col gap-2 sm:flex-row">
-                <div class="relative flex-1 group">
+            <form class="space-y-5" novalidate @submit.prevent="handleReset">
+              <div>
+                <div class="relative group">
                   <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                    <span class="material-symbols-outlined text-secondary transition-colors group-focus-within:text-primary">verified_user</span>
+                    <span class="material-symbols-outlined text-secondary transition-colors group-focus-within:text-primary">smartphone</span>
                   </div>
                   <input
-                    v-model="code"
-                    type="text"
-                    required
-                    inputmode="numeric"
-                    maxlength="6"
-                    :class="[inputClassLg, 'pl-12 pr-4 tracking-widest']"
-                    :placeholder="$t('auth.codePlaceholder')"
+                    v-model="phone"
+                    type="tel"
+                    autocomplete="tel"
+                    :class="[inputClassLg, 'pl-12 pr-4', errors.phone ? inputErrorClass : '']"
+                    :aria-invalid="errors.phone ? 'true' : 'false'"
+                    :placeholder="$t('auth.phonePlaceholder')"
+                    @input="errors.phone = ''"
                   />
                 </div>
-                <button
-                  type="button"
-                  class="h-[52px] shrink-0 rounded-2xl border border-primary/30 bg-primary-container/20 px-4 font-label-lg text-label-lg text-primary disabled:cursor-not-allowed disabled:opacity-50"
-                  :disabled="codeSent && remaining > 0"
-                  @click="sendCode"
-                >
-                  {{ codeSent && remaining > 0 ? $t('auth.resendIn', { seconds: remaining }) : $t('auth.sendCode') }}
-                </button>
+                <FormHint v-if="errors.phone" :message="errors.phone" />
               </div>
 
-              <div class="relative group">
-                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                  <span class="material-symbols-outlined text-secondary transition-colors group-focus-within:text-primary">lock</span>
+              <div>
+                <div class="flex flex-col gap-2 sm:flex-row">
+                  <div class="relative flex-1 group">
+                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+                      <span class="material-symbols-outlined text-secondary transition-colors group-focus-within:text-primary">verified_user</span>
+                    </div>
+                    <input
+                      v-model="code"
+                      type="text"
+                      inputmode="numeric"
+                      maxlength="6"
+                      :class="[inputClassLg, 'pl-12 pr-4 tracking-widest', errors.code ? inputErrorClass : '']"
+                      :aria-invalid="errors.code ? 'true' : 'false'"
+                      :placeholder="$t('auth.codePlaceholder')"
+                      @input="errors.code = ''"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    class="h-[52px] shrink-0 rounded-2xl border border-primary/30 bg-primary-container/20 px-4 font-label-lg text-label-lg text-primary disabled:cursor-not-allowed disabled:opacity-50"
+                    :disabled="codeSent && remaining > 0"
+                    @click="sendCode"
+                  >
+                    {{ codeSent && remaining > 0 ? $t('auth.resendIn', { seconds: remaining }) : $t('auth.sendCode') }}
+                  </button>
                 </div>
-                <input
-                  v-model="newPassword"
-                  type="password"
-                  required
-                  autocomplete="new-password"
-                  :class="[inputClassLg, 'pl-12 pr-4']"
-                  :placeholder="$t('auth.newPassword')"
-                />
+                <FormHint v-if="errors.code" :message="errors.code" />
               </div>
-              <p class="mt-1.5 px-1 font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
-                <span class="material-symbols-outlined text-sm">info</span>
-                {{ $t('auth.passwordRule') }}
-              </p>
 
-              <div class="relative group">
-                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                  <span class="material-symbols-outlined text-secondary transition-colors group-focus-within:text-primary">lock</span>
+              <div>
+                <div class="relative group">
+                  <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+                    <span class="material-symbols-outlined text-secondary transition-colors group-focus-within:text-primary">lock</span>
+                  </div>
+                  <input
+                    v-model="newPassword"
+                    type="password"
+                    autocomplete="new-password"
+                    :class="[inputClassLg, 'pl-12 pr-4', errors.newPassword ? inputErrorClass : '']"
+                    :aria-invalid="errors.newPassword ? 'true' : 'false'"
+                    :placeholder="$t('auth.newPassword')"
+                    @input="errors.newPassword = ''"
+                  />
                 </div>
-                <input
-                  v-model="confirmPassword"
-                  type="password"
-                  required
-                  autocomplete="new-password"
-                  :class="[inputClassLg, 'pl-12 pr-4']"
-                  :placeholder="$t('auth.confirmNewPassword')"
-                />
+                <FormHint v-if="errors.newPassword" :message="errors.newPassword" />
+                <FormHint v-else tone="hint" :message="$t('auth.passwordRule')" />
               </div>
+
+              <div>
+                <div class="relative group">
+                  <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+                    <span class="material-symbols-outlined text-secondary transition-colors group-focus-within:text-primary">lock</span>
+                  </div>
+                  <input
+                    v-model="confirmPassword"
+                    type="password"
+                    autocomplete="new-password"
+                    :class="[inputClassLg, 'pl-12 pr-4', errors.confirmPassword ? inputErrorClass : '']"
+                    :aria-invalid="errors.confirmPassword ? 'true' : 'false'"
+                    :placeholder="$t('auth.confirmNewPassword')"
+                    @input="errors.confirmPassword = ''"
+                  />
+                </div>
+                <FormHint v-if="errors.confirmPassword" :message="errors.confirmPassword" />
+              </div>
+
+              <FormHint v-if="formError" :message="formError" />
 
               <button
                 type="submit"
@@ -139,7 +149,8 @@ import { useI18n } from 'vue-i18n'
 import { useToast } from '../composables/useToast'
 import { useCountdown } from '../composables/useCountdown'
 import { resetPasswordByPhone } from '../api/user'
-import { inputClassLg } from '@/components/ui/formStyles'
+import { inputClassLg, inputErrorClass } from '@/components/ui/formStyles'
+import FormHint from '@/components/ui/FormHint.vue'
 import AppLogo from '@/components/ui/AppLogo.vue'
 import { btnPrimaryBlock } from '@/components/ui/buttonStyles'
 
@@ -155,36 +166,59 @@ const submitting = ref(false)
 const codeSent = ref(false)
 const { remaining, reset } = useCountdown(60, undefined, false)
 
+/** 字段级校验错误：与登录/注册页一致，内联展示在输入框下方 */
+const errors = ref({
+  phone: '',
+  code: '',
+  newPassword: '',
+  confirmPassword: '',
+})
+/** 服务端返回的整体性错误 */
+const formError = ref('')
+
 const phonePattern = /^1[3-9]\d{9}$/
 const passwordRulePattern = /^(?=.*[a-z])(?=.*\d).{10,}$/
 
 const sendCode = () => {
   if (!phonePattern.test(phone.value)) {
-    toast(t('auth.invalidPhone'), 'warning')
+    errors.value.phone = t('auth.invalidPhone')
     return
   }
+  errors.value.phone = ''
   codeSent.value = true
   toast(t('auth.codeSentMock', { code: '123456' }), 'success')
   reset()
 }
 
-const handleReset = async () => {
+const validate = (): boolean => {
+  const err = { phone: '', code: '', newPassword: '', confirmPassword: '' }
+  let valid = true
+
   if (!phonePattern.test(phone.value)) {
-    toast(t('auth.invalidPhone'), 'warning')
-    return
+    err.phone = t('auth.invalidPhone')
+    valid = false
   }
   if (!code.value.trim()) {
-    toast(t('auth.invalidCode'), 'warning')
-    return
+    err.code = t('auth.invalidCode')
+    valid = false
   }
   if (!passwordRulePattern.test(newPassword.value)) {
-    toast(t('auth.passwordTooShort'), 'warning')
-    return
+    err.newPassword = t('auth.passwordInvalid')
+    valid = false
   }
   if (newPassword.value !== confirmPassword.value) {
-    toast(t('auth.passwordMismatch'), 'warning')
-    return
+    err.confirmPassword = t('auth.passwordMismatch')
+    valid = false
   }
+
+  errors.value = err
+  return valid
+}
+
+const handleReset = async () => {
+  formError.value = ''
+  if (!validate()) return
+
   submitting.value = true
   try {
     await resetPasswordByPhone({
@@ -195,7 +229,7 @@ const handleReset = async () => {
     toast(t('auth.resetSuccess'), 'success')
     await router.push('/login')
   } catch (error) {
-    toast(error instanceof Error ? error.message : t('auth.resetPassword'), 'error')
+    formError.value = error instanceof Error ? error.message : t('auth.resetFailed')
   } finally {
     submitting.value = false
   }

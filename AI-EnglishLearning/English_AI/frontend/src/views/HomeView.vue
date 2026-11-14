@@ -2,7 +2,7 @@
   <AppLayout>
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
       <div>
-        <h2 class="font-display-lg text-display-lg text-on-surface mb-2">{{ greetingText }}，{{ nickname }}！</h2>
+        <h2 class="font-display-lg text-display-lg text-on-surface mb-2">{{ greetingLine }}</h2>
         <p class="font-body-lg text-body-lg text-on-surface-variant">{{ $t('dashboard.readyForToday') }}</p>
       </div>
       <div class="flex flex-wrap items-center gap-3">
@@ -262,11 +262,12 @@ import { getDailyWord, getExerciseStats } from '@/api/exercise'
 import type { DailyWordVO } from '@/api/exercise'
 import { getReviewTasks } from '@/api/learning'
 import type { ReviewTaskVO } from '@/api/learning'
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const { show: toast } = useToast()
 const userStore = useUserStore()
 const route = useRoute()
-const nickname = computed(() => userStore.user?.nickname || userStore.user?.username || '同学')
+// 昵称兜底走 i18n，英文模式下不能冒出中文占位
+const nickname = computed(() => userStore.user?.nickname || userStore.user?.username || t('dashboard.guestName'))
 // 时间问候语
 const greetingText = computed(() => {
   const hour = new Date().getHours()
@@ -274,6 +275,10 @@ const greetingText = computed(() => {
   if (hour < 18) return t('dashboard.greeting.afternoon')
   return t('dashboard.greeting.evening')
 })
+// 完整问候句：中英文标点不同，整句交给 locale 决定
+const greetingLine = computed(() =>
+  t('dashboard.greetingWithName', { greeting: greetingText.value, name: nickname.value })
+)
 // ========== 每日签到 ==========
 const checkingIn = ref(false)
 const rewardBurstVisible = ref(false)
@@ -412,7 +417,9 @@ const studyBars = computed<StudyBar[]>(() => {
   const todayIdx = isWeek ? getTodayWeekIndex() : -1
   return data.map((value, i) => {
     const percent = Math.round((value / maxValue) * 100)
-    const tooltip = isWeek ? `${value} 分钟` : `共 ${value} 道题`
+    const tooltip = isWeek
+      ? t('dashboard.chartMinutes', { count: value })
+      : t('dashboard.chartQuestions', { count: value })
     return {
       hasData: value > 0,
       vocab: percent,
@@ -429,7 +436,10 @@ const barLabels = computed(() => {
   if (studyPeriod.value === 'week') {
     return getWeekDayLabels()
   }
-  return ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+  // 月份标签跟随当前语言：zh-CN 得到「1月」，en-US 得到「Jan」
+  return Array.from({ length: 12 }, (_, i) =>
+    new Intl.DateTimeFormat(locale.value, { month: 'short' }).format(new Date(2024, i, 1)),
+  )
 })
 /** 获取今天在本周数组中的索引（0=周一, 6=周日） */
 function getTodayWeekIndex(): number {
@@ -444,19 +454,19 @@ function getWeekDayLabels(): string[] {
 // 学习量图表副标题（随视图切换）
 const studySubtitle = computed(() => {
   return studyPeriod.value === 'week'
-    ? '本周每日学习时长（分钟）'
-    : `本年 ${new Date().getFullYear()} 年 1-12 月每月答题数（道）`
+    ? t('dashboard.weeklyStudyMinutes')
+    : t('dashboard.yearlyQuestionsByMonth', { year: new Date().getFullYear() })
 })
 // 学习量标题下方的统计摘要（随视图切换）
 const studySummaryText = computed(() => {
   if (studyPeriod.value === 'week') {
-    return `本周平均每天回答 ${weeklyAverage.value} 道题`
+    return t('dashboard.weeklyAverageQuestions', { count: weeklyAverage.value })
   }
   // 月视图：本月总答题数（取 yearlyMonthQuestions 最后一个元素，即当前月份）
   const currentMonthQuestions = realMonthQuestions.value.length > 0
     ? realMonthQuestions.value[new Date().getMonth()]
     : 0
-  return `本月共回答 ${currentMonthQuestions} 道题`
+  return t('dashboard.monthAnswered', { count: currentMonthQuestions })
 })
 // ========== 继续学习 ==========
 const continueInfo = ref(t('dashboard.unitInfo', { unit: 1 }))

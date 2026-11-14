@@ -2,7 +2,7 @@
   <div class="bg-background text-on-background min-h-screen flex">
     <aside class="hidden md:flex flex-col h-screen fixed left-0 top-0 w-sidebar-width bg-surface border-r border-outline-variant py-8 px-4 z-50">
       <div class="mb-8 px-4">
-        <AppLogo to="/register" badge="rounded" />
+        <AppLogo to="/register" />
       </div>
       <nav class="flex-1 flex flex-col gap-2">
         <router-link
@@ -63,21 +63,19 @@
               <p class="font-body-md text-body-md text-on-surface-variant">{{ $t('app.subtitle') }}</p>
             </div>
 
-            <form class="space-y-5" @submit.prevent="handleRegister">
+            <form class="space-y-5" novalidate @submit.prevent="handleRegister">
               <div class="relative group">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <span class="material-symbols-outlined text-secondary group-focus-within:text-primary transition-colors">badge</span>
                 </div>
                 <input
                   v-model="form.nickname"
-                  :class="[inputClassLg, 'pl-12 pr-4']"
+                  :class="[inputClassLg, 'pl-12 pr-4', validationErrors.nickname && inputErrorClass]"
                   :placeholder="$t('auth.nicknamePlaceholder')"
                   type="text"
+                  @input="validationErrors.nickname = ''"
                 />
-                <p v-if="validationErrors.nickname" class="mt-1.5 px-1 font-label-sm text-label-sm text-error flex items-center gap-1">
-                  <span class="material-symbols-outlined text-sm">error</span>
-                  {{ validationErrors.nickname }}
-                </p>
+                <FormHint v-if="validationErrors.nickname" :message="validationErrors.nickname" />
               </div>
 
               <div class="relative group">
@@ -86,44 +84,42 @@
                 </div>
                 <input
                   v-model="form.account"
-                  :class="[inputClassLg, 'pl-12 pr-4']"
+                  :class="[inputClassLg, 'pl-12 pr-4', validationErrors.account && inputErrorClass]"
                   :placeholder="$t('auth.accountPlaceholderRegister')"
                   type="text"
                   autocomplete="off"
+                  @input="validationErrors.account = ''"
                 />
-                <p v-if="validationErrors.account" class="mt-1.5 px-1 font-label-sm text-label-sm text-error flex items-center gap-1">
-                  <span class="material-symbols-outlined text-sm">error</span>
-                  {{ validationErrors.account }}
-                </p>
+                <FormHint v-if="validationErrors.account" :message="validationErrors.account" />
               </div>
 
-              <div class="flex flex-col gap-2 sm:flex-row">
-                <div class="relative flex-1 group">
-                  <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                    <span class="material-symbols-outlined text-secondary transition-colors group-focus-within:text-primary">verified_user</span>
+              <div>
+                <div class="flex flex-col gap-2 sm:flex-row">
+                  <div class="relative flex-1 group">
+                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+                      <span class="material-symbols-outlined text-secondary transition-colors group-focus-within:text-primary">verified_user</span>
+                    </div>
+                    <input
+                      v-model="form.code"
+                      type="text"
+                      inputmode="numeric"
+                      maxlength="6"
+                      :class="[inputClassLg, 'pl-12 pr-4 tracking-widest', validationErrors.code && inputErrorClass]"
+                      :placeholder="$t('auth.codePlaceholder')"
+                      @input="validationErrors.code = ''"
+                    />
                   </div>
-                  <input
-                    v-model="form.code"
-                    type="text"
-                    inputmode="numeric"
-                    maxlength="6"
-                    :class="[inputClassLg, 'pl-12 pr-4 tracking-widest']"
-                    :placeholder="$t('auth.codePlaceholder')"
-                  />
+                  <button
+                    type="button"
+                    class="h-[52px] shrink-0 rounded-2xl border border-primary/30 bg-primary-container/20 px-4 font-label-lg text-label-lg text-primary disabled:cursor-not-allowed disabled:opacity-50"
+                    :disabled="codeSent && remaining > 0"
+                    @click="sendCode"
+                  >
+                    {{ codeSent && remaining > 0 ? $t('auth.resendIn', { seconds: remaining }) : $t('auth.sendCode') }}
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  class="h-[52px] shrink-0 rounded-2xl border border-primary/30 bg-primary-container/20 px-4 font-label-lg text-label-lg text-primary disabled:cursor-not-allowed disabled:opacity-50"
-                  :disabled="codeSent && remaining > 0"
-                  @click="sendCode"
-                >
-                  {{ codeSent && remaining > 0 ? $t('auth.resendIn', { seconds: remaining }) : $t('auth.sendCode') }}
-                </button>
+                <FormHint v-if="validationErrors.code" :message="validationErrors.code" />
               </div>
-              <p v-if="validationErrors.code" class="mt-1.5 px-1 font-label-sm text-label-sm text-error flex items-center gap-1">
-                <span class="material-symbols-outlined text-sm">error</span>
-                {{ validationErrors.code }}
-              </p>
 
               <div class="relative group">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -132,9 +128,10 @@
                 <input
                   v-model="form.password"
                   :type="showPassword ? 'text' : 'password'"
-                  :class="[inputClassLg, 'pl-12 pr-12']"
+                  :class="[inputClassLg, 'pl-12 pr-12', validationErrors.password && inputErrorClass]"
                   :placeholder="$t('auth.password')"
                   required
+                  @input="validationErrors.password = ''"
                 />
                 <button
                   class="absolute inset-y-0 right-0 pr-4 flex items-center text-secondary hover:text-on-surface transition-colors"
@@ -147,10 +144,7 @@
                     </span>
                   </Transition>
                 </button>
-                <p v-if="validationErrors.password" class="mt-1.5 px-1 font-label-sm text-label-sm text-error flex items-center gap-1">
-                  <span class="material-symbols-outlined text-sm">error</span>
-                  {{ validationErrors.password }}
-                </p>
+                <FormHint v-if="validationErrors.password" :message="validationErrors.password" />
               </div>
 
               <div class="relative group">
@@ -160,9 +154,10 @@
                 <input
                   v-model="form.confirmPassword"
                   :type="showConfirmPassword ? 'text' : 'password'"
-                  :class="[inputClassLg, 'pl-12 pr-12']"
+                  :class="[inputClassLg, 'pl-12 pr-12', validationErrors.confirmPassword && inputErrorClass]"
                   :placeholder="$t('auth.confirmPassword')"
                   required
+                  @input="validationErrors.confirmPassword = ''"
                 />
                 <button
                   class="absolute inset-y-0 right-0 pr-4 flex items-center text-secondary hover:text-on-surface transition-colors"
@@ -171,10 +166,7 @@
                 >
                   <span class="material-symbols-outlined">{{ showConfirmPassword ? 'visibility' : 'visibility_off' }}</span>
                 </button>
-                <p v-if="validationErrors.confirmPassword" class="mt-1.5 px-1 font-label-sm text-label-sm text-error flex items-center gap-1">
-                  <span class="material-symbols-outlined text-sm">error</span>
-                  {{ validationErrors.confirmPassword }}
-                </p>
+                <FormHint v-if="validationErrors.confirmPassword" :message="validationErrors.confirmPassword" />
               </div>
 
               <div class="relative group">
@@ -183,18 +175,18 @@
                 </div>
                 <select
                   v-model="form.cetLevel"
-                  :class="[inputClassLg, 'pl-12 pr-4 appearance-none cursor-pointer']"
+                  :class="[inputClassLg, 'pl-12 pr-4 appearance-none cursor-pointer', validationErrors.cetLevel && inputErrorClass]"
                   required
+                  @change="validationErrors.cetLevel = ''"
                 >
                   <option value="" disabled>{{ $t('auth.cefLevel') }}</option>
                   <option value="CET4">{{ $t('auth.cet4') }}</option>
                   <option value="CET6">{{ $t('auth.cet6') }}</option>
                 </select>
-                <p v-if="validationErrors.cetLevel" class="mt-1.5 px-1 font-label-sm text-label-sm text-error flex items-center gap-1">
-                  <span class="material-symbols-outlined text-sm">error</span>
-                  {{ validationErrors.cetLevel }}
-                </p>
+                <FormHint v-if="validationErrors.cetLevel" :message="validationErrors.cetLevel" />
               </div>
+
+              <FormHint v-if="formError" :message="formError" />
 
               <div class="pt-2">
                 <button
@@ -228,7 +220,9 @@ import { useI18n } from 'vue-i18n'
 import { useUserStore } from '@/stores/user'
 import { useToast } from '@/composables/useToast'
 import { useCountdown } from '@/composables/useCountdown'
-import { inputClassLg } from '@/components/ui/formStyles'
+import { inputClassLg, inputErrorClass } from '@/components/ui/formStyles'
+import FormHint from '@/components/ui/FormHint.vue'
+import AppLogo from '@/components/ui/AppLogo.vue'
 import { btnIcon, btnPrimaryBlock } from '@/components/ui/buttonStyles'
 
 const route = useRoute()
@@ -260,6 +254,8 @@ const validationErrors = ref({
 const showPassword = ref(false)
 const showConfirmPassword = ref(false)
 const codeSent = ref(false)
+/** 服务端返回的整体性错误（字段校验之外），内联展示，不用会消失的 toast */
+const formError = ref('')
 const { remaining, reset } = useCountdown(60, undefined, false)
 
 const isLoading = computed(() => userStore.isLoading)
@@ -287,9 +283,10 @@ const resolveAccountType = (value: string): 'phone' | 'email' | null => {
 /** 发送验证码（本地模拟，固定 123456） */
 const sendCode = () => {
   if (!resolveAccountType(form.value.account)) {
-    toast(t('auth.accountEmpty'), 'warning')
+    validationErrors.value.account = t('auth.accountEmpty')
     return
   }
+  validationErrors.value.account = ''
   codeSent.value = true
   toast(t('auth.codeSentMock', { code: '123456' }), 'success')
   reset()
@@ -301,7 +298,7 @@ const validate = (): boolean => {
 
   // 昵称可选，但填了则限制长度
   if (form.value.nickname.trim() && form.value.nickname.trim().length > 20) {
-    err.nickname = '昵称长度不能超过20个字符'
+    err.nickname = t('auth.nicknameTooLong')
     valid = false
   }
   // 账号：手机号或邮箱必填且格式正确
@@ -325,7 +322,7 @@ const validate = (): boolean => {
     valid = false
   }
   if (!form.value.cetLevel) {
-    err.cetLevel = '请选择考试级别'
+    err.cetLevel = t('auth.cetLevelRequired')
     valid = false
   }
 
@@ -334,6 +331,7 @@ const validate = (): boolean => {
 }
 
 const handleRegister = async () => {
+  formError.value = ''
   if (!validate()) return
 
   // 解析账号类型，分别填入 phone / email
@@ -359,7 +357,7 @@ const handleRegister = async () => {
     toast(t('auth.registerSuccess'), 'success')
     router.push('/assess')
   } catch (error: any) {
-    toast(error.message || t('auth.register'), 'error')
+    formError.value = error?.message || t('auth.registerFailed')
   }
 }
 </script>

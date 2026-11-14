@@ -204,6 +204,25 @@ scripts/with-env.sh scripts/mvn.sh -pl user-service spring-boot:run
 - 当前无单元测试，`src/test` 目录为空
 - 本地开发默认无需启动 RabbitMQ
 
+### 记住我（Refresh Token）本地联调
+
+`user-service` 的"记住我"功能用 Refresh Token + HttpOnly Cookie 实现（不引 Spring Security/Redis）。本地 HTTP 联调前**必须先关掉 Cookie 的 Secure 标志**，否则 Firefox/Safari 拒收 Cookie、刷新接口永远读不到凭证。
+
+**设置方式（三选一，推荐 1）：**
+
+1. 用 `application-dev.yml`（已内置 `cookie-secure: false`）：
+   ```bash
+   scripts/with-env.sh scripts/mvn.sh -pl user-service spring-boot:run -Dspring-boot.run.profiles=dev
+   ```
+2. 环境变量：
+   ```bash
+   export AUTH_REFRESH_COOKIE_SECURE=false
+   scripts/with-env.sh scripts/mvn.sh -pl user-service spring-boot:run
+   ```
+3. 直接在 `application.yml` 把 `auth.refresh.cookie-secure` 改为 `false`（**测完记得改回 true**，不推荐）。
+
+**联调自检**：登录接口响应头 `Set-Cookie` 应含 `refresh_token=...; HttpOnly; SameSite=Lax; Path=/api/auth` 且**不带 `Secure`**；`curl` 直连网关路径不带 `/api` 前缀（`/user/login`、`/auth/refresh`、`/auth/logout`，`/api` 是 Vite 代理加的）。
+
 ### 前端（`frontend/` 目录执行）
 
 ```

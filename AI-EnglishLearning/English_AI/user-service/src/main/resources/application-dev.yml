@@ -1,0 +1,15 @@
+# 本地开发 profile（application-dev.yml）
+#
+# 生效方式（二选一）：
+#   1. 启动参数：scripts/with-env.sh scripts/mvn.sh -pl user-service spring-boot:run -Dspring-boot.run.profiles=dev
+#   2. 环境变量：export SPRING_PROFILES_ACTIVE=dev
+#
+# 本文件只放"本地调试需要覆盖生产默认值"的项，其余沿用 application.yml。
+
+auth:
+  refresh:
+    # 本地 HTTP（http://localhost）调试必须为 false。
+    # Chrome 89+ 对 localhost 会宽容放行 Secure Cookie，但 Firefox / Safari 会直接拒收，
+    # 导致"记住我"勾选后 Cookie 不下发、刷新接口永远读不到凭证。
+    # 生产环境请保持 application.yml 里的 true（HTTPS），不要用本 profile 启动。
+    cookie-secure: false

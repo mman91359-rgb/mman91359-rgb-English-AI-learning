@@ -20,7 +20,9 @@ import TopAppBar from './TopAppBar.vue'
 import BottomNavBar from './BottomNavBar.vue'
 
 withDefaults(defineProps<{
-  /** 去掉默认的 space-y-8，由页面自己控制内容间距 */
+  /** 去掉默认的 space-y-8，由页面自己控制内容间距。
+   *  ⚠️ 与 `PageHeader` 的 `flush` **同名不同义**：这里去掉的是外层容器的 `space-y-8`，
+   *  那边只去掉组件自身的 `mb-8`，两者互不影响。 */
   flush?: boolean
   /** 隐藏顶栏金币徽章（静态稿顶栏没有金币） */
   hideCoinBadge?: boolean

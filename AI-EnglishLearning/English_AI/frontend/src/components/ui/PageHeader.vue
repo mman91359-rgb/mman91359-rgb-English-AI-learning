@@ -58,6 +58,9 @@ const props = withDefaults(defineProps<{
    * 去掉自带的下外边距（mb-8）。
    * 页面容器若已是 `space-y-6` 之类的纵向节奏，mb-8 会与之叠加成 56px —— 此时传 flush，
    * 让外边距交还给容器统一管理。不要再在调用方写 `class="!mb-0"` 覆盖。
+   *
+   * ⚠️ 与 `AppLayout` 的 `flush` **同名不同义**：那边去掉的是外层容器的 `space-y-8`，
+   * 这边只去掉本组件自己的 `mb-8`，两者互不影响，不要互相替代。
    */
   flush?: boolean
 }>(), {

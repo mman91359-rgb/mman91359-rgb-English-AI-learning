@@ -7,7 +7,7 @@
         <AppIcon name="search" size="lg" class="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-outline" />
         <input
           v-model="searchKeyword"
-          :class="[inputClassLg, 'pl-12']"
+          :class="[inputClassOnCard, 'pl-12']"
           :placeholder="$t('learning.searchFavorites')"
         />
       </div>
@@ -107,7 +107,7 @@ import { moduleName, moduleTypeFromSource } from '@/config/modules'
 import { formatDate } from '@/utils/format'
 import { getFavorites, removeFavorite, type FavoriteVO } from '@/api/exercise'
 import { btnIconDanger, btnPrimarySm } from '@/components/ui/buttonStyles'
-import { inputClassLg } from '@/components/ui/formStyles'
+import { inputClassOnCard } from '@/components/ui/formStyles'
 
 const { t, locale } = useI18n()
 const router = useRouter()

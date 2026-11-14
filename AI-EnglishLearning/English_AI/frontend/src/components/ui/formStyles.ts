@@ -15,6 +15,19 @@ export const inputClass = `${base} rounded-xl bg-surface-container-lowest px-4 p
 export const inputClassLg = `${base} rounded-2xl bg-surface-container-lowest px-4 py-3.5 font-body-md text-body-md`
 
 /**
+ * 卡片内输入框：用于**容器本身已是 `bg-surface-container-lowest`** 的卡片里。
+ *
+ * `inputClassLg` 的底色就是 `surface-container-lowest`，放进同色卡片后只剩一圈描边，
+ * 输入区与卡片融为一体（Favorites 搜索框、Vocabulary 智能添加都踩过这条）。
+ * 本档改用 `bg-surface`，与卡片拉开一档；暗色下同理（容器越浅本档越深）。
+ *
+ * 选档规则：**输入框底色必须与所在容器差一档**。
+ * 容器是 `container-lowest` → 用本档；容器是 `surface` → 用 `inputClassLg`。
+ * 不要把两者叠用，也不要自行在调用处覆盖 `bg-*`。
+ */
+export const inputClassOnCard = `${base} rounded-2xl bg-surface px-4 py-3.5 font-body-md text-body-md`
+
+/**
  * 校验失败态：叠加在 inputClass / inputClassLg 之后使用。
  * 必须带 !（important）：Tailwind 按颜色名排序生成 .border-error 与 .border-outline-variant，
  * 前者排在前面，不加 important 会被底座边框色覆盖，导致校验失败时边框不变红。

@@ -32,7 +32,7 @@
       <div class="flex flex-col sm:flex-row gap-3">
         <input
           v-model="newWord"
-          :class="[inputClassLg, 'flex-1']"
+          :class="[inputClassOnCard, 'flex-1']"
           placeholder="输入单词，AI 自动补全音标、释义、例句"
           required
         />
@@ -281,7 +281,7 @@ import {
   type VocabularyVO,
 } from '@/api/exercise'
 import { btnIcon, btnIconDanger, btnPrimary } from '@/components/ui/buttonStyles'
-import { inputClassLg } from '@/components/ui/formStyles'
+import { inputClassOnCard } from '@/components/ui/formStyles'
 
 const userStore = useUserStore()
 const words = ref<VocabularyVO[]>([])

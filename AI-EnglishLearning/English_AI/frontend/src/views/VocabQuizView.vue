@@ -444,6 +444,7 @@
   <WordReviewDialog
     :visible="showReviewDialog"
     :words="reviewWords"
+    :complete-label="vocabMode === 'review' ? $t('common.finish') : $t('wordReview.startNew')"
     @update:visible="showReviewDialog = $event"
     @complete="handleReviewComplete"
   />
@@ -455,7 +456,7 @@
  * 数据流：先复习到期词 → 新词循环（连续答对 3 次）→ 加入单词本
  */
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import SideNavBar from '@/components/SideNavBar.vue'
 import AiSidebar from '@/components/AiSidebar.vue'
@@ -481,6 +482,7 @@ import LoadingState from '@/components/ui/LoadingState.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 
 const router = useRouter()
+const route = useRoute()
 const { t } = useI18n()
 const userStore = useUserStore()
 const sentenceFavorite = useSentenceFavorite()
@@ -806,6 +808,11 @@ const handleVocabularyGoalSave = async (payload: { newWords: number; reviewWords
 }
 
 // ========== 复习 + 新词会话 ==========
+// 本次练习模式：从路由 query.mode 读取，'review'（复习）或 'new'（新学）；默认 'new'
+const vocabMode = computed<'review' | 'new'>(() => {
+  return route.query.mode === 'review' ? 'review' : 'new'
+})
+
 const handleReviewComplete = async (payload: { reviewed: number; correct: number; skipped?: boolean }) => {
   showReviewDialog.value = false
   reviewCompleted.value = true
@@ -815,19 +822,33 @@ const handleReviewComplete = async (payload: { reviewed: number; correct: number
       correct: payload.correct,
     }), 'success')
   }
+  // 复习模式：复习完即结束，返回学习中心；新学模式：复习完进入新词
+  if (vocabMode.value === 'review') {
+    loading.value = false
+    goBack()
+    return
+  }
   await loadNewWordSession()
 }
 
 const startSession = async () => {
+  // 复习模式不恢复新词会话（sessionStorage 里可能残留新学模式的进度）
+  if (vocabMode.value === 'review') {
+    await startReviewOnly()
+    return
+  }
   const saved = restoreSession()
   if (saved) {
     restoreSessionState(saved)
     return
   }
-  await startReviewThenNewWords()
+  await startNewWordsOnly()
 }
 
-const startReviewThenNewWords = async () => {
+/**
+ * 纯复习进程：只加载待复习单词并进入复习弹窗，不做新词。
+ */
+const startReviewOnly = async () => {
   const userId = userStore.userId
   if (!userId) {
     router.push('/login')
@@ -837,24 +858,32 @@ const startReviewThenNewWords = async () => {
   reviewWords.value = []
   showResults.value = false
   try {
-    const reviewGoal = userStore.dailyReviewWords ?? 5
-    if (reviewGoal > 0) {
-      const due = await getReviewList(userId)
-      const limited = (due || []).slice(0, reviewGoal)
-      if (limited.length > 0) {
-        reviewWords.value = limited
-        showReviewDialog.value = true
-        loading.value = false
-        return
-      }
+    const due = await getReviewList(userId)
+    reviewWords.value = due || []
+    loading.value = false
+    if (reviewWords.value.length === 0) {
+      toast(t('wordReview.empty'), 'info')
+      return
     }
-    reviewCompleted.value = true
-    await loadNewWordSession()
+    showReviewDialog.value = true
   } catch (e) {
     console.warn('加载复习单词失败', e)
     loading.value = false
     toast(t('wordReview.loadFailed'), 'error')
   }
+}
+
+/**
+ * 纯新学进程：跳过复习，直接加载新词。
+ */
+const startNewWordsOnly = async () => {
+  const userId = userStore.userId
+  if (!userId) {
+    router.push('/login')
+    return
+  }
+  reviewCompleted.value = true
+  await loadNewWordSession()
 }
 
 const loadNewWordSession = async () => {
@@ -1047,7 +1076,11 @@ const restartQuiz = async () => {
   clearSession()
   reviewCompleted.value = false
   showResults.value = false
-  await startReviewThenNewWords()
+  if (vocabMode.value === 'review') {
+    await startReviewOnly()
+  } else {
+    await startNewWordsOnly()
+  }
 }
 
 // ========== 收藏功能 ==========

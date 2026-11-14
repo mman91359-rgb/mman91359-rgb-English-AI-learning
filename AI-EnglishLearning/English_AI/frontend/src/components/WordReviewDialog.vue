@@ -46,7 +46,7 @@
               type="button"
               class="mt-7 w-full max-w-xs rounded-full bg-primary px-7 py-3 font-label-lg text-label-lg text-on-primary transition-all hover:bg-primary/90 active:scale-[0.98]"
               @click="complete"
-            >{{ $t('wordReview.startNew') }}</button>
+            >{{ completeLabel || $t('wordReview.startNew') }}</button>
           </div>
 
           <!-- 复习卡片 -->
@@ -179,6 +179,8 @@ import { btnIcon } from '@/components/ui/buttonStyles'
 interface Props {
   visible: boolean
   words: VocabularyVO[]
+  /** 完成按钮文案；不传则默认「开始新词学习」 */
+  completeLabel?: string
 }
 
 const props = defineProps<Props>()

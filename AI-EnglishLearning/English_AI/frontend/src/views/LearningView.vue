@@ -143,13 +143,42 @@
               </span>
               <AppIcon name="tune" size="lg" class="opacity-70" />
             </div>
+
+            <!-- 复习 / 新学 二选一滑动条 -->
+            <div class="mt-5">
+              <p class="mb-2 font-label-sm text-label-sm text-on-primary/80">{{ $t('learning.chooseMode') }}</p>
+              <div class="relative flex rounded-full bg-on-primary/15 p-1" role="tablist" :aria-label="$t('learning.chooseMode')">
+                <span
+                  class="absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-full bg-surface-container-lowest shadow-sm transition-transform duration-200 ease-out"
+                  :style="{ transform: vocabMode === 'new' ? 'translateX(0)' : 'translateX(100%)' }"
+                  aria-hidden="true"
+                />
+                <button
+                  type="button"
+                  role="tab"
+                  :aria-selected="vocabMode === 'new'"
+                  class="relative z-10 flex-1 rounded-full py-2 font-label-md text-label-md transition-colors"
+                  :class="vocabMode === 'new' ? 'text-primary' : 'text-on-primary/80'"
+                  @click="vocabMode = 'new'"
+                >{{ $t('learning.newWordMode') }}</button>
+                <button
+                  type="button"
+                  role="tab"
+                  :aria-selected="vocabMode === 'review'"
+                  class="relative z-10 flex-1 rounded-full py-2 font-label-md text-label-md transition-colors"
+                  :class="vocabMode === 'review' ? 'text-primary' : 'text-on-primary/80'"
+                  @click="vocabMode = 'review'"
+                >{{ $t('learning.reviewMode') }}</button>
+              </div>
+            </div>
+
             <p class="mt-4 font-body-sm text-body-sm text-on-primary/70">
               {{ $t('learning.tapToSetGoal') }}
             </p>
             <button
               type="button"
               class="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-surface-container-lowest px-8 py-4 font-label-lg text-label-lg text-primary transition-colors hover:bg-surface-container-lowest/90 sm:w-auto sm:inline-flex"
-              @click="openVocabularyGoalDialog"
+              @click="startVocabPractice"
             >
               <AppIcon name="play_arrow" size="lg" />{{ $t('learning.vocabStart') }}
             </button>
@@ -340,7 +369,14 @@ const goalError = ref('')
 const dailyNewWordsDisplay = computed(() => userStore.dailyNewWords ?? 10)
 const dailyReviewWordsDisplay = computed(() => userStore.dailyReviewWords ?? 5)
 
-const openVocabularyGoalDialog = async () => {
+// 本次练习模式：new（新学） / review（复习），二选一
+const vocabMode = ref<'new' | 'review'>('new')
+
+/**
+ * 点「开始练习」：先判断是否首次（未设置过词汇目标）。
+ * 首次 → 弹词汇量设置弹窗；非首次 → 直接带 mode 进入练习页。
+ */
+const startVocabPractice = async () => {
   if (!userStore.userId) {
     toast(t('learning.pleaseLogin'), 'warning')
     return
@@ -348,8 +384,14 @@ const openVocabularyGoalDialog = async () => {
   if (!userStore.preferenceLoaded) {
     await userStore.loadPreference()
   }
-  goalError.value = ''
-  showVocabularyGoalDialog.value = true
+  if (userStore.vocabularyGoalsConfigured) {
+    // 已设置过目标，直接进入练习页，不再弹窗
+    router.push({ path: '/vocab-quiz', query: { mode: vocabMode.value } })
+  } else {
+    // 首次训练，弹词汇量设置弹窗
+    goalError.value = ''
+    showVocabularyGoalDialog.value = true
+  }
 }
 
 const closeVocabularyGoalDialog = () => {
@@ -363,7 +405,7 @@ const handleVocabularyGoalSave = async (payload: { newWords: number; reviewWords
   try {
     await userStore.setVocabularyGoals(payload.newWords, payload.reviewWords)
     showVocabularyGoalDialog.value = false
-    await router.push('/vocab-quiz')
+    await router.push({ path: '/vocab-quiz', query: { mode: vocabMode.value } })
   } catch (e) {
     goalError.value = e instanceof Error ? e.message : t('vocabGoal.saveFailed')
     toast(goalError.value, 'error')
@@ -440,9 +482,9 @@ const startPractice = () => {
     toastComingSoon()
     return
   }
-  // 词汇先打开每日目标弹窗，语法/其他模块走原有入口
+  // 词汇先判断是否首次，语法/其他模块走原有入口
   if (currentModuleType.value === 1) {
-    void openVocabularyGoalDialog()
+    void startVocabPractice()
   } else if (currentModuleType.value === 2) {
     router.push('/grammar-quiz')
   } else if (currentModuleType.value === 3) {

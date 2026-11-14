@@ -321,6 +321,9 @@ export default {
     newWordsGoal: '新背 {count} 个',
     reviewWordsGoal: '复习 {count} 个',
     tapToSetGoal: '点击设置今日新背与复习目标',
+    reviewMode: '复习',
+    newWordMode: '新学',
+    chooseMode: '选择本次练习模式',
     masteredLabel: '已掌握',
     attemptsLabel: '尝试次数',
     masteredWordsReview: '本轮掌握单词',
@@ -570,6 +573,7 @@ export default {
     skip: '跳过复习',
     saveFailed: '复习结果保存失败',
     loadFailed: '加载复习单词失败',
+    empty: '今天没有需要复习的单词',
   },
   listening: {
     title: '听力练习',
@@ -803,6 +807,7 @@ export default {
     networkError: '网络异常，请检查连接',
     comingSoon: '功能开发中，敬请期待',
     close: '关闭',
+    finish: '完成',
   },
   word: {
     speak: '发音',

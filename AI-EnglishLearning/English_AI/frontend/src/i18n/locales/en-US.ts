@@ -321,6 +321,9 @@ export default {
     newWordsGoal: '{count} new words',
     reviewWordsGoal: '{count} review words',
     tapToSetGoal: 'Tap to set today’s new and review goals',
+    reviewMode: 'Review',
+    newWordMode: 'New words',
+    chooseMode: 'Choose practice mode',
     masteredLabel: 'Mastered',
     attemptsLabel: 'Attempts',
     masteredWordsReview: 'Words mastered this session',
@@ -570,6 +573,7 @@ export default {
     skip: 'Skip review',
     saveFailed: 'Failed to save review result',
     loadFailed: 'Failed to load review words',
+    empty: 'No words to review today',
   },
   listening: {
     title: 'Listening Practice',
@@ -803,6 +807,7 @@ export default {
     networkError: 'Network error, please check your connection',
     comingSoon: 'Coming soon',
     close: 'Close',
+    finish: 'Finish',
   },
   word: {
     speak: 'Pronounce',

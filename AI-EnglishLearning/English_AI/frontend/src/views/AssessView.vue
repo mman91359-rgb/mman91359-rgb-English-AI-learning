@@ -1,26 +1,20 @@
 <template>
   <AppLayout>
     <div class="max-w-3xl mx-auto space-y-6">
-      <div class="flex items-start justify-between gap-4">
-        <div>
-          <h1 class="font-headline-lg text-headline-lg text-on-surface">{{ $t('assess.title') }}</h1>
-          <p class="mt-2 font-body-md text-body-md text-on-surface-variant">
-            {{ $t('assess.welcomeContent') }}
-          </p>
-        </div>
-        <button
-          class="px-5 py-2.5 rounded-xl border border-outline-variant text-on-surface-variant hover:bg-surface-container-low transition-colors"
-          @click="router.push('/dashboard')"
-        >
-          稍后再测
-        </button>
-      </div>
+      <!-- flush：去掉 PageHeader 自带 mb-8，纵向节奏交给本页 space-y-6 统一管理 -->
+      <PageHeader :title="$t('assess.title')" :subtitle="$t('notification.welcomeContent')" flush>
+        <template #actions>
+          <button :class="btnSecondary" @click="router.push('/dashboard')">
+            稍后再测
+          </button>
+        </template>
+      </PageHeader>
 
       <LoadingState v-if="loading" :message="$t('common.loading')" />
 
-      <div v-else-if="finished" class="bg-surface rounded-2xl p-8 shadow-soft-glow text-center">
+      <AppCard v-else-if="finished" tone="surface" padding="regular" class="text-center">
         <div class="w-20 h-20 mx-auto rounded-full bg-primary-container/20 flex items-center justify-center mb-4">
-          <span class="material-symbols-outlined text-icon-2xl text-primary">workspace_premium</span>
+          <AppIcon name="workspace_premium" size="2xl" tone="primary" />
         </div>
         <h2 class="font-headline-lg text-headline-lg text-on-surface">{{ $t('assess.completed') }}</h2>
         <p class="mt-3 font-body-md text-body-md text-on-surface-variant">
@@ -37,23 +31,21 @@
           </div>
         </div>
         <button
-          class="mt-8 w-full bg-primary text-on-primary py-4 rounded-xl font-label-lg text-label-lg hover:bg-primary/90 transition-colors"
+          :class="['mt-8', btnPrimaryBlock]"
           @click="router.push('/dashboard')"
         >
           进入首页
         </button>
-      </div>
+      </AppCard>
 
       <div v-else-if="currentQuestion" class="space-y-5">
-        <div class="w-full h-2 bg-surface-variant rounded-full overflow-hidden">
-          <div class="h-full bg-primary transition-all" :style="{ width: progressPercent + '%' }"></div>
-        </div>
+        <ProgressBar :value="progressPercent" />
 
-        <div class="bg-surface rounded-2xl p-6 md:p-8 shadow-soft-glow">
+        <AppCard tone="surface" padding="regular">
           <div class="flex items-center justify-between mb-5">
-            <span class="px-3 py-1 rounded-full bg-primary-container/20 text-primary font-label-md text-label-md">
+            <Tag tone="primary" size="md">
               {{ moduleName(currentQuestion.moduleType) }} Lv.{{ currentQuestion.difficultyLevel }}
-            </span>
+            </Tag>
             <span class="font-label-md text-label-md text-on-surface-variant">
               {{ currentIndex + 1 }} / {{ questions.length }}
             </span>
@@ -80,19 +72,19 @@
           <input
             v-else
             v-model="selectedAnswer"
-            class="w-full py-4 px-5 rounded-xl border border-outline-variant bg-surface-container-low text-on-surface outline-none focus:border-primary"
+            :class="inputClassLg"
             :placeholder="$t('learning.inputAnswer')"
             @keyup.enter="submitCurrent"
           />
 
           <button
-            class="mt-6 w-full bg-primary text-on-primary py-4 rounded-xl font-label-lg text-label-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            :class="['mt-6', btnPrimaryBlock]"
             :disabled="submitting || !selectedAnswer.trim()"
             @click="submitCurrent"
           >
             {{ submitting ? '提交中...' : currentIndex === questions.length - 1 ? '完成测评' : '下一题' }}
           </button>
-        </div>
+        </AppCard>
       </div>
 
       <EmptyState
@@ -111,8 +103,15 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppLayout from '@/components/AppLayout.vue'
+import AppCard from '@/components/ui/AppCard.vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
+import PageHeader from '@/components/ui/PageHeader.vue'
+import ProgressBar from '@/components/ui/ProgressBar.vue'
+import Tag from '@/components/ui/Tag.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
+import { btnPrimaryBlock, btnSecondary } from '@/components/ui/buttonStyles'
+import { inputClassLg } from '@/components/ui/formStyles'
 import { getAssessQuestions, getQuestionById, type QuestionVO } from '@/api/exercise'
 import { submitAssessAnswer } from '@/api/user'
 import { useUserStore } from '@/stores/user'

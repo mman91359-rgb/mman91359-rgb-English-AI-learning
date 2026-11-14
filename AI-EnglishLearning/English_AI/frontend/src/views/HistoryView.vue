@@ -12,6 +12,7 @@
           :model-value="moduleFilter"
           :options="moduleFilters"
           size="sm"
+          :aria-label="$t('learning.moduleType')"
           @update:model-value="moduleFilter = $event as number; applyFilter()"
         />
       </div>
@@ -22,6 +23,7 @@
           :model-value="correctFilter"
           :options="correctFilters"
           size="sm"
+          :aria-label="$t('learning.result')"
           @update:model-value="correctFilter = $event as number; applyFilter()"
         />
       </div>
@@ -32,6 +34,7 @@
           :model-value="timeRangeFilter"
           :options="timeRangeFilters"
           size="sm"
+          :aria-label="$t('learning.time')"
           @update:model-value="timeRangeFilter = $event as string; applyFilter()"
         />
       </div>
@@ -62,7 +65,7 @@
       <div
         v-for="item in history"
         :key="item.logId"
-        class="bg-surface-container-lowest rounded-2xl shadow-soft-glow overflow-hidden"
+        class="bg-surface-container-lowest rounded-2xl shadow-soft-glow overflow-hidden hover:bg-surface-container/40 transition-colors"
       >
         <!-- 紧凑行（可点击展开） -->
         <div

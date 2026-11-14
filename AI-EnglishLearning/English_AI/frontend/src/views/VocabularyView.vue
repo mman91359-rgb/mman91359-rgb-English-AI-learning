@@ -55,6 +55,7 @@
         :options="tabs.map(tab => ({ value: tab.key, label: tab.label, count: tab.count }))"
         size="md"
         :wrap="false"
+        :aria-label="$t('learning.myVocabulary')"
         @update:model-value="activeTab = $event as 'all' | 'review' | 'mastered'"
       />
     </div>
@@ -185,7 +186,9 @@
 
         <div v-if="reviewQueue.length > 0 && currentReview">
           <!-- 卡片正面：单词 + 音标，点击/按钮翻面看释义 -->
-          <div class="bg-background rounded-2xl p-8 min-h-48 flex flex-col items-center justify-center text-center">
+          <!-- 契约例外：min-h-[200px] 在 spacing scale 里无等值档（48=192 / 52=208），
+               保留原值而不是硬凑 192，避免复习卡片高度位移。 -->
+          <div class="bg-background rounded-2xl p-8 min-h-[200px] flex flex-col items-center justify-center text-center">
             <p class="font-headline-lg text-headline-lg text-on-surface">{{ currentReview.word }}</p>
             <p v-if="currentReview.phonetic" class="font-body-md text-body-md text-on-surface-variant mt-2">
               {{ currentReview.phonetic }}

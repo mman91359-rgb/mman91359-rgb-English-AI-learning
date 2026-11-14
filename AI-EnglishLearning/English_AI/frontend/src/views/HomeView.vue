@@ -7,11 +7,11 @@
       </div>
       <div class="flex flex-wrap items-center gap-3">
         <button
-          class="group px-5 py-3 rounded-[16px] font-label-lg text-label-lg flex items-center gap-2 border border-tertiary/20 bg-tertiary-container/20 text-tertiary transition-all duration-300 hover:-translate-y-0.5 hover:bg-tertiary-container/35 hover:shadow-sm active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+          class="group px-5 py-3 rounded-full font-label-lg text-label-lg flex items-center gap-2 border border-tertiary/20 bg-tertiary-container/20 text-tertiary transition-all duration-300 hover:-translate-y-0.5 hover:bg-tertiary-container/35 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
           :disabled="userStore.todayCheckedIn || checkingIn"
           @click="handleCheckIn"
         >
-          <span class="material-symbols-outlined transition-transform duration-300 group-hover:scale-110">event_available</span>
+          <AppIcon name="event_available" size="lg" class="transition-transform duration-300 group-hover:scale-110" />
           <Transition name="fade-slide" mode="out-in">
             <span :key="userStore.todayCheckedIn ? 'checked' : 'unchecked'">
               {{ userStore.todayCheckedIn
@@ -23,14 +23,14 @@
           </Transition>
           <span
             v-if="!userStore.todayCheckedIn && userStore.checkInStreak > 0"
-            class="text-xs px-2 py-0.5 rounded-full bg-tertiary/10"
+            class="font-label-md text-label-md px-2 py-0.5 rounded-full bg-tertiary/10"
           >{{ $t('checkIn.streak', { days: userStore.checkInStreak }) }}</span>
         </button>
         <button
-          class="bg-primary text-on-primary px-8 py-4 rounded-[16px] font-label-lg text-label-lg flex items-center gap-2 hover:bg-primary/90 transition-all duration-200 active:scale-95 shadow-sm"
+          :class="btnPrimary"
           @click="startDailyLesson"
         >
-          <span class="material-symbols-outlined">play_arrow</span>
+          <AppIcon name="play_arrow" size="lg" />
           {{ $t('dashboard.startDailyLesson') }}
         </button>
       </div>
@@ -38,7 +38,7 @@
     <CoinBurst :visible="rewardBurstVisible" :amount="rewardAmount" />
     <div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
       <!-- 每日词汇目标：新背 + 复习 -->
-      <div class="col-span-1 md:col-span-8 bg-surface rounded-[24px] p-8 shadow-soft-glow relative overflow-hidden">
+      <AppCard tone="surface" padding="regular" class="col-span-1 md:col-span-8 relative overflow-hidden">
         <div class="absolute -right-20 -top-20 w-64 h-64 bg-primary-container/10 rounded-full blur-3xl"></div>
         <div class="flex flex-col md:flex-row gap-8 items-center relative z-10">
           <div class="relative w-40 h-40 flex-shrink-0">
@@ -58,17 +58,17 @@
           </div>
           <div class="flex-1 text-center md:text-left">
             <div class="flex items-center gap-2 justify-center md:justify-start mb-2">
-              <span class="material-symbols-outlined text-primary text-xl">flag</span>
+              <AppIcon name="flag" size="lg" tone="primary" />
               <span class="font-label-lg text-label-lg text-primary uppercase tracking-wider">{{ $t('dashboard.dailyVocabularyGoal') }}</span>
             </div>
             <div class="flex items-center gap-2 justify-center md:justify-start mb-2">
               <h3 class="font-headline-lg text-headline-lg text-on-surface">{{ $t('dashboard.newWordsGoalTitle') }}</h3>
               <button
-                class="p-1 rounded-full hover:bg-surface-variant/50 transition-colors"
+                :class="btnIconSm"
                 :title="$t('dashboard.setGoal')"
                 @click.stop="openVocabularyGoalDialog"
               >
-                <span class="material-symbols-outlined text-outline text-lg">edit</span>
+                <AppIcon name="edit" size="md" class="text-outline" />
               </button>
             </div>
             <p class="font-body-md text-body-md text-on-surface-variant mb-5">
@@ -81,11 +81,13 @@
             <div class="rounded-2xl bg-surface-container-low p-4">
               <div class="flex items-center justify-between font-label-md text-label-md text-on-surface-variant mb-2">
                 <span class="flex items-center gap-1.5">
-                  <span class="material-symbols-outlined text-tertiary text-base">history_edu</span>
+                  <AppIcon name="history_edu" size="lg" tone="tertiary" />
                   {{ $t('dashboard.reviewWordsGoalTitle') }}
                 </span>
                 <span>{{ todayReviewedWords }} / {{ dailyReviewWordsTarget }}</span>
               </div>
+              <!-- 契约例外：渐变进度条保留手写。ProgressBar 只有单色档，
+                   tertiary→primary 的渐变是本页唯一的「进行中」语义，改单色会丢信息。 -->
               <div class="h-2 w-full overflow-hidden rounded-full bg-surface-container-high">
                 <div
                   class="h-full rounded-full bg-gradient-to-r from-tertiary to-primary transition-all duration-500 ease-out"
@@ -95,22 +97,23 @@
             </div>
 
             <div class="mt-3 flex flex-wrap gap-2 justify-center md:justify-start">
-              <span class="bg-primary-container/15 text-primary px-3 py-1 rounded-[12px] font-label-md text-label-md">
+              <span class="bg-primary-container/15 text-primary px-3 py-1 rounded-xl font-label-md text-label-md">
                 {{ $t('dashboard.learnedWords', { count: todayLearnedWords }) }}
               </span>
-              <span class="bg-surface-variant/50 text-on-surface-variant px-3 py-1 rounded-[12px] font-label-md text-label-md">
+              <span class="bg-surface-variant/50 text-on-surface-variant px-3 py-1 rounded-xl font-label-md text-label-md">
                 {{ $t('dashboard.reviewedWords', { count: todayReviewedWords }) }}
               </span>
             </div>
           </div>
         </div>
-      </div>
+      </AppCard>
       <!-- 连续签到天数 -->
-      <div class="col-span-1 md:col-span-4 bg-surface rounded-[24px] p-8 shadow-soft-glow flex flex-col">
-        <div class="flex items-center justify-between mb-6">
-          <h3 class="font-headline-md text-headline-md text-on-surface">{{ $t('dashboard.streakDays') }}</h3>
-          <span class="material-symbols-outlined text-primary text-2xl fill">event_available</span>
-        </div>
+      <AppCard tone="surface" padding="regular" class="col-span-1 md:col-span-4 flex flex-col">
+        <SectionHeader :title="$t('dashboard.streakDays')" :level="3">
+          <template #actions>
+            <AppIcon name="event_available" size="lg" filled tone="primary" />
+          </template>
+        </SectionHeader>
         <div class="flex items-end gap-2 mb-4">
           <span class="font-display-lg text-display-lg text-on-surface leading-none">{{ checkInStreak }}</span>
           <span class="font-body-lg text-body-lg text-on-surface-variant pb-1">{{ $t('stats.days') }}</span>
@@ -119,14 +122,15 @@
           <span class="font-body-md text-body-md text-on-surface-variant">
             {{ userStore.todayCheckedIn ? $t('checkIn.checkedInTip') : $t('checkIn.notCheckedIn') }}
           </span>
-          <span
-            class="material-symbols-outlined"
+          <AppIcon
+            :name="userStore.todayCheckedIn ? 'check_circle' : 'radio_button_unchecked'"
+            size="lg"
             :class="userStore.todayCheckedIn ? 'text-tertiary' : 'text-outline'"
-          >{{ userStore.todayCheckedIn ? 'check_circle' : 'radio_button_unchecked' }}</span>
+          />
         </div>
-      </div>
+      </AppCard>
       <!-- 学习量统计 -->
-      <div class="col-span-1 md:col-span-8 bg-surface rounded-[24px] p-8 shadow-soft-glow">
+      <AppCard tone="surface" padding="regular" class="col-span-1 md:col-span-8">
         <div class="flex items-center justify-between mb-8">
           <div>
             <h3 class="font-headline-md text-headline-md text-on-surface mb-1">{{ $t('dashboard.studyVolume') }}</h3>
@@ -136,11 +140,11 @@
           </div>
           <div class="bg-surface-container-low rounded-full p-1 flex">
             <button
-              :class="['px-4 py-1.5 rounded-full font-label-md text-label-md transition-all', studyPeriod === 'week' ? 'bg-surface-container-lowest dark:bg-surface-container-high shadow-sm text-on-surface' : 'text-on-surface-variant hover:text-on-surface']"
+              :class="['px-4 py-1.5 rounded-full font-label-md text-label-md transition-all', studyPeriod === 'week' ? 'bg-surface-container-lowest dark:bg-surface-container-high shadow-soft-glow text-on-surface' : 'text-on-surface-variant hover:text-on-surface']"
               @click="studyPeriod = 'week'"
             >{{ $t('dashboard.week') }}</button>
             <button
-              :class="['px-4 py-1.5 rounded-full font-label-md text-label-md transition-all', studyPeriod === 'month' ? 'bg-surface-container-lowest dark:bg-surface-container-high shadow-sm text-on-surface' : 'text-on-surface-variant hover:text-on-surface']"
+              :class="['px-4 py-1.5 rounded-full font-label-md text-label-md transition-all', studyPeriod === 'month' ? 'bg-surface-container-lowest dark:bg-surface-container-high shadow-soft-glow text-on-surface' : 'text-on-surface-variant hover:text-on-surface']"
               @click="studyPeriod = 'month'"
             >{{ $t('dashboard.month') }}</button>
           </div>
@@ -174,27 +178,27 @@
             class="flex-1 text-center font-label-md text-label-md text-outline"
           >{{ label }}</span>
         </div>
-      </div>
+      </AppCard>
       <!-- 继续学习 & 每日单词 -->
       <div class="col-span-1 md:col-span-4 flex flex-col gap-gutter">
         <div
-          class="bg-surface rounded-[24px] p-6 shadow-soft-glow border border-transparent hover:border-primary/20 transition-colors cursor-pointer group"
+          class="bg-surface rounded-3xl p-6 shadow-soft-glow border border-transparent hover:border-primary/20 transition-colors cursor-pointer group"
           @click="continueLearning"
         >
           <div class="w-12 h-12 rounded-full bg-secondary-container/20 text-secondary flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-            <span class="material-symbols-outlined">menu_book</span>
+            <AppIcon name="menu_book" size="lg" />
           </div>
           <h4 class="font-headline-md text-headline-md text-on-surface mb-1">{{ $t('dashboard.continueLearning') }}</h4>
           <p class="font-body-md text-body-md text-on-surface-variant">{{ continueInfo }}</p>
         </div>
         <div
-          class="bg-surface rounded-[24px] p-6 shadow-soft-glow relative overflow-hidden group cursor-pointer hover:shadow-md transition-shadow"
+          class="bg-surface rounded-3xl p-6 shadow-soft-glow relative overflow-hidden group cursor-pointer"
           @click="goToDailyWordDetail"
         >
           <div class="absolute right-0 top-0 w-32 h-32 bg-tertiary-container/10 rounded-bl-full z-0 transition-transform group-hover:scale-125"></div>
           <div class="relative z-10">
             <div class="flex items-center gap-2 mb-4">
-              <span class="material-symbols-outlined text-tertiary">wb_sunny</span>
+              <AppIcon name="wb_sunny" size="lg" tone="tertiary" />
               <span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">{{ $t('dashboard.dailyWord') }}</span>
             </div>
 
@@ -205,24 +209,24 @@
               </div>
 
               <div class="flex items-center gap-2 mb-3">
-                <span class="inline-block bg-tertiary-container/20 text-tertiary px-3 py-0.5 rounded-[8px] font-label-sm text-label-sm">{{ dailyWord.pos }}</span>
+                <span class="inline-block bg-tertiary-container/20 text-tertiary px-3 py-0.5 rounded-lg font-label-sm text-label-sm">{{ dailyWord.pos }}</span>
                 <span class="font-body-md text-body-md text-on-surface">{{ dailyWord.translation }}</span>
               </div>
 
-              <div class="bg-surface-container-low/50 rounded-[12px] p-3 mt-3">
+              <div class="bg-surface-container-low/50 rounded-xl p-3 mt-3">
                 <p class="font-body-sm text-body-sm text-on-surface-variant italic leading-relaxed">"{{ dailyWord.example }}"</p>
                 <p class="font-body-sm text-body-sm text-outline mt-1">{{ dailyWord.exampleTranslation }}</p>
               </div>
 
               <div class="flex items-center justify-between mt-3">
                 <span class="font-label-sm text-label-sm text-outline">{{ dailyWord.level }}</span>
-                <span class="material-symbols-outlined text-outline text-sm group-hover:text-primary transition-colors">arrow_forward</span>
+                <AppIcon name="arrow_forward" size="lg" class="text-outline group-hover:text-primary transition-colors" />
               </div>
             </template>
 
             <template v-else>
               <div class="py-4 flex flex-col items-center justify-center text-outline">
-                <span class="material-symbols-outlined text-2xl mb-2 animate-pulse">hourglass</span>
+                <AppIcon name="hourglass" size="lg" class="mb-2 animate-pulse" />
                 <span class="font-body-md text-body-md">{{ $t('common.loading') }}</span>
               </div>
             </template>
@@ -255,6 +259,10 @@ import { useRoute } from 'vue-router'
 import AppLayout from '../components/AppLayout.vue'
 import CoinBurst from '@/components/CoinBurst.vue'
 import VocabularyGoalDialog from '@/components/VocabularyGoalDialog.vue'
+import AppCard from '@/components/ui/AppCard.vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
+import SectionHeader from '@/components/ui/SectionHeader.vue'
+import { btnIconSm, btnPrimary } from '@/components/ui/buttonStyles'
 import { useToast } from '@/composables/useToast'
 import { useUserStore } from '@/stores/user'
 import { moduleName } from '@/config/modules'

@@ -54,6 +54,11 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String path = exchange.getRequest().getURI().getPath();
 
+        // 跨域预检请求（OPTIONS）直接放行：不带 Authorization，也不能被 JWT 拦截
+        if (exchange.getRequest().getMethod() == org.springframework.http.HttpMethod.OPTIONS) {
+            return chain.filter(exchange);
+        }
+
         // 白名单放行
         if (isWhitelisted(path)) {
             return chain.filter(exchange);

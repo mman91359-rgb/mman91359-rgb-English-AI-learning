@@ -1,12 +1,12 @@
 package com.english.ai.user.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.english.ai.user.config.RefreshAuthProperties;
 import com.english.ai.user.entity.UserRefreshToken;
 import com.english.ai.user.mapper.UserRefreshTokenMapper;
 import com.english.ai.user.util.RefreshTokenUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,14 +29,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class RefreshTokenService {
 
     private final UserRefreshTokenMapper refreshTokenMapper;
-
-    /** 有效期（秒），默认 7 天 */
-    @Value("${auth.refresh.max-age-seconds:604800}")
-    private long maxAgeSeconds;
-
-    /** 刷新限流：同一 key 每分钟最大次数 */
-    @Value("${auth.refresh.rate-limit:10}")
-    private int rateLimit;
+    private final RefreshAuthProperties props;
 
     /** 单实例内存限流计数器（key -> 一分钟内计数），后续多实例可替换为分布式限流 */
     private final ConcurrentHashMap<String, AtomicInteger> rateCounter = new ConcurrentHashMap<>();
@@ -56,7 +49,7 @@ public class RefreshTokenService {
         entity.setUserId(userId);
         entity.setTokenHash(RefreshTokenUtil.sha256(raw));
         entity.setSeries(series);
-        entity.setExpiresAt(LocalDateTime.now().plusSeconds(maxAgeSeconds));
+        entity.setExpiresAt(LocalDateTime.now().plusSeconds(props.getMaxAgeSeconds()));
         entity.setStatus(1);
         refreshTokenMapper.insert(entity);
         return raw;
@@ -103,7 +96,7 @@ public class RefreshTokenService {
         next.setUserId(existing.getUserId());
         next.setTokenHash(RefreshTokenUtil.sha256(newRaw));
         next.setSeries(existing.getSeries());
-        next.setExpiresAt(LocalDateTime.now().plusSeconds(maxAgeSeconds));
+        next.setExpiresAt(LocalDateTime.now().plusSeconds(props.getMaxAgeSeconds()));
         next.setStatus(1);
         next.setLastUsedAt(LocalDateTime.now());
         refreshTokenMapper.insert(next);
@@ -144,7 +137,7 @@ public class RefreshTokenService {
     }
 
     /**
-     * 单实例内存限流：同一 key 每分钟最多 rateLimit 次。
+     * 单实例内存限流：同一 key 每分钟最多 props.rateLimit 次。
      *
      * @return true 表示放行，false 表示超限
      */
@@ -158,6 +151,6 @@ public class RefreshTokenService {
             return true;
         }
         int count = rateCounter.computeIfAbsent(key, k -> new AtomicInteger(0)).incrementAndGet();
-        return count <= rateLimit;
+        return count <= props.getRateLimit();
     }
 }

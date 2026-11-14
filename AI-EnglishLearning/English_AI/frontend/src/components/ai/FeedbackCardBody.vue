@@ -146,9 +146,12 @@ async function load() {
       return
     }
 
-    // 听力：反查接口暂不返回 transcript（原文在 listening_audio 表）。
-    // 这里只结束加载态，由模板显示 listeningPending 文案；
-    // 不要置 error，否则会走到失败态，那条提示永远显示不出来。
+    // 听力：暂缓接入（2026-11-14 决策）。
+    // 当前没有任何调用方会注入 kind==='listening' 的 meta，此处为预留分支。
+    // 恢复条件：① V1.0.40 听力音频种子迁移执行完成（现在还在 pending 里，表里没数据）；
+    //           ② ExerciseHistoryVO 补 transcript 字段并在反查时 join listening_audio；
+    //           ③ ListeningQuizView 按 submitResult.logId 注入卡片。
+    // 注意不要置 error：模板用 listeningPending 文案兜底，置 error 会走进失败态。
     return
   } catch (e) {
     error.value = e instanceof Error ? e.message : t('ai.card.loadFailed')

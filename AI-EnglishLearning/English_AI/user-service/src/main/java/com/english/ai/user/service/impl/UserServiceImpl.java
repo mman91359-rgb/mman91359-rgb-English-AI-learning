@@ -9,13 +9,16 @@ import com.english.ai.user.dto.LoginResponse;
 import com.english.ai.user.dto.RegisterRequest;
 import com.english.ai.user.entity.SysUser;
 import com.english.ai.user.entity.UserAbilityRadar;
+import com.english.ai.user.enums.VerificationScene;
 import com.english.ai.user.mapper.UserMapper;
 import com.english.ai.user.service.UserAbilityRadarService;
 import com.english.ai.user.service.UserService;
+import com.english.ai.user.service.VerificationCodeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.concurrent.ThreadLocalRandom;
@@ -27,6 +30,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
     private final UserAbilityRadarService radarService;
+    private final VerificationCodeService verificationCodeService;
 
     /** 管理员 Token 有效期（默认 2 小时），降低降权/禁用后的残留窗口 */
     @Value("${jwt.admin-expiration:7200000}")
@@ -223,10 +227,13 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * 绑定/更新手机号
+     * 绑定/更新手机号：校验新号验证码 + 校验号码占用后再落库
      */
     @Override
-    public void updatePhone(Long userId, String phone) {
+    @Transactional
+    public void updatePhone(Long userId, String phone, String code) {
+        // 验证码服务使用独立事务，业务失败不会回滚消费状态
+        verificationCodeService.verifyAndConsume(phone, VerificationScene.PHONE_BIND, code, userId);
         SysUser user = userMapper.selectById(userId);
         if (user == null) {
             throw new RuntimeException("用户不存在");
@@ -234,6 +241,14 @@ public class UserServiceImpl implements UserService {
         // 校验手机号格式（11位数字，1开头）
         if (phone == null || !phone.matches("^1\\d{10}$")) {
             throw new RuntimeException("手机号格式不正确");
+        }
+        // sys_user.phone 无唯一索引；换绑前拒绝新号已被其他账号占用，
+        // 否则找回密码会因「一个号码关联多个账号」直接返回 409。
+        Long occupied = userMapper.selectCount(new LambdaQueryWrapper<SysUser>()
+                .eq(SysUser::getPhone, phone)
+                .ne(SysUser::getId, userId));
+        if (occupied != null && occupied > 0) {
+            throw new RuntimeException("该手机号已被其他账号绑定");
         }
         user.setPhone(phone);
         userMapper.updateById(user);

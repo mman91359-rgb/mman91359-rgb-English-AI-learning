@@ -191,6 +191,7 @@ export default {
     sendCode: '发送验证码',
     resendIn: '{seconds} 秒后重发',
     codeSentMock: '模拟验证码已发送：{code}',
+    codeSendFailed: '验证码发送失败，请稍后重试',
     codePlaceholder: '请输入验证码',
     newPassword: '新密码',
     confirmNewPassword: '确认新密码',

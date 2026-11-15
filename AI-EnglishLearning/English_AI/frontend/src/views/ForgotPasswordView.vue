@@ -72,7 +72,7 @@
                   <button
                     type="button"
                     class="h-[52px] shrink-0 rounded-2xl border border-primary/30 bg-primary-container/20 px-4 font-label-lg text-label-lg text-primary disabled:cursor-not-allowed disabled:opacity-50"
-                    :disabled="codeSent && remaining > 0"
+                    :disabled="codeSending || (codeSent && remaining > 0)"
                     @click="sendCode"
                   >
                     {{ codeSent && remaining > 0 ? $t('auth.resendIn', { seconds: remaining }) : $t('auth.sendCode') }}
@@ -148,7 +148,7 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useToast } from '../composables/useToast'
 import { useCountdown } from '../composables/useCountdown'
-import { resetPasswordByPhone } from '../api/user'
+import { resetPasswordByPhone, sendVerificationCode } from '../api/user'
 import { inputClassLg, inputErrorClass } from '@/components/ui/formStyles'
 import FormHint from '@/components/ui/FormHint.vue'
 import AppLogo from '@/components/ui/AppLogo.vue'
@@ -164,6 +164,7 @@ const newPassword = ref('')
 const confirmPassword = ref('')
 const submitting = ref(false)
 const codeSent = ref(false)
+const codeSending = ref(false)
 const { remaining, reset } = useCountdown(60, undefined, false)
 
 /** 字段级校验错误：与登录/注册页一致，内联展示在输入框下方 */
@@ -179,15 +180,25 @@ const formError = ref('')
 const phonePattern = /^1[3-9]\d{9}$/
 const passwordRulePattern = /^(?=.*[a-z])(?=.*\d).{10,}$/
 
-const sendCode = () => {
+const sendCode = async () => {
   if (!phonePattern.test(phone.value)) {
     errors.value.phone = t('auth.invalidPhone')
     return
   }
   errors.value.phone = ''
-  codeSent.value = true
-  toast(t('auth.codeSentMock', { code: '123456' }), 'success')
-  reset()
+  errors.value.code = ''
+  formError.value = ''
+  codeSending.value = true
+  try {
+    const result = await sendVerificationCode(phone.value.trim(), 'FORGOT_PASSWORD')
+    codeSent.value = true
+    toast(t('auth.codeSentMock', { code: result.mockCode ?? '------' }), 'success')
+    reset()
+  } catch (error) {
+    errors.value.code = error instanceof Error ? error.message : t('auth.codeSendFailed')
+  } finally {
+    codeSending.value = false
+  }
 }
 
 const validate = (): boolean => {
@@ -222,7 +233,7 @@ const handleReset = async () => {
   submitting.value = true
   try {
     await resetPasswordByPhone({
-      phone: phone.value,
+      phone: phone.value.trim(),
       code: code.value.trim(),
       newPassword: newPassword.value,
     })

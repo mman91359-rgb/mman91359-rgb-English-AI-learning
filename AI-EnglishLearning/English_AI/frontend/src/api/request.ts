@@ -57,6 +57,7 @@ function isAuthRequest(url: string = ''): boolean {
     url.includes('/user/login') ||
     url.includes('/user/register') ||
     url.includes('/user/forgot-password') ||
+    url.includes('/user/verify-code') ||
     url.includes('/auth/refresh') ||
     url.includes('/auth/logout')
   )

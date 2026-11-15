@@ -52,7 +52,7 @@ public interface UserService {
     boolean updatePassword(Long userId, String oldPassword, String newPassword);
 
     /**
-     * 绑定/更新手机号
+     * 绑定/更新手机号（需校验新号验证码）
      */
-    void updatePhone(Long userId, String phone);
+    void updatePhone(Long userId, String phone, String code);
 }

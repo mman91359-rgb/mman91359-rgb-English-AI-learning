@@ -160,11 +160,35 @@ export const updatePassword = (userId: number, oldPassword: string, newPassword:
   return post('/user/password/update', { userId, oldPassword, newPassword })
 }
 
+/** 匿名场景：注册 / 找回密码 */
+export type VerificationScene = 'REGISTER' | 'FORGOT_PASSWORD'
+
+export interface VerificationCodeSendResult {
+  /** 验证码有效期（秒） */
+  expiresInSeconds: number
+  /** 本地模拟下发的验证码；生产环境不返回 */
+  mockCode: string | null
+}
+
+/** 发送验证码（注册 / 找回密码，网关白名单，无需登录） */
+export const sendVerificationCode = (
+  recipient: string,
+  scene: VerificationScene,
+): Promise<VerificationCodeSendResult> => {
+  return post('/user/verify-code/send', { recipient, scene })
+}
+
+/** 换绑手机号：发送验证码（需登录，验证码与当前账号绑定） */
+export const sendPhoneBindCode = (phone: string): Promise<VerificationCodeSendResult> => {
+  return post('/user/phone/change/send-code', { recipient: phone, scene: 'PHONE_BIND' })
+}
+
 /**
  * 绑定/更新用户手机号
  * @param userId 用户ID
- * @param phone 手机号
+ * @param phone 新手机号
+ * @param code 新手机号收到的验证码
  */
-export const updatePhone = (userId: number, phone: string): Promise<string> => {
-  return post('/user/phone/update', { userId, phone })
+export const updatePhone = (userId: number, phone: string, code: string): Promise<string> => {
+  return post('/user/phone/update', { userId, phone, code })
 }

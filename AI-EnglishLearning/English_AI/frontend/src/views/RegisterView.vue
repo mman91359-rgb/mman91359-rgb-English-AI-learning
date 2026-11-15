@@ -112,7 +112,7 @@
                   <button
                     type="button"
                     class="h-[52px] shrink-0 rounded-2xl border border-primary/30 bg-primary-container/20 px-4 font-label-lg text-label-lg text-primary disabled:cursor-not-allowed disabled:opacity-50"
-                    :disabled="codeSent && remaining > 0"
+                    :disabled="codeSending || (codeSent && remaining > 0)"
                     @click="sendCode"
                   >
                     {{ codeSent && remaining > 0 ? $t('auth.resendIn', { seconds: remaining }) : $t('auth.sendCode') }}
@@ -220,6 +220,7 @@ import { useI18n } from 'vue-i18n'
 import { useUserStore } from '@/stores/user'
 import { useToast } from '@/composables/useToast'
 import { useCountdown } from '@/composables/useCountdown'
+import { sendVerificationCode } from '@/api/user'
 import { inputClassLg, inputErrorClass } from '@/components/ui/formStyles'
 import FormHint from '@/components/ui/FormHint.vue'
 import AppLogo from '@/components/ui/AppLogo.vue'
@@ -254,6 +255,7 @@ const validationErrors = ref({
 const showPassword = ref(false)
 const showConfirmPassword = ref(false)
 const codeSent = ref(false)
+const codeSending = ref(false)
 /** 服务端返回的整体性错误（字段校验之外），内联展示，不用会消失的 toast */
 const formError = ref('')
 const { remaining, reset } = useCountdown(60, undefined, false)
@@ -280,16 +282,26 @@ const resolveAccountType = (value: string): 'phone' | 'email' | null => {
   return null
 }
 
-/** 发送验证码（本地模拟，固定 123456） */
-const sendCode = () => {
+/** 发送验证码：统一验证码服务签发，本地模拟下发后回显明文 */
+const sendCode = async () => {
   if (!resolveAccountType(form.value.account)) {
     validationErrors.value.account = t('auth.accountEmpty')
     return
   }
   validationErrors.value.account = ''
-  codeSent.value = true
-  toast(t('auth.codeSentMock', { code: '123456' }), 'success')
-  reset()
+  validationErrors.value.code = ''
+  formError.value = ''
+  codeSending.value = true
+  try {
+    const result = await sendVerificationCode(form.value.account.trim(), 'REGISTER')
+    codeSent.value = true
+    toast(t('auth.codeSentMock', { code: result.mockCode ?? '------' }), 'success')
+    reset()
+  } catch (error) {
+    validationErrors.value.code = error instanceof Error ? error.message : t('auth.codeSendFailed')
+  } finally {
+    codeSending.value = false
+  }
 }
 
 const validate = (): boolean => {

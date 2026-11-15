@@ -6,11 +6,10 @@ import com.english.ai.common.ErrorCode;
 import com.english.ai.common.PasswordUtil;
 import com.english.ai.user.dto.ForgotPasswordRequest;
 import com.english.ai.user.entity.SysUser;
+import com.english.ai.user.enums.VerificationScene;
 import com.english.ai.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.env.Environment;
-import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,29 +17,18 @@ import java.util.List;
 
 /**
  * 手机号找回密码。
- * <p>
- * 当前为本地模拟验证码：固定 123456；prod profile 下直接拒绝。
- * 后续接真实短信时，只需替换验证码校验部分，保持接口不变。
+ * <p>验证码由统一验证码服务签发与消费；下发通道为本地模拟，prod profile 由该服务拒绝。</p>
  */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class PasswordResetService {
 
-    /** 本地模拟验证码；生产 profile 不允许使用 */
-    private static final String MOCK_SMS_CODE = "123456";
-
     private final UserMapper userMapper;
-    private final Environment environment;
+    private final VerificationCodeService verificationCodeService;
 
     @Transactional
     public void resetByPhone(ForgotPasswordRequest request) {
-        if (environment.acceptsProfiles(Profiles.of("prod"))) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "模拟验证码仅本地开发可用");
-        }
-        if (!MOCK_SMS_CODE.equals(request.getCode())) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "验证码错误");
-        }
         if (!PasswordUtil.isValidPassword(request.getNewPassword())) {
             throw new BusinessException(ErrorCode.BAD_REQUEST, "新密码至少10位，且需包含小写字母和数字");
         }
@@ -58,6 +46,10 @@ public class PasswordResetService {
         if (user.getStatus() == null || user.getStatus() == 0) {
             throw new BusinessException(ErrorCode.BAD_REQUEST, "账号已被禁用");
         }
+        // 校验并消费验证码：独立事务提交，改密失败也不会让同一验证码被反复重试
+        verificationCodeService.verifyAndConsume(
+                request.getPhone().trim(), VerificationScene.FORGOT_PASSWORD,
+                request.getCode(), null);
         user.setPassword(PasswordUtil.encode(request.getNewPassword()));
         userMapper.updateById(user);
         log.info("手机号找回密码成功: userId={}", user.getId());

@@ -23,6 +23,6 @@ public class RegisterRequest {
     /** 考试级别: CET4 / CET6 */
     private String cetLevel;
 
-    /** 验证码（注册时用于校验手机号/邮箱，本地模拟固定 123456） */
+    /** 验证码（注册时校验手机号/邮箱，由统一验证码服务签发） */
     private String code;
 }

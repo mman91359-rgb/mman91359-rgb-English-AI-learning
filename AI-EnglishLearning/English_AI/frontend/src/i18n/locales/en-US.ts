@@ -191,6 +191,7 @@ export default {
     sendCode: 'Send code',
     resendIn: 'Resend in {seconds}s',
     codeSentMock: 'Mock code sent: {code}',
+    codeSendFailed: 'Failed to send code, please try again',
     codePlaceholder: 'Enter verification code',
     newPassword: 'New password',
     confirmNewPassword: 'Confirm new password',

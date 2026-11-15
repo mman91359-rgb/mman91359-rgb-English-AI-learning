@@ -181,16 +181,46 @@
       max-width="max-w-md"
       @close="closePhoneDialog"
     >
-      <input
-        ref="phoneInputRef"
-        v-model="phoneInput"
-        type="tel"
-        maxlength="11"
-        data-autofocus
-        :placeholder="$t('settings.phonePlaceholder')"
-        :class="inputClassLg"
-        @keyup.enter="submitPhone"
-      />
+      <div class="space-y-4">
+        <div>
+          <input
+            ref="phoneInputRef"
+            v-model="phoneInput"
+            type="tel"
+            maxlength="11"
+            data-autofocus
+            :placeholder="$t('settings.phonePlaceholder')"
+            :class="[inputClassLg, phoneError && inputErrorClass]"
+            :aria-invalid="phoneError ? 'true' : 'false'"
+            @input="onPhoneInput"
+          />
+          <FormHint v-if="phoneError" :message="phoneError" />
+        </div>
+        <div>
+          <div class="flex items-start gap-3">
+            <input
+              v-model="codeInput"
+              type="text"
+              inputmode="numeric"
+              maxlength="6"
+              :placeholder="$t('auth.codePlaceholder')"
+              :class="[inputClassLg, 'tracking-widest', codeError && inputErrorClass]"
+              :aria-invalid="codeError ? 'true' : 'false'"
+              @input="codeError = ''"
+              @keyup.enter="submitPhone"
+            />
+            <button
+              type="button"
+              :class="[btnSecondarySm, 'shrink-0 whitespace-nowrap']"
+              :disabled="codeSending || (codeSent && remaining > 0)"
+              @click="sendCode"
+            >
+              {{ codeSending ? $t('settings.saving') : (codeSent && remaining > 0 ? $t('auth.resendIn', { seconds: remaining }) : $t('auth.sendCode')) }}
+            </button>
+          </div>
+          <FormHint v-if="codeError" :message="codeError" />
+        </div>
+      </div>
       <template #footer>
         <div class="flex w-full gap-3">
           <button type="button" :class="btnDialogSecondary" @click="closePhoneDialog">
@@ -213,10 +243,12 @@ import AppLayout from '../components/AppLayout.vue'
 import { useAppStore } from '@/stores/app'
 import { useUserStore } from '@/stores/user'
 import { useToast } from '@/composables/useToast'
-import { updatePassword, updatePhone } from '@/api/user'
-import { inputClassLg } from '@/components/ui/formStyles'
-import { btnDialogPrimary, btnDialogSecondary } from '@/components/ui/buttonStyles'
+import { updatePassword, updatePhone, sendPhoneBindCode } from '@/api/user'
+import { inputClassLg, inputErrorClass } from '@/components/ui/formStyles'
+import { btnDialogPrimary, btnDialogSecondary, btnSecondarySm } from '@/components/ui/buttonStyles'
 import BaseDialog from '@/components/ui/BaseDialog.vue'
+import FormHint from '@/components/ui/FormHint.vue'
+import { useCountdown } from '@/composables/useCountdown'
 
 const router = useRouter()
 const { t } = useI18n()
@@ -323,14 +355,36 @@ const submitPassword = async () => {
   }
 }
 
-// ========== 绑定手机号 ==========
+// ========== 绑定手机号（更换绑定需新号验证码） ==========
 const phoneDialogVisible = ref(false)
 const phoneInput = ref('')
+const codeInput = ref('')
 const phoneSubmitting = ref(false)
+const codeSending = ref(false)
+const codeSent = ref(false)
+const phoneError = ref('')
+const codeError = ref('')
 const phoneInputRef = ref<HTMLInputElement | null>(null)
+const { remaining, reset, stop } = useCountdown(60, undefined, false)
+
+const phonePattern = /^1\d{10}$/
+
+/** 号码变化后旧验证码必须失效：清空输入并停止倒计时 */
+const onPhoneInput = () => {
+  phoneError.value = ''
+  codeInput.value = ''
+  codeError.value = ''
+  codeSent.value = false
+  stop()
+}
 
 const openPhoneDialog = () => {
   phoneInput.value = userStore.phone || ''
+  codeInput.value = ''
+  phoneError.value = ''
+  codeError.value = ''
+  codeSent.value = false
+  stop()
   phoneDialogVisible.value = true
   nextTick(() => phoneInputRef.value?.focus())
 }
@@ -338,17 +392,49 @@ const openPhoneDialog = () => {
 const closePhoneDialog = () => {
   phoneDialogVisible.value = false
   phoneInput.value = ''
+  codeInput.value = ''
+  phoneError.value = ''
+  codeError.value = ''
+  codeSent.value = false
+  stop()
+}
+
+/** 向新号码发送验证码（需登录，验证码与当前账号绑定） */
+const sendCode = async () => {
+  const phone = phoneInput.value.trim()
+  if (!phonePattern.test(phone)) {
+    phoneError.value = t('settings.phoneInvalid')
+    return
+  }
+  phoneError.value = ''
+  codeError.value = ''
+  codeSending.value = true
+  try {
+    const result = await sendPhoneBindCode(phone)
+    codeSent.value = true
+    toast(t('auth.codeSentMock', { code: result.mockCode ?? '------' }), 'success')
+    reset()
+  } catch (error) {
+    codeError.value = error instanceof Error ? error.message : t('auth.codeSendFailed')
+  } finally {
+    codeSending.value = false
+  }
 }
 
 const submitPhone = async () => {
   const phone = phoneInput.value.trim()
+  phoneError.value = ''
+  codeError.value = ''
   if (!phone) {
-    toast(t('settings.phoneEmpty'), 'warning')
+    phoneError.value = t('settings.phoneEmpty')
     return
   }
-  // 校验手机号格式（11位数字，1开头）
-  if (!/^1\d{10}$/.test(phone)) {
-    toast(t('settings.phoneInvalid'), 'warning')
+  if (!phonePattern.test(phone)) {
+    phoneError.value = t('settings.phoneInvalid')
+    return
+  }
+  if (!/^\d{6}$/.test(codeInput.value.trim())) {
+    codeError.value = t('auth.invalidCode')
     return
   }
 
@@ -363,12 +449,12 @@ const submitPhone = async () => {
 
   phoneSubmitting.value = true
   try {
-    await updatePhone(userId, phone)
+    await updatePhone(userId, phone, codeInput.value.trim())
     userStore.updatePhone(phone)
     toast(t('settings.phoneBindSuccess'), 'success')
     closePhoneDialog()
-  } catch (e: any) {
-    toast(e.message || t('settings.phoneBindFail'), 'error')
+  } catch (error) {
+    codeError.value = error instanceof Error ? error.message : t('settings.phoneBindFail')
   } finally {
     phoneSubmitting.value = false
   }

@@ -11,17 +11,20 @@ import com.english.ai.user.dto.LoginResponse;
 import com.english.ai.user.dto.ModuleScoreUpdateRequest;
 import com.english.ai.user.dto.ModuleStatRequest;
 import com.english.ai.user.dto.RegisterRequest;
+import com.english.ai.user.dto.VerificationCodeSendRequest;
+import com.english.ai.user.dto.VerificationCodeSendResult;
 import com.english.ai.user.entity.SysUser;
+import com.english.ai.user.enums.VerificationScene;
 import com.english.ai.user.service.UserAbilityRadarService;
 import com.english.ai.user.service.UserService;
 import com.english.ai.user.service.RefreshTokenService;
+import com.english.ai.user.service.VerificationCodeService;
 import com.english.ai.user.util.RefreshCookieUtil;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
-import org.springframework.core.env.Profiles;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -45,11 +48,7 @@ public class UserController {
     private final UserAbilityRadarService radarService;
     private final RefreshTokenService refreshTokenService;
     private final RefreshCookieUtil refreshCookieUtil;
-
-    /** 本地模拟验证码；生产 profile 不允许使用 */
-    private static final String MOCK_SMS_CODE = "123456";
-
-    private final Environment environment;
+    private final VerificationCodeService verificationCodeService;
 
     /** 头像文件存储目录，从配置文件读取 */
     @Value("${avatar.upload-dir:./uploads/avatars}")
@@ -59,12 +58,22 @@ public class UserController {
 
     @PostMapping("/register")
     public Result<Long> register(@RequestBody RegisterRequest request) {
-        // 验证码校验（本地模拟固定 123456，生产环境拒绝）
-        if (environment.acceptsProfiles(Profiles.of("prod"))) {
-            return Result.badRequest("模拟验证码仅本地开发可用");
+        // 统一验证码校验（本地模拟下发；prod profile 由验证码服务拒绝）
+        String recipient = !isBlank(request.getPhone())
+                ? request.getPhone().trim()
+                : (isBlank(request.getEmail()) ? null : request.getEmail().trim());
+        if (isBlank(recipient)) {
+            return Result.badRequest("手机号和邮箱至少填写一个");
         }
-        if (!MOCK_SMS_CODE.equals(request.getCode())) {
-            return Result.badRequest("验证码错误");
+        if (isBlank(request.getCode())) {
+            return Result.badRequest("验证码不能为空");
+        }
+        try {
+            verificationCodeService.verifyAndConsume(
+                    recipient, VerificationScene.REGISTER, request.getCode().trim(), null);
+        } catch (BusinessException e) {
+            log.warn("注册验证码校验失败: recipient={}, reason={}", recipient, e.getMessage());
+            return Result.badRequest(e.getMessage());
         }
         if (!PasswordUtil.isValidPassword(request.getPassword())) {
             return Result.badRequest("密码至少10位，且需包含小写字母和数字");
@@ -288,9 +297,30 @@ public class UserController {
     // ========== 绑定手机号 ==========
 
     /**
-     * 绑定/更新用户手机号
+     * 换绑手机号：发送验证码（需登录，网关注入可信 X-User-Id）
+     * POST /user/phone/change/send-code
+     * Body: {"recipient": "13800138000", "scene": "PHONE_BIND"}
+     */
+    @PostMapping("/phone/change/send-code")
+    public Result<VerificationCodeSendResult> sendPhoneBindCode(
+            @Valid @RequestBody VerificationCodeSendRequest request,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (headerUserId == null) {
+            return Result.error(401, "请先登录");
+        }
+        try {
+            return Result.success(verificationCodeService.send(
+                    request.getRecipient(), VerificationScene.PHONE_BIND, headerUserId));
+        } catch (BusinessException e) {
+            log.warn("换绑验证码发送失败: userId={}, reason={}", headerUserId, e.getMessage());
+            return Result.badRequest(e.getMessage());
+        }
+    }
+
+    /**
+     * 绑定/更新用户手机号（需校验新号验证码）
      * POST /user/phone/update
-     * Body: {"userId": 1, "phone": "13800138000"}
+     * Body: {"userId": 1, "phone": "13800138000", "code": "123456"}
      */
     @PostMapping("/phone/update")
     public Result<String> updatePhone(
@@ -298,6 +328,7 @@ public class UserController {
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
         Object userIdObj = body.get("userId");
         Object phoneObj = body.get("phone");
+        Object codeObj = body.get("code");
         if (userIdObj == null) {
             return Result.badRequest("userId不能为空");
         }
@@ -307,10 +338,14 @@ public class UserController {
         if (phoneObj == null || String.valueOf(phoneObj).isBlank()) {
             return Result.badRequest("手机号不能为空");
         }
+        if (codeObj == null || String.valueOf(codeObj).isBlank()) {
+            return Result.badRequest("验证码不能为空");
+        }
         Long userId = Long.valueOf(String.valueOf(userIdObj));
         String phone = String.valueOf(phoneObj).trim();
+        String code = String.valueOf(codeObj).trim();
         try {
-            userService.updatePhone(userId, phone);
+            userService.updatePhone(userId, phone, code);
             log.info("手机号绑定成功: userId={}, phone={}", userId, phone);
             return Result.success(phone);
         } catch (RuntimeException e) {

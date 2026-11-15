@@ -140,12 +140,12 @@
             </span>
             <button
               type="button"
-              :class="btnIconSm"
+              :class="btnIcon"
               :aria-label="$t('checkIn.calendar.open')"
               aria-haspopup="dialog"
               @click="showCheckInCalendar = true"
             >
-              <span class="material-symbols-outlined text-icon-md" aria-hidden="true">calendar_month</span>
+              <span class="material-symbols-outlined text-icon-lg" aria-hidden="true">calendar_month</span>
             </button>
           </div>
         </div>
@@ -355,7 +355,7 @@ import CheckInCalendarDialog from '@/components/checkin/CheckInCalendarDialog.vu
 import { useCheckInCalendar } from '@/composables/useCheckInCalendar'
 import BaseDialog from '@/components/ui/BaseDialog.vue'
 import { inputClassLg } from '@/components/ui/formStyles'
-import { btnDialogPrimary, btnDialogSecondary, btnIconSm } from '@/components/ui/buttonStyles'
+import { btnDialogPrimary, btnDialogSecondary, btnIcon } from '@/components/ui/buttonStyles'
 import type { AbilityDimensionKey, AbilityRadar } from '@/api/stats'
 
 const { t } = useI18n()

@@ -113,12 +113,12 @@
           <template #actions>
             <button
               type="button"
-              :class="btnIconSm"
+              :class="btnIcon"
               :aria-label="$t('checkIn.calendar.open')"
               aria-haspopup="dialog"
               @click="showCheckInCalendar = true"
             >
-              <span class="material-symbols-outlined text-icon-md" aria-hidden="true">calendar_month</span>
+              <span class="material-symbols-outlined text-icon-lg" aria-hidden="true">calendar_month</span>
             </button>
           </template>
         </SectionHeader>
@@ -295,7 +295,7 @@ import SectionHeader from '@/components/ui/SectionHeader.vue'
 import CheckInWeekStrip from '@/components/checkin/CheckInWeekStrip.vue'
 import CheckInCalendarDialog from '@/components/checkin/CheckInCalendarDialog.vue'
 import { useCheckInCalendar } from '@/composables/useCheckInCalendar'
-import { btnIconSm, btnPrimary } from '@/components/ui/buttonStyles'
+import { btnIcon, btnIconSm, btnPrimary } from '@/components/ui/buttonStyles'
 import { useToast } from '@/composables/useToast'
 import { useUserStore } from '@/stores/user'
 import { moduleName } from '@/config/modules'
@@ -487,10 +487,10 @@ function getTodayWeekIndex(): number {
   const dayOfWeek = new Date().getDay()
   return dayOfWeek === 0 ? 6 : dayOfWeek - 1
 }
-/** 获取本周一到周日的星期标签（M/T/W/T/F/S/S） */
+/** 获取本周一到周日的星期标签：与签到日历同一套 MON…SUN，不再用单首字母 */
 function getWeekDayLabels(): string[] {
-  const labels = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
-  return labels
+  const keys = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const
+  return keys.map((key) => t(`checkIn.weekday.${key}`))
 }
 // 学习量图表副标题（随视图切换）
 const studySubtitle = computed(() => {

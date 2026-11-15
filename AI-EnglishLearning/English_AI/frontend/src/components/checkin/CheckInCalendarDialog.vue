@@ -2,11 +2,11 @@
   <BaseDialog
     :visible="visible"
     :title="$t('checkIn.calendar.title')"
-    max-width="max-w-md"
+    max-width="max-w-2xl"
     @update:visible="emit('update:visible', $event)"
   >
     <!-- 月份切换 -->
-    <div class="mb-4 flex items-center justify-between">
+    <div class="mb-5 flex items-center justify-between">
       <button
         type="button"
         :class="btnIconSm"
@@ -15,7 +15,7 @@
       >
         <span class="material-symbols-outlined text-icon-md" aria-hidden="true">chevron_left</span>
       </button>
-      <span class="font-label-lg text-label-lg text-on-surface tabular-nums">{{ monthLabel }}</span>
+      <span class="font-label-lg text-label-lg text-on-surface tabular-nums sm:font-headline-sm sm:text-headline-sm">{{ monthLabel }}</span>
       <button
         type="button"
         :class="btnIconSm"
@@ -28,11 +28,11 @@
     </div>
 
     <!-- 星期表头：与周条同一套 MON…SUN -->
-    <div class="mb-2 grid grid-cols-7 gap-1">
+    <div class="mb-3 grid grid-cols-7 gap-1 sm:gap-2">
       <span
         v-for="key in WEEKDAY_KEYS"
         :key="key"
-        class="text-center font-label-sm text-label-sm tracking-wide text-outline"
+        class="text-center font-label-md text-label-md tracking-wide text-outline sm:font-label-lg sm:text-label-lg"
       >
         {{ $t(`checkIn.weekday.${key}`) }}
       </span>
@@ -47,21 +47,21 @@
     </div>
 
     <!-- 骨架 -->
-    <div v-else-if="loading && !loaded" class="grid grid-cols-7 gap-1" aria-hidden="true">
+    <div v-else-if="loading && !loaded" class="grid grid-cols-7 gap-1 sm:gap-2" aria-hidden="true">
       <span
         v-for="i in 35"
         :key="i"
-        class="mx-auto h-9 w-9 rounded-full bg-surface-container-high animate-pulse"
+        class="mx-auto h-9 w-9 rounded-full bg-surface-container-high animate-pulse sm:h-14 sm:w-14"
       ></span>
     </div>
 
     <!-- 月网格 -->
-    <div v-else class="grid grid-cols-7 gap-1" role="grid">
+    <div v-else class="grid grid-cols-7 gap-1 sm:gap-2" role="grid">
       <template v-for="(day, index) in days" :key="day ? day.date : `blank-${index}`">
         <span v-if="!day" role="gridcell"></span>
         <span v-else class="flex justify-center" role="gridcell">
           <span
-            class="flex h-9 w-9 items-center justify-center rounded-full font-body-sm text-body-sm tabular-nums"
+            class="flex h-9 w-9 items-center justify-center rounded-full font-body-md text-body-md tabular-nums transition-colors sm:h-14 sm:w-14 sm:font-body-lg sm:text-body-lg"
             :class="cellClass(day.state)"
             :aria-label="`${day.dayOfMonth} ${stateText(day.state)}`"
           >
@@ -72,24 +72,24 @@
     </div>
 
     <!-- 统计与图例 -->
-    <div class="mt-5 border-t border-outline-variant/40 pt-4">
-      <p v-if="monthCheckedCount === 0 && !loading" class="mb-3 font-label-sm text-label-sm text-on-surface-variant">
+    <div class="mt-6 border-t border-outline-variant/40 pt-5">
+      <p v-if="monthCheckedCount === 0 && !loading" class="mb-4 font-body-sm text-body-sm text-on-surface-variant">
         {{ $t('checkIn.calendar.emptyMonth') }}
       </p>
       <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-        <span class="flex items-center gap-1.5 font-label-sm text-label-sm text-on-surface-variant">
-          <span class="h-3 w-3 rounded-full bg-primary"></span>
+        <span class="flex items-center gap-2 font-body-sm text-body-sm text-on-surface-variant">
+          <span class="h-3.5 w-3.5 rounded-full bg-primary"></span>
           {{ $t('checkIn.calendar.legendChecked') }}
         </span>
-        <span class="flex items-center gap-1.5 font-label-sm text-label-sm text-on-surface-variant">
-          <span class="h-3 w-3 rounded-full border-2 border-outline-variant"></span>
+        <span class="flex items-center gap-2 font-body-sm text-body-sm text-on-surface-variant">
+          <span class="h-3.5 w-3.5 rounded-full border-2 border-outline-variant"></span>
           {{ $t('checkIn.calendar.legendMissed') }}
         </span>
-        <span class="flex items-center gap-1.5 font-label-sm text-label-sm text-on-surface-variant">
-          <span class="h-3 w-3 rounded-full bg-primary ring-2 ring-primary/25"></span>
+        <span class="flex items-center gap-2 font-body-sm text-body-sm text-on-surface-variant">
+          <span class="h-3.5 w-3.5 rounded-full bg-primary outline outline-2 outline-offset-2 outline-primary"></span>
           {{ $t('checkIn.calendar.legendToday') }}
         </span>
-        <span class="ml-auto font-label-sm text-label-sm text-outline tabular-nums">
+        <span class="ml-auto font-body-sm text-body-sm text-outline tabular-nums">
           {{ $t('checkIn.calendar.stat', { days: monthCheckedCount, streak: streakDays }) }}
         </span>
       </div>
@@ -143,10 +143,12 @@ const cellClass = (state: CheckInDayState): string => {
   switch (state) {
     case 'checked':
       return 'bg-primary text-on-primary'
+    // 今天统一用「外圈 + 留白」标记：与「已签到」的纯实心圆一眼可分；
+    // 圈内填充区分今天是否已签（实心=已签，浅底=未签）
     case 'today-checked':
-      return 'bg-primary text-on-primary ring-2 ring-primary/25'
+      return 'bg-primary text-on-primary outline outline-2 outline-offset-2 outline-primary'
     case 'today-pending':
-      return 'border-2 border-primary text-primary'
+      return 'bg-primary/10 text-primary outline outline-2 outline-offset-2 outline-primary'
     case 'missed':
       return 'border-2 border-outline-variant text-on-surface-variant'
     case 'future':

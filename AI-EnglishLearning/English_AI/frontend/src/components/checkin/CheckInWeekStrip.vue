@@ -23,7 +23,6 @@
             name="check"
             size="sm"
           />
-          <span v-else-if="day.state === 'today-pending'" class="h-1.5 w-1.5 rounded-full bg-current"></span>
         </span>
         <span class="sr-only">{{ stateText(day.state) }}</span>
       </div>
@@ -69,10 +68,11 @@ const circleClass = (state: CheckInDayState): string => {
   switch (state) {
     case 'checked':
       return 'bg-primary text-on-primary'
+    // 与日历弹窗同一套：今天 = 外圈留白，圈内填充表示是否已签
     case 'today-checked':
-      return 'bg-primary text-on-primary ring-2 ring-primary/25'
+      return 'bg-primary text-on-primary outline outline-2 outline-offset-2 outline-primary'
     case 'today-pending':
-      return 'border-2 border-primary text-primary'
+      return 'bg-primary/10 text-primary outline outline-2 outline-offset-2 outline-primary'
     case 'missed':
       return 'border-2 border-outline-variant text-on-surface-variant'
     case 'future':

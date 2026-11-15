@@ -2,6 +2,7 @@ package com.english.ai.user.service;
 
 import com.english.ai.user.config.CoinRewardProperties;
 import com.english.ai.user.dto.AwardCoinResponse;
+import com.english.ai.user.dto.CoinLedgerVO;
 import com.english.ai.user.entity.SysUser;
 import com.english.ai.user.entity.UserCoinAccount;
 import com.english.ai.user.entity.UserCoinTransaction;
@@ -18,10 +19,14 @@ import org.springframework.dao.DuplicateKeyException;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -153,6 +158,82 @@ class CoinServiceImplTest {
         assertFalse(response.getAwarded());
         assertEquals("USER_NOT_FOUND", response.getReason());
         verify(transactionMapper, never()).insert(any());
+    }
+
+    @Test
+    void listLedgerReturnsNextCursorWhenMoreRowsExist() {
+        when(accountMapper.selectOne(any())).thenReturn(account(30));
+        // 多取一条（limit+1）用于判断 hasMore
+        when(transactionMapper.selectPageByUser(1L, null, 3, null))
+                .thenReturn(List.of(tx(9L, 5), tx(8L, 5), tx(7L, 5)));
+        when(transactionMapper.sumDebit(any(), any())).thenReturn(0);
+
+        CoinLedgerVO ledger = service.listLedger(1L, null, 2, null);
+
+        assertEquals(2, ledger.getItems().size());
+        assertEquals(9L, ledger.getItems().get(0).getId());
+        assertTrue(ledger.getHasMore());
+        assertEquals(8L, ledger.getNextCursor());
+        assertEquals(30, ledger.getBalance());
+    }
+
+    @Test
+    void listLedgerClampsPageSizeAndToleratesMissingAccount() {
+        when(accountMapper.selectOne(any())).thenReturn(null);
+        when(transactionMapper.selectPageByUser(1L, null, 51, null)).thenReturn(List.of());
+        when(transactionMapper.sumDebit(any(), any())).thenReturn(0);
+
+        CoinLedgerVO ledger = service.listLedger(1L, null, 999, null);
+
+        verify(transactionMapper).selectPageByUser(1L, null, 51, null);
+        assertFalse(ledger.getHasMore());
+        assertEquals(0, ledger.getBalance());
+        assertEquals(0, ledger.getTotalEarned());
+        assertEquals(0L, ledger.getItems().size());
+        assertNull(ledger.getNextCursor());
+    }
+
+    @Test
+    void listLedgerPassesCursorToMapper() {
+        when(accountMapper.selectOne(any())).thenReturn(account(10));
+        when(transactionMapper.selectPageByUser(1L, 42L, 21, null)).thenReturn(List.of(tx(41L, 5)));
+        when(transactionMapper.sumDebit(any(), any())).thenReturn(0);
+
+        CoinLedgerVO ledger = service.listLedger(1L, 42L, 20, null);
+
+        assertEquals(1, ledger.getItems().size());
+        assertFalse(ledger.getHasMore());
+        assertNull(ledger.getNextCursor());
+    }
+
+    @Test
+    void listLedgerFiltersByBizTypeAndReturnsAllTypeCounts() {
+        when(accountMapper.selectOne(any())).thenReturn(account(10));
+        when(transactionMapper.selectPageByUser(1L, null, 21, "VOCAB_GROUP"))
+                .thenReturn(List.of(tx(5L, 5)));
+        when(transactionMapper.sumDebit(any(), any())).thenReturn(0);
+        when(transactionMapper.countGroupByBizType(1L)).thenReturn(List.of(
+                Map.<String, Object>of("biz_type", "CHECK_IN", "cnt", 3L),
+                Map.<String, Object>of("biz_type", "VOCAB_GROUP", "cnt", 2L)));
+
+        CoinLedgerVO ledger = service.listLedger(1L, null, 20, "VOCAB_GROUP");
+
+        assertEquals(1, ledger.getItems().size());
+        // 计数是全量的：筛到 VOCAB_GROUP 时 CHECK_IN 的 (3) 仍在
+        assertEquals(Integer.valueOf(3), ledger.getBizTypeCounts().get("CHECK_IN"));
+        assertEquals(Integer.valueOf(2), ledger.getBizTypeCounts().get("VOCAB_GROUP"));
+    }
+
+    private UserCoinTransaction tx(long id, int amount) {
+        UserCoinTransaction transaction = new UserCoinTransaction();
+        transaction.setId(id);
+        transaction.setUserId(1L);
+        transaction.setAmount(amount);
+        transaction.setBizType("CHECK_IN");
+        transaction.setDescription("每日签到");
+        transaction.setBalanceAfter(100);
+        transaction.setCreatedAt(LocalDateTime.of(2026, 10, 24, 9, 0));
+        return transaction;
     }
 
     private UserCoinAccount account(int balance) {

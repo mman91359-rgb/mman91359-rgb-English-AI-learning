@@ -3,6 +3,8 @@ package com.english.ai.user.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.english.ai.user.config.CoinRewardProperties;
 import com.english.ai.user.dto.AwardCoinResponse;
+import com.english.ai.user.dto.CoinLedgerVO;
+import com.english.ai.user.dto.CoinTransactionVO;
 import com.english.ai.user.entity.UserCoinAccount;
 import com.english.ai.user.entity.UserCoinTransaction;
 import com.english.ai.user.mapper.UserCoinAccountMapper;
@@ -18,6 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 金币账户与流水实现
@@ -26,6 +32,12 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 public class CoinServiceImpl implements CoinService {
+
+    /** 流水默认每页条数 */
+    private static final int DEFAULT_LEDGER_SIZE = 20;
+
+    /** 流水每页上限，防止前端传大数拖库 */
+    private static final int MAX_LEDGER_SIZE = 50;
 
     private final UserCoinAccountMapper accountMapper;
     private final UserCoinTransactionMapper transactionMapper;
@@ -130,6 +142,73 @@ public class CoinServiceImpl implements CoinService {
     @Override
     public boolean userExists(Long userId) {
         return userId != null && userMapper.selectById(userId) != null;
+    }
+
+    @Override
+    public CoinLedgerVO listLedger(Long userId, Long cursor, int size, String bizType) {
+        int limit = size <= 0 ? DEFAULT_LEDGER_SIZE : Math.min(size, MAX_LEDGER_SIZE);
+
+        UserCoinAccount account = selectAccount(userId);
+        int balance = account != null && account.getBalance() != null ? account.getBalance() : 0;
+        int totalEarned = account != null && account.getTotalEarned() != null ? account.getTotalEarned() : 0;
+
+        // 多取一条用于判断是否还有下一页，省掉一次 count 查询
+        List<UserCoinTransaction> rows = transactionMapper.selectPageByUser(userId, cursor, limit + 1, bizType);
+        boolean hasMore = rows.size() > limit;
+        List<UserCoinTransaction> page = hasMore ? rows.subList(0, limit) : rows;
+
+        List<CoinTransactionVO> items = page.stream().map(this::toVO).collect(Collectors.toList());
+        Long nextCursor = hasMore && !page.isEmpty() ? page.get(page.size() - 1).getId() : null;
+
+        // 本月按 Asia/Shanghai 自然月统计，与签到、每日上限同一时区口径
+        LocalDateTime monthStart = LocalDate.now(clock).withDayOfMonth(1).atStartOfDay();
+
+        return CoinLedgerVO.builder()
+                .userId(userId)
+                .balance(balance)
+                .totalEarned(totalEarned)
+                .totalSpent(transactionMapper.sumDebit(userId, null))
+                .monthSpent(transactionMapper.sumDebit(userId, monthStart))
+                .items(items)
+                .bizTypeCounts(countByBizType(userId))
+                .nextCursor(nextCursor)
+                .hasMore(hasMore)
+                .build();
+    }
+
+    /**
+     * 分组计数转 Map。计数是全量的，不受当前 bizType 筛选影响，
+     * 这样切换筛选后每颗胶囊的 (n) 不会跟着变。
+     * Mapper 在单测未 stub 时返回 null，按空 Map 处理。
+     */
+    private Map<String, Integer> countByBizType(Long userId) {
+        Map<String, Integer> counts = new LinkedHashMap<>();
+        List<Map<String, Object>> rows = transactionMapper.countGroupByBizType(userId);
+        if (rows == null) {
+            return counts;
+        }
+        for (Map<String, Object> row : rows) {
+            Object type = row.get("biz_type");
+            if (type == null) {
+                type = row.get("bizType");
+            }
+            Object cnt = row.get("cnt");
+            if (type != null && cnt instanceof Number number) {
+                counts.put(String.valueOf(type), number.intValue());
+            }
+        }
+        return counts;
+    }
+
+    private CoinTransactionVO toVO(UserCoinTransaction transaction) {
+        return CoinTransactionVO.builder()
+                .id(transaction.getId())
+                .amount(transaction.getAmount())
+                .bizType(transaction.getBizType())
+                .description(transaction.getDescription())
+                .balanceAfter(transaction.getBalanceAfter())
+                .createdAt(transaction.getCreatedAt())
+                .build();
     }
 
     private UserCoinAccount selectAccount(Long userId) {

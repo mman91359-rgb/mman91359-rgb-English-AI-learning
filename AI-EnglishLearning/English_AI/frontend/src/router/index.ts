@@ -35,6 +35,7 @@ const TranslationPracticeView = () => import('../views/TranslationPracticeView.v
 const WritingPracticeView = () => import('../views/writing/WritingPracticeView.vue')
 const WritingReportView = () => import('../views/writing/WritingReportView.vue')
 const WritingHistoryView = () => import('../views/writing/WritingHistoryView.vue')
+const CoinLedgerView = () => import('../views/CoinLedgerView.vue')
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -290,6 +291,12 @@ const router = createRouter({
           redirect: '/admin/operation-logs',
         },
       ],
+    },
+    {
+      path: '/wallet',
+      name: 'wallet',
+      component: CoinLedgerView,
+      meta: { requiresAuth: true },
     },
   ],
 })

@@ -1,6 +1,7 @@
 package com.english.ai.user.service;
 
 import com.english.ai.user.dto.AwardCoinResponse;
+import com.english.ai.user.dto.CoinLedgerVO;
 import com.english.ai.user.entity.UserCoinAccount;
 
 /**
@@ -24,6 +25,15 @@ public interface CoinService {
 
     /** 统计今日某业务类型已发放次数 */
     int countTodayByBizType(Long userId, String bizType);
+
+    /**
+     * 分页查询金币流水（keyset 分页，按 id 倒序）
+     *
+     * @param cursor  上一页最后一条流水ID；null 表示第一页
+     * @param size    每页条数，越界由实现层夹取
+     * @param bizType 业务类型筛选；null 表示全部。未知值返回空列表，不报错
+     */
+    CoinLedgerVO listLedger(Long userId, Long cursor, int size, String bizType);
 
     /** 用户是否存在 */
     boolean userExists(Long userId);

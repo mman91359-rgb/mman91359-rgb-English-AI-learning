@@ -10,6 +10,7 @@ import com.english.ai.user.dto.CheckInRequest;
 import com.english.ai.user.dto.CheckInResponse;
 import com.english.ai.user.dto.CheckInStatus;
 import com.english.ai.user.dto.CoinInfoResponse;
+import com.english.ai.user.dto.CoinLedgerVO;
 import com.english.ai.user.entity.UserCoinAccount;
 import com.english.ai.user.service.CheckInService;
 import com.english.ai.user.service.CoinService;
@@ -77,6 +78,42 @@ public class CoinController {
         } catch (RuntimeException e) {
             log.warn("查询金币信息失败: userId={}, reason={}", userId, e.getMessage());
             return Result.error("查询金币信息失败");
+        }
+    }
+
+    /**
+     * 金币流水：账户概览 + 一页流水（只读）
+     * GET /user/coin/ledger/{userId}?cursor=&amp;size=&amp;bizType=
+     *
+     * cursor 为上一页最后一条流水ID，首页不传；size 默认 20，上限 50。
+     * bizType 为业务类型筛选，不传表示全部；未知值只返回空列表，不报错（前向兼容）。
+     * 返回补充 totalSpent / monthSpent 两个消耗口径与 bizTypeCounts 全量计数：
+     * 当前系统没有扣减出口，消耗两者恒为 0，但按 amount&lt;0 实测，不写死常量。
+     */
+    @GetMapping("/coin/ledger/{userId}")
+    public Result<CoinLedgerVO> getCoinLedger(
+            @PathVariable Long userId,
+            @RequestParam(value = "cursor", required = false) Long cursor,
+            @RequestParam(value = "size", required = false, defaultValue = "20") Integer size,
+            @RequestParam(value = "bizType", required = false) String bizType,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
+        }
+        if (!coinService.userExists(userId)) {
+            return Result.error(404, "用户不存在");
+        }
+        if (size == null || size < 1 || size > 50) {
+            return Result.badRequest("size 取值范围为 1~50");
+        }
+        if (cursor != null && cursor <= 0) {
+            return Result.badRequest("cursor 必须为正整数");
+        }
+        try {
+            return Result.success(coinService.listLedger(userId, cursor, size, bizType));
+        } catch (RuntimeException e) {
+            log.warn("查询金币流水失败: userId={}, reason={}", userId, e.getMessage());
+            return Result.error("查询金币流水失败");
         }
     }
 

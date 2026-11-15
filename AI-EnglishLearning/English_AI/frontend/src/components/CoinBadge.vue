@@ -1,9 +1,9 @@
 <template>
   <router-link
-    to="/profile"
+    to="/wallet"
     class="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-tertiary-container/20 text-tertiary border border-tertiary/10 transition-all duration-300 hover:-translate-y-0.5 hover:bg-tertiary-container/30 hover:shadow-sm active:scale-95"
-    :aria-label="$t('coin.balance')"
-    :title="$t('coin.balance')"
+    :aria-label="$t('wallet.title')"
+    :title="$t('wallet.title')"
   >
     <span
       class="material-symbols-outlined text-xl transition-transform duration-300 group-hover:scale-110"

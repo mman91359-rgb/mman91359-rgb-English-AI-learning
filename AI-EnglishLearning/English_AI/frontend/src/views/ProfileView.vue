@@ -114,6 +114,14 @@
             {{ formatNumber(userStore.totalEarned, 'zh-CN') }}
           </span>
         </div>
+        <button
+          type="button"
+          :class="['mt-4 w-full', btnSecondarySm]"
+          @click="router.push('/wallet')"
+        >
+          <AppIcon name="receipt_long" size="sm" />
+          {{ $t('wallet.entry') }}
+        </button>
       </div>
 
       <div class="bg-surface-container-lowest rounded-[24px] p-8 soft-shadow border border-surface-container-low">
@@ -342,6 +350,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import AppLayout from '../components/AppLayout.vue'
 import { useUserStore } from '@/stores/user'
 import { formatNumber } from '@/utils/format'
@@ -355,10 +364,12 @@ import CheckInCalendarDialog from '@/components/checkin/CheckInCalendarDialog.vu
 import { useCheckInCalendar } from '@/composables/useCheckInCalendar'
 import BaseDialog from '@/components/ui/BaseDialog.vue'
 import { inputClassLg } from '@/components/ui/formStyles'
-import { btnDialogPrimary, btnDialogSecondary, btnIcon } from '@/components/ui/buttonStyles'
+import { btnDialogPrimary, btnDialogSecondary, btnIcon, btnSecondarySm } from '@/components/ui/buttonStyles'
+import AppIcon from '@/components/ui/AppIcon.vue'
 import type { AbilityDimensionKey, AbilityRadar } from '@/api/stats'
 
 const { t } = useI18n()
+const router = useRouter()
 const userStore = useUserStore()
 const { show: toast } = useToast()
 

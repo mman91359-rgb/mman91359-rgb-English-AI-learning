@@ -427,25 +427,25 @@ slot：`#leading`（左侧图标圆/头像）、`#trailing`（右侧动作或状
 **基线一律以已提交状态为准**（`git grep … HEAD`），不取工作区。原因见下方第二条警示。
 
 ```bash
-# L1a 任意值圆角（半径族，含 rounded-t/-b/-l/-r；目标 0；当前 34 @ 7d5bd53）
+# L1a 任意值圆角（半径族，含 rounded-t/-b/-l/-r；目标 0；当前 31 @ 71549f6）
 # ⚠️ 旧命令 grep -ro "rounded-\[[0-9]*px\]" 漏掉带方向后缀的形式（WordDetailCard 的 rounded-t-[28px]），
 #    旧 L1b 的 grep -v "^rounded-" 又把这类一起滤掉，于是 37 + 149 = 186 ≠ 全量 187 —— 有 1 处谁都没数。
-#    此处改用半径族正则，L1a + L1b 恒等于全量实测（当前 34 + 143 = 177）。
+#    此处改用半径族正则，L1a + L1b 恒等于全量实测（当前 31 + 133 = 164）。
 git grep -ohE "rounded(-[trblse]{1,2})?-\[[0-9]*px\]" HEAD -- "src/*.vue" "src/*.ts" | wc -l
 
-# L1b 除圆角外其他属性的任意值（目标 0；当前 143 @ 7d5bd53）
+# L1b 除圆角外其他属性的任意值（目标 0；当前 133 @ 71549f6）
 git grep -ohE "[a-z-]+-\[[^]]*\]" HEAD -- "src/*.vue" "src/*.ts" | grep -vE "^rounded" | wc -l
 
-# 图标用原生字号承载（目标 0；当前 43 @ 7d5bd53）
+# 图标用原生字号承载（目标 0；当前 43 @ 71549f6）
 git grep -n "material-symbols-outlined[^\"]*text-\(xs\|sm\|base\|lg\|xl\|2xl\|3xl\)\b" HEAD -- "src/views/*.vue" | wc -l
 
-# 手写 soft-glow 字面量（目标 0；当前 3 @ 7d5bd53）
+# 手写 soft-glow 字面量（目标 0；当前 1 @ 71549f6）
 git grep -n "shadow-\[0_4px_20px_rgba(51,58,72,0.05)\]" HEAD -- "src/*.vue" "src/*.ts"
 
-# 不存在的色类（目标 0；当前 0 @ 7d5bd53 —— admin 审核页两处已于 P4 修正）
+# 不存在的色类（目标 0；当前 0 @ 71549f6 —— admin 审核页两处已于 P4 修正）
 git grep -n "success-container\|text-success" HEAD -- "src/*.vue" "src/*.ts"
 
-# 组件层直写图标（目标 0；当前 107 @ 7d5bd53，已排除 AppIcon.vue 自身）
+# 组件层直写图标（目标 0；当前 107 @ 71549f6，已排除 AppIcon.vue 自身）
 # L2 只扫 views/，组件层的直写图标它看不见，必须单列一条
 git grep -n "material-symbols-outlined" HEAD -- "src/components/*.vue" | grep -v "AppIcon.vue" | wc -l
 ```
@@ -457,7 +457,7 @@ git grep -n "material-symbols-outlined" HEAD -- "src/components/*.vue" | grep -v
 > 锚点必须与本段数字**在同一次提交里**更新：改数字就改锚点，锚点不动的数字一律视为无效。
 >
 > ⚠️ 第一条命令会把**注释里的示例**一并计入：`ui/AppCard.vue:22-23` 的 `rounded-[20px]` 是禁用示例，
-> 不是真实代码。因此 L1a 的 34 中有 2 处属注释，**实际待迁移 32 处**。后续批次收口时不必消灭这 2 处，
+> 不是真实代码。因此 L1a 的 31 中有 2 处属注释，**实际待迁移 29 处**。后续批次收口时不必消灭这 2 处，
 > 除非改写注释措辞。其余各条命令同理，凡命中注释需人工排除。
 >
 > ⚠️ **为什么命令里带 `HEAD`**：基线一旦取工作区，别人的在途改动会让数字自己漂。
@@ -469,11 +469,11 @@ git grep -n "material-symbols-outlined" HEAD -- "src/components/*.vue" | grep -v
 > 结果是「本批改了 7 处」与「基线只减 3」在两份报表里永远对不上 —— 不是改少了，是另外 4 处（`h-[12px]`→`h-3`、`w-[12px]`→`w-3`）
 > 根本不在旧基线里。拆开后每批可写「A 类 N 处（L1a −a、L1b −b）」，两边能相加对上。
 
-当前 L1a 34 / L1b 143 / 43 / 3 / 0 / 107 的残留分布（供下一批选题参考）：
+当前 L1a 31 / L1b 133 / 43 / 1 / 0 / 107 的残留分布（供下一批选题参考）：
 
 | 指标 | 主要残留位置 |
 |---|---|
-| 任意值圆角 L1a 34 | `ProfileView`(8)、`ErrorBookView`(3)、`WordReviewDialog`(3)、`WordDetailCard`(2，含 1 处 `rounded-t-[28px]`)、`AppCard` 注释(2)、`AiCard`(2)、`VocabularyGoalDialog`(2)、`AudioPlayer`(2)，其余 10 处各 1（`LoginView` / `RegisterView` / `ForgotPasswordView` / `ForbiddenView` / `GrammarQuizView` / `WritingScorePanel` / `TranscriptPanel` / `ListeningTypeCard` / `FeedbackPanel` / `AiFeedbackPanel`）。`StatsView` 已归零 |
+| 任意值圆角 L1a 31 | `ProfileView`(8)、`ErrorBookView`(3)、`WordReviewDialog`(3)、`WordDetailCard`(2，含 1 处 `rounded-t-[28px]`)、`AppCard` 注释(2)、`AiCard`(2)、`VocabularyGoalDialog`(2)、`AudioPlayer`(2)，其余 7 处各 1（`LoginView` / `RegisterView` / `ForgotPasswordView` / `ForbiddenView` / `GrammarQuizView` / `TranscriptPanel` / `FeedbackPanel`）。`StatsView`、`WritingScorePanel`、`ListeningTypeCard`、`AiFeedbackPanel` 已归零 |
 | 图标原生字号 43 | `ErrorBookView`、`PracticeView`、`GrammarQuizView`、`VocabQuizView`、`ProfileView`、`LoginView`、`RegisterView`、`ForgotPasswordView` |
 | soft-glow 字面量 3 | `FeedbackPanel:76`、`TranscriptPanel:2`、`VocabQuizView:113` |
 | 不存在的色类 0 | 已清零。`AdminJudgeReviewView:83` 改 `bg-tertiary-container/50 text-on-tertiary-container`、`:96` 改 `text-tertiary hover:bg-tertiary-container/20`，依据 §7 的 `success → tertiary` 映射，与 `AdminQuestionsView:94` 的既有写法逐字一致 |
@@ -486,13 +486,13 @@ git grep -ohE "[a-z-]+-\[[^]]*\]" HEAD -- "src/*.vue" "src/*.ts" | grep -vE "^ro
 ```
 
 ```
-     22 shadow
-     21 text
+     20 shadow
      16 scale
      14 max-w
+     12 text
+      9 min-h
       9 grid-cols
       8 w
-      8 min-h
       7 z
       6 h
       6 bg
@@ -511,7 +511,7 @@ git grep -ohE "[a-z-]+-\[[^]]*\]" HEAD -- "src/*.vue" "src/*.ts" | grep -vE "^ro
       1 backdrop-blur
 ```
 
-**各项之和 = 22+21+16+14+9+8+8+7+6+6+5+4+3+2+2+2+2+1+1+1+1+1+1 = 143 = L1b 总数。** 对不上就说明表被手改过，重跑命令覆盖。
+**各项之和 = 20+16+14+12+9+9+8+7+6+6+5+4+3+2+2+2+2+1+1+1+1+1+1 = 133 = L1b 总数。** 对不上就说明表被手改过，重跑命令覆盖。
 
 **`shadow` 22 处的 A/B 已分完（2026-11-15）**：等于 `shadow-soft-glow` 的 **3 处 → A**（`TranscriptPanel:2`、`FeedbackPanel:76`、`VocabQuizView:113`）；`AiCard:29` 的「软阴影 + 内嵌 1px 环」**1 处 → 保留**（原子复合阴影，理由见 §11.1）；**品牌色 10 处 → §3 白名单例外**；**中性黑 8 处**（`GrammarQuizView` 7 处 + `VocabQuizView` 1 处，全在答题族）**→ 留给答题族批次**。`scale` 16 处仍未分类。
 
@@ -519,8 +519,8 @@ git grep -ohE "[a-z-]+-\[[^]]*\]" HEAD -- "src/*.vue" "src/*.ts" | grep -vE "^ro
 
 ```
 图标尺寸不统一的全量 = L2（43，具名档用错，如 text-xl）
-                     + L1b 的 text 子组里属于图标的任意值（9，如 text-[20px]）
-                     = 52
+                     + L1b 的 text 子组里属于图标的任意值（2026-11-15 前为 9，本批已清零）
+                     = 现值 43（口径不变，数字随批次变）
 ```
 
 两条命令各管一半，**报总数时必须两个都提**，只说 43 会漏掉一半。不把 L2 正则扩成「也匹配 `text-[Npx]`」的理由：L2 的定义就是「具名原生字号」，一扩会让 43 这个历史基线突变、与过去所有批次不可比。
@@ -559,6 +559,14 @@ git grep -ohE "[a-z-]+-\[[^]]*\]" HEAD -- "src/*.vue" "src/*.ts" | grep -vE "^ro
 |---|---|---|---|
 | `StatsView:87` 热力图格子 | `rounded-[2px]` | `rounded-sm` | 0.125rem = 2px；同文件 `:51` 图例方块原本就在用 `rounded-sm` |
 | `StatsView:66,73` 标签 | `leading-[12px]` | `leading-3` | 0.75rem = 12px |
+| `WritingScorePanel:2`、`AiFeedbackPanel:2` | `rounded-[24px]` | `rounded-3xl` | 1.5rem = 24px |
+| `ListeningTypeCard:10` | `rounded-[16px]` | `rounded-2xl` | 1rem = 16px |
+| `TranscriptPanel:2`、`FeedbackPanel:76` | `shadow-[0_4px_20px_rgba(51,58,72,0.05)]` | `shadow-soft-glow` | 配置值逐字相同；实测两种写法的 computed `box-shadow` 都是 `rgba(51,58,72,0.05) 0px 4px 20px 0px` |
+| 9 处图标字号：`AudioPlayer:18/32/59/66/80/107`、`TranscriptPanel:5/16`、`ListeningTypeCard:13` | `text-[20px]`×6、`text-[24px]`×2、`text-[16px]`×1 | `text-icon-lg` | 兜底规则使这些值**实际都渲染 24px**（见 §10 说明）；`text-icon-lg` = 24/24，零位移 |
+
+> **那 9 处图标字号的特殊说明**：作者写的是 20px / 16px，但 `main.css:274` 的兜底规则从未让它们生效（图标恒 24px）。
+> 本批一律换 `text-icon-lg`（24px），**保持用户当前看到的像素不变**，顺带把死类名变成有效类名（行为自此可预期）。
+> 若要恢复作者原意（20/16px），属**设计变更**，必须另立「设计修正批」并带截图，不得混在等值替换里。
 
 已发生的 B 类 —— **已改**（逐条登记位移）：
 

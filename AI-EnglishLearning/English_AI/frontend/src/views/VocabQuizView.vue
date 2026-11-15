@@ -408,35 +408,68 @@
           </div>
         </template>
 
-        <!-- 无题但有词卡：词卡降级学习 -->
-        <div v-else-if="cardFallback.length > 0" class="flex-1 overflow-y-auto px-gutter py-6 space-y-3">
-          <p class="font-label-md text-label-md text-on-surface-variant text-center">
-            {{ $t('learning.wordCardFallback') }}
-          </p>
-          <div
-            v-for="c in cardFallback"
-            :key="c.word"
-            class="bg-surface-container-lowest rounded-2xl p-4 shadow-soft-glow"
-          >
-            <div class="flex items-baseline gap-3 flex-wrap">
-              <p class="font-headline-md text-headline-md text-on-surface">{{ c.word }}</p>
-              <span v-if="c.pos" class="font-label-md text-label-md text-primary italic">{{ c.pos }}</span>
-              <span v-if="c.phonetic" class="font-body-sm text-body-sm text-on-surface-variant">{{ c.phonetic }}</span>
+        <!-- 词卡学习阶段：本批里的无题词，题目答完后逐张过 -->
+        <template v-else-if="cardFallback.length > 0">
+          <div class="flex-1 flex flex-col px-gutter py-6">
+            <div class="flex items-center justify-between mb-4">
+              <span class="font-body-md text-body-md text-on-surface-variant">
+                {{ $t('learning.wordCardPhase') }} {{ cardIndex + 1 }} / {{ cardFallback.length }}
+              </span>
             </div>
-            <p class="font-body-md text-body-md text-on-surface-variant mt-2">{{ c.translation || '暂无释义' }}</p>
-            <div v-if="c.example" class="mt-2 pl-3 border-l-2 border-primary/40">
-              <p class="font-body-sm text-body-sm text-on-surface italic">{{ c.example }}</p>
-              <p v-if="c.exampleTranslation" class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
-                {{ c.exampleTranslation }}
+
+            <div v-if="currentCard" class="bg-surface-container-lowest rounded-3xl p-8 shadow-soft-glow flex flex-col items-center justify-center text-center min-h-[220px]">
+              <p class="font-headline-lg text-headline-lg text-on-surface">{{ currentCard.word }}</p>
+              <p v-if="currentCard.phonetic" class="font-body-md text-body-md text-on-surface-variant mt-2">
+                {{ currentCard.phonetic }}
               </p>
+              <p v-if="currentCard.pos" class="font-label-md text-label-md text-primary italic mt-1">
+                {{ currentCard.pos }}
+              </p>
+
+              <template v-if="cardFlipped">
+                <p class="font-body-lg text-body-lg text-on-surface mt-4">{{ currentCard.translation || '暂无释义' }}</p>
+                <div v-if="currentCard.example" class="mt-3 pl-3 border-l-2 border-primary/40 text-left w-full">
+                  <p class="font-body-sm text-body-sm text-on-surface italic">{{ currentCard.example }}</p>
+                  <p v-if="currentCard.exampleTranslation" class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+                    {{ currentCard.exampleTranslation }}
+                  </p>
+                </div>
+              </template>
+              <button
+                v-else
+                class="mt-6 px-4 py-2 bg-surface-container-low text-on-surface rounded-full font-label-md text-label-md hover:bg-surface-container transition-colors flex items-center gap-1"
+                @click="flipCard"
+              >
+                <AppIcon name="visibility" size="lg" />
+                {{ $t('wordReview.showMeaning') }}
+              </button>
             </div>
-          </div>
-          <div class="flex justify-center pt-2">
-            <button class="px-4 py-2 bg-primary text-on-primary rounded-full font-label-md text-label-md" @click="loadNewWordSession">
-              {{ $t('common.retry') }}
+
+            <div class="grid grid-cols-2 gap-3 mt-4">
+              <button
+                class="py-3 bg-error-container/30 text-error rounded-xl font-label-md text-label-md hover:bg-error-container/50 transition-colors disabled:opacity-50"
+                :disabled="!cardFlipped"
+                @click="handleCardAnswer(false)"
+              >
+                {{ $t('learning.cardUnknown') }}
+              </button>
+              <button
+                class="py-3 bg-tertiary-container/40 text-on-tertiary-container rounded-xl font-label-md text-label-md hover:bg-tertiary-container/60 transition-colors disabled:opacity-50"
+                :disabled="!cardFlipped"
+                @click="handleCardAnswer(true)"
+              >
+                {{ $t('learning.cardKnown') }}
+              </button>
+            </div>
+            <button
+              class="mt-3 py-3 bg-surface-container-low text-on-surface rounded-xl font-label-md text-label-md hover:bg-surface-container transition-colors flex items-center justify-center gap-1"
+              @click="handleCardAddToLearning"
+            >
+              <AppIcon name="library_add" size="lg" />
+              {{ $t('learning.cardAddToVocabulary') }}
             </button>
           </div>
-        </div>
+        </template>
 
         <!-- 无题 -->
         <EmptyState
@@ -501,6 +534,7 @@ import {
   getQuestionById,
   getReviewList,
   addVocabulary,
+  recordWordAttempt,
 } from '@/api/exercise'
 import { useSentenceFavorite } from '@/composables/useSentenceFavorite'
 import { useSpeechRecognition } from '@/composables/useSpeechRecognition'
@@ -510,6 +544,7 @@ import type { QuestionVO, SubmitResponse, VocabularyVO, WordCardVO } from '@/api
 import { btnIcon } from '@/components/ui/buttonStyles'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -547,6 +582,10 @@ const reviewCompleted = ref(false)
 const newWordPool = ref<QuestionVO[]>([])
 const activeQueue = ref<QuestionVO[]>([])
 const cardFallback = ref<WordCardVO[]>([])
+// 词卡学习阶段：题目队列答完后进入，保证本批 CARD 不被丢弃
+const cardMode = ref(false)
+const cardIndex = ref(0)
+const cardFlipped = ref(false)
 const streaks = ref<Record<number, number>>({})
 const masteredIds = ref<number[]>([])
 const attempts = ref(0)
@@ -558,6 +597,9 @@ const results = ref<{ items: ResultItem[] }>({ items: [] })
 // ========== 计算属性 ==========
 const totalCount = computed(() => newWordPool.value.length)
 const currentQuestion = computed<QuestionVO | null>(() => activeQueue.value[0] || null)
+const currentCard = computed<WordCardVO | null>(() =>
+  cardIndex.value < cardFallback.value.length ? cardFallback.value[cardIndex.value] : null
+)
 const masteredCount = computed(() => masteredIds.value.length)
 const accuracy = computed(() =>
   attempts.value > 0 ? Math.round((correctAttempts.value / attempts.value) * 100) : 0
@@ -928,6 +970,9 @@ const loadNewWordSession = async () => {
   newWordPool.value = []
   activeQueue.value = []
   cardFallback.value = []
+  cardMode.value = false
+  cardIndex.value = 0
+  cardFlipped.value = false
   streaks.value = {}
   masteredIds.value = []
   attempts.value = 0
@@ -1064,6 +1109,17 @@ const handleSubmit = async () => {
       ...streaks.value,
       [q.id]: result.isCorrect ? Math.min(3, currentStreak + 1) : 0,
     }
+
+    // 新词模式：把这次作答记进单词本。
+    // practiceOnly 只免掉答题统计，不等于「不学」——答错的词必须能被复习到。
+    if (vocabMode.value === 'new' && (q.moduleType || 1) === 1) {
+      try {
+        await recordWordAttempt(userId, { questionId: q.id, isCorrect: result.isCorrect })
+      } catch (e) {
+        console.warn('记录单词作答失败', e)
+      }
+    }
+
     saveSession()
   } catch (e) {
     console.warn('提交失败', e)
@@ -1103,6 +1159,14 @@ const goNext = async () => {
   startTime.value = Date.now()
 
   if (activeQueue.value.length === 0) {
+    // 题目答完：本批若还有词卡，先进入词卡学习阶段，不直接出结果
+    if (cardFallback.value.length > 0) {
+      cardMode.value = true
+      cardIndex.value = 0
+      cardFlipped.value = false
+      saveSession()
+      return
+    }
     showResults.value = true
     clearSession()
     return
@@ -1113,7 +1177,52 @@ const goNext = async () => {
   saveSession()
 }
 
+// ========== 词卡学习阶段 ==========
+/** 词卡翻面 */
+const flipCard = () => {
+  cardFlipped.value = !cardFlipped.value
+}
+
+/** 词卡作答：认识=true / 不认识=false，两者都会写入单词本（答错立即进复习） */
+const handleCardAnswer = async (known: boolean) => {
+  const userId = userStore.userId
+  const card = currentCard.value
+  if (!userId || !card || !cardFlipped.value) return
+  try {
+    await recordWordAttempt(userId, { word: card.word, isCorrect: known })
+  } catch (e) {
+    console.warn('记录词卡作答失败', e)
+  }
+  nextCard()
+}
+
+/** 加入学习：直接写入单词本（不要求先翻面），后续可正常复习 */
+const handleCardAddToLearning = async () => {
+  const userId = userStore.userId
+  const card = currentCard.value
+  if (!userId || !card) return
+  try {
+    await addVocabulary({ userId, word: card.word, source: 'quiz' })
+    toast(t('learning.addedToVocabulary'), 'success')
+  } catch (e) {
+    const message = e instanceof Error ? e.message : t('learning.addWordFailed')
+    toast(message, 'warning')
+  }
+  nextCard()
+}
+
+const nextCard = () => {
+  cardIndex.value += 1
+  cardFlipped.value = false
+  if (cardIndex.value >= cardFallback.value.length) {
+    cardMode.value = false
+    showResults.value = true
+    clearSession()
+  }
+}
+
 const goBack = () => { if (window.history.length > 1) router.back(); else router.push('/learning') }
+
 const restartQuiz = async () => {
   clearSession()
   reviewCompleted.value = false

@@ -453,6 +453,80 @@ public class ExerciseController {
         }
     }
 
+    /**
+     * 记录一次单词作答（新词/复习循环专用，不进答题统计）
+     * POST /exercise/vocabulary/attempt
+     */
+    @PostMapping("/vocabulary/attempt")
+    public Result<VocabularyVO> recordWordAttempt(
+            @Valid @RequestBody WordAttemptRequest request,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        boolean noWord = request.getWord() == null || request.getWord().isBlank();
+        if (request.getUserId() == null || (request.getQuestionId() == null && noWord)) {
+            return Result.badRequest("userId必填，questionId 与 word 至少传一个");
+        }
+        if (UserIdentityUtil.isForbidden(headerUserId, request.getUserId())) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
+        }
+        try {
+            return Result.success(exerciseService.recordWordAttempt(
+                    request.getUserId(), request.getQuestionId(), request.getWord(), request.getIsCorrect()));
+        } catch (RuntimeException e) {
+            log.warn("记录单词作答失败: {}", e.getMessage());
+            return Result.error(e.getMessage());
+        }
+    }
+
+    /**
+     * 写作历史（数据源 writing_essay）
+     * GET /exercise/writing-history/{userId}?page=1&size=20&startTime=...&endTime=...
+     */
+    @GetMapping("/writing-history/{userId}")
+    public Result<Map<String, Object>> getWritingHistory(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "20") Integer size,
+            @RequestParam(required = false) String startTime,
+            @RequestParam(required = false) String endTime,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
+        }
+        List<WritingHistoryVO> list = exerciseService.getWritingHistory(userId, page, size, startTime, endTime);
+        long total = exerciseService.getWritingHistoryCount(userId, startTime, endTime);
+        Map<String, Object> result = new java.util.HashMap<>();
+        result.put("records", list);
+        result.put("total", total);
+        result.put("page", page);
+        result.put("size", size);
+        return Result.success(result);
+    }
+
+    /**
+     * 统一学习时间线（答题 + 单词事件 + 写作，按时间倒序）
+     * GET /exercise/timeline/{userId}?page=1&size=20&startTime=...&endTime=...
+     */
+    @GetMapping("/timeline/{userId}")
+    public Result<Map<String, Object>> getTimeline(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "20") Integer size,
+            @RequestParam(required = false) String startTime,
+            @RequestParam(required = false) String endTime,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
+        }
+        List<TimelineItemVO> list = exerciseService.getTimeline(userId, page, size, startTime, endTime);
+        long total = exerciseService.getTimelineCount(userId, startTime, endTime);
+        Map<String, Object> result = new java.util.HashMap<>();
+        result.put("records", list);
+        result.put("total", total);
+        result.put("page", page);
+        result.put("size", size);
+        return Result.success(result);
+    }
+
     // ========== 学习历史 ==========
 
     /** GET /exercise/history/{userId}?page=1&size=20&moduleType=1&isCorrect=1&startTime=...&endTime=... */

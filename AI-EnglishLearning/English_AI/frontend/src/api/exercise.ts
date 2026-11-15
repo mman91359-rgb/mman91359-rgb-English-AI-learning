@@ -479,6 +479,18 @@ export const ignoreWord = (id: number, userId: number): Promise<VocabularyVO> =>
     return put(`/exercise/vocabulary/${id}/ignore?userId=${userId}`)
 }
 
+/**
+ * 记录一次单词作答（词汇练习循环专用）。
+ * 有题时传 questionId（后端用 answer_word 取词条原形），词卡作答传 word。
+ * 只更新单词本计数与复习计划，不进答题统计、不发金币；答错立刻进复习队列。
+ */
+export const recordWordAttempt = (
+    userId: number,
+    payload: { questionId?: number; word?: string; isCorrect: boolean },
+): Promise<VocabularyVO> => {
+    return post('/exercise/vocabulary/attempt', { userId, ...payload })
+}
+
 // ========== 词书 ==========
 
 export interface WordBookVO {
@@ -563,6 +575,8 @@ export interface UserWordLearnLogVO {
     wordId?: number
     word: string
     eventType: string
+    /** 作答结果: CORRECT/WRONG（仅 LEARN/REVIEW/MASTER 有值） */
+    result?: string
     bookCode?: string
     createdAt: string
 }
@@ -589,6 +603,83 @@ export const getWordLearnHistory = (
     if (startTime) params.startTime = startTime
     if (endTime) params.endTime = endTime
     return get(`/exercise/word-history/${userId}`, params)
+}
+
+// ========== 写作历史 ==========
+
+export interface WritingHistoryVO {
+    id: number
+    userId: number
+    topicKey: string
+    topicTitle?: string
+    wordCount?: number
+    durationSeconds?: number
+    aiScored: number
+    rawScore?: number
+    weightedScore?: number
+    createdAt: string
+}
+
+export interface WritingHistoryPage {
+    records: WritingHistoryVO[]
+    total: number
+    page: number
+    size: number
+}
+
+export const getWritingHistory = (
+    userId: number,
+    page: number = 1,
+    size: number = 20,
+    startTime?: string,
+    endTime?: string,
+): Promise<WritingHistoryPage> => {
+    const params: Record<string, any> = { page, size }
+    if (startTime) params.startTime = startTime
+    if (endTime) params.endTime = endTime
+    return get(`/exercise/writing-history/${userId}`, params)
+}
+
+// ========== 统一时间线 ==========
+
+export interface TimelineItemVO {
+    source: 'ANSWER' | 'WORD' | 'WRITING'
+    id: number
+    createdAt: string
+    /** ANSWER */
+    questionId?: number
+    moduleType?: number
+    isCorrect?: number
+    stem?: string
+    /** WORD */
+    word?: string
+    eventType?: string
+    /** 作答结果: CORRECT/WRONG（仅答题类单词事件有值） */
+    result?: string
+    bookCode?: string
+    /** WRITING */
+    topicTitle?: string
+    weightedScore?: number
+}
+
+export interface TimelinePage {
+    records: TimelineItemVO[]
+    total: number
+    page: number
+    size: number
+}
+
+export const getTimeline = (
+    userId: number,
+    page: number = 1,
+    size: number = 20,
+    startTime?: string,
+    endTime?: string,
+): Promise<TimelinePage> => {
+    const params: Record<string, any> = { page, size }
+    if (startTime) params.startTime = startTime
+    if (endTime) params.endTime = endTime
+    return get(`/exercise/timeline/${userId}`, params)
 }
 
 // ========== 每日单词 ==========

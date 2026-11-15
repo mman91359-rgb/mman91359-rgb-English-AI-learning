@@ -91,7 +91,7 @@
 
     <!-- 空状态 -->
     <EmptyState
-      v-else-if="history.length === 0 && wordHistory.length === 0"
+      v-else-if="history.length === 0 && wordHistory.length === 0 && timeline.length === 0 && writingHistory.length === 0"
       icon="filter_alt_off"
       :title="$t('learning.noFilterResult')"
       :action-label="$t('learning.resetFilter')"
@@ -100,32 +100,97 @@
 
     <!-- 历史记录列表 -->
     <div v-else class="space-y-3">
-      <!-- 单词事件记录 -->
-      <div
-        v-for="w in wordHistory"
-        :key="'word-' + w.id"
-        class="bg-surface-container-lowest rounded-2xl shadow-soft-glow p-4 flex items-center gap-4"
-      >
-        <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-primary-container/40">
-          <AppIcon :name="wordEventIcon(w.eventType)" size="lg" class="text-primary" />
-        </div>
-        <div class="flex-1 min-w-0">
-          <p class="font-body-md text-body-md text-on-surface truncate">
-            {{ w.word }}
-          </p>
-          <div class="flex items-center gap-3 mt-1">
-            <span class="font-label-sm text-label-sm text-primary">{{ wordEventLabel(w.eventType) }}</span>
-            <span v-if="w.bookCode" class="font-label-sm text-label-sm text-on-surface-variant">{{ w.bookCode }}</span>
+      <!-- 全部：统一时间线（答题 + 单词 + 写作） -->
+      <template v-if="sourceTab === 'all'">
+        <div
+          v-for="row in timeline"
+          :key="row.source + '-' + row.id"
+          class="bg-surface-container-lowest rounded-2xl shadow-soft-glow p-4 flex items-center gap-4"
+        >
+          <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+               :class="row.source === 'WORD' ? 'bg-primary-container/40' : row.source === 'WRITING' ? 'bg-secondary-container/40' : (row.isCorrect ? 'bg-tertiary-container/40' : 'bg-error-container/40')">
+            <AppIcon :name="timelineIcon(row)" size="lg"
+                     :class="row.source === 'WORD' ? 'text-primary' : row.source === 'WRITING' ? 'text-secondary' : (row.isCorrect ? 'text-tertiary' : 'text-error')" />
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-body-md text-body-md text-on-surface truncate">{{ timelineTitle(row) }}</p>
+            <div class="flex items-center gap-3 mt-1">
+              <span class="font-label-sm text-label-sm" :class="row.source === 'WORD' ? wordResultClass(row.result) : 'text-secondary'">
+                {{ timelineTag(row) }}
+              </span>
+              <span v-if="row.bookCode" class="font-label-sm text-label-sm text-on-surface-variant">{{ row.bookCode }}</span>
+            </div>
+          </div>
+          <div class="text-right shrink-0">
+            <span class="font-label-sm text-label-sm text-on-surface-variant block">
+              {{ formatDateTime(row.createdAt, locale) }}
+            </span>
           </div>
         </div>
-        <div class="text-right shrink-0">
-          <span class="font-label-sm text-label-sm text-on-surface-variant block">
-            {{ formatDateTime(w.createdAt, locale) }}
-          </span>
-        </div>
-      </div>
+      </template>
 
-      <!-- 每条历史记录 -->
+      <!-- 单词事件记录 -->
+      <template v-else-if="sourceTab === 'word'">
+        <div
+          v-for="w in wordHistory"
+          :key="'word-' + w.id"
+          class="bg-surface-container-lowest rounded-2xl shadow-soft-glow p-4 flex items-center gap-4"
+        >
+          <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-primary-container/40">
+            <AppIcon :name="wordEventIcon(w.eventType)" size="lg" class="text-primary" />
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-body-md text-body-md text-on-surface truncate">
+              {{ w.word }}
+            </p>
+            <div class="flex items-center gap-3 mt-1">
+              <span class="font-label-sm text-label-sm" :class="wordResultClass(w.result)">{{ wordEventLabel(w.eventType) }}</span>
+              <span v-if="w.result" class="font-label-sm text-label-sm"
+                    :class="w.result === 'CORRECT' ? 'text-tertiary' : 'text-error'">
+                {{ w.result === 'CORRECT' ? $t('learning.correctTag') : $t('learning.incorrectTag') }}
+              </span>
+              <span v-if="w.bookCode" class="font-label-sm text-label-sm text-on-surface-variant">{{ w.bookCode }}</span>
+            </div>
+          </div>
+          <div class="text-right shrink-0">
+            <span class="font-label-sm text-label-sm text-on-surface-variant block">
+              {{ formatDateTime(w.createdAt, locale) }}
+            </span>
+          </div>
+        </div>
+      </template>
+
+      <!-- 写作记录 -->
+      <template v-else-if="sourceTab === 'writing'">
+        <div
+          v-for="e in writingHistory"
+          :key="'writing-' + e.id"
+          class="bg-surface-container-lowest rounded-2xl shadow-soft-glow p-4 flex items-center gap-4"
+        >
+          <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-secondary-container/40">
+            <AppIcon name="edit_note" size="lg" class="text-secondary" />
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-body-md text-body-md text-on-surface truncate">
+              {{ e.topicTitle || e.topicKey }}
+            </p>
+            <div class="flex items-center gap-3 mt-1">
+              <span class="font-label-sm text-label-sm text-secondary">
+                {{ e.aiScored === 1 ? `${e.weightedScore ?? '-'} 分` : '未评分' }}
+              </span>
+              <span v-if="e.wordCount" class="font-label-sm text-label-sm text-on-surface-variant">{{ e.wordCount }} 词</span>
+            </div>
+          </div>
+          <div class="text-right shrink-0">
+            <span class="font-label-sm text-label-sm text-on-surface-variant block">
+              {{ formatDateTime(e.createdAt, locale) }}
+            </span>
+          </div>
+        </div>
+      </template>
+
+      <!-- 每条答题记录 -->
+      <template v-else>
       <div
         v-for="item in history"
         :key="item.logId"
@@ -274,9 +339,10 @@
           </div>
         </div>
       </div>
+      </template>
 
-      <!-- 分页 -->
-      <div v-if="total > history.length" class="flex justify-center gap-4 pt-4 pb-8">
+      <!-- 分页：统一用 total 判断，各 tab 的 total 都与自身接口同口径 -->
+      <div v-if="totalPages > 1" class="flex justify-center gap-4 pt-4 pb-8">
         <button
           :class="btnSecondarySm"
           :disabled="page <= 1"
@@ -312,7 +378,17 @@ import ErrorState from '@/components/ui/ErrorState.vue'
 import { useUserStore } from '@/stores/user'
 import { moduleName } from '@/config/modules'
 import { formatDateTime } from '@/utils/format'
-import { getExerciseHistory, getWordLearnHistory, getWordBooks, type ExerciseHistoryVO, type UserWordLearnLogVO } from '@/api/exercise'
+import {
+  getExerciseHistory,
+  getWordLearnHistory,
+  getWordBooks,
+  getWritingHistory,
+  getTimeline,
+  type ExerciseHistoryVO,
+  type UserWordLearnLogVO,
+  type TimelineItemVO,
+  type WritingHistoryVO,
+} from '@/api/exercise'
 import { btnSecondarySm } from '@/components/ui/buttonStyles'
 
 const { t, locale } = useI18n()
@@ -321,6 +397,8 @@ const userStore = useUserStore()
 // ========== 数据状态 ==========
 const history = ref<ExerciseHistoryVO[]>([])
 const wordHistory = ref<UserWordLearnLogVO[]>([])
+const timeline = ref<TimelineItemVO[]>([])
+const writingHistory = ref<WritingHistoryVO[]>([])
 const loading = ref(true)
 const loadError = ref('')
 const page = ref(1)
@@ -420,6 +498,33 @@ const switchSourceTab = (tab: 'all' | 'answer' | 'word' | 'writing') => {
   applyFilter()
 }
 
+/**
+ * 转成本地时区的时间字符串（不带 Z）。
+ * 后端按 Asia/Shanghai 存 datetime，前端若发 toISOString()（UTC+Z）会差 8 小时，
+ * 这里统一发本地时间，避免时区换算带来的筛选偏差。
+ */
+const toLocalDateTime = (d: Date): string => {
+  const p = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`
+}
+
+// ========== 数据加载 ==========
+// 计算筛选起止时间（优先自定义日期，其次快捷时间范围）
+const resolveTimeRange = (): { start?: string; end?: string } => {
+  let start: string | undefined
+  let end: string | undefined
+  if (startDate.value) {
+    start = toLocalDateTime(new Date(startDate.value + 'T00:00:00'))
+  } else if (timeRangeFilter.value !== 'all') {
+    const s = getTimeRangeStart(timeRangeFilter.value)
+    if (s) start = toLocalDateTime(s)
+  }
+  if (endDate.value) {
+    end = toLocalDateTime(new Date(endDate.value + 'T23:59:59'))
+  }
+  return { start, end }
+}
+
 // ========== 单词事件展示辅助 ==========
 const wordEventLabel = (eventType: string): string => {
   const map: Record<string, string> = {
@@ -445,22 +550,41 @@ const wordEventIcon = (eventType: string): string => {
   return map[eventType] || 'circle'
 }
 
-// ========== 数据加载 ==========
-// 计算筛选起止时间（优先自定义日期，其次快捷时间范围）
-const resolveTimeRange = (): { start?: string; end?: string } => {
-  let start: string | undefined
-  let end: string | undefined
-  if (startDate.value) {
-    start = new Date(startDate.value + 'T00:00:00').toISOString()
-  } else if (timeRangeFilter.value !== 'all') {
-    start = getTimeRangeStart(timeRangeFilter.value)?.toISOString()
-  }
-  if (endDate.value) {
-    end = new Date(endDate.value + 'T23:59:59').toISOString()
-  }
-  return { start, end }
+// ========== 统一时间线展示辅助 ==========
+const timelineIcon = (row: TimelineItemVO): string => {
+  if (row.source === 'WORD') return wordEventIcon(row.eventType || '')
+  if (row.source === 'WRITING') return 'edit_note'
+  return row.isCorrect === 1 ? 'check' : 'close'
 }
 
+const timelineTitle = (row: TimelineItemVO): string => {
+  if (row.source === 'WORD') return row.word || '-'
+  if (row.source === 'WRITING') return row.topicTitle || t('learning.tabWriting')
+  return row.stem || `${t('learning.stem')} #${row.questionId}`
+}
+
+const timelineTag = (row: TimelineItemVO): string => {
+  if (row.source === 'WORD') {
+    const base = wordEventLabel(row.eventType || '')
+    // 答题类单词事件（新学/复习/掌握）带作答结果，与事件类型一起展示
+    if (row.result === 'CORRECT') return `${base} · ${t('learning.correctTag')}`
+    if (row.result === 'WRONG') return `${base} · ${t('learning.incorrectTag')}`
+    return base
+  }
+  if (row.source === 'WRITING') {
+    return row.weightedScore != null ? `${row.weightedScore} 分` : t('learning.tabWriting')
+  }
+  return row.isCorrect === 1 ? t('learning.correctTag') : t('learning.incorrectTag')
+}
+
+/** 单词事件标签颜色：答对用 tertiary、答错用 error，无结果显示主色 */
+const wordResultClass = (result?: string): string => {
+  if (result === 'CORRECT') return 'text-tertiary'
+  if (result === 'WRONG') return 'text-error'
+  return 'text-primary'
+}
+
+// ========== 数据加载 ==========
 const load = async () => {
   const uid = userStore.userId
   if (!uid) return
@@ -476,27 +600,32 @@ const load = async () => {
       wordHistory.value = res.records || []
       total.value = res.total || 0
       history.value = []
+      timeline.value = []
+      writingHistory.value = []
     } else if (sourceTab.value === 'writing') {
-      // 写作：moduleType=6 的答题
-      const res = await getExerciseHistory(uid, page.value, size, 6, correctFilter.value >= 0 ? correctFilter.value : undefined, start, end)
-      history.value = res.records || []
+      // 写作：数据源是 writing_essay，不是 user_exercise_log（后者 module_type=6 永远为 0）
+      const res = await getWritingHistory(uid, page.value, size, start, end)
+      writingHistory.value = res.records || []
       total.value = res.total || 0
+      history.value = []
       wordHistory.value = []
+      timeline.value = []
     } else if (sourceTab.value === 'answer') {
       // 答题
       const res = await getExerciseHistory(uid, page.value, size, moduleFilter.value, correctFilter.value >= 0 ? correctFilter.value : undefined, start, end)
       history.value = res.records || []
       total.value = res.total || 0
       wordHistory.value = []
+      timeline.value = []
+      writingHistory.value = []
     } else {
-      // 全部：合并答题 + 单词事件（按时间降序）
-      const [answerRes, wordRes] = await Promise.all([
-        getExerciseHistory(uid, page.value, size, moduleFilter.value, correctFilter.value >= 0 ? correctFilter.value : undefined, start, end),
-        getWordLearnHistory(uid, 1, size, undefined, bookFilter.value || undefined, start, end),
-      ])
-      history.value = answerRes.records || []
-      wordHistory.value = wordRes.records || []
-      total.value = (answerRes.total || 0) + (wordRes.total || 0)
+      // 全部：后端 UNION 统一时间线，count 与分页同一口径（不再前端相加估算）
+      const res = await getTimeline(uid, page.value, size, start, end)
+      timeline.value = res.records || []
+      total.value = res.total || 0
+      history.value = []
+      wordHistory.value = []
+      writingHistory.value = []
     }
   } catch (e) {
     console.warn('加载学习历史失败', e)

@@ -30,6 +30,8 @@ import com.english.ai.exercise.dto.NewWordItemVO;
 import com.english.ai.exercise.dto.WordCardVO;
 import com.english.ai.exercise.dto.UserWordFavoriteVO;
 import com.english.ai.exercise.dto.UserWordLearnLogVO;
+import com.english.ai.exercise.dto.WritingHistoryVO;
+import com.english.ai.exercise.dto.TimelineItemVO;
 import com.english.ai.exercise.entity.*;
 import com.english.ai.exercise.event.ExerciseCompletedEvent;
 import com.english.ai.exercise.mapper.*;
@@ -55,8 +57,10 @@ import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -85,6 +89,8 @@ public class ExerciseServiceImpl implements ExerciseService {
     private final WordBookItemMapper wordBookItemMapper;
     private final UserWordFavoriteMapper userWordFavoriteMapper;
     private final UserWordLearnLogMapper userWordLearnLogMapper;
+    private final WritingEssayMapper writingEssayMapper;
+    private final TimelineMapper timelineMapper;
     private final DailyWordMapper dailyWordMapper;
     private final RestTemplate restTemplate;
     private final JudgmentEngine judgmentEngine;
@@ -1388,7 +1394,8 @@ public class ExerciseServiceImpl implements ExerciseService {
         userWordFavoriteMapper.insert(fav);
 
         // 记录收藏事件（不创建 user_vocabulary）
-        logWordLearnEvent(userId, wd != null ? wd.getId() : null, lower, "FAVORITE", null);
+        logWordLearnEvent(userId, wd != null ? wd.getId() : null, lower, "FAVORITE", null,
+                resolveBookCodeForWord(userId, lower));
 
         return toUserWordFavoriteVO(fav);
     }
@@ -1404,7 +1411,8 @@ public class ExerciseServiceImpl implements ExerciseService {
         // 记录取消收藏事件
         WordDictionary wd = wordDictionaryMapper.selectOne(
                 new LambdaQueryWrapper<WordDictionary>().eq(WordDictionary::getWord, lower));
-        logWordLearnEvent(userId, wd != null ? wd.getId() : null, lower, "UNFAVORITE", null);
+        logWordLearnEvent(userId, wd != null ? wd.getId() : null, lower, "UNFAVORITE", null,
+                resolveBookCodeForWord(userId, lower));
     }
 
     @Override
@@ -1441,14 +1449,229 @@ public class ExerciseServiceImpl implements ExerciseService {
     }
 
     /** 记录单词学习事件 */
-    private void logWordLearnEvent(Long userId, Long wordId, String word, String eventType, String bookCode) {
+    /**
+     * 记录单词学习事件。
+     *
+     * @param result 作答结果 CORRECT/WRONG；收藏、忽略等非答题事件传 null
+     */
+    private void logWordLearnEvent(Long userId, Long wordId, String word,
+                                   String eventType, String result, String bookCode) {
         UserWordLearnLog logEntry = new UserWordLearnLog();
         logEntry.setUserId(userId);
         logEntry.setWordId(wordId);
         logEntry.setWord(word == null ? "" : word.toLowerCase(Locale.ROOT));
         logEntry.setEventType(eventType);
+        logEntry.setResult(result);
         logEntry.setBookCode(bookCode);
         userWordLearnLogMapper.insert(logEntry);
+    }
+
+    /**
+     * 解析某个词所属的词书编码，用于事件记录。
+     *
+     * <p>优先按词反查 word_book_item（同一本词书可能收录同一个词，取 sort_order 最小的主词书），
+     * 查不到再回落用户当前活跃词书；两边都取不到返回 null。</p>
+     *
+     * <p>只查 word_book_item / word_book（都是 utf8mb4_unicode_ci），不跨 0900 表，
+     * 不需要额外 COLLATE。</p>
+     */
+    private String resolveBookCodeForWord(Long userId, String word) {
+        if (word == null || word.isBlank()) {
+            return null;
+        }
+        String lower = word.toLowerCase(Locale.ROOT);
+        List<WordBookItem> items = wordBookItemMapper.selectList(
+                new LambdaQueryWrapper<WordBookItem>()
+                        .eq(WordBookItem::getWord, lower)
+                        .select(WordBookItem::getBookCode));
+        if (!items.isEmpty()) {
+            Set<String> codes = items.stream()
+                    .map(WordBookItem::getBookCode)
+                    .filter(code -> code != null && !code.isBlank())
+                    .collect(Collectors.toSet());
+            if (codes.size() == 1) {
+                return codes.iterator().next();
+            }
+            if (!codes.isEmpty()) {
+                // 多本词书都收录：按 word_book.sort_order 取最靠前的一本
+                List<WordBook> books = wordBookMapper.selectList(
+                        new LambdaQueryWrapper<WordBook>()
+                                .in(WordBook::getCode, codes)
+                                .orderByAsc(WordBook::getSortOrder));
+                if (!books.isEmpty()) {
+                    return books.get(0).getCode();
+                }
+            }
+        }
+        WordBook active = resolveActiveWordBook(userId);
+        return active != null ? active.getCode() : null;
+    }
+
+    /** 按词书ID反查 code（本地查表，不跨服务） */
+    private String bookCodeOf(Long bookId) {
+        if (bookId == null) {
+            return null;
+        }
+        WordBook b = wordBookMapper.selectById(bookId);
+        return b != null ? b.getCode() : null;
+    }
+
+    /**
+     * 记录一次单词作答（新词/复习循环专用，不污染答题统计）。
+     *
+     * <p>与 reviewWord 的区别：reviewWord 操作已有记录的 id（单词本页复习弹窗），
+     * 本方法按 word 幂等写入（词汇练习页提交后调用），首次自动建记录。
+     * 答错时 next_review_at 设为当前，立即进入今日复习队列。</p>
+     */
+    @Override
+    public VocabularyVO recordWordAttempt(Long userId, Long questionId, String word, Boolean isCorrect) {
+        if (isCorrect == null) {
+            throw new RuntimeException("作答结果不能为空");
+        }
+
+        // 优先用题目 answer_word 的词条原形，避免题面变形被当成新词
+        String candidate = null;
+        if (questionId != null) {
+            QuestionInfo qi = questionInfoMapper.selectById(questionId);
+            if (qi != null && qi.getAnswerWord() != null && !qi.getAnswerWord().isBlank()) {
+                candidate = qi.getAnswerWord();
+            } else {
+                QuestionContent qc = questionContentMapper.selectOne(
+                        new LambdaQueryWrapper<QuestionContent>()
+                                .eq(QuestionContent::getQuestionId, questionId));
+                if (qc != null && qc.getCorrectAnswer() != null) {
+                    candidate = VocabularyLearningHelper.normalizeWord(qc.getCorrectAnswer());
+                }
+            }
+        }
+        if (candidate == null || candidate.isBlank()) {
+            candidate = word;
+        }
+
+        String normalized = VocabularyLearningHelper.normalizeWord(candidate);
+        if (normalized.isEmpty()) {
+            throw new RuntimeException("单词不能为空");
+        }
+        String lower = normalized.toLowerCase(Locale.ROOT);
+
+        WordDictionary wd = wordDictionaryMapper.selectOne(
+                new LambdaQueryWrapper<WordDictionary>().eq(WordDictionary::getWord, lower));
+        WordBook book = resolveActiveWordBook(userId);
+        String bookCode = book != null ? book.getCode() : null;
+        Long bookId = book != null ? book.getId() : null;
+
+        UserVocabulary v = vocabularyMapper.selectOne(
+                new LambdaQueryWrapper<UserVocabulary>()
+                        .eq(UserVocabulary::getUserId, userId)
+                        .eq(UserVocabulary::getWord, lower));
+
+        LocalDateTime now = LocalDateTime.now(clock);
+        boolean isNew = false;
+
+        if (v == null) {
+            isNew = true;
+            v = new UserVocabulary();
+            v.setUserId(userId);
+            v.setWord(lower);
+            v.setTranslation(wd != null ? wd.getTranslation() : "");
+            v.setPhonetic(wd != null ? wd.getPhonetic() : null);
+            v.setPos(wd != null ? wd.getPos() : null);
+            v.setExample(wd != null ? wd.getExample() : null);
+            v.setExampleTranslation(wd != null ? wd.getExampleTranslation() : null);
+            v.setSource("quiz");
+            v.setWordId(wd != null ? wd.getId() : null);
+            v.setBookId(bookId);
+            v.setFirstLearnedAt(now);
+            v.setCorrectCount(0);
+            v.setWrongCount(0);
+            v.setReviewCount(0);
+            v.setMasteryLevel(0);
+            v.setIsMastered(0);
+            v.setStatus("LEARNING");
+            v.setCreatedAt(now);
+        }
+
+        if (isCorrect) {
+            v.setCorrectCount((v.getCorrectCount() == null ? 0 : v.getCorrectCount()) + 1);
+            v.setLastResult("CORRECT");
+        } else {
+            v.setWrongCount((v.getWrongCount() == null ? 0 : v.getWrongCount()) + 1);
+            v.setLastResult("WRONG");
+        }
+        v.setReviewCount((v.getReviewCount() == null ? 0 : v.getReviewCount()) + 1);
+        v.setLastReviewedAt(now);
+
+        if (isCorrect) {
+            int newMastery = EbbinghausUtil.nextMasteryOnCorrect(
+                    v.getMasteryLevel() == null ? 0 : v.getMasteryLevel());
+            v.setMasteryLevel(newMastery);
+            v.setNextReviewAt(EbbinghausUtil.nextReviewAt(newMastery, now));
+            if (EbbinghausUtil.isMastered(newMastery, true)) {
+                v.setIsMastered(1);
+                v.setStatus("MASTERED");
+            } else if (!"MASTERED".equals(v.getStatus())) {
+                v.setStatus("REVIEWING");
+            }
+        } else {
+            // 答错：掌握度归零 + 立即进复习队列（next_review_at = 现在）
+            v.setMasteryLevel(EbbinghausUtil.nextMasteryOnWrong());
+            v.setNextReviewAt(now);
+            v.setIsMastered(0);
+            if (!"IGNORE".equals(v.getStatus())) {
+                v.setStatus("LEARNING");
+            }
+        }
+
+        if (isNew) {
+            vocabularyMapper.insert(v);
+        } else {
+            vocabularyMapper.updateById(v);
+        }
+
+        logWordLearnEvent(userId, v.getWordId(), lower, isNew ? "LEARN" : "REVIEW",
+                isCorrect ? "CORRECT" : "WRONG", bookCode);
+
+        log.info("单词作答: userId={}, word={}, correct={}, new={}, nextReviewAt={}",
+                userId, lower, isCorrect, isNew, v.getNextReviewAt());
+        return toVocabularyVO(v);
+    }
+
+    /**
+     * 解析前端传来的时间字符串，兼容三种格式。
+     *
+     * <p>前端用 {@code Date.toISOString()} 发出的是 UTC（如 2026-11-14T14:32:00.000Z），
+     * 直接用 {@code LocalDateTime.parse} 会抛异常并被 catch 吞掉，导致筛选静默失效。
+     * 这里统一按业务时区（Asia/Shanghai）转成 LocalDateTime。</p>
+     *
+     * @return 解析失败返回 null（调用方按未传处理）
+     */
+    private LocalDateTime parseDateTime(String text) {
+        if (text == null || text.isBlank()) {
+            return null;
+        }
+        String s = text.trim();
+        // 1. 无时区：2026-11-14T14:32:00
+        try {
+            return LocalDateTime.parse(s);
+        } catch (Exception ignore) {
+            // 继续尝试下一种
+        }
+        // 2. 带偏移或 Z：2026-11-14T14:32:00.000Z / +08:00
+        try {
+            return OffsetDateTime.parse(s)
+                    .atZoneSameInstant(clock.getZone())
+                    .toLocalDateTime();
+        } catch (Exception ignore) {
+            // 继续尝试下一种
+        }
+        // 3. 纯 Instant 字符串
+        try {
+            return Instant.parse(s).atZone(clock.getZone()).toLocalDateTime();
+        } catch (Exception ignore) {
+            // 落到下面统一告警
+        }
+        log.warn("无法解析时间参数: {}", text);
+        return null;
     }
 
     @Override
@@ -1460,7 +1683,7 @@ public class ExerciseServiceImpl implements ExerciseService {
         if (v == null) throw new RuntimeException("单词不存在");
         v.setStatus("IGNORE");
         vocabularyMapper.updateById(v);
-        logWordLearnEvent(userId, v.getWordId(), v.getWord(), "IGNORE", null);
+        logWordLearnEvent(userId, v.getWordId(), v.getWord(), "IGNORE", null, bookCodeOf(v.getBookId()));
         return toVocabularyVO(v);
     }
 
@@ -1472,19 +1695,48 @@ public class ExerciseServiceImpl implements ExerciseService {
         if (normalized.isEmpty()) {
             throw new RuntimeException("单词不能为空");
         }
+        String lower = normalized.toLowerCase(Locale.ROOT);
 
         // 幂等：已存在同一单词时直接返回，不重置其复习计划
         UserVocabulary existing = vocabularyMapper.selectOne(new LambdaQueryWrapper<UserVocabulary>()
                 .eq(UserVocabulary::getUserId, userId)
-                .eq(UserVocabulary::getWord, normalized));
+                .eq(UserVocabulary::getWord, lower));
         if (existing != null) {
             return toVocabularyVO(existing);
         }
 
         LocalDateTime now = LocalDateTime.now(clock);
+        WordDictionary wd = wordDictionaryMapper.selectOne(
+                new LambdaQueryWrapper<WordDictionary>().eq(WordDictionary::getWord, lower));
+        WordBook book = resolveActiveWordBook(userId);
+
         UserVocabulary v = VocabularyLearningHelper.buildInitialVocabulary(
-                userId, normalized, translation, source, now);
+                userId, lower, translation, source, now);
+
+        // 补全 V1.0.50 新增字段（状态/词库ID/词书归属/首学时间/答对答错计数）
+        v.setWordId(wd != null ? wd.getId() : null);
+        v.setBookId(book != null ? book.getId() : null);
+        v.setFirstLearnedAt(now);
+        v.setCorrectCount(0);
+        v.setWrongCount(0);
+        v.setStatus("LEARNING");
+        v.setIsMastered(0);
+        // 释义/音标兜底：调用方未传时回落到词库，避免单词本里出现「暂无释义」
+        if ((translation == null || translation.isBlank()) && wd != null) {
+            v.setTranslation(wd.getTranslation());
+            v.setPhonetic(wd.getPhonetic());
+            v.setPos(wd.getPos());
+            v.setExample(wd.getExample());
+            v.setExampleTranslation(wd.getExampleTranslation());
+        }
+
         vocabularyMapper.insert(v);
+
+        // 记录 LEARN 事件，带上当前词书，历史页才能按词书筛选
+        logWordLearnEvent(userId, v.getWordId(), lower, "LEARN", null,
+                book != null ? book.getCode() : null);
+
+        log.info("添加单词: userId={}, word={}, source={}", userId, lower, v.getSource());
         return toVocabularyVO(v);
     }
 
@@ -1619,6 +1871,8 @@ public class ExerciseServiceImpl implements ExerciseService {
         // 关联 word_dictionary
         WordDictionary wd = wordDictionaryMapper.selectOne(
                 new LambdaQueryWrapper<WordDictionary>().eq(WordDictionary::getWord, lower));
+        // 当前词书归属
+        WordBook book = resolveActiveWordBook(userId);
 
         UserVocabulary v = new UserVocabulary();
         v.setUserId(userId);
@@ -1627,6 +1881,7 @@ public class ExerciseServiceImpl implements ExerciseService {
         v.setSource(source == null || source.isBlank() ? "manual" : source);
         v.setStatus("LEARNING");
         v.setWordId(wd != null ? wd.getId() : null);
+        v.setBookId(book != null ? book.getId() : null);
         v.setFirstLearnedAt(LocalDateTime.now(clock));
         v.setCorrectCount(0);
         v.setWrongCount(0);
@@ -1657,7 +1912,8 @@ public class ExerciseServiceImpl implements ExerciseService {
         vocabularyMapper.insert(v);
 
         // 记录 LEARN 事件
-        logWordLearnEvent(userId, v.getWordId(), lower, "LEARN", null);
+        logWordLearnEvent(userId, v.getWordId(), lower, "LEARN", null,
+                book != null ? book.getCode() : null);
 
         log.info("智能添加单词: userId={}, word={}, source={}", userId, lower, v.getSource());
         return toVocabularyVO(v);
@@ -1761,8 +2017,10 @@ public class ExerciseServiceImpl implements ExerciseService {
 
         vocabularyMapper.updateById(v);
 
-        // 记录 REVIEW/MASTER 事件
-        logWordLearnEvent(userId, v.getWordId(), v.getWord(), mastered ? "MASTER" : "REVIEW", null);
+        // 记录 REVIEW/MASTER 事件（带作答结果，历史页才能显示答对/答错）
+        logWordLearnEvent(userId, v.getWordId(), v.getWord(),
+                mastered ? "MASTER" : "REVIEW", isCorrect ? "CORRECT" : "WRONG",
+                bookCodeOf(v.getBookId()));
 
         log.info("单词复习: id={}, userId={}, isCorrect={}, newMastery={}, nextReviewAt={}",
                 id, userId, isCorrect, newMastery, v.getNextReviewAt());
@@ -1788,21 +2046,14 @@ public class ExerciseServiceImpl implements ExerciseService {
         if (isCorrect != null && isCorrect >= 0) {
             wrapper.eq(UserExerciseLog::getIsCorrect, isCorrect);
         }
-        if (startTime != null && !startTime.isBlank()) {
-            try {
-                LocalDateTime start = LocalDateTime.parse(startTime);
-                wrapper.ge(UserExerciseLog::getCreatedAt, start);
-            } catch (Exception e) {
-                log.warn("解析 startTime 失败: {}", startTime);
-            }
+        // 时间筛选统一走 parseDateTime：兼容前端 toISOString 的 UTC（...Z）格式
+        LocalDateTime start = parseDateTime(startTime);
+        if (start != null) {
+            wrapper.ge(UserExerciseLog::getCreatedAt, start);
         }
-        if (endTime != null && !endTime.isBlank()) {
-            try {
-                LocalDateTime end = LocalDateTime.parse(endTime);
-                wrapper.lt(UserExerciseLog::getCreatedAt, end);
-            } catch (Exception e) {
-                log.warn("解析 endTime 失败: {}", endTime);
-            }
+        LocalDateTime end = parseDateTime(endTime);
+        if (end != null) {
+            wrapper.lt(UserExerciseLog::getCreatedAt, end);
         }
 
         List<UserExerciseLog> logs = exerciseLogMapper.selectList(
@@ -1938,21 +2189,13 @@ public class ExerciseServiceImpl implements ExerciseService {
         if (isCorrect != null && isCorrect >= 0) {
             wrapper.eq(UserExerciseLog::getIsCorrect, isCorrect);
         }
-        if (startTime != null && !startTime.isBlank()) {
-            try {
-                LocalDateTime start = LocalDateTime.parse(startTime);
-                wrapper.ge(UserExerciseLog::getCreatedAt, start);
-            } catch (Exception e) {
-                log.warn("解析 startTime 失败: {}", startTime);
-            }
+        LocalDateTime start = parseDateTime(startTime);
+        if (start != null) {
+            wrapper.ge(UserExerciseLog::getCreatedAt, start);
         }
-        if (endTime != null && !endTime.isBlank()) {
-            try {
-                LocalDateTime end = LocalDateTime.parse(endTime);
-                wrapper.lt(UserExerciseLog::getCreatedAt, end);
-            } catch (Exception e) {
-                log.warn("解析 endTime 失败: {}", endTime);
-            }
+        LocalDateTime end = parseDateTime(endTime);
+        if (end != null) {
+            wrapper.lt(UserExerciseLog::getCreatedAt, end);
         }
 
         return exerciseLogMapper.selectCount(wrapper);
@@ -1971,19 +2214,13 @@ public class ExerciseServiceImpl implements ExerciseService {
         if (bookCode != null && !bookCode.isBlank()) {
             wrapper.eq(UserWordLearnLog::getBookCode, bookCode);
         }
-        if (startTime != null && !startTime.isBlank()) {
-            try {
-                wrapper.ge(UserWordLearnLog::getCreatedAt, LocalDateTime.parse(startTime));
-            } catch (Exception e) {
-                log.warn("解析 startTime 失败: {}", startTime);
-            }
+        LocalDateTime start = parseDateTime(startTime);
+        if (start != null) {
+            wrapper.ge(UserWordLearnLog::getCreatedAt, start);
         }
-        if (endTime != null && !endTime.isBlank()) {
-            try {
-                wrapper.lt(UserWordLearnLog::getCreatedAt, LocalDateTime.parse(endTime));
-            } catch (Exception e) {
-                log.warn("解析 endTime 失败: {}", endTime);
-            }
+        LocalDateTime end = parseDateTime(endTime);
+        if (end != null) {
+            wrapper.lt(UserWordLearnLog::getCreatedAt, end);
         }
 
         List<UserWordLearnLog> list = userWordLearnLogMapper.selectList(
@@ -1995,6 +2232,7 @@ public class ExerciseServiceImpl implements ExerciseService {
                 .wordId(l.getWordId())
                 .word(l.getWord())
                 .eventType(l.getEventType())
+                .result(l.getResult())
                 .bookCode(l.getBookCode())
                 .createdAt(l.getCreatedAt())
                 .build()).collect(Collectors.toList());
@@ -2010,21 +2248,115 @@ public class ExerciseServiceImpl implements ExerciseService {
         if (bookCode != null && !bookCode.isBlank()) {
             wrapper.eq(UserWordLearnLog::getBookCode, bookCode);
         }
-        if (startTime != null && !startTime.isBlank()) {
-            try {
-                wrapper.ge(UserWordLearnLog::getCreatedAt, LocalDateTime.parse(startTime));
-            } catch (Exception e) {
-                log.warn("解析 startTime 失败: {}", startTime);
-            }
+        LocalDateTime start = parseDateTime(startTime);
+        if (start != null) {
+            wrapper.ge(UserWordLearnLog::getCreatedAt, start);
         }
-        if (endTime != null && !endTime.isBlank()) {
-            try {
-                wrapper.lt(UserWordLearnLog::getCreatedAt, LocalDateTime.parse(endTime));
-            } catch (Exception e) {
-                log.warn("解析 endTime 失败: {}", endTime);
-            }
+        LocalDateTime end = parseDateTime(endTime);
+        if (end != null) {
+            wrapper.lt(UserWordLearnLog::getCreatedAt, end);
         }
         return userWordLearnLogMapper.selectCount(wrapper);
+    }
+
+    // ========== 写作历史 ==========
+
+    @Override
+    public List<WritingHistoryVO> getWritingHistory(Long userId, Integer page, Integer size, String startTime, String endTime) {
+        int offset = (page == null || page < 1 ? 0 : page - 1) * (size == null ? 20 : size);
+        int limit = size == null ? 20 : size;
+
+        LambdaQueryWrapper<WritingEssay> wrapper = new LambdaQueryWrapper<WritingEssay>()
+                .eq(WritingEssay::getUserId, userId);
+        LocalDateTime start = parseDateTime(startTime);
+        LocalDateTime end = parseDateTime(endTime);
+        if (start != null) {
+            wrapper.ge(WritingEssay::getCreatedAt, start);
+        }
+        if (end != null) {
+            wrapper.lt(WritingEssay::getCreatedAt, end);
+        }
+
+        List<WritingEssay> list = writingEssayMapper.selectList(
+                wrapper.orderByDesc(WritingEssay::getCreatedAt)
+                        .last("LIMIT " + offset + "," + limit));
+
+        return list.stream().map(e -> WritingHistoryVO.builder()
+                .id(e.getId())
+                .userId(e.getUserId())
+                .topicKey(e.getTopicKey())
+                .topicTitle(e.getTopicTitle())
+                .wordCount(e.getWordCount())
+                .durationSeconds(e.getDurationSeconds())
+                .aiScored(e.getAiScored())
+                .rawScore(e.getRawScore())
+                .weightedScore(e.getWeightedScore())
+                .createdAt(e.getCreatedAt())
+                .build()).collect(Collectors.toList());
+    }
+
+    @Override
+    public long getWritingHistoryCount(Long userId, String startTime, String endTime) {
+        LambdaQueryWrapper<WritingEssay> wrapper = new LambdaQueryWrapper<WritingEssay>()
+                .eq(WritingEssay::getUserId, userId);
+        LocalDateTime start = parseDateTime(startTime);
+        LocalDateTime end = parseDateTime(endTime);
+        if (start != null) {
+            wrapper.ge(WritingEssay::getCreatedAt, start);
+        }
+        if (end != null) {
+            wrapper.lt(WritingEssay::getCreatedAt, end);
+        }
+        return writingEssayMapper.selectCount(wrapper);
+    }
+
+    // ========== 统一时间线 ==========
+
+    @Override
+    public List<TimelineItemVO> getTimeline(Long userId, Integer page, Integer size, String startTime, String endTime) {
+        int offset = (page == null || page < 1 ? 0 : page - 1) * (size == null ? 20 : size);
+        int limit = size == null ? 20 : size;
+
+        LocalDateTime start = parseDateTime(startTime);
+        LocalDateTime end = parseDateTime(endTime);
+
+        List<TimelineItemVO> list = timelineMapper.selectTimeline(userId,
+                start != null ? start.toString() : null,
+                end != null ? end.toString() : null,
+                offset, limit);
+
+        // 答题行补题干：UNION 里不带正文，避免三表 join 膨胀，这里按 questionId 批量补一次
+        List<Long> questionIds = list.stream()
+                .filter(i -> "ANSWER".equals(i.getSource()))
+                .map(TimelineItemVO::getQuestionId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
+        if (!questionIds.isEmpty()) {
+            Map<Long, QuestionContent> contentMap = questionContentMapper.selectList(
+                            new LambdaQueryWrapper<QuestionContent>()
+                                    .in(QuestionContent::getQuestionId, questionIds))
+                    .stream()
+                    .collect(Collectors.toMap(QuestionContent::getQuestionId, c -> c, (a, b) -> a));
+            for (TimelineItemVO item : list) {
+                if ("ANSWER".equals(item.getSource()) && item.getQuestionId() != null) {
+                    QuestionContent content = contentMap.get(item.getQuestionId());
+                    if (content != null) {
+                        item.setStem(content.getStem());
+                    }
+                }
+            }
+        }
+        return list;
+    }
+
+    @Override
+    public long getTimelineCount(Long userId, String startTime, String endTime) {
+        LocalDateTime start = parseDateTime(startTime);
+        LocalDateTime end = parseDateTime(endTime);
+        return timelineMapper.countTimeline(userId,
+                start != null ? start.toString() : null,
+                end != null ? end.toString() : null);
     }
 
     /**

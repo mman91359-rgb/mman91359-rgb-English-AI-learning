@@ -19,6 +19,8 @@ public class UserWordLearnLogVO {
     private String word;
     /** 事件类型: LEARN/REVIEW/MASTER/FAVORITE/UNFAVORITE/IGNORE */
     private String eventType;
+    /** 作答结果: CORRECT/WRONG（仅 LEARN/REVIEW/MASTER 有值，其余为 null） */
+    private String result;
     /** 词书编码（可空） */
     private String bookCode;
     private LocalDateTime createdAt;

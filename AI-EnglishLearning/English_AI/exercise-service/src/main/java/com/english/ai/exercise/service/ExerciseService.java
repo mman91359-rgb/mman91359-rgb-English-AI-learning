@@ -6,6 +6,8 @@ import com.english.ai.exercise.dto.UserWordLearnLogVO;
 import com.english.ai.exercise.dto.WordBookVO;
 import com.english.ai.exercise.dto.WordBookStatsVO;
 import com.english.ai.exercise.dto.UserWordFavoriteVO;
+import com.english.ai.exercise.dto.WritingHistoryVO;
+import com.english.ai.exercise.dto.TimelineItemVO;
 import com.english.ai.exercise.dto.SubmitRequest;
 import com.english.ai.exercise.dto.SubmitResponse;
 import com.english.ai.exercise.dto.ReviewTaskVO;
@@ -120,6 +122,31 @@ public interface ExerciseService {
 
     /** 忽略单词（status=IGNORE，退出新词池与复习） */
     VocabularyVO ignoreWord(Long id, Long userId);
+
+    /**
+     * 记录一次单词作答（新词/复习循环专用）。
+     *
+     * <p>只更新 user_vocabulary 的答对/答错计数与复习计划，并落一条单词事件；
+     * 不进 user_exercise_log、不发金币、不动 ELO 与错题本。
+     * 答错的词 next_review_at 立即设为现在，从而马上出现在今日复习队列。</p>
+     */
+    VocabularyVO recordWordAttempt(Long userId, Long questionId, String word, Boolean isCorrect);
+
+    // ========== 写作历史 ==========
+
+    /** 写作历史（数据源 writing_essay） */
+    List<WritingHistoryVO> getWritingHistory(Long userId, Integer page, Integer size, String startTime, String endTime);
+
+    /** 写作历史总数 */
+    long getWritingHistoryCount(Long userId, String startTime, String endTime);
+
+    // ========== 统一时间线 ==========
+
+    /** 统一学习时间线（答题 + 单词事件 + 写作，按时间倒序） */
+    List<TimelineItemVO> getTimeline(Long userId, Integer page, Integer size, String startTime, String endTime);
+
+    /** 统一时间线总数（与分页同口径） */
+    long getTimelineCount(Long userId, String startTime, String endTime);
 
     // ========== 单词本 ==========
 

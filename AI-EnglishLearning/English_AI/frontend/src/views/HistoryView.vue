@@ -553,7 +553,8 @@ const wordEventLabel = (eventType: string): string => {
     MASTER: t('learning.eventMaster'),
     FAVORITE: t('learning.eventFavorite'),
     UNFAVORITE: t('learning.eventUnfavorite'),
-    IGNORE: t('learning.eventIgnore'),
+    FAMILIAR: t('learning.eventFamiliar'),
+    UNFAMILIAR: t('learning.eventUnfamiliar'),
   }
   return map[eventType] || eventType
 }
@@ -565,7 +566,8 @@ const wordEventIcon = (eventType: string): string => {
     MASTER: 'check_circle',
     FAVORITE: 'favorite',
     UNFAVORITE: 'heart_broken',
-    IGNORE: 'visibility_off',
+    FAMILIAR: 'task_alt',
+    UNFAMILIAR: 'undo',
   }
   return map[eventType] || 'circle'
 }
@@ -618,8 +620,10 @@ const wordEventTone = (eventType: string): { wrap: string; icon: string } => {
       return { wrap: 'bg-tertiary-container/60', icon: 'text-tertiary' }
     case 'FAVORITE':
       return { wrap: 'bg-secondary-container/50', icon: 'text-secondary' }
+    case 'FAMILIAR':
+      return { wrap: 'bg-warning-container/50', icon: 'text-warning' }
     case 'UNFAVORITE':
-    case 'IGNORE':
+    case 'UNFAMILIAR':
       return { wrap: 'bg-surface-container-high', icon: 'text-on-surface-variant' }
     default:
       return { wrap: 'bg-primary-container/40', icon: 'text-primary' }

@@ -507,7 +507,8 @@ export interface WordBookStatsVO {
     total: number
     learned: number
     mastered: number
-    ignored: number
+    /** 已标熟数（status=FAMILIAR）；「忽略」已与「标熟」合并 */
+    familiar: number
     toLearn: number
     todayPlan: number
 }
@@ -522,7 +523,7 @@ export interface WordBookWordVO {
     exampleTranslation?: string
     rankNo?: number
     wordId?: number
-    /** 当前用户学习状态: LEARNING/REVIEWING/MASTERED/IGNORE；未学为 undefined */
+    /** 当前用户学习状态: LEARNING/REVIEWING/MASTERED/FAMILIAR；未学为 undefined */
     status?: string
     /** 是否已掌握 0/1；未学为 0 */
     isMastered?: number
@@ -535,6 +536,9 @@ export interface WordBookWordsPage {
     size: number
 }
 
+/** 词书词表分类筛选档位 */
+export type WordBookWordFilter = 'ALL' | 'NEW' | 'LEARNING' | 'MASTERED' | 'FAMILIAR'
+
 export const getWordBooks = (): Promise<WordBookVO[]> => {
     return get('/exercise/word-books')
 }
@@ -543,17 +547,112 @@ export const getWordBookStats = (bookCode: string, userId: number): Promise<Word
     return get(`/exercise/word-books/${bookCode}/stats`, { userId })
 }
 
-/** 词书单词表：按书内名次分页，带释义与用户学习状态 */
+/**
+ * 词书单词表：按书内名次分页，带释义与用户学习状态。
+ *
+ * filter 为分类筛选，过滤在后端 SQL 层完成，total 与分页同口径。
+ */
 export const getWordBookWords = (
     bookCode: string,
     userId: number,
     page: number = 1,
     size: number = 20,
     keyword?: string,
+    filter: WordBookWordFilter = 'ALL',
 ): Promise<WordBookWordsPage> => {
     const params: Record<string, any> = { userId, page, size }
     if (keyword && keyword.trim()) params.keyword = keyword.trim()
+    if (filter && filter !== 'ALL') params.status = filter
     return get(`/exercise/word-books/${encodeURIComponent(bookCode)}/words`, params)
+}
+
+// ========== 已学词库与标熟 ==========
+
+/** 已学词库条目 */
+export interface LearnedWordVO {
+    id: number
+    word: string
+    translation?: string
+    phonetic?: string
+    pos?: string
+    example?: string
+    /** 学习状态: LEARNING/REVIEWING/MASTERED/FAMILIAR */
+    status: string
+    bookCode?: string
+    bookName?: string
+    firstLearnedAt?: string
+    masteredAt?: string
+    familiarAt?: string
+    /** 分组日 yyyy-MM-dd（后端已截断，前端不得再做时区转换） */
+    groupDate?: string
+    correctCount?: number
+    wrongCount?: number
+    reviewCount?: number
+}
+
+/** 已学词库日期分组头 */
+export interface LearnedWordDateVO {
+    date: string
+    count: number
+}
+
+export interface LearnedWordsPage {
+    records: LearnedWordVO[]
+    total: number
+    page: number
+    size: number
+}
+
+/** 词汇量汇总（统计页「个人词汇量」组件） */
+export interface VocabularySummaryVO {
+    total: number
+    learning: number
+    mastered: number
+    familiar: number
+    dueReview: number
+}
+
+/** 已学词库分类 tab：复习中（含 REVIEWING）/ 复习完成 / 已标熟 */
+export type LearnedWordTab = 'LEARNING' | 'MASTERED' | 'FAMILIAR'
+
+/** 日期分组头：按分组日倒序 */
+export const getLearnedDateGroups = (
+    userId: number,
+    tab: LearnedWordTab,
+): Promise<LearnedWordDateVO[]> => {
+    return get('/exercise/vocabulary/learned/dates', { userId, status: tab })
+}
+
+/** 已学词库词条：可按分组日过滤，不传 date 表示不限日期 */
+export const getLearnedWords = (
+    userId: number,
+    tab: LearnedWordTab,
+    date?: string,
+    page: number = 1,
+    size: number = 50,
+): Promise<LearnedWordsPage> => {
+    const params: Record<string, any> = { userId, page, size, status: tab }
+    if (date) params.date = date
+    return get('/exercise/vocabulary/learned', params)
+}
+
+/** 标记标熟 / 取消标熟（familiar=false 取消） */
+export const markFamiliar = (
+    id: number,
+    userId: number,
+    familiar: boolean = true,
+): Promise<{ id: number; word: string; status: string; familiarAt?: string }> => {
+    return post(`/exercise/vocabulary/${id}/familiar?userId=${userId}&familiar=${familiar}`)
+}
+
+/** 批量取消标熟（「已标熟」分类页多选批量用），返回实际变更条数 */
+export const batchUnfamiliar = (userId: number, ids: number[]): Promise<number> => {
+    return post(`/exercise/vocabulary/familiar/batch?userId=${userId}&ids=${ids.join(',')}`)
+}
+
+/** 词汇量汇总 */
+export const getVocabularySummary = (userId: number): Promise<VocabularySummaryVO> => {
+    return get('/exercise/stats/vocabulary-summary', { userId })
 }
 
 // ========== 单词收藏 ==========

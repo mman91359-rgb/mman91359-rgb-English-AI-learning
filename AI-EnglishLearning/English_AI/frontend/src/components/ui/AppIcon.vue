@@ -26,13 +26,12 @@ import { computed } from 'vue'
  *   .logo-glyph（特异性 0,2,0）继承外层字号，加 inherit 档会与之争抢特异性。
  * - 禁止在外部叠 text-[14px] / text-base 等类覆盖尺寸，冲突时以兜底规则为准，结果不可预期。
  * - 禁止用内联 style 写 font-size 或 font-variation-settings；填充只走 filled 布尔。
- * - 需要 48px 时不要指望本组件：请直接用 EmptyState / ErrorState（它们自带 text-icon-3xl）。
  */
 const props = withDefaults(defineProps<{
   /** Material Symbols 连字名，如 check / arrow_back / search */
   name: string
-  /** 尺寸档，映射到 text-icon-*：sm=18 / md=20 / lg=24 / xl=32 / 2xl=36 */
-  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl'
+  /** 尺寸档，映射到 text-icon-*：sm=18 / md=20 / lg=24 / xl=32 / 2xl=36 / 3xl=48 */
+  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'
   /** 是否使用实心字形（输出 .fill 类） */
   filled?: boolean
   /** 颜色语义；current 表示不设色、继承父级 */
@@ -53,6 +52,7 @@ const SIZE_CLASS = {
   lg: 'text-icon-lg',
   xl: 'text-icon-xl',
   '2xl': 'text-icon-2xl',
+  '3xl': 'text-icon-3xl',
 } as const
 
 const sizeClass = computed(() => SIZE_CLASS[props.size])

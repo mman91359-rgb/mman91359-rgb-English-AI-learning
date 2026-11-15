@@ -115,11 +115,16 @@ public interface ExerciseService {
      *
      * <p>按 word_book_item.rank_no 升序返回整本词书的词条，并补充字典释义和
      * 当前用户的学习状态；keyword 为空时不过滤，非空时按单词前缀/包含匹配。</p>
+     *
+     * @param status 分类筛选：ALL / NEW（未学习）/ LEARNING（复习中，含 REVIEWING）/
+     *               MASTERED（复习完成）/ FAMILIAR（已标熟）；为空视为 ALL。
+     *               过滤在 SQL 层完成，分页与总数同口径。
      */
-    List<WordBookWordVO> getWordBookWords(Long userId, String bookCode, Integer page, Integer size, String keyword);
+    List<WordBookWordVO> getWordBookWords(Long userId, String bookCode, Integer page, Integer size,
+                                          String keyword, String status);
 
-    /** 词书单词表总数（与分页同口径） */
-    long getWordBookWordCount(String bookCode, String keyword);
+    /** 词书单词表总数（与分页同口径，含分类筛选） */
+    long getWordBookWordCount(Long userId, String bookCode, String keyword, String status);
 
     // ========== 单词收藏 ==========
 

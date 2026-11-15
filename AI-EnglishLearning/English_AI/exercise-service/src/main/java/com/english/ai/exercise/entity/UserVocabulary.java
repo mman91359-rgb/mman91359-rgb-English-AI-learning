@@ -36,7 +36,7 @@ public class UserVocabulary {
     /** 来源: manual/daily_word/quiz */
     private String source;
 
-    /** 学习状态: LEARNING/REVIEWING/MASTERED/IGNORE */
+    /** 学习状态: LEARNING/REVIEWING/MASTERED/FAMILIAR */
     private String status;
 
     /** 关联 word_dictionary.id（可空） */
@@ -47,6 +47,12 @@ public class UserVocabulary {
 
     /** 首次学习时间 */
     private LocalDateTime firstLearnedAt;
+
+    /** 标熟时间（状态达成日；「已学词库」按日期分组的分组键之一） */
+    private LocalDateTime familiarAt;
+
+    /** 达成已掌握时间（状态达成日；「已学词库」按日期分组的分组键之一） */
+    private LocalDateTime masteredAt;
 
     /** 累计答对次数 */
     private Integer correctCount;

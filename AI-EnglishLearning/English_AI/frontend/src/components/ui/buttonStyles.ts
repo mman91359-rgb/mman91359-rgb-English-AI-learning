@@ -30,6 +30,32 @@ export const btnSecondaryBlock = `${base} w-full border border-outline-variant p
 /** 危险按钮：删除、禁用等不可逆操作 */
 export const btnDanger = `${base} bg-error px-5 py-2.5 text-on-error hover:bg-error/90 active:bg-error/80`
 
+/**
+ * 备用按钮底座：焦点环用 outline-current，跟随按钮自身文字色。
+ *
+ * 不能靠「在 base 后面再写一个 outline-* 类」来覆盖——同特异性的工具类
+ * 谁生效取决于 Tailwind 内部的生成顺序（由 color palette 的键序决定），
+ * 不是类名在属性里的先后，结果不可预期。所以这里独立声明一份。
+ */
+const altBase =
+  'inline-flex items-center justify-center gap-2 rounded-full font-label-lg text-label-lg transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current disabled:pointer-events-none disabled:opacity-60'
+
+/**
+ * 危险描边按钮：与主按钮并排时的负向动作（「忘了」「不熟」）。
+ *
+ * 与 btnDanger 的区别只在视觉权重：实心红用于页面上的唯一危险动作，
+ * 与另一个并排动作同屏时实心红过重，描边红能让两个按钮平级。
+ */
+export const btnDangerOutline = `${altBase} border border-error/30 bg-error/5 px-4 py-3 text-error hover:bg-error/10 active:bg-error/15`
+
+/**
+ * 第三色实心按钮：与主按钮并排的正向确认动作（如「记住了」）。
+ *
+ * 主按钮固定 bg-primary，一个视图内只保留一个主动作；
+ * 与之并排的确认动作用第三色，避免两个主色按钮互相抢焦点。
+ */
+export const btnTertiary = `${altBase} bg-tertiary px-4 py-3 text-on-tertiary hover:bg-tertiary/90 active:bg-tertiary/80`
+
 /** 弹窗并排双按钮 · 主：与次按钮各占一半宽度 */
 export const btnDialogPrimary = `${base} flex-1 bg-primary px-4 py-3 text-on-primary hover:bg-primary/90 active:bg-primary/80`
 

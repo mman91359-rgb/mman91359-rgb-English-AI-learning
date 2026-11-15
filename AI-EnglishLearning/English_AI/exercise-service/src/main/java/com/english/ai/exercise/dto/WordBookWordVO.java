@@ -29,7 +29,7 @@ public class WordBookWordVO {
     private Integer rankNo;
     /** 关联 word_dictionary.id（可空） */
     private Long wordId;
-    /** 当前用户学习状态: LEARNING/REVIEWING/MASTERED/IGNORE；未学为 null */
+    /** 当前用户学习状态: LEARNING/REVIEWING/MASTERED/FAMILIAR；未学为 null */
     private String status;
     /** 是否已掌握 0/1（未学为 0） */
     private Integer isMastered;

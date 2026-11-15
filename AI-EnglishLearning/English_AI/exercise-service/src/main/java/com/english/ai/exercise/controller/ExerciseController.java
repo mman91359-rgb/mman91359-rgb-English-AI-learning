@@ -6,7 +6,9 @@ import com.english.ai.common.Result;
 import com.english.ai.common.UserIdentityUtil;
 import com.english.ai.exercise.dto.*;
 import com.english.ai.exercise.entity.SysKnowledgePoint;
+import com.english.ai.exercise.entity.UserVocabulary;
 import com.english.ai.exercise.service.ExerciseService;
+import com.english.ai.exercise.service.impl.LearnedVocabularyService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +29,8 @@ import java.util.stream.Collectors;
 public class ExerciseController {
 
     private final ExerciseService exerciseService;
+    /** 已学词库与标熟 */
+    private final LearnedVocabularyService learnedVocabularyService;
 
     /**
      * 智能选题
@@ -228,6 +232,9 @@ public class ExerciseController {
     /**
      * GET /exercise/word-books/{bookCode}/words?userId=1&page=1&size=20&keyword=abandon
      * 词书单词表：按书内名次分页，带释义与当前用户学习状态。
+     *
+     * @param status 分类筛选：ALL / NEW（未学习）/ LEARNING（复习中）/ MASTERED（复习完成）/
+     *               FAMILIAR（已标熟）；过滤在 SQL 层完成，total 与分页同口径。
      */
     @GetMapping("/word-books/{bookCode}/words")
     public Result<Map<String, Object>> getWordBookWords(
@@ -236,13 +243,15 @@ public class ExerciseController {
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "20") Integer size,
             @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String status,
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
         if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
             throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
         }
         try {
-            List<WordBookWordVO> records = exerciseService.getWordBookWords(userId, bookCode, page, size, keyword);
-            long total = exerciseService.getWordBookWordCount(bookCode, keyword);
+            List<WordBookWordVO> records = exerciseService.getWordBookWords(
+                    userId, bookCode, page, size, keyword, status);
+            long total = exerciseService.getWordBookWordCount(userId, bookCode, keyword, status);
             int safePage = page == null || page < 1 ? 1 : page;
             int safeSize = size == null ? 20 : Math.max(1, Math.min(50, size));
             Map<String, Object> result = new java.util.HashMap<>();
@@ -403,8 +412,12 @@ public class ExerciseController {
     }
 
     /**
-     * 忽略单词（status=IGNORE，退出新词池与复习）
-     * PUT /exercise/vocabulary/{id}/ignore?userId=1
+     * 忽略单词 —— 已废弃，语义等价于「标记标熟」。
+     *
+     * <p>产品上「忽略」与「标熟」已合并（迁移 V1.0.54）：用户唯一可操作的排除动作是标熟。
+     * 本端点保留仅为兼容旧调用方，新代码请用 {@code POST /vocabulary/{id}/familiar}。</p>
+     *
+     * <p>PUT /exercise/vocabulary/{id}/ignore?userId=1</p>
      */
     @PutMapping("/vocabulary/{id}/ignore")
     public Result<VocabularyVO> ignoreWord(
@@ -416,6 +429,133 @@ public class ExerciseController {
         }
         try {
             return Result.success(exerciseService.ignoreWord(id, userId));
+        } catch (RuntimeException e) {
+            return Result.error(e.getMessage());
+        }
+    }
+
+    // ============= 已学词库与标熟 =============
+
+    /**
+     * 已学词库：日期分组头。
+     *
+     * <p>GET /exercise/vocabulary/learned/dates?userId=1&status=LEARNING</p>
+     *
+     * @param status LEARNING（复习中，含 REVIEWING）/ MASTERED（复习完成）/ FAMILIAR（已标熟）/ ALL
+     */
+    @GetMapping("/vocabulary/learned/dates")
+    public Result<List<LearnedWordDateVO>> getLearnedDateGroups(
+            @RequestParam Long userId,
+            @RequestParam(required = false) String status,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
+        }
+        try {
+            return Result.success(learnedVocabularyService.getDateGroups(userId, status));
+        } catch (RuntimeException e) {
+            return Result.error(e.getMessage());
+        }
+    }
+
+    /**
+     * 已学词库：分页词条。
+     *
+     * <p>GET /exercise/vocabulary/learned?userId=1&status=LEARNING&date=2026-11-15&page=1&size=50</p>
+     *
+     * @param date 分组日（yyyy-MM-dd），为空表示不限日期
+     */
+    @GetMapping("/vocabulary/learned")
+    public Result<Map<String, Object>> getLearnedWords(
+            @RequestParam Long userId,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String date,
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "50") Integer size,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
+        }
+        try {
+            int safePage = page == null || page < 1 ? 1 : page;
+            int safeSize = size == null ? 50 : Math.max(1, Math.min(200, size));
+            return Result.success(
+                    learnedVocabularyService.getLearnedWords(userId, status, date, safePage, safeSize));
+        } catch (RuntimeException e) {
+            return Result.error(e.getMessage());
+        }
+    }
+
+    /**
+     * 标记标熟 / 取消标熟。
+     *
+     * <p>POST /exercise/vocabulary/{id}/familiar?userId=1&familiar=true</p>
+     *
+     * <p>标熟语义：退出新词池与复习队列，但计入已学；取消标熟后回到「复习中」。</p>
+     */
+    @PostMapping("/vocabulary/{id}/familiar")
+    public Result<Map<String, Object>> markFamiliar(
+            @PathVariable Long id,
+            @RequestParam Long userId,
+            @RequestParam(defaultValue = "true") Boolean familiar,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
+        }
+        try {
+            UserVocabulary v = learnedVocabularyService.markFamiliar(id, userId, familiar);
+            Map<String, Object> result = new java.util.LinkedHashMap<>();
+            result.put("id", v.getId());
+            result.put("word", v.getWord());
+            result.put("status", v.getStatus());
+            result.put("familiarAt", v.getFamiliarAt());
+            return Result.success(result);
+        } catch (RuntimeException e) {
+            return Result.error(e.getMessage());
+        }
+    }
+
+    /**
+     * 批量取消标熟（「已标熟」分类页多选批量用）。
+     *
+     * <p>POST /exercise/vocabulary/familiar/batch?userId=1&ids=1,2,3</p>
+     *
+     * @return 实际变更条数
+     */
+    @PostMapping("/vocabulary/familiar/batch")
+    public Result<Integer> batchUnfamiliar(
+            @RequestParam Long userId,
+            @RequestParam String ids,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
+        }
+        try {
+            List<Long> idList = Arrays.stream(ids.split(","))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .map(Long::valueOf)
+                    .collect(Collectors.toList());
+            return Result.success(learnedVocabularyService.batchUnfamiliar(userId, idList));
+        } catch (RuntimeException e) {
+            return Result.error(e.getMessage());
+        }
+    }
+
+    /**
+     * 词汇量汇总（统计页「个人词汇量」组件）。
+     *
+     * <p>GET /exercise/stats/vocabulary-summary?userId=1</p>
+     */
+    @GetMapping("/stats/vocabulary-summary")
+    public Result<VocabularySummaryVO> getVocabularySummary(
+            @RequestParam Long userId,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
+        }
+        try {
+            return Result.success(learnedVocabularyService.getSummary(userId));
         } catch (RuntimeException e) {
             return Result.error(e.getMessage());
         }

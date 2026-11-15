@@ -25,6 +25,7 @@ import com.english.ai.exercise.dto.WeakKnowledgePoint;
 import com.english.ai.exercise.dto.CoinAwardResult;
 import com.english.ai.exercise.dto.PreferenceResult;
 import com.english.ai.exercise.dto.WordBookVO;
+import com.english.ai.exercise.constant.VocabularyStatus;
 import com.english.ai.exercise.dto.WordBookStatsVO;
 import com.english.ai.exercise.dto.WordBookWordVO;
 import com.english.ai.exercise.dto.NewWordItemVO;
@@ -100,6 +101,8 @@ public class ExerciseServiceImpl implements ExerciseService {
     private final Clock clock;
     private final PlatformTransactionManager transactionManager;
     private final JudgeReviewAsyncWriter judgeReviewAsyncWriter;
+    /** 已学词库与标熟服务（标熟/取消标熟的实现归它，避免状态语义散落） */
+    private final LearnedVocabularyService learnedVocabularyService;
 
     /** 每组单词数量的短缓存，避免每次词汇答题都跨服务查询偏好 */
     private final Map<Long, CachedGroupSize> groupSizeCache = new ConcurrentHashMap<>();
@@ -317,30 +320,30 @@ public class ExerciseServiceImpl implements ExerciseService {
                 new LambdaQueryWrapper<WordBookItem>().eq(WordBookItem::getBookCode, bookCode));
         int totalCount = total != null ? total.intValue() : 0;
 
-        // 已学（user_vocabulary 中存在且非 IGNORE）：按词书内 word 匹配
+        // 已学：user_vocabulary 中属于本词书的词条数。
+        // 合并「忽略」为「标熟」后，词库中每条记录都是已学的词，故此处是全量计数；
+        // 「标熟」计入已学（它与「未学习」是分开的概念）。
         List<String> bookWords = wordBookItemMapper.selectList(
                         new LambdaQueryWrapper<WordBookItem>().eq(WordBookItem::getBookCode, bookCode))
                 .stream().map(WordBookItem::getWord).collect(Collectors.toList());
         int learned = 0;
         int mastered = 0;
-        int ignored = 0;
+        int familiar = 0;
         if (!bookWords.isEmpty()) {
             List<UserVocabulary> userWords = vocabularyMapper.selectList(
                     new LambdaQueryWrapper<UserVocabulary>()
                             .eq(UserVocabulary::getUserId, userId)
                             .in(UserVocabulary::getWord, bookWords));
-            learned = (int) userWords.stream()
-                    .filter(v -> !"IGNORE".equals(v.getStatus()))
-                    .count();
+            learned = userWords.size();
             mastered = (int) userWords.stream()
                     .filter(v -> v.getIsMastered() != null && v.getIsMastered() == 1)
                     .count();
-            ignored = (int) userWords.stream()
-                    .filter(v -> "IGNORE".equals(v.getStatus()))
+            familiar = (int) userWords.stream()
+                    .filter(v -> VocabularyStatus.FAMILIAR.equals(v.getStatus()))
                     .count();
         }
 
-        int toLearn = Math.max(0, totalCount - learned - ignored);
+        int toLearn = Math.max(0, totalCount - learned);
 
         // 今日计划 = min(dailyNewWords, toLearn)
         int dailyNewWords = getDailyNewWords(userId);
@@ -351,7 +354,7 @@ public class ExerciseServiceImpl implements ExerciseService {
                 .total(totalCount)
                 .learned(learned)
                 .mastered(mastered)
-                .ignored(ignored)
+                .familiar(familiar)
                 .toLearn(toLearn)
                 .todayPlan(todayPlan)
                 .build();
@@ -359,17 +362,29 @@ public class ExerciseServiceImpl implements ExerciseService {
 
     @Override
     public List<WordBookWordVO> getWordBookWords(Long userId, String bookCode, Integer page, Integer size,
-                                                 String keyword) {
+                                                 String keyword, String status) {
         assertWordBookExists(bookCode);
 
         int safePage = page == null || page < 1 ? 1 : page;
         int safeSize = size == null ? 20 : Math.max(1, Math.min(50, size));
         int offset = (safePage - 1) * safeSize;
 
+        // 状态过滤必须落在 SQL 层：分页 LIMIT 打在 word_book_item 上，
+        // 若在前端过滤，每页会不足 size 条、总数也会失真。
+        StatusFilter statusFilter = buildStatusFilter(userId, bookCode, status);
+
         LambdaQueryWrapper<WordBookItem> wrapper = new LambdaQueryWrapper<WordBookItem>()
                 .eq(WordBookItem::getBookCode, bookCode);
         if (keyword != null && !keyword.isBlank()) {
             wrapper.like(WordBookItem::getWord, keyword.trim().toLowerCase(Locale.ROOT));
+        }
+        if (statusFilter.allowed() != null) {
+            if (statusFilter.allowed().isEmpty()) {
+                return Collections.emptyList();
+            }
+            wrapper.in(WordBookItem::getWord, statusFilter.allowed());
+        } else if (statusFilter.excluded() != null && !statusFilter.excluded().isEmpty()) {
+            wrapper.notIn(WordBookItem::getWord, statusFilter.excluded());
         }
         wrapper.orderByAsc(WordBookItem::getRankNo)
                 .last("LIMIT " + offset + "," + safeSize);
@@ -426,15 +441,114 @@ public class ExerciseServiceImpl implements ExerciseService {
     }
 
     @Override
-    public long getWordBookWordCount(String bookCode, String keyword) {
+    public long getWordBookWordCount(Long userId, String bookCode, String keyword, String status) {
         assertWordBookExists(bookCode);
+        StatusFilter statusFilter = buildStatusFilter(userId, bookCode, status);
         LambdaQueryWrapper<WordBookItem> wrapper = new LambdaQueryWrapper<WordBookItem>()
                 .eq(WordBookItem::getBookCode, bookCode);
         if (keyword != null && !keyword.isBlank()) {
             wrapper.like(WordBookItem::getWord, keyword.trim().toLowerCase(Locale.ROOT));
         }
+        if (statusFilter.allowed() != null) {
+            if (statusFilter.allowed().isEmpty()) {
+                return 0L;
+            }
+            wrapper.in(WordBookItem::getWord, statusFilter.allowed());
+        } else if (statusFilter.excluded() != null && !statusFilter.excluded().isEmpty()) {
+            wrapper.notIn(WordBookItem::getWord, statusFilter.excluded());
+        }
         Long count = wordBookItemMapper.selectCount(wrapper);
         return count == null ? 0L : count;
+    }
+
+    /**
+     * 词书词表的状态过滤条件。
+     *
+     * <p>allowed 非空时按 IN 过滤（指定状态）；excluded 非空时按 NOT IN 过滤（「未学习」
+     * = 词书内除去已学的词）。两者都为空表示不过滤。</p>
+     */
+    private record StatusFilter(List<String> allowed, List<String> excluded) {
+    }
+
+    /**
+     * 构造词书词表的状态过滤条件。
+     *
+     * <p>不能用 SQL JOIN 算状态：word_book_item 是 utf8mb4_unicode_ci，
+     * user_vocabulary 是 utf8mb4_0900_ai_ci，collation 不同会报 1267。
+     * 这里查该用户全部词条（走 user_id 索引，SQL 短），再在内存里与词书词集合求交集。</p>
+     *
+     * @param status ALL / NEW（未学习）/ LEARNING（复习中，含 REVIEWING）/ MASTERED / FAMILIAR
+     */
+    private StatusFilter buildStatusFilter(Long userId, String bookCode, String status) {
+        String filter = normalizeStatusFilter(status);
+        if ("ALL".equals(filter)) {
+            return new StatusFilter(null, null);
+        }
+        // 词书内的词：比较键 → 词书原值（IN/NOT IN 必须用原值，否则大小写差异会漏匹配）
+        Map<String, String> keyToBookWord = new HashMap<>();
+        for (WordBookItem item : wordBookItemMapper.selectList(
+                new LambdaQueryWrapper<WordBookItem>().eq(WordBookItem::getBookCode, bookCode))) {
+            if (item.getWord() != null) {
+                keyToBookWord.putIfAbsent(wordKey(item.getWord()), item.getWord());
+            }
+        }
+        if (keyToBookWord.isEmpty()) {
+            return new StatusFilter(List.of(), List.of());
+        }
+        // 该用户在这些词上的状态
+        Map<String, String> keyToStatus = new HashMap<>();
+        for (UserVocabulary v : vocabularyMapper.selectList(
+                new LambdaQueryWrapper<UserVocabulary>()
+                        .eq(UserVocabulary::getUserId, userId))) {
+            if (v.getWord() != null) {
+                String key = wordKey(v.getWord());
+                if (keyToBookWord.containsKey(key)) {
+                    keyToStatus.put(key, v.getStatus());
+                }
+            }
+        }
+        if ("NEW".equals(filter)) {
+            // 未学习 = 词书内除去已学过的词
+            List<String> learned = keyToBookWord.entrySet().stream()
+                    .filter(e -> keyToStatus.containsKey(e.getKey()))
+                    .map(Map.Entry::getValue)
+                    .collect(Collectors.toList());
+            return new StatusFilter(null, learned);
+        }
+        List<String> allowed = keyToBookWord.entrySet().stream()
+                .filter(e -> matchStatusFilter(filter, keyToStatus.get(e.getKey())))
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toList());
+        return new StatusFilter(allowed, null);
+    }
+
+    /** 状态过滤取值归一：ALL / NEW / LEARNING / REVIEWING / MASTERED / FAMILIAR */
+    private static String normalizeStatusFilter(String status) {
+        if (status == null || status.isBlank()) {
+            return "ALL";
+        }
+        String s = status.trim().toUpperCase(Locale.ROOT);
+        return switch (s) {
+            case "NEW", "UNLEARNED" -> "NEW";
+            case "LEARNING", "REVIEWING", "MASTERED", "FAMILIAR" -> s;
+            default -> "ALL";
+        };
+    }
+
+    /** 判断某个词条是否命中状态过滤条件 */
+    private static boolean matchStatusFilter(String filter, String status) {
+        if (status == null) {
+            return false;
+        }
+        return switch (filter) {
+            // 页面上「复习中」合并 LEARNING 与 REVIEWING 两态
+            case "LEARNING" -> VocabularyStatus.LEARNING.equals(status)
+                    || VocabularyStatus.REVIEWING.equals(status);
+            case "REVIEWING" -> VocabularyStatus.REVIEWING.equals(status);
+            case "MASTERED" -> VocabularyStatus.MASTERED.equals(status);
+            case "FAMILIAR" -> VocabularyStatus.FAMILIAR.equals(status);
+            default -> true;
+        };
     }
 
     /** 词书不存在时统一抛业务异常，避免词表接口返回空数据掩盖配置问题。 */
@@ -1682,7 +1796,7 @@ public class ExerciseServiceImpl implements ExerciseService {
             v.setReviewCount(0);
             v.setMasteryLevel(0);
             v.setIsMastered(0);
-            v.setStatus("LEARNING");
+            v.setStatus(VocabularyStatus.LEARNING);
             v.setCreatedAt(now);
         }
 
@@ -1701,19 +1815,24 @@ public class ExerciseServiceImpl implements ExerciseService {
                     v.getMasteryLevel() == null ? 0 : v.getMasteryLevel());
             v.setMasteryLevel(newMastery);
             v.setNextReviewAt(EbbinghausUtil.nextReviewAt(newMastery, now));
-            if (EbbinghausUtil.isMastered(newMastery, true)) {
-                v.setIsMastered(1);
-                v.setStatus("MASTERED");
-            } else if (!"MASTERED".equals(v.getStatus())) {
-                v.setStatus("REVIEWING");
+            // 标熟是用户的显式标记，优先于系统判定：状态为 FAMILIAR 时不改写
+            if (!VocabularyStatus.FAMILIAR.equals(v.getStatus())) {
+                if (EbbinghausUtil.isMastered(newMastery, true)) {
+                    v.setIsMastered(1);
+                    v.setStatus(VocabularyStatus.MASTERED);
+                    v.setMasteredAt(now);
+                } else if (!VocabularyStatus.MASTERED.equals(v.getStatus())) {
+                    v.setStatus(VocabularyStatus.REVIEWING);
+                }
             }
         } else {
             // 答错：掌握度归零 + 立即进复习队列（next_review_at = 现在）
             v.setMasteryLevel(EbbinghausUtil.nextMasteryOnWrong());
             v.setNextReviewAt(now);
             v.setIsMastered(0);
-            if (!"IGNORE".equals(v.getStatus())) {
-                v.setStatus("LEARNING");
+            // 标熟不再复习，答错也不能把它打回学习中
+            if (!VocabularyStatus.FAMILIAR.equals(v.getStatus())) {
+                v.setStatus(VocabularyStatus.LEARNING);
             }
         }
 
@@ -1771,15 +1890,9 @@ public class ExerciseServiceImpl implements ExerciseService {
 
     @Override
     public VocabularyVO ignoreWord(Long id, Long userId) {
-        UserVocabulary v = vocabularyMapper.selectOne(
-                new LambdaQueryWrapper<UserVocabulary>()
-                        .eq(UserVocabulary::getId, id)
-                        .eq(UserVocabulary::getUserId, userId));
-        if (v == null) throw new RuntimeException("单词不存在");
-        v.setStatus("IGNORE");
-        vocabularyMapper.updateById(v);
-        logWordLearnEvent(userId, v.getWordId(), v.getWord(), "IGNORE", null, bookCodeOf(v.getBookId()));
-        return toVocabularyVO(v);
+        // 「忽略」与「标熟」已合并（迁移 V1.0.54）：用户唯一可操作的排除动作是标熟。
+        // 本方法保留仅为兼容旧调用方，语义等价于「标记标熟」。
+        return toVocabularyVO(learnedVocabularyService.markFamiliar(id, userId, true));
     }
 
     // ============= 单词本 =============
@@ -1814,7 +1927,7 @@ public class ExerciseServiceImpl implements ExerciseService {
         v.setFirstLearnedAt(now);
         v.setCorrectCount(0);
         v.setWrongCount(0);
-        v.setStatus("LEARNING");
+        v.setStatus(VocabularyStatus.LEARNING);
         v.setIsMastered(0);
         // 释义/音标兜底：调用方未传时回落到词库，避免单词本里出现「暂无释义」
         if ((translation == null || translation.isBlank()) && wd != null) {
@@ -1974,7 +2087,7 @@ public class ExerciseServiceImpl implements ExerciseService {
         v.setWord(lower);
         v.setIsMastered(0);
         v.setSource(source == null || source.isBlank() ? "manual" : source);
-        v.setStatus("LEARNING");
+        v.setStatus(VocabularyStatus.LEARNING);
         v.setWordId(wd != null ? wd.getId() : null);
         v.setBookId(book != null ? book.getId() : null);
         v.setFirstLearnedAt(LocalDateTime.now(clock));
@@ -2056,7 +2169,7 @@ public class ExerciseServiceImpl implements ExerciseService {
                 new LambdaQueryWrapper<UserVocabulary>()
                         .eq(UserVocabulary::getUserId, userId)
                         .eq(UserVocabulary::getIsMastered, 0)
-                        .ne(UserVocabulary::getStatus, "IGNORE")
+                        .ne(UserVocabulary::getStatus, VocabularyStatus.FAMILIAR)
                         .le(UserVocabulary::getNextReviewAt, LocalDateTime.now())
                         .orderByAsc(UserVocabulary::getNextReviewAt)
                         .last("LIMIT " + safeLimit));
@@ -2101,20 +2214,27 @@ public class ExerciseServiceImpl implements ExerciseService {
         }
 
         // 达到最高掌握度且本次答对 → 标记为已掌握
+        // 标熟是用户的显式标记，优先于系统判定：状态为 FAMILIAR 时不改写
         boolean mastered = EbbinghausUtil.isMastered(newMastery, isCorrect);
-        if (mastered) {
+        if (VocabularyStatus.FAMILIAR.equals(v.getStatus())) {
+            // 保持标熟状态不动，仅更新计数与下次复习时间
+        } else if (mastered) {
             v.setIsMastered(1);
-            v.setStatus("MASTERED");
+            v.setStatus(VocabularyStatus.MASTERED);
+            v.setMasteredAt(now);
         } else {
             v.setIsMastered(0);
-            v.setStatus("REVIEWING");
+            v.setStatus(VocabularyStatus.REVIEWING);
         }
 
         vocabularyMapper.updateById(v);
 
         // 记录 REVIEW/MASTER 事件（带作答结果，历史页才能显示答对/答错）
+        // 标熟词本不该出现在复习队列里，走到这里属异常兜底，事件记 REVIEW 不记 MASTER
+        String eventType = VocabularyStatus.FAMILIAR.equals(v.getStatus())
+                ? "REVIEW" : (mastered ? "MASTER" : "REVIEW");
         logWordLearnEvent(userId, v.getWordId(), v.getWord(),
-                mastered ? "MASTER" : "REVIEW", isCorrect ? "CORRECT" : "WRONG",
+                eventType, isCorrect ? "CORRECT" : "WRONG",
                 bookCodeOf(v.getBookId()));
 
         log.info("单词复习: id={}, userId={}, isCorrect={}, newMastery={}, nextReviewAt={}",

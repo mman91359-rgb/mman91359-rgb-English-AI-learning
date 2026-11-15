@@ -5,6 +5,7 @@ import { useUserStore } from '@/stores/user'
 const HomeView = () => import('../views/HomeView.vue')
 const LearningView = () => import('../views/LearningView.vue')
 const WordBooksView = () => import('../views/WordBooksView.vue')
+const LearnedWordsView = () => import('../views/LearnedWordsView.vue')
 const StatsView = () => import('../views/StatsView.vue')
 const ProfileView = () => import('../views/ProfileView.vue')
 const LoginView = () => import('../views/LoginView.vue')
@@ -79,6 +80,12 @@ const router = createRouter({
       path: '/word-books',
       name: 'word-books',
       component: WordBooksView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/learned-words',
+      name: 'learned-words',
+      component: LearnedWordsView,
       meta: { requiresAuth: true },
     },
     {

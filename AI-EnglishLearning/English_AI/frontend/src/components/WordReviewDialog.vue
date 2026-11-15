@@ -4,7 +4,7 @@
           <div class="flex items-start justify-between gap-4">
             <div>
               <div class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-tertiary text-2xl">history_edu</span>
+                <AppIcon name="history_edu" size="lg" tone="tertiary" />
                 <h3 class="font-headline-md text-headline-md text-on-surface">{{ $t('wordReview.title') }}</h3>
               </div>
               <p class="mt-1 font-body-sm text-body-sm text-on-surface-variant">{{ $t('wordReview.desc') }}</p>
@@ -15,7 +15,7 @@
               :aria-label="$t('common.close')"
               @click="skip"
             >
-              <span class="material-symbols-outlined">close</span>
+              <AppIcon name="close" size="lg" />
             </button>
           </div>
 
@@ -36,17 +36,19 @@
           <!-- 完成总结 -->
           <div v-if="finished" class="mt-8 flex flex-col items-center text-center">
             <div class="flex h-20 w-20 items-center justify-center rounded-full bg-tertiary-container/20">
-              <span class="material-symbols-outlined text-tertiary text-icon-3xl fill">task_alt</span>
+              <AppIcon name="task_alt" size="3xl" tone="tertiary" filled />
             </div>
             <h4 class="mt-5 font-headline-md text-headline-md text-on-surface">{{ $t('wordReview.summaryTitle') }}</h4>
             <p class="mt-2 font-body-md text-body-md text-on-surface-variant">
               {{ $t('wordReview.summaryText', { reviewed: reviewedCount, correct: correctCount }) }}
             </p>
-            <button
-              type="button"
-              class="mt-7 w-full max-w-xs rounded-full bg-primary px-7 py-3 font-label-lg text-label-lg text-on-primary transition-all hover:bg-primary/90 active:scale-[0.98]"
-              @click="complete"
-            >{{ completeLabel || $t('wordReview.startNew') }}</button>
+            <div class="mt-7 w-full max-w-xs">
+              <button
+                type="button"
+                :class="btnPrimaryBlock"
+                @click="complete"
+              >{{ completeLabel || $t('wordReview.startNew') }}</button>
+            </div>
           </div>
 
           <!-- 复习卡片 -->
@@ -62,7 +64,7 @@
 
             <Transition name="fade-slide" mode="out-in">
               <!-- 填空模式 -->
-              <div v-if="mode === 'fill'" :key="'fill-' + index" class="rounded-[22px] border border-outline-variant/40 bg-surface-container-lowest p-6">
+              <div v-if="mode === 'fill'" :key="'fill-' + index" class="rounded-3xl border border-outline-variant/40 bg-surface-container-lowest p-6">
                 <p class="mb-5 text-center font-body-lg text-body-lg text-on-surface-variant">
                   {{ current.translation }}
                 </p>
@@ -75,28 +77,28 @@
                   type="text"
                   autocomplete="off"
                   :placeholder="$t('wordReview.answerPlaceholder')"
-                  class="w-full rounded-[16px] border border-outline-variant bg-background px-4 py-3.5 text-center font-body-lg text-body-lg text-on-surface outline-none transition-all focus:border-primary focus:ring-1 focus:ring-primary"
+                  class="w-full rounded-2xl border border-outline-variant bg-background px-4 py-3.5 text-center font-body-lg text-body-lg text-on-surface outline-none transition-all focus:border-primary focus:ring-1 focus:ring-primary"
                   :disabled="!!feedback || checking"
                   @keydown.enter="submitFill"
                 />
                 <button
                   type="button"
-                  class="mt-4 w-full rounded-full bg-primary px-6 py-3 font-label-lg text-label-lg text-on-primary transition-all hover:bg-primary/90 active:scale-[0.98] disabled:opacity-50"
+                  :class="[btnPrimaryBlock, 'mt-4']"
                   :disabled="checking || !fillAnswer.trim() || !!feedback"
                   @click="submitFill"
                 >{{ checking ? $t('common.saving') : $t('wordReview.submit') }}</button>
               </div>
 
               <!-- 翻卡模式 -->
-              <div v-else :key="'card-' + index" class="rounded-[22px] border border-outline-variant/40 bg-gradient-to-br from-surface-container-lowest to-surface-container-low p-8 text-center">
-                <p class="font-headline-xl text-headline-xl font-bold text-on-surface">{{ current.word }}</p>
+              <div v-else :key="'card-' + index" class="rounded-3xl border border-outline-variant/40 bg-gradient-to-br from-surface-container-lowest to-surface-container-low p-8 text-center">
+                <p class="font-headline-lg text-headline-lg text-on-surface">{{ current.word }}</p>
                 <p v-if="current.phonetic" class="mt-2 font-body-md text-body-md text-on-surface-variant">{{ current.phonetic }}</p>
                 <p v-if="current.pos" class="mt-1 font-label-md text-label-md text-tertiary">{{ current.pos }}</p>
 
                 <div v-if="!revealed" class="mt-8">
                   <button
                     type="button"
-                    class="rounded-full border border-outline-variant px-6 py-3 font-label-lg text-label-lg text-on-surface-variant transition-colors hover:bg-surface-container-high"
+                    :class="btnSecondaryBlock"
                     @click="revealed = true"
                   >{{ $t('wordReview.showMeaning') }}</button>
                 </div>
@@ -109,17 +111,27 @@
                   <div class="mt-7 flex gap-3">
                     <button
                       type="button"
-                      class="flex-1 rounded-full border border-error/30 bg-error/5 px-4 py-3 font-label-lg text-label-lg text-error transition-all duration-200 hover:bg-error/10 active:bg-error/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-error disabled:pointer-events-none disabled:opacity-50"
+                      :class="[btnDangerOutline, 'flex-1']"
                       :disabled="checking || !!feedback"
                       @click="submitReview(false)"
                     >{{ $t('wordReview.forgot') }}</button>
                     <button
                       type="button"
-                      class="flex-1 rounded-full bg-tertiary px-4 py-3 font-label-lg text-label-lg text-on-tertiary transition-all duration-200 hover:bg-tertiary/90 active:bg-tertiary/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-tertiary disabled:pointer-events-none disabled:opacity-50"
+                      :class="[btnTertiary, 'flex-1']"
                       :disabled="checking || !!feedback"
                       @click="submitReview(true)"
                     >{{ $t('wordReview.remembered') }}</button>
                   </div>
+                  <!-- 标熟：这个词我认识，以后别再考我了 -->
+                  <button
+                    type="button"
+                    :class="[btnGhostSm, 'mt-3 w-full']"
+                    :disabled="checking || !!feedback"
+                    @click="markCurrentFamiliar"
+                  >
+                    <AppIcon name="task_alt" size="sm" />
+                    {{ $t('wordReview.markFamiliar') }}
+                  </button>
                 </div>
               </div>
             </Transition>
@@ -133,9 +145,11 @@
                 : 'border-error/20 bg-error/5'"
             >
               <div class="flex items-center gap-2">
-                <span class="material-symbols-outlined" :class="feedback.correct ? 'text-tertiary' : 'text-error'">
-                  {{ feedback.correct ? 'check_circle' : 'cancel' }}
-                </span>
+                <AppIcon
+                  :name="feedback.correct ? 'check_circle' : 'cancel'"
+                  size="lg"
+                  :tone="feedback.correct ? 'tertiary' : 'error'"
+                />
                 <span class="font-label-lg text-label-lg" :class="feedback.correct ? 'text-tertiary' : 'text-error'">
                   {{ feedback.correct ? $t('wordReview.correct') : $t('wordReview.wrong') }}
                 </span>
@@ -148,7 +162,7 @@
               </p>
               <button
                 type="button"
-                class="mt-3 w-full rounded-full bg-primary px-6 py-2.5 font-label-lg text-label-lg text-on-primary transition-all hover:bg-primary/90 active:scale-[0.98]"
+                :class="[btnPrimary, 'mt-3 w-full']"
                 @click="nextWord"
               >{{ $t('wordReview.next') }}</button>
             </div>
@@ -169,12 +183,21 @@
 import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import BaseDialog from './ui/BaseDialog.vue'
+import AppIcon from './ui/AppIcon.vue'
 import { useUserStore } from '@/stores/user'
-import { reviewWord, type VocabularyVO } from '@/api/exercise'
+import { markFamiliar, reviewWord, type VocabularyVO } from '@/api/exercise'
 import { useToast } from '@/composables/useToast'
 import { shuffle } from '@/utils/array'
 import { formatShortDate } from '@/utils/format'
-import { btnIcon } from '@/components/ui/buttonStyles'
+import {
+  btnDangerOutline,
+  btnGhostSm,
+  btnIcon,
+  btnPrimary,
+  btnPrimaryBlock,
+  btnSecondaryBlock,
+  btnTertiary,
+} from '@/components/ui/buttonStyles'
 
 interface Props {
   visible: boolean
@@ -299,6 +322,29 @@ const nextWord = () => {
   nextTick(() => {
     if (mode.value === 'fill') fillInputRef.value?.focus()
   })
+}
+
+/**
+ * 标记当前词为「已标熟」：这个词我认识，以后别再考我。
+ *
+ * 标熟后该词退出新词池与复习队列，但仍计入已学；
+ * 用户可在「已学词库 → 已标熟」分类页取消标熟。
+ */
+const markCurrentFamiliar = async () => {
+  const word = current.value
+  const uid = userStore.userId
+  if (!word || !uid || checking.value || feedback.value) return
+  checking.value = true
+  try {
+    await markFamiliar(word.id, uid, true)
+    toast(t('wordReview.familiarMarked'), 'success')
+    // 标熟即离队：直接跳到下一个词，不计入本轮答题统计
+    nextWord()
+  } catch (e) {
+    toast(e instanceof Error ? e.message : t('wordReview.saveFailed'), 'error')
+  } finally {
+    checking.value = false
+  }
 }
 
 const complete = () => {

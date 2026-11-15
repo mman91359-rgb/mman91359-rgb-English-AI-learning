@@ -13,13 +13,16 @@ public class WordBookStatsVO {
     private String bookCode;
     /** 词书总词数 */
     private Integer total;
-    /** 已学（user_vocabulary 中存在且未忽略） */
+    /**
+     * 已学：user_vocabulary 中属于本词书的词条数。
+     * 合并「忽略」为「标熟」后，词库中每条记录都是已学的词，故此处为全量计数。
+     */
     private Integer learned;
-    /** 已掌握（is_mastered=1） */
+    /** 已掌握（is_mastered=1；标熟保持 is_mastered=0，与本项互斥不重叠） */
     private Integer mastered;
-    /** 忽略数（status=IGNORE） */
-    private Integer ignored;
-    /** 待背 = total - learned - ignored */
+    /** 已标熟数（status=FAMILIAR） */
+    private Integer familiar;
+    /** 待背 = total - learned */
     private Integer toLearn;
     /** 今日计划 = min(dailyNewWords, toLearn) */
     private Integer todayPlan;

@@ -186,8 +186,8 @@
             <button :class="btnIcon" @click="toggleFavorite(w.word)">
               <AppIcon :name="isFavorite(w.word) ? 'favorite' : 'favorite_border'" size="lg" :tone="isFavorite(w.word) ? 'primary' : undefined" />
             </button>
-            <button :class="btnIcon" @click="handleIgnore(w)">
-              <AppIcon name="visibility_off" size="lg" tone="error" />
+            <button :class="btnIcon" @click="handleFamiliar(w)">
+              <AppIcon name="task_alt" size="lg" tone="warning" />
             </button>
             <button
               :class="btnIconDanger"
@@ -331,7 +331,7 @@ import {
   addVocabularySmart,
   removeVocabulary,
   toggleMastered,
-  ignoreWord,
+  markFamiliar,
   getReviewList,
   reviewWord,
   getWordBooks,
@@ -455,15 +455,17 @@ const toggleFavorite = async (word: string) => {
   }
 }
 
-// ===== 忽略单词 =====
-const handleIgnore = async (w: VocabularyVO) => {
+// ===== 标熟单词 =====
+// 「忽略」与「标熟」已合并：这是用户唯一可操作的排除动作，
+// 标熟后该词退出新词池与复习队列，但仍计入已学（可在「已学词库」页取消标熟）。
+const handleFamiliar = async (w: VocabularyVO) => {
   const uid = userStore.userId
   if (!uid) return
   try {
-    await ignoreWord(w.id, uid)
+    await markFamiliar(w.id, uid, true)
     await load()
   } catch (e) {
-    console.warn('忽略单词失败', e)
+    console.warn('标记标熟失败', e)
   }
 }
 

@@ -24,7 +24,7 @@ public class VocabularyVO {
     private String collocation;
     /** 来源: manual/daily_word/quiz */
     private String source;
-    /** 学习状态: LEARNING/REVIEWING/MASTERED/IGNORE */
+    /** 学习状态: LEARNING/REVIEWING/MASTERED/FAMILIAR */
     private String status;
     /** 关联 word_dictionary.id（可空） */
     private Long wordId;

@@ -174,7 +174,7 @@
                 </div>
               </div>
               <div class="mt-2 flex items-center justify-between font-label-sm text-label-sm text-on-surface-variant">
-                <span>{{ $t('wordBook.ignored') }} {{ statsFor(book).ignored }}</span>
+                <span>{{ $t('wordBook.familiar') }} {{ statsFor(book).familiar }}</span>
                 <span>{{ $t('wordBook.todayPlan') }} {{ statsFor(book).todayPlan }}</span>
               </div>
 
@@ -231,6 +231,16 @@
             {{ $t('wordBook.search') }}
           </button>
         </div>
+
+        <!-- 分类筛选：全部 / 未学习 / 复习中 / 复习完成 / 已标熟（后端 SQL 层过滤，分页同口径） -->
+        <ChipGroup
+          :model-value="wordFilter"
+          :options="wordFilterOptions"
+          size="md"
+          :wrap="true"
+          :aria-label="$t('wordBook.filterGroupLabel')"
+          @update:model-value="onWordFilterChange"
+        />
 
         <div class="flex flex-wrap items-center justify-between gap-2">
           <p class="font-label-md text-label-md text-on-surface-variant">
@@ -326,6 +336,7 @@ import ProgressBar from '@/components/ui/ProgressBar.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import BaseDialog from '@/components/ui/BaseDialog.vue'
 import Tag from '@/components/ui/Tag.vue'
+import ChipGroup from '@/components/ui/ChipGroup.vue'
 import {
   btnPrimary,
   btnPrimaryInverse,
@@ -343,6 +354,7 @@ import {
   type WordBookVO,
   type WordBookStatsVO,
   type WordBookWordVO,
+  type WordBookWordFilter,
 } from '@/api/exercise'
 
 const { t } = useI18n()
@@ -363,9 +375,18 @@ const wordTotal = ref(0)
 const wordPage = ref(1)
 const wordSize = 20
 const wordKeyword = ref('')
+const wordFilter = ref<WordBookWordFilter>('ALL')
 const wordsLoading = ref(false)
 const wordsError = ref('')
 let wordRequestToken = 0
+
+const wordFilterOptions = computed(() => [
+  { value: 'ALL' as WordBookWordFilter, label: t('wordBook.filterAll') },
+  { value: 'NEW' as WordBookWordFilter, label: t('wordBook.filterNew') },
+  { value: 'LEARNING' as WordBookWordFilter, label: t('wordBook.filterLearning') },
+  { value: 'MASTERED' as WordBookWordFilter, label: t('wordBook.filterMastered') },
+  { value: 'FAMILIAR' as WordBookWordFilter, label: t('wordBook.filterFamiliar') },
+])
 
 const activeBook = computed(() => {
   const current = books.value.find(book => book.id === userStore.activeWordBookId)
@@ -388,14 +409,14 @@ const isActive = (book: WordBookVO) => book.id === userStore.activeWordBookId
 /** 统计尚未加载完成时，用词书总词数兜底，避免卡片显示 0/0。 */
 const statsFor = (book?: WordBookVO): WordBookStatsVO => {
   if (!book) {
-    return { bookCode: '', total: 0, learned: 0, mastered: 0, ignored: 0, toLearn: 0, todayPlan: 0 }
+    return { bookCode: '', total: 0, learned: 0, mastered: 0, familiar: 0, toLearn: 0, todayPlan: 0 }
   }
   return stats.value[book.code] || {
     bookCode: book.code,
     total: book.total,
     learned: 0,
     mastered: 0,
-    ignored: 0,
+    familiar: 0,
     toLearn: book.total,
     todayPlan: 0,
   }
@@ -419,7 +440,7 @@ const bookTone = (code: string) =>
   BOOK_TONES[code] || 'bg-primary-container text-on-primary-container'
 
 const statusLabel = (item: WordBookWordVO) => {
-  if (item.status === 'IGNORE') return t('wordBook.statusIgnore')
+  if (item.status === 'FAMILIAR') return t('wordBook.statusFamiliar')
   if (item.status === 'MASTERED' || item.isMastered === 1) return t('wordBook.statusMastered')
   if (item.status === 'REVIEWING') return t('wordBook.statusReviewing')
   if (item.status === 'LEARNING') return t('wordBook.statusLearning')
@@ -427,8 +448,8 @@ const statusLabel = (item: WordBookWordVO) => {
 }
 
 /** 学习状态 → Tag 语义色（契约 §7 的 TagTone 五档，不自造配色） */
-const statusTone = (item: WordBookWordVO): 'primary' | 'tertiary' | 'neutral' => {
-  if (item.status === 'IGNORE') return 'neutral'
+const statusTone = (item: WordBookWordVO): 'primary' | 'tertiary' | 'warning' | 'neutral' => {
+  if (item.status === 'FAMILIAR') return 'warning'
   if (item.status === 'MASTERED' || item.isMastered === 1) return 'tertiary'
   if (item.status === 'REVIEWING' || item.status === 'LEARNING') return 'primary'
   return 'neutral'
@@ -521,6 +542,7 @@ const loadWords = async () => {
       wordPage.value,
       wordSize,
       wordKeyword.value,
+      wordFilter.value,
     )
     if (token !== wordRequestToken) return
     words.value = page.records || []
@@ -537,6 +559,13 @@ const loadWords = async () => {
 }
 
 const searchWords = () => {
+  wordPage.value = 1
+  void loadWords()
+}
+
+/** 切换词表分类：后端按状态过滤，页码回到第一页 */
+const onWordFilterChange = (filter: unknown) => {
+  wordFilter.value = filter as WordBookWordFilter
   wordPage.value = 1
   void loadWords()
 }

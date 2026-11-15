@@ -152,6 +152,37 @@
             </div>
           </div>
         </div>
+
+        <!-- 已学词库入口：四数总览 + 跳转到「全部已学」页 -->
+        <button
+          type="button"
+          class="w-full rounded-3xl bg-surface-container-lowest p-6 text-left shadow-soft-glow transition-colors hover:bg-surface-container-low"
+          @click="goLearnedWords"
+        >
+          <div class="flex items-center justify-between gap-3">
+            <span class="font-label-lg text-label-lg text-on-surface">
+              {{ $t('learnedWords.title') }}
+            </span>
+            <AppIcon name="arrow_forward" size="sm" tone="primary" />
+          </div>
+          <p class="mt-2 font-headline-lg text-headline-lg text-primary">
+            {{ formatNumber(vocabSummary.total) }}
+            <span class="font-label-md text-label-md text-on-surface-variant">
+              {{ $t('learnedWords.wordsUnit') }}
+            </span>
+          </p>
+          <div class="mt-3 flex flex-wrap gap-x-4 gap-y-1">
+            <span class="font-label-md text-label-md text-on-surface-variant">
+              {{ $t('learnedWords.tabLearning') }} {{ vocabSummary.learning }}
+            </span>
+            <span class="font-label-md text-label-md text-on-surface-variant">
+              {{ $t('learnedWords.tabMastered') }} {{ vocabSummary.mastered }}
+            </span>
+            <span class="font-label-md text-label-md text-on-surface-variant">
+              {{ $t('learnedWords.tabFamiliar') }} {{ vocabSummary.familiar }}
+            </span>
+          </div>
+        </button>
       </div><!-- /lg:col-span-4 -->
     </div>
   </AppLayout>
@@ -169,13 +200,16 @@ import type { ECharts } from 'echarts/core'
 // ECharts 按需注册：只打包柱状图 + 网格/提示框 + Canvas 渲染器
 echarts.use([BarChart, GridComponent, TooltipComponent, CanvasRenderer])
 import AppLayout from '../components/AppLayout.vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
 import { useUserStore } from '@/stores/user'
 import { useAppStore } from '@/stores/app'
 import { formatNumber } from '@/utils/format'
 import { cssColor } from '@/utils/themeTokens'
-import { getExerciseStats } from '@/api/exercise'
+import { useRouter } from 'vue-router'
+import { getExerciseStats, getVocabularySummary, type VocabularySummaryVO } from '@/api/exercise'
 
 const { tm } = useI18n()
+const router = useRouter()
 const userStore = useUserStore()
 const appStore = useAppStore()
 
@@ -306,6 +340,10 @@ const weeklyLabels = ref<string[]>([])
 // ========== 词汇量 ==========
 const vocabTestDate = ref('')
 const masteredWords = ref(0)
+/** 已学词库四数（总数/复习中/复习完成/已标熟） */
+const vocabSummary = ref<VocabularySummaryVO>({
+  total: 0, learning: 0, mastered: 0, familiar: 0, dueReview: 0,
+})
 const vocabularyRate = ref('0.00')
 const nationalRank = ref('0.00')
 
@@ -453,6 +491,9 @@ const loadStatsData = async () => {
     const today = new Date()
     vocabTestDate.value = today.toLocaleDateString(appStore.language === 'en-US' ? 'en-US' : 'zh-CN')
 
+    // —— 已学词库四数（与「全部已学」页同源，独立接口避免跨服务聚合）——
+    await loadVocabSummary()
+
     // 渲染图表
     await nextTick()
     if (!chartInstance) initChart()
@@ -465,6 +506,22 @@ const loadStatsData = async () => {
 watch(() => userStore.userId, (newId) => {
   if (newId) loadStatsData()
 }, { immediate: true })
+
+/** 已学词库四数：总数 / 复习中 / 复习完成 / 已标熟 */
+const loadVocabSummary = async () => {
+  const uid = userStore.userId
+  if (!uid) return
+  try {
+    vocabSummary.value = await getVocabularySummary(uid)
+  } catch (e) {
+    console.warn('获取已学词库统计失败', e)
+  }
+}
+
+/** 跳转到「全部已学」页 */
+const goLearnedWords = () => {
+  router.push('/learned-words')
+}
 
 onMounted(() => {
   window.addEventListener('resize', handleResize)

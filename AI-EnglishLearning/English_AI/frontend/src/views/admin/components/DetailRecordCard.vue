@@ -7,7 +7,7 @@
     <dl v-else class="flex flex-col gap-3">
       <div v-for="[key, value] in entries" :key="key" class="flex items-center justify-between gap-4 border-b border-outline-variant/30 pb-2">
         <dt class="font-body-sm text-body-sm text-on-surface-variant">{{ labelOf(key) }}</dt>
-        <dd class="tabular-nums font-body-sm text-body-sm font-semibold text-on-surface">{{ displayOrDash(value) }}</dd>
+        <dd class="min-w-0 break-all tabular-nums font-body-sm text-body-sm font-semibold text-on-surface">{{ displayOrDash(value) }}</dd>
       </div>
     </dl>
   </section>

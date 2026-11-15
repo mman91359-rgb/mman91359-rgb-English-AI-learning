@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col rounded-[24px] border border-outline-variant/40 bg-surface-container-lowest shadow-soft-glow">
+  <div class="flex flex-col rounded-3xl border border-outline-variant/40 bg-surface-container-lowest shadow-soft-glow">
     <header v-if="!hideHeader" class="flex items-center gap-2 px-6 pt-5">
       <span class="flex h-9 w-9 items-center justify-center rounded-full bg-tertiary-container/40 text-tertiary">
         <span class="material-symbols-outlined text-icon-md">rate_review</span>

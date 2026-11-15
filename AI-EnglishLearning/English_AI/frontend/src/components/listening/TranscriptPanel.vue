@@ -1,8 +1,8 @@
 <template>
-  <div class="bg-surface-container-lowest rounded-[20px] p-5 shadow-[0_4px_20px_rgba(51,58,72,0.05)] border border-outline-variant/20">
+  <div class="bg-surface-container-lowest rounded-[20px] p-5 shadow-soft-glow border border-outline-variant/20">
     <div class="flex items-center justify-between mb-3">
       <div class="flex items-center gap-2">
-        <span class="material-symbols-outlined text-secondary text-[20px]">description</span>
+        <span class="material-symbols-outlined text-secondary text-icon-lg">description</span>
         <span class="font-label-lg text-label-lg text-on-surface">{{ $t('listening.transcriptTitle') }}</span>
       </div>
       <button
@@ -13,7 +13,7 @@
         :aria-pressed="favorited"
         @click="$emit('favorite')"
       >
-        <span class="material-symbols-outlined text-[16px]" :class="{ fill: favorited }">
+        <span class="material-symbols-outlined text-icon-lg" :class="{ fill: favorited }">
           {{ favorited ? 'favorite' : 'favorite_border' }}
         </span>{{ $t('listening.favorite') }}
       </button>

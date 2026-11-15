@@ -73,7 +73,7 @@ const icon = computed(() => {
 const cardClass = computed(() => {
   if (props.status === 'correct') return 'bg-tertiary-container/20 border-tertiary/20 shadow-[0_4px_20px_rgba(0,110,32,0.08)]'
   if (props.status === 'incorrect') return 'bg-error-container/30 border-error/20 shadow-[0_4px_20px_rgba(186,26,26,0.08)]'
-  return 'bg-surface-container-lowest border-outline-variant/20 shadow-[0_4px_20px_rgba(51,58,72,0.05)]'
+  return 'bg-surface-container-lowest border-outline-variant/20 shadow-soft-glow'
 })
 
 const iconCircleClass = computed(() => {

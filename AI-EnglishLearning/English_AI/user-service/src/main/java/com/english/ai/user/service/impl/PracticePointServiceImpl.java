@@ -1,8 +1,10 @@
 package com.english.ai.user.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.english.ai.common.ModuleType;
 import com.english.ai.user.dto.PracticeSettlementResult;
 import com.english.ai.user.entity.UserAbilityRadar;
+import com.english.ai.user.entity.UserModuleStats;
 import com.english.ai.user.entity.UserPracticeSettlement;
 import com.english.ai.user.mapper.UserAbilityRadarMapper;
 import com.english.ai.user.mapper.UserModuleStatsMapper;
@@ -46,6 +48,30 @@ public class PracticePointServiceImpl implements PracticePointService {
             return;
         }
         moduleStatsMapper.accumulate(userId, moduleType, isCorrect ? 1 : 0);
+    }
+
+    @Override
+    public void recordWritingScore(Long userId) {
+        if (userId == null) {
+            return;
+        }
+        // correct 传 0：写作只留下采样次数，正确数保持 0，避免被正确率口径误用
+        moduleStatsMapper.accumulate(userId, ModuleType.WRITING.getCode(), 0);
+    }
+
+    @Override
+    public int getAttemptCount(Long userId, int moduleType) {
+        if (userId == null) {
+            return 0;
+        }
+        UserModuleStats stat = moduleStatsMapper.selectOne(
+                new LambdaQueryWrapper<UserModuleStats>()
+                        .eq(UserModuleStats::getUserId, userId)
+                        .eq(UserModuleStats::getModuleType, moduleType));
+        if (stat == null || stat.getTotalCount() == null) {
+            return 0;
+        }
+        return stat.getTotalCount();
     }
 
     @Override

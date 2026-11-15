@@ -265,7 +265,12 @@
                 {{ axis.hasData ? `${axis.score}%` : '—' }}
               </span>
               <span class="w-16 shrink-0 text-right font-label-sm text-label-sm text-on-surface-variant/70 tabular-nums">
-                {{ axis.total > 0 ? `${axis.correct}/${axis.total}` : '' }}
+                <template v-if="axis.key === 'writing'">
+                  {{ axis.total > 0 ? $t('profile.ability.scoreTimes', { times: axis.total }) : '' }}
+                </template>
+                <template v-else>
+                  {{ axis.total > 0 ? `${axis.correct}/${axis.total}` : '' }}
+                </template>
               </span>
             </div>
           </div>
@@ -504,9 +509,9 @@ const radarAxes = computed(() =>
       label: t(meta.labelKey),
       score: dimension?.score ?? 0,
       hasData: dimension?.hasData ?? false,
-      /** 累计作答总题数 */
+      /** 累计作答总题数（写作维度为评分次数） */
       total: dimension?.total ?? 0,
-      /** 累计答对题数 */
+      /** 累计答对题数（写作维度恒为 0） */
       correct: dimension?.correct ?? 0,
     }
   }),

@@ -442,7 +442,8 @@ export default {
       maxTitle: 'Highest rank reached',
       loadFailed: 'Failed to load the ability profile',
       emptyHint: 'Complete one practice session to generate your ability profile',
-      footnote: 'Accuracy of each of the six dimensions is correct answers divided by total answers; writing uses the AI score rate, and the overall score is the mean of dimensions with data. "—" means fewer than 5 answers so far. Practice points are settled per practice set; a set below 60% accuracy earns none.',
+      footnote: 'Accuracy of each of the six dimensions is correct answers divided by total answers; writing uses the AI score rate, and the overall score is the mean of dimensions with data. "—" means the sample is too small: at least 5 answers for quiz modules, at least 3 scored essays for writing. Practice points are settled per practice set; a set below 60% accuracy earns none.',
+      scoreTimes: '{times} scored',
     },
   },
   settings: {

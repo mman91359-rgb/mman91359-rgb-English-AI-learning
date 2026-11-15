@@ -116,7 +116,7 @@ export interface AbilityDimension {
     score: number
     /** 该维度是否已有可用数据；false 时页面展示「—」且不计入综合分 */
     hasData: boolean
-    /** 累计作答总题数（写作维度为 0） */
+    /** 累计作答总题数（写作维度为评分次数） */
     total: number
     /** 累计答对题数（写作维度为 0） */
     correct: number

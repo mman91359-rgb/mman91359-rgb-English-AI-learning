@@ -118,16 +118,57 @@ class UserAbilityRadarServiceImplTest {
     }
 
     @Test
-    @DisplayName("写作评分仍按移动加权写入 writing_score：0 → 80 取 10% = 8.0")
-    void valueUpdateMovesWritingScoreTowardsTarget() {
+    @DisplayName("首次写作评分直接落真实得分，不再从0做10%移动加权")
+    void firstWritingScoreUsesTargetDirectly() {
         when(radarMapper.selectOne(any())).thenReturn(radar());
+        when(practicePointService.getAttemptCount(1L, 6)).thenReturn(0);
 
         service.updateModuleScoreByValue(1L, 6, 80.0);
 
         String sqlSet = captureSqlSet();
         assertTrue(sqlSet.contains("writing_score"), "应更新写作列，实际: " + sqlSet);
+        assertTrue(capturedValue().compareTo(BigDecimal.valueOf(80.0)) == 0,
+                "首次评分应为80.0，实际: " + capturedValue());
+        verify(practicePointService).recordWritingScore(1L);
+    }
+
+    @Test
+    @DisplayName("第二次起写作评分按移动加权平滑：0 → 80 取 10% = 8.0")
+    void laterWritingScoreMovesTowardsTarget() {
+        when(radarMapper.selectOne(any())).thenReturn(radar());
+        when(practicePointService.getAttemptCount(1L, 6)).thenReturn(2);
+
+        service.updateModuleScoreByValue(1L, 6, 80.0);
+
         assertTrue(capturedValue().compareTo(BigDecimal.valueOf(8.0)) == 0,
-                "写作分应为8.0，实际: " + capturedValue());
+                "非首次评分应为8.0，实际: " + capturedValue());
+        verify(practicePointService).recordWritingScore(1L);
+    }
+
+    @Test
+    @DisplayName("写作评分不足3次时不计入画像，达3次才展示并计入综合分")
+    void writingNeedsThreeScores() {
+        UserAbilityRadar radar = radar();
+        radar.setWritingScore(BigDecimal.valueOf(6.0));
+        when(radarMapper.selectOne(any())).thenReturn(radar);
+        // 词汇 80% 有数据；写作只有 2 次评分 → 样本不足
+        when(moduleStatsMapper.listByUserId(1L)).thenReturn(List.of(
+                stat(1, 10, 8), stat(6, 2, 0)));
+
+        Map<String, Object> onlyTwo = service.getRadarData(1L);
+        assertEquals(false, onlyTwo.get("writingHasData"));
+        assertEquals(2, onlyTwo.get("writingTotal"));
+        // 只有词汇计入，综合分不被 6.0 拖低
+        assertEquals(80.0, ((BigDecimal) onlyTwo.get("overallAbilityScore")).doubleValue(), 1e-9);
+
+        // 达到 3 次评分后写作维度进入画像
+        when(moduleStatsMapper.listByUserId(1L)).thenReturn(List.of(
+                stat(1, 10, 8), stat(6, 3, 0)));
+        Map<String, Object> three = service.getRadarData(1L);
+        assertEquals(true, three.get("writingHasData"));
+        assertEquals(3, three.get("writingTotal"));
+        // (80 + 6.0) / 2 = 43.0
+        assertEquals(43.0, ((BigDecimal) three.get("overallAbilityScore")).doubleValue(), 1e-9);
     }
 
     @Test

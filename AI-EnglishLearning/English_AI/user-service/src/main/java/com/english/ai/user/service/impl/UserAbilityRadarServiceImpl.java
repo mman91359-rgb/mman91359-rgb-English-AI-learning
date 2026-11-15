@@ -32,6 +32,14 @@ public class UserAbilityRadarServiceImpl implements UserAbilityRadarService {
     /** 样本不足的阈值：低于该题数不算正确率，避免新用户一进来就显示 0% */
     private static final int MIN_SAMPLE_SIZE = 5;
 
+    /**
+     * 写作维度的最小评分次数。
+     *
+     * <p>写作分是连续值，单次评分波动大（一篇低分作文就能把维度拉低十几分），
+     * 少于 3 次评分时该维度判为「样本不足」，显示「—」且不计入综合能力分。</p>
+     */
+    private static final int MIN_WRITING_SAMPLE = 3;
+
     private final UserAbilityRadarMapper radarMapper;
     private final UserModuleStatsMapper moduleStatsMapper;
     private final PracticePointService practicePointService;
@@ -129,8 +137,18 @@ public class UserAbilityRadarServiceImpl implements UserAbilityRadarService {
         double target = Math.max(0, Math.min(100, score0to100));
         UserAbilityRadar radar = getOrCreateRadar(userId);
         BigDecimal current = getModuleScore(radar, dimension);
-        BigDecimal newScore = movingWeighted(current, target);
+        boolean writing = dimension == RadarDimension.WRITING;
+        // 首次评分直接落真实得分：从 0 起步的 10% 移动加权会把 60 分压成 6 分，严重失真
+        boolean firstScore = writing
+                && practicePointService.getAttemptCount(userId, ModuleType.WRITING.getCode()) == 0;
+        BigDecimal newScore = firstScore
+                ? BigDecimal.valueOf(round1(target))
+                : movingWeighted(current, target);
         saveDimensionScore(userId, dimension, newScore);
+        if (writing) {
+            // 采样次数在落分之后累加，保证「首次评分」判定读到的是本次之前的值
+            practicePointService.recordWritingScore(userId);
+        }
         log.info("模块分更新(按分值): userId={}, moduleType={}, dimension={}, target={}, {}→{}",
                 userId, moduleType, dimension, target, current, newScore);
     }
@@ -295,7 +313,11 @@ public class UserAbilityRadarServiceImpl implements UserAbilityRadarService {
         if (dimension == RadarDimension.WRITING) {
             BigDecimal score = radar.getWritingScore();
             double value = score == null ? 0 : score.doubleValue();
-            return new DimensionView(round1(value), 0, 0, value > 0);
+            // 写作维度：total 为评分次数（correct 恒为 0），少于 3 次评分不算有数据
+            Counters counters = sumCounters(statMap, dimension);
+            int times = counters.total();
+            boolean enough = times >= MIN_WRITING_SAMPLE;
+            return new DimensionView(round1(value), times, 0, value > 0 && enough);
         }
         Counters counters = sumCounters(statMap, dimension);
         if (counters.total() <= 0) {

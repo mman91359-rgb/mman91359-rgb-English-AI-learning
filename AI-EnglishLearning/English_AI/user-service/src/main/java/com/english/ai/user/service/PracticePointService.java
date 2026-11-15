@@ -15,6 +15,21 @@ public interface PracticePointService {
     void recordAnswer(Long userId, int moduleType, boolean isCorrect);
 
     /**
+     * 记录一次写作评分：只累加采样次数，不动正确数。
+     *
+     * <p>写作没有对错二值，采样次数用于判断「评分次数是否够看」，
+     * 样本不足 3 次时不展示写作维度，避免一次低分作文把画像拉偏。</p>
+     */
+    void recordWritingScore(Long userId);
+
+    /**
+     * 查询某模块的累计采样次数；无记录返回 0。
+     *
+     * <p>写作维度的返回值为评分次数，其余维度为作答题数。</p>
+     */
+    int getAttemptCount(Long userId, int moduleType);
+
+    /**
      * 结算一次练习组：幂等、按正确率门槛与每日上限发放积分。
      *
      * @param totalCount    本组总题数

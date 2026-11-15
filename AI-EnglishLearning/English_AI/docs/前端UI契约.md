@@ -24,7 +24,7 @@
 | 卡片、弹窗面板、整块容器 | `rounded-3xl` | `1.5rem` = 24px | Tailwind 默认值（`borderRadius` 为 `extend`，未覆盖 `3xl`） |
 | 内嵌块：区块卡片、输入框、表格单元 | `rounded-2xl` | `1rem` = 16px | Tailwind 默认值 |
 | 控件：chip、小徽章 | `rounded-xl` | `0.75rem` = 12px | 项目 `tailwind.config.js` 显式声明 |
-| 胶囊：状态标签、图标按钮、进度条 | `rounded-full` | `9999px` | 项目 `tailwind.config.js` 显式声明 |
+| 胶囊：状态标签、进度条 | `rounded-full` | `9999px` | 项目 `tailwind.config.js` 显式声明 |
 
 > **按钮不在本节**：按钮的形状统一归 §5 管（底座固定 `rounded-full`），本节四档不适用于按钮。
 
@@ -166,6 +166,11 @@ HomeView 复习块与状态行、StatsView 三格 —— 同一值已 ≥10 处�
 | 幽灵 | `btnGhostSm` | — | — |
 | 弹窗 | `btnDialogPrimary` / `btnDialogSecondary` | — | — |
 | 图标 | `btnIcon` (40px) / `btnIconMd` (36px) / `btnIconSm` (32px) / `btnIconDanger` | — | — |
+| 反色 | `btnPrimaryInverse` / `btnSecondaryInverse` | — | — |
+
+> 反色档不复用 `base`：焦点环用 `focus-visible:outline-on-primary`，避免在 `bg-primary` 容器上与底色同色而不可见。
+> 2026-11-15（`2a50d43`）新增 2 个导出常量，`buttonStyles.ts` 累计 **17 个** `export const`
+> （按已提交状态计，口径同 §10「基线只认 HEAD」）。
 
 **禁止**
 
@@ -457,6 +462,17 @@ git grep -n "material-symbols-outlined" HEAD -- "src/components/*.vue" | grep -v
 git grep -oE "\b(bg|text|border|border-[lrtb]|from|via|to|ring|divide|placeholder)-(white|black|(gray|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose|slate|zinc|neutral|stone)-(50|100|200|300|400|500|600|700|800|900|950))" HEAD -- "src/*.vue" "src/*.ts" | wc -l
 ```
 
+> **PowerShell 下复跑本节命令的两条前置条件**（2026-11-15 实测）：
+> 1. 先设 `[Console]::OutputEncoding = [System.Text.Encoding]::UTF8` 与 `$OutputEncoding`。
+>    默认按 CP936 解码时，含中文注释的行会与下一行粘连（本次为 `ui/FormHint.vue:18`），
+>    `-n` 口径少算 1 行：全量 108 而非 109、排除 `AppIcon.vue` 后 106 而非 107，与锚点 107 对不上。
+>    `-o` 只输出 ASCII 匹配串，不受影响。L2 / L3 / L4 / L5 用 `-n` 输出整行，受本条约束；
+>    L1a / L1b / L6 用 `-o`，不受约束。
+> 2. 正则里的 `[^"]` 在 PowerShell 参数传递中会被吞引号并报 `Invalid range end`，须写 `[^\"]`。
+>
+> **L5 计数口径：按文件行计，以 `-n` 为准**（当前每行至多 1 处命中，`-n` 与 `-o` 同为 109）。
+> 将来若出现同一行两处 `material-symbols-outlined`，两者会分叉，一律以 `-n` 为准，不用 `-o` / `-c` 求和覆写。
+
 > 基线值来自 `docs/前端UI审计与组件契约.md` §7，随每批迁移完成后更新本节。**每次更新必须重跑上面六条命令取实数，不许估算或按批减扣。**
 >
 > **每条基线后面挂提交锚点（`当前 N @ <short-sha>`）**：`HEAD` 会往前走，不挂锚点的数字过两个月就无从对账——
@@ -470,6 +486,16 @@ git grep -oE "\b(bg|text|border|border-[lrtb]|from|via|to|ring|divide|placeholde
 > **锚点 = 达成该数值的那次提交，不是 `HEAD`**。复核仍用 `HEAD`；若 `HEAD` 上跑出来的数 ≠ 锚点数值，先查中间提交有没有动过任意值，然后二选一：
 > ① 更新锚点（数值变了）；② 在锚点旁注明 `@ 71549f6 + 中间未变`（数值没变，只是 `HEAD` 前进了）。
 > 2026-11-15 实测过一次：`HEAD` 已走到 `2cbebfc`、锚点仍是 `@ 71549f6`，两处数值完全相同，属第 ② 种，不必改数字。
+>
+> **2026-11-15 复核（`2a50d43`）**：`HEAD` 已走到 `2a50d43`，`ca365a1..HEAD` 共 **5 个提交**
+> （`176f81c` / `67e4a94` / `b3da9e9` / `1f48795` / `2a50d43`），七条基线实测仍为
+> `31 / 127 / 0 / 0 / 0 / 107 / 11`，逐条未变，属规则 ②，**锚点保持 `@ ca365a1` 不变**，不改数字、不改锚点。
+> 其中 `2a50d43` 给 `buttonStyles.ts` 扩了反色两档（见 §5），不影响任意值与图标计数。
+> 每批交付前先跑 `git log -1` 确认 `HEAD` 未再前进。
+>
+> **`2a50d43` 的 commit message 写「L1b 88→88」**：穷举 11 种口径（含只扫 `views` 78 / 只扫 `*.vue` 126 /
+> 去重 68 / 按行 136 / 全量含 `rounded` 158）与历史锚点（127 / 127 / 133）均得不出 88，
+> **来源不可考，一律以 §10 口径 127 为准，不附归因**。该 message 排版亦有破损，数字段落不作证据。
 >
 > **盘点图标字号时的三个「非档位但合法」值**（2026-11-15 定位，勿当成漏网）：
 > `32px` = `AppLogo` 的 `.logo-glyph` 继承外层 `text-icon-xl`；`35px` ×2 = `StreakDisplay` 的 `.flame-glyph` 外体与内心，外层是 `text-flame-sm`（`streakStyles.ts:52`，完整字面量）；
@@ -642,6 +668,23 @@ git grep -ohE "[a-z-]+-\[[^]]*\]" HEAD -- "src/*.vue" "src/*.ts" | grep -vE "^ro
 > 理由：等值替换不改语义，但会混进对方的 `git diff`，对方一保存就冲突，而且他的 review 会看到一堆不属于他的改动。
 > 2026-11-15 的答题族批恰好碰到 `ProfileView` / `PracticeView` 是干净的，所以只动了图标字号、8 处圆角未碰——这是**运气，不是流程**。
 
+**答题族抽组件的差异登记（2026-11-15 裁定，不擅自统一）**
+
+> 以下是**设计差异**，不是任意值 A/B 分类，故单列于此，不并入上方「保留」表——
+> 塞进 A/B 表会把「无等值档」与「两页本来就该不一样」混为一谈。
+
+| # | 位置 | Vocab | Grammar |
+|---|---|---|---|
+| 1 | 答案明细背景 | `bg-surface-container-low` | `bg-white dark:bg-*`（L6 违规，按裁定不动） |
+| 2 | 明细 padding | `p-4` | `p-3` |
+| 3 | 明细 label 字号 | `label-sm`(11) | `text-xs`(12) |
+| 4 | 明细 value 字号 | `body-md`(16/24) | `text-sm`(14/20) |
+| 5 | 明细形态 | 3 行 + warning 框 | 1 行 |
+| 6 | 结果卡标题字号 | `headline-lg` | `headline-md` |
+
+H9 答案明细块**不抽组件**，两页各自保留；`AnswerFeedback` 只覆盖 H8 反馈条。
+第 6 处字号差异同样保留：`ResultStats` 不接管标题。
+
 ### 11.2 删除非法阴影时必须同时给出替代反馈
 
 `shadow-sm` / `shadow-md` 等非法阴影若承担「可交互」提示，删除时必须同时补一种替代反馈，**边框 / 底色 / 位移三者取一**。只删不加＝制造退化。
@@ -761,5 +804,19 @@ document.querySelectorAll('.max-w-md').length   // 期望 1；若为 2 说明外
 
 | 项 | 状态 | 补法 |
 |---|---|---|
-| `VocabQuizView` 结果页色条（`border-l-tertiary` / `border-l-error`）**缺页面级截图** | ⏳ 触发条件：下次进答题族批次（四件套接入）时一并截 | 结果页需「同一词连续答对 3 次」才出现；色值已实测（`rgb(34,197,94)→rgb(0,110,32)`、`rgb(248,113,113)→rgb(186,26,26)`），但 4px 竖线的**位置**只有截图能证 |
+| `VocabQuizView` 结果页色条（`border-l-tertiary` / `border-l-error`）**缺页面级截图** | ⏳ 触发条件：下次进答题族批次（四件套接入）时一并截 | 触发条件为 `VocabQuizView.vue:579` 的 `isLastQuestion`：`activeQueue.value.length === 1 && q != null && (streaks.value[q.id] || 0) >= 3`，即「队列仅剩 1 题」与「该词连续答对 ≥3 次」同时满足才出现（原写的「连续答对 3 次」不充分）；色值已实测（`rgb(34,197,94)→rgb(0,110,32)`、`rgb(248,113,113)→rgb(186,26,26)`），但 4px 竖线的**位置**只有截图能证 |
 | 进度条「整块替换未新增 DOM 层级」的**反向计数**（`ca365a1^` 上量 `max-w-md` 次数） | ✅ 已闭合（静态旁证） | 三层计数：旧 `VocabQuizView.vue` `max-w-md`=1（页面 wrapper，**无 `v-if`，结构恒定**）、新文件=0（wrapper 随块删除）、新文件+组件根=1。模板结构决定渲染后必然 1 层，比「当前这次运行时量到 1」更强 |
+
+### 11.6 组件接入时的事件边界（2026-11-15 裁定）
+
+硬规则「只改表现层、接口 / computed / 事件一律不动」的原始语义是**不改行为**，不是「不改文件字符」。据此：
+
+- **允许纯转发改名**：`@click="selectedAnswer = option.key"` → `@select="selectedAnswer = $event"`、
+  `@click="handleFavorite"` → `@toggle="handleFavorite"`。组件只 `emit`、不判断，
+  不得在事件路径里加业务分支（条件性 emit、改 payload、吞事件一律不许）。
+- **类名判断不算越界**：`optionClass` / `optionKeyClass` 由搬入组件的函数承担，属表现层逻辑，
+  不是「事件改动」。
+- **原函数体逐字复用时须归一化可选布尔**：别名层写 `isCorrect: props.isCorrect !== false`
+  （`undefined` → `true`），保证函数体里的 `!isCorrect` 不会把正确选项误标红；
+  `git diff` 应显示「删除 + 新增相同内容」。别名层只做映射，不承担业务语义、不往里加判断。
+

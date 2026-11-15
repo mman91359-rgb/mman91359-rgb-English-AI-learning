@@ -131,7 +131,7 @@
             :aria-pressed="isCurrentFavorited"
             @click="handleFavorite"
           >
-            <span class="material-symbols-outlined text-lg" :class="{ fill: isCurrentFavorited }">
+            <span class="material-symbols-outlined text-icon-lg" :class="{ fill: isCurrentFavorited }">
               {{ isCurrentFavorited ? 'favorite' : 'favorite_border' }}
             </span>
             {{ isCurrentFavorited ? $t('learning.favorited') : $t('learning.favoriteSentence') }}
@@ -196,7 +196,7 @@
                 class="w-7 h-7 rounded-full flex items-center justify-center text-sm shrink-0 mt-0.5"
                 :class="item.submitResult?.isCorrect ? 'bg-tertiary-container/45 text-on-tertiary-container' : 'bg-error-container/45 text-on-error-container'"
               >
-                <span class="material-symbols-outlined text-sm">{{ item.submitResult?.isCorrect ? 'check' : 'close' }}</span>
+                <span class="material-symbols-outlined text-icon-lg">{{ item.submitResult?.isCorrect ? 'check' : 'close' }}</span>
               </span>
               <div class="flex-1 min-w-0">
                 <p class="font-body-md text-body-md text-on-surface mb-2">{{ item.question.stem }}</p>

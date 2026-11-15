@@ -33,7 +33,7 @@
         <p v-if="avatarUploading" class="text-label-sm font-label-sm text-primary mb-2">上传中...</p>
         <div class="flex items-center gap-2 group cursor-pointer" @click="openNicknameDialog">
           <h1 class="font-headline-lg text-headline-lg text-on-background">{{ displayName }}</h1>
-          <span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors text-xl">edit</span>
+          <span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors text-icon-lg">edit</span>
         </div>
         <p class="font-body-md text-body-md text-on-surface-variant mt-2">{{ userLevel }}</p>
 
@@ -76,17 +76,17 @@
         </BaseDialog>
         <div class="grid grid-cols-3 gap-8 mt-12 w-full max-w-2xl mx-auto border-t border-outline-variant/20 pt-8">
           <div class="flex flex-col items-center">
-            <span class="material-symbols-outlined text-secondary-fixed-dim mb-2 text-3xl fill">schedule</span>
+            <span class="material-symbols-outlined text-secondary-fixed-dim mb-2 text-icon-lg fill">schedule</span>
             <span class="font-label-lg text-label-lg text-on-surface-variant mb-1">{{ $t('profile.totalStudyTime') }}</span>
             <span class="font-headline-md text-headline-md text-on-background">{{ totalStudyTime }}</span>
           </div>
           <div class="flex flex-col items-center border-l border-r border-outline-variant/20 px-4">
-            <span class="material-symbols-outlined text-primary-container mb-2 text-3xl fill" :class="{ 'opacity-30': userStore.checkInStreak < 3 }">local_fire_department</span>
+            <span class="material-symbols-outlined text-primary-container mb-2 text-icon-lg fill" :class="{ 'opacity-30': userStore.checkInStreak < 3 }">local_fire_department</span>
             <span class="font-label-lg text-label-lg text-on-surface-variant mb-1">{{ $t('dashboard.streakDays') }}</span>
             <span class="font-headline-md text-headline-md text-on-background">{{ userStore.checkInStreak }}{{ $t('stats.days') }}</span>
           </div>
           <div class="flex flex-col items-center">
-            <span class="material-symbols-outlined text-tertiary-fixed-dim mb-2 text-3xl fill">calendar_month</span>
+            <span class="material-symbols-outlined text-tertiary-fixed-dim mb-2 text-icon-lg fill">calendar_month</span>
             <span class="font-label-lg text-label-lg text-on-surface-variant mb-1">{{ $t('stats.activeDays') }}</span>
             <span class="font-headline-md text-headline-md text-on-background">{{ activeDays }}{{ $t('stats.days') }}</span>
           </div>
@@ -99,7 +99,7 @@
       <div class="bg-surface-container-lowest rounded-[24px] p-8 soft-shadow border border-surface-container-low">
         <div class="flex items-center gap-4 mb-6">
           <div class="w-12 h-12 rounded-full bg-tertiary-container/20 flex items-center justify-center">
-            <span class="material-symbols-outlined text-tertiary text-3xl fill">paid</span>
+            <span class="material-symbols-outlined text-tertiary text-icon-lg fill">paid</span>
           </div>
           <div>
             <p class="font-label-md text-label-md text-on-surface-variant">{{ $t('coin.balance') }}</p>
@@ -120,7 +120,7 @@
         <div class="flex items-start justify-between gap-3 mb-6">
           <div class="flex items-center gap-4">
             <div class="w-12 h-12 rounded-full bg-primary-container/20 flex items-center justify-center">
-              <span class="material-symbols-outlined text-primary text-3xl">event_available</span>
+              <span class="material-symbols-outlined text-primary text-icon-lg">event_available</span>
             </div>
             <div>
               <p class="font-label-md text-label-md text-on-surface-variant">{{ $t('checkIn.title') }}</p>

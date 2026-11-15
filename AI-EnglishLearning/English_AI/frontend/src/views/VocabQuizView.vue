@@ -25,40 +25,8 @@
             <span class="material-symbols-outlined">arrow_back_ios_new</span>
           </button>
 
-          <!-- 奖杯 + 进度条 -->
-          <div class="flex-1 max-w-md mx-auto relative flex items-center">
-            <div class="absolute left-0 top-1/2 -translate-y-1/2 -ml-2 bg-white dark:bg-surface shadow-lg rounded-full w-14 h-14 flex items-center justify-center z-10 border-4 border-background dark:border-surface">
-              <span
-                class="material-symbols-outlined text-info text-2xl"
-                style="font-variation-settings: 'FILL' 1;"
-              >emoji_events</span>
-            </div>
-            <div
-              class="w-full h-12 bg-surface-container-high rounded-full overflow-hidden ml-4 relative"
-              role="progressbar"
-              :aria-valuemin="0"
-              :aria-valuemax="totalCount"
-              :aria-valuenow="answeredCount"
-              :aria-valuetext="`${answeredCount}/${totalCount}`"
-            >
-              <div
-                class="h-full bg-primary transition-all duration-500 ease-out"
-                :style="{ width: progressPercent + '%' }"
-              ></div>
-              <!-- 轨道底色层：压在未填充段 -->
-              <span class="absolute inset-0 flex items-center justify-center text-lg font-bold text-on-surface-variant" aria-hidden="true">
-                {{ answeredCount }}/{{ totalCount }}
-              </span>
-              <!-- 填充层反白：按进度横向裁切，与填充色同步过渡 -->
-              <span
-                class="absolute inset-0 flex items-center justify-center text-lg font-bold text-on-primary transition-all duration-500 ease-out"
-                :style="{ clipPath: `inset(0 ${100 - progressPercent}% 0 0)` }"
-                aria-hidden="true"
-              >
-                {{ answeredCount }}/{{ totalCount }}
-              </span>
-            </div>
-          </div>
+          <!-- 奖杯 + 进度条：进度 = 已掌握 / 总数（answeredCount 只是 masteredCount 的别名，不是答题数） -->
+          <QuizProgressBar :answered="answeredCount" :total="totalCount" />
         </div>
 
         <!-- 右侧操作按钮组 -->
@@ -110,13 +78,13 @@
         <template v-else-if="!showResults && currentQuestion">
           <!-- 题目卡片 -->
           <div
-            class="bg-surface rounded-3xl p-8 md:p-12 shadow-[0_4px_20px_rgba(51,58,72,0.05)] w-full max-w-3xl mx-auto relative border border-outline-variant/20 mt-8 mb-24"
+            class="bg-surface rounded-3xl p-8 md:p-12 shadow-soft-glow w-full max-w-3xl mx-auto relative border border-outline-variant/20 mt-8 mb-24"
           >
             <!-- 左上：难度等级徽章 -->
             <div class="absolute top-6 left-6 flex items-center gap-2">
               <span class="bg-secondary-fixed/50 text-secondary font-label-md text-label-md px-3 py-1 rounded-full flex items-center gap-1">
                 {{ $t('learning.difficultyLevel', { level: currentDifficulty }) }}
-                <span class="material-symbols-outlined text-[14px]">help</span>
+                <span class="material-symbols-outlined text-icon-lg">help</span>
               </span>
             </div>
             <!-- 右上：全新徽章 -->
@@ -169,11 +137,11 @@
                     <!-- 实时拼写状态图标 -->
                     <span
                       v-if="inputStatus === 'correct' && !showFeedback"
-                      class="material-symbols-outlined absolute -right-8 top-1/2 -translate-y-1/2 text-tertiary text-2xl pointer-events-none animate-pulse"
+                      class="material-symbols-outlined absolute -right-8 top-1/2 -translate-y-1/2 text-tertiary text-icon-lg pointer-events-none animate-pulse"
                     >check_circle</span>
                     <span
                       v-if="inputStatus === 'wrong' && !showFeedback && userAnswer.trim().length >= 2"
-                      class="material-symbols-outlined absolute -right-8 top-1/2 -translate-y-1/2 text-error text-2xl pointer-events-none"
+                      class="material-symbols-outlined absolute -right-8 top-1/2 -translate-y-1/2 text-error text-icon-lg pointer-events-none"
                     >error</span>
                   </div>
                 </template>
@@ -230,7 +198,7 @@
                   :aria-pressed="isCurrentFavorited"
                   @click="handleFavorite"
                 >
-                  <span class="material-symbols-outlined text-lg" :class="{ fill: isCurrentFavorited }">
+                  <span class="material-symbols-outlined text-icon-lg" :class="{ fill: isCurrentFavorited }">
                     {{ isCurrentFavorited ? 'favorite' : 'favorite_border' }}
                   </span>
                   {{ isCurrentFavorited ? $t('learning.favorited') : $t('learning.favoriteSentence') }}
@@ -245,7 +213,7 @@
               v-if="showInstantHint"
               class="w-full max-w-3xl mx-auto -mt-16 mb-24 bg-error-container/25 border border-error/25 rounded-2xl p-5 shadow-sm flex items-start gap-3"
             >
-              <span class="material-symbols-outlined text-error/70 text-2xl shrink-0 mt-0.5">lightbulb</span>
+              <span class="material-symbols-outlined text-error/70 text-icon-lg shrink-0 mt-0.5">lightbulb</span>
               <p class="flex-1 text-body-md text-on-surface leading-relaxed">
                 {{ instantHintMessage }}
               </p>
@@ -253,7 +221,7 @@
                 class="shrink-0 w-9 h-9 rounded-full hover:bg-error-container/50 flex items-center justify-center text-error/70 transition-colors"
                 :title="$t('learning.favoriteHint')"
               >
-                <span class="material-symbols-outlined text-xl">favorite_border</span>
+                <span class="material-symbols-outlined text-icon-lg">favorite_border</span>
               </button>
             </div>
           </Transition>
@@ -268,7 +236,7 @@
                 @click="toggleHint"
               >
                 <div class="w-12 h-12 rounded-full bg-primary-container/20 flex items-center justify-center group-hover:bg-primary-container/30 transition-colors">
-                  <span class="material-symbols-outlined text-[28px]">{{ showHint ? 'visibility_off' : 'help' }}</span>
+                  <span class="material-symbols-outlined text-icon-lg">{{ showHint ? 'visibility_off' : 'help' }}</span>
                 </div>
                 <span class="font-label-md text-label-md font-bold">{{ showHint ? $t('learning.hideHint') : $t('learning.hint') }}</span>
               </button>
@@ -281,12 +249,12 @@
                 @click="toggleSpeech"
               >
                 <div class="w-12 h-12 rounded-full bg-primary-container/20 flex items-center justify-center group-hover:bg-primary-container/30 transition-colors relative">
-                  <span class="material-symbols-outlined text-[28px]">{{ isListening ? 'mic_off' : 'mic' }}</span>
+                  <span class="material-symbols-outlined text-icon-lg">{{ isListening ? 'mic_off' : 'mic' }}</span>
                   <div
                     v-if="!isListening"
                     class="absolute -top-12 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface font-label-md text-label-md whitespace-nowrap px-3 py-1.5 rounded-md shadow-lg flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
                   >
-                    <span class="material-symbols-outlined text-[14px]">touch_app</span> {{ $t('learning.handsFreeMode') }}
+                    <span class="material-symbols-outlined text-icon-lg">touch_app</span> {{ $t('learning.handsFreeMode') }}
                     <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-inverse-surface transform rotate-45"></div>
                   </div>
                 </div>
@@ -299,7 +267,7 @@
                 @click="askAi"
               >
                 <div class="w-12 h-12 rounded-full bg-primary-container/20 flex items-center justify-center group-hover:bg-primary-container/30 transition-colors">
-                  <span class="material-symbols-outlined text-[28px]">help</span>
+                  <span class="material-symbols-outlined text-icon-lg">help</span>
                 </div>
                 <span class="font-label-md text-label-md font-bold">{{ $t('learning.askAi') }}</span>
               </button>
@@ -326,7 +294,7 @@
               {{ $t('learning.firstTwoLetters') }}<span class="text-primary font-bold text-lg">{{ hintLetters }}</span>
             </p>
             <p v-if="hintLoading" class="font-body-sm text-body-sm text-on-surface-variant mt-1 flex items-center gap-1">
-              <span class="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+              <span class="material-symbols-outlined text-icon-lg animate-spin">progress_activity</span>
               {{ $t('learning.loadingMoreHint') }}
             </p>
             <p v-else-if="questionAnswer" class="font-body-md text-body-md text-on-surface mt-1">
@@ -370,14 +338,14 @@
                 v-for="(item, idx) in results.items"
                 :key="idx"
                 class="bg-surface rounded-xl p-5 shadow-soft-glow border-l-4"
-                :class="item.correct ? 'border-l-green-500' : 'border-l-red-400'"
+                :class="item.correct ? 'border-l-tertiary' : 'border-l-error'"
               >
                 <div class="flex items-start gap-3">
                   <span
                     class="w-7 h-7 rounded-full flex items-center justify-center text-sm shrink-0 mt-0.5"
                     :class="item.correct ? 'bg-tertiary-container/45 text-on-tertiary-container' : 'bg-error-container/45 text-on-error-container'"
                   >
-                    <span class="material-symbols-outlined text-sm">{{ item.correct ? 'check' : 'close' }}</span>
+                    <span class="material-symbols-outlined text-icon-lg">{{ item.correct ? 'check' : 'close' }}</span>
                   </span>
                   <div class="flex-1 min-w-0">
                     <p class="font-body-md text-body-md text-on-surface mb-2">{{ item.question.stem }}</p>
@@ -523,6 +491,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import SideNavBar from '@/components/SideNavBar.vue'
 import AiSidebar from '@/components/AiSidebar.vue'
+import QuizProgressBar from '../components/quiz/QuizProgressBar.vue'
 import VocabularyGoalDialog from '@/components/VocabularyGoalDialog.vue'
 import WordReviewDialog from '@/components/WordReviewDialog.vue'
 import { useUserStore } from '@/stores/user'
@@ -609,7 +578,6 @@ const isLastQuestion = computed(() => {
   const q = currentQuestion.value
   return activeQueue.value.length === 1 && q != null && (streaks.value[q.id] || 0) >= 3
 })
-const progressPercent = computed(() => totalCount.value > 0 ? (masteredCount.value / totalCount.value) * 100 : 0)
 const currentDifficulty = computed(() => currentQuestion.value?.difficultyLevel || 1)
 
 /**

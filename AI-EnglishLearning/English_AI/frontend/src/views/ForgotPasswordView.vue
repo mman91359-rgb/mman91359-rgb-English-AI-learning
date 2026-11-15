@@ -22,7 +22,7 @@
           <div class="relative overflow-hidden rounded-[24px] bg-surface p-8 shadow-soft-glow sm:p-10">
             <div class="mb-8 text-center">
               <div class="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary-container/10">
-                <span class="material-symbols-outlined fill text-3xl text-primary">lock_reset</span>
+                <span class="material-symbols-outlined fill text-icon-lg text-primary">lock_reset</span>
               </div>
               <h1 class="mb-2 font-headline-xl text-headline-xl text-on-surface">{{ $t('auth.forgotTitle') }}</h1>
               <p class="font-body-md text-body-md text-on-surface-variant">{{ $t('auth.forgotSubtitle') }}</p>

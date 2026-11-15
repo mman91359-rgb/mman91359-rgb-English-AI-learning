@@ -15,36 +15,11 @@
             :aria-label="$t('common.back')"
             @click="goBack"
           >
-            <span class="material-symbols-outlined text-2xl">arrow_back_ios_new</span>
+            <span class="material-symbols-outlined text-icon-lg">arrow_back_ios_new</span>
           </button>
 
-          <div class="flex-1 max-w-md mx-auto relative flex items-center">
-            <div class="absolute left-0 top-1/2 -translate-y-1/2 -ml-2 bg-white dark:bg-surface shadow-lg rounded-full w-14 h-14 flex items-center justify-center z-10 border-4 border-background dark:border-surface">
-              <span class="material-symbols-outlined text-info text-2xl" style="font-variation-settings: 'FILL' 1;">emoji_events</span>
-            </div>
-            <div
-              class="w-full h-12 bg-surface-container-high rounded-full overflow-hidden ml-4 relative"
-              role="progressbar"
-              :aria-valuemin="0"
-              :aria-valuemax="totalCount"
-              :aria-valuenow="answeredCount"
-              :aria-valuetext="`${answeredCount}/${totalCount}`"
-            >
-              <div class="h-full bg-primary transition-all duration-500 ease-out" :style="{ width: progressPercent + '%' }"></div>
-              <!-- 轨道底色层：压在未填充段 -->
-              <span class="absolute inset-0 flex items-center justify-center text-lg font-bold text-on-surface-variant" aria-hidden="true">
-                {{ answeredCount }}/{{ totalCount }}
-              </span>
-              <!-- 填充层反白：按进度横向裁切，与填充色同步过渡 -->
-              <span
-                class="absolute inset-0 flex items-center justify-center text-lg font-bold text-on-primary transition-all duration-500 ease-out"
-                :style="{ clipPath: `inset(0 ${100 - progressPercent}% 0 0)` }"
-                aria-hidden="true"
-              >
-                {{ answeredCount }}/{{ totalCount }}
-              </span>
-            </div>
-          </div>
+          <!-- 奖杯 + 进度条：进度 = 已答 / 总数 -->
+          <QuizProgressBar :answered="answeredCount" :total="totalCount" />
         </div>
 
         <div class="flex items-center gap-2">
@@ -53,13 +28,13 @@
             :aria-label="appStore.isDark ? $t('topbar.switchToLight') : $t('topbar.switchToDark')"
             @click="appStore.toggleTheme"
           >
-            <span class="material-symbols-outlined text-xl">{{ appStore.isDark ? 'light_mode' : 'dark_mode' }}</span>
+            <span class="material-symbols-outlined text-icon-lg">{{ appStore.isDark ? 'light_mode' : 'dark_mode' }}</span>
           </button>
           <button
             :class="['relative', btnIcon]"
             :aria-label="$t('topbar.notifications')"
           >
-            <span class="material-symbols-outlined text-xl">notifications</span>
+            <span class="material-symbols-outlined text-icon-lg">notifications</span>
             <span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
           </button>
           <button
@@ -67,7 +42,7 @@
             :aria-label="$t('topbar.currentLanguage')"
             @click="cycleLanguage"
           >
-            <span class="material-symbols-outlined text-xl">language</span>
+            <span class="material-symbols-outlined text-icon-lg">language</span>
           </button>
           <div
             class="w-8 h-8 rounded-full bg-primary text-on-primary ml-2 flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-primary/50 hover:scale-105 active:scale-95 transition-all text-sm font-bold select-none overflow-hidden"
@@ -102,7 +77,7 @@
                 <!-- 左上：难度等级徽章 -->
                 <div class="bg-info-container/80 text-on-info-container px-3.5 py-1.5 rounded-full flex items-center gap-1.5 text-sm font-medium">
                   {{ $t('learning.difficultyLevelGrammar', { level: currentDifficulty }) }}
-                  <span class="material-symbols-outlined text-base">help</span>
+                  <span class="material-symbols-outlined text-icon-lg">help</span>
                 </div>
                 <!-- 右上：New 红色徽章 -->
                 <div class="bg-error text-on-error px-3.5 py-1.5 rounded-full text-sm font-medium shadow-sm flex items-center relative">
@@ -131,7 +106,7 @@
                   class="text-xs text-error/70 hover:text-error flex items-center gap-1 transition-colors"
                   @click="clearAllWords()"
                 >
-                  <span class="material-symbols-outlined text-sm">delete</span>{{ $t('learning.clearBtn') }}
+                  <span class="material-symbols-outlined text-icon-lg">delete</span>{{ $t('learning.clearBtn') }}
                 </button>
               </div>
               <div
@@ -163,7 +138,7 @@
                     @click="!showFeedback && removeWord(idx)"
                   >
                     {{ token.word }}
-                    <span v-if="!showFeedback" class="material-symbols-outlined text-sm text-outline">close</span>
+                    <span v-if="!showFeedback" class="material-symbols-outlined text-icon-lg text-outline">close</span>
                     <div
                       v-if="dragOverSelectedIdx === idx && dragOverSide === 'left'"
                       class="absolute -left-1 top-1/2 -translate-y-1/2 w-0.5 h-8 bg-primary rounded-full"
@@ -178,7 +153,7 @@
                   v-else
                   class="w-full flex flex-col items-center justify-center text-outline text-base py-8 gap-2"
                 >
-                  <span class="material-symbols-outlined text-3xl">drag_indicator</span>
+                  <span class="material-symbols-outlined text-icon-lg">drag_indicator</span>
                   {{ $t('learning.dragOrClickHint') }}
                 </div>
 
@@ -190,7 +165,7 @@
                       ? 'bg-tertiary-container/30 text-on-tertiary-container'
                       : 'bg-error-container/30 text-error'"
                   >
-                    <span class="material-symbols-outlined align-middle mr-1 text-base">{{ isCorrect ? 'check_circle' : 'cancel' }}</span>
+                    <span class="material-symbols-outlined align-middle mr-1 text-icon-lg">{{ isCorrect ? 'check_circle' : 'cancel' }}</span>
                     {{ isCorrect ? $t('learning.correct') : $t('learning.incorrect') }}
                   </div>
                   <div v-if="!isCorrect" class="bg-white dark:bg-surface-container-low rounded-xl p-3 space-y-2">
@@ -206,7 +181,7 @@
                     :aria-pressed="isCurrentFavorited"
                     @click="handleFavorite"
                   >
-                    <span class="material-symbols-outlined text-lg" :class="{ fill: isCurrentFavorited }">
+                    <span class="material-symbols-outlined text-icon-lg" :class="{ fill: isCurrentFavorited }">
                       {{ isCurrentFavorited ? 'favorite' : 'favorite_border' }}
                     </span>
                     {{ isCurrentFavorited ? $t('learning.favorited') : $t('learning.favoriteSentence') }}
@@ -252,7 +227,7 @@
               :disabled="showFeedback"
               @click="revealAnswer"
             >
-              <span class="material-symbols-outlined mb-0.5 text-lg">done_all</span>
+              <span class="material-symbols-outlined mb-0.5 text-icon-lg">done_all</span>
               {{ $t('learning.viewAnswerBtn') }}
             </button>
             <!-- 语音模式 -->
@@ -263,7 +238,7 @@
               @click="toggleSpeech"
               :aria-label="$t('learning.voiceMode')"
             >
-              <span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">mic</span>
+              <span class="material-symbols-outlined text-icon-lg" style="font-variation-settings: 'FILL' 1;">mic</span>
             </button>
             <!-- 问AI -->
             <button
@@ -271,7 +246,7 @@
               @click="askAi"
               :aria-label="$t('learning.askAi')"
             >
-              <span class="material-symbols-outlined text-xl">help</span>
+              <span class="material-symbols-outlined text-icon-lg">help</span>
             </button>
             <!-- 确认/下一题大按钮 -->
             <button
@@ -361,6 +336,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import SideNavBar from '@/components/SideNavBar.vue'
 import AiSidebar from '@/components/AiSidebar.vue'
+import QuizProgressBar from '../components/quiz/QuizProgressBar.vue'
 import { useUserStore } from '@/stores/user'
 import { useAppStore } from '@/stores/app'
 import { selectQuestions, submitAnswer as submitAnswerApi, getQuestionById } from '@/api/exercise'
@@ -561,7 +537,6 @@ const accuracy = computed(() =>
 )
 const answeredCount = computed(() => currentIndex.value + (showResults.value ? 1 : 0))
 const isLastQuestion = computed(() => currentIndex.value >= totalCount.value - 1)
-const progressPercent = computed(() => totalCount.value > 0 ? (answeredCount.value / totalCount.value) * 100 : 0)
 const currentDifficulty = computed(() => currentQuestion.value?.difficultyLevel || 1)
 
 const usedBankIndices = computed(() => {

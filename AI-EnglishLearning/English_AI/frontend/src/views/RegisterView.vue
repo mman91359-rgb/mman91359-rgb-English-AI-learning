@@ -44,7 +44,7 @@
       <header class="h-20 sticky top-0 z-40 bg-background/80 backdrop-blur-md flex items-center justify-between px-gutter w-full max-w-container-max mx-auto">
         <div class="flex items-center gap-4">
           <div class="md:hidden">
-            <span class="material-symbols-outlined text-on-surface text-2xl cursor-pointer">menu</span>
+            <span class="material-symbols-outlined text-on-surface text-icon-lg cursor-pointer">menu</span>
           </div>
         </div>
         <div class="flex items-center gap-4">
@@ -57,7 +57,7 @@
           <div class="col-span-1 md:col-span-8 md:col-start-3 lg:col-span-6 lg:col-start-4 bg-surface rounded-[24px] p-8 sm:p-10 shadow-soft-glow relative overflow-hidden">
             <div class="text-center mb-10">
               <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-container/10 mb-4">
-                <span class="material-symbols-outlined text-primary text-3xl fill">person_add</span>
+                <span class="material-symbols-outlined text-primary text-icon-lg fill">person_add</span>
               </div>
               <h1 class="font-headline-xl text-headline-xl text-on-surface mb-2">{{ $t('auth.register') }}</h1>
               <p class="font-body-md text-body-md text-on-surface-variant">{{ $t('app.subtitle') }}</p>

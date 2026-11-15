@@ -428,12 +428,19 @@ const progressPercent = (book: WordBookVO) => {
   return Math.min(100, Math.round((current.learned / current.total) * 100))
 }
 
+/**
+ * 词书卡图标底色。
+ * M3 语义色相只有 6 档（primary/secondary/tertiary/info/warning/error），
+ * error 语义是「错误」，不用于词书；第 6 本词书加入后改用 fixed 档补位，
+ * 让品牌主色留给分量最重的「四级核心」。
+ */
 const BOOK_TONES: Record<string, string> = {
-  basic_500: 'bg-primary-container text-on-primary-container',
-  cet4_outline: 'bg-secondary-container text-on-secondary-container',
-  cet6_outline: 'bg-tertiary-container text-on-tertiary-container',
+  basic_500: 'bg-primary-fixed text-on-primary-fixed',
   cet4_high: 'bg-info-container text-on-info-container',
+  cet4_core_1900: 'bg-primary-container text-on-primary-container',
+  cet4_outline: 'bg-secondary-container text-on-secondary-container',
   cet6_high: 'bg-warning-container text-on-warning-container',
+  cet6_outline: 'bg-tertiary-container text-on-tertiary-container',
 }
 
 const bookTone = (code: string) =>

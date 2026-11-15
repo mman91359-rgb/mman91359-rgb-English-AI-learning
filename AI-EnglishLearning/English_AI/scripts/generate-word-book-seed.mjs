@@ -12,12 +12,13 @@
  *   3. CET6 是累积词书（含 CET4 词），本脚本只保留 CET6 增量（不在 CET4 集合内的词）；
  *   4. word 统一小写（word 表的 spelling 可能含转义引号，先 cleanText 再 toLowerCase）。
  *
- * 生成的 5 本词书：
- *   basic_500      CET4 rank_no <= 500
- *   cet4_outline   CET4 全量
- *   cet6_outline   CET6 增量全量
- *   cet4_high      CET4 rank_no <= ceil(3502*0.30)（约 1051）
- *   cet6_high      CET6 增量 rank_no <= ceil(1980*0.30)（约 594）
+ * 生成的 6 本词书（sort_order 与数组顺序一致）：
+ *   basic_500        CET4 rank_no <= 500
+ *   cet4_high        CET4 rank_no <= ceil(N*0.30)
+ *   cet4_core_1900   ECDICT book 26「四级核心精简 1900」，名次用该书自身 sort_no
+ *   cet4_outline     CET4 全量
+ *   cet6_high        CET6 增量 rank_no <= ceil(N*0.30)
+ *   cet6_outline     CET6 增量全量
  *
  * 不连数据库、不写库；dump 路径不存在直接报错退出，禁止猜默认值。
  */
@@ -33,6 +34,7 @@ const ROOT = path.resolve(__dirname, '..')
 
 const BOOK_CET4 = 7
 const BOOK_CET6 = 8
+const BOOK_CET4_CORE = 26
 const SENTINEL_SORT_NO = 999999999
 
 function parseArgs(argv) {
@@ -57,6 +59,7 @@ function parseArgs(argv) {
 async function scanDump(source) {
   const c4 = new Map() // wordId -> sortNo
   const c6 = new Map() // wordId -> sortNo
+  const core = new Map() // wordId -> sortNo（book 26「四级核心精简 1900」）
   const spelling = new Map() // wordId -> word
   const wanted = new Set()
 
@@ -86,6 +89,9 @@ async function scanDump(source) {
       } else if (bookId === BOOK_CET6) {
         c6.set(wordId, sortNo)
         wanted.add(wordId)
+      } else if (bookId === BOOK_CET4_CORE) {
+        core.set(wordId, sortNo)
+        wanted.add(wordId)
       }
       continue
     }
@@ -103,7 +109,7 @@ async function scanDump(source) {
     }
   }
 
-  return { c4, c6, spelling }
+  return { c4, c6, core, spelling }
 }
 
 /**
@@ -124,50 +130,60 @@ function rankWithinBook(idMap, spelling, exclude) {
   return out
 }
 
-function buildBooks(c4, c6, spelling) {
+function buildBooks(c4, c6, core, spelling) {
   const cet4 = rankWithinBook(c4, spelling, null)
   const cet4Set = new Set(cet4.map((x) => x.word))
   // CET6 增量：排除已在 CET4 词书内的词，并对增量集合重新从 1 排名
   const cet6 = rankWithinBook(c6, spelling, cet4Set)
+  // 四级核心 1900（book 26）：名次用该书自身的 sort_no，与词频名次体系相互独立
+  const cet4Core = rankWithinBook(core, spelling, null)
 
   const cet4HighTop = Math.ceil(cet4.length * 0.3)
   const cet6HighTop = Math.ceil(cet6.length * 0.3)
 
+  // 数组顺序即 sort_order：每级内部按词集体量递增，便于横向比较
   const books = [
     {
       code: 'basic_500',
-      name: '四级高频 500 词',
+      name: '四级精选',
       level: 'CET4',
-      description: '四级词纲内词频前 500 词',
+      description: '四级考纲内最常用的词，适合起步',
       items: cet4.filter((x) => x.rankNo <= 500),
+    },
+    {
+      code: 'cet4_high',
+      name: '四级高频',
+      level: 'CET4',
+      description: '四级考纲内的高频词',
+      items: cet4.filter((x) => x.rankNo <= cet4HighTop),
+    },
+    {
+      code: 'cet4_core_1900',
+      name: '四级核心',
+      level: 'CET4',
+      description: '四级核心词表，按核心优先级排序',
+      items: cet4Core,
     },
     {
       code: 'cet4_outline',
       name: '四级词纲',
       level: 'CET4',
-      description: '四级词纲全量',
+      description: '四级考纲全量',
       items: cet4,
+    },
+    {
+      code: 'cet6_high',
+      name: '六级高频',
+      level: 'CET6',
+      description: '六级考纲增量内的高频词',
+      items: cet6.filter((x) => x.rankNo <= cet6HighTop),
     },
     {
       code: 'cet6_outline',
       name: '六级词纲',
       level: 'CET6',
-      description: '六级词纲增量（不含四级词）',
+      description: '六级考纲增量全量（不含四级词）',
       items: cet6,
-    },
-    {
-      code: 'cet4_high',
-      name: '四级高频 30%',
-      level: 'CET4',
-      description: `四级词纲词频前 30%（约 ${cet4HighTop} 词）`,
-      items: cet4.filter((x) => x.rankNo <= cet4HighTop),
-    },
-    {
-      code: 'cet6_high',
-      name: '六级高频 30%',
-      level: 'CET6',
-      description: `六级增量词频前 30%（约 ${cet6HighTop} 词）`,
-      items: cet6.filter((x) => x.rankNo <= cet6HighTop),
     },
   ]
 
@@ -226,8 +242,8 @@ async function main() {
   }
 
   console.log(`[info] 扫描 ${opts.source} ...`)
-  const { c4, c6, spelling } = await scanDump(opts.source)
-  const { books, cet4Count, cet6Count } = buildBooks(c4, c6, spelling)
+  const { c4, c6, core, spelling } = await scanDump(opts.source)
+  const { books, cet4Count, cet6Count } = buildBooks(c4, c6, core, spelling)
 
   console.log(`[info] CET4 词书 ${c4.size} 词 / 有拼写 ${cet4Count}`)
   console.log(`[info] CET6 增量 ${cet6Count} 词`)

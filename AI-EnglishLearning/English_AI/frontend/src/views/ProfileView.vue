@@ -17,7 +17,7 @@
           />
           <span v-else class="material-symbols-outlined text-[80px] text-primary fill">featured_seasonal_and_gifts</span>
           <!-- 悬浮遮罩提示 -->
-          <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-3xl">
+          <div class="absolute inset-0 bg-scrim/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-3xl">
             <span class="material-symbols-outlined text-white text-icon-2xl">camera_alt</span>
           </div>
         </div>
@@ -96,7 +96,7 @@
 
     <!-- 金币与签到 -->
     <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div class="bg-surface-container-lowest rounded-[24px] p-8 soft-shadow border border-surface-container-low">
+      <div class="bg-surface-container-lowest rounded-3xl p-8 soft-shadow border border-surface-container-low">
         <div class="flex items-center gap-4 mb-6">
           <div class="w-12 h-12 rounded-full bg-tertiary-container/20 flex items-center justify-center">
             <span class="material-symbols-outlined text-tertiary text-icon-lg fill">paid</span>
@@ -127,7 +127,7 @@
         </button>
       </div>
 
-      <div class="bg-surface-container-lowest rounded-[24px] p-8 soft-shadow border border-surface-container-low">
+      <div class="bg-surface-container-lowest rounded-3xl p-8 soft-shadow border border-surface-container-low">
         <div class="flex items-start justify-between gap-3 mb-6">
           <div class="flex items-center gap-4">
             <div class="w-12 h-12 rounded-full bg-primary-container/20 flex items-center justify-center">
@@ -189,7 +189,7 @@
     <!-- 能力画像与设置 -->
     <section class="grid grid-cols-1 md:grid-cols-3 gap-8">
       <!-- 能力画像：分数 + 雷达图 -->
-      <div class="md:col-span-2 bg-surface-container-lowest rounded-[24px] p-8 soft-shadow border border-surface-container-low">
+      <div class="md:col-span-2 bg-surface-container-lowest rounded-3xl p-8 soft-shadow border border-surface-container-low">
         <div class="flex items-center justify-between gap-4 mb-6">
           <h3 class="font-headline-md text-headline-md text-on-background">{{ $t('profile.ability.title') }}</h3>
           <span
@@ -294,7 +294,7 @@
 
       <!-- 设置入口 -->
       <div class="flex flex-col gap-4">
-        <router-link to="/settings/privacy" class="bg-surface-container-lowest rounded-[24px] p-6 soft-shadow flex items-center justify-between hover:-translate-y-1 transition-transform group">
+        <router-link to="/settings/privacy" class="bg-surface-container-lowest rounded-3xl p-6 soft-shadow flex items-center justify-between hover:-translate-y-1 transition-transform group">
           <div class="flex items-center gap-4">
             <div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center group-hover:bg-primary-fixed-dim/20 transition-colors">
               <span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">shield_person</span>
@@ -303,7 +303,7 @@
           </div>
           <span class="material-symbols-outlined text-outline-variant">chevron_right</span>
         </router-link>
-        <router-link to="/settings/account" class="bg-surface-container-lowest rounded-[24px] p-6 soft-shadow flex items-center justify-between hover:-translate-y-1 transition-transform group">
+        <router-link to="/settings/account" class="bg-surface-container-lowest rounded-3xl p-6 soft-shadow flex items-center justify-between hover:-translate-y-1 transition-transform group">
           <div class="flex items-center gap-4">
             <div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center group-hover:bg-primary-fixed-dim/20 transition-colors">
               <span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">manage_accounts</span>
@@ -312,7 +312,7 @@
           </div>
           <span class="material-symbols-outlined text-outline-variant">chevron_right</span>
         </router-link>
-        <router-link to="/settings/notifications" class="bg-surface-container-lowest rounded-[24px] p-6 soft-shadow flex items-center justify-between hover:-translate-y-1 transition-transform group">
+        <router-link to="/settings/notifications" class="bg-surface-container-lowest rounded-3xl p-6 soft-shadow flex items-center justify-between hover:-translate-y-1 transition-transform group">
           <div class="flex items-center gap-4">
             <div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center group-hover:bg-primary-fixed-dim/20 transition-colors">
               <span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">notifications_active</span>
@@ -321,7 +321,7 @@
           </div>
           <span class="material-symbols-outlined text-outline-variant">chevron_right</span>
         </router-link>
-        <div class="mt-auto bg-primary-fixed-dim/10 rounded-[24px] p-6 border border-primary-fixed-dim/20 flex flex-col items-center justify-center text-center">
+        <div class="mt-auto bg-primary-fixed-dim/10 rounded-3xl p-6 border border-primary-fixed-dim/20 flex flex-col items-center justify-center text-center">
           <span class="material-symbols-outlined text-primary text-icon-2xl mb-2">workspace_premium</span>
           <h4 class="font-label-lg text-label-lg text-primary mb-1">{{ $t('profile.upgradePro') }}</h4>
           <p class="font-label-md text-label-md text-on-surface-variant mb-4">{{ $t('profile.upgradeDesc') }}</p>

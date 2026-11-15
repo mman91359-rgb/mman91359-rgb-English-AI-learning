@@ -13,7 +13,7 @@
 | 本文件规定什么 | 圆角、内边距、阴影、图标、按钮、字号六项的唯一写法，以及 `components/ui/` 下 12 个基础组件的 props 契约 |
 | 本文件不规定什么 | 页面布局结构、栅格、断点、动效时长；这些仍按各模块既有设计契约执行 |
 | 数值来源 | 全部取自 `tailwind.config.js`、`src/assets/main.css`、`dist/assets/index-*.css` 三处现有令牌，**本轮未新增任何颜色、尺寸、阴影或字号** |
-| 当前落地状态 | 契约已建立，12 个组件已创建。**「已迁」按两级口径分别记**：<br>**已迁至组件层：6 页**（HomeView / AssessView / Favorites / Vocabulary / History / LearningView）—— 圆角/图标/阴影/字号四类任意值清零，且页内主体结构已换成 `ui/` 组件；另有 4 个入口面板组件（`WritingEntryPanel` / `TranslationEntryPanel` / `ListeningEntryPanel` 及 LearningView 的语法、词汇 tab）同步迁完<br>**仅收敛任意值：10 页**（admin 的 Users / UserDetail / Questions / Notices / Activities / OperationLogs / JudgeReview + `TranslationPracticeView` / `ListeningQuizView` / `StatsView`）—— 只做了任意值的等值替换，**未接** `AppIcon` / `AppCard`（答题页还保留 23 处无令牌的布局值与品牌色投影，`StatsView` 保留 10 处图形尺寸与配对字号行高，均见 §11.1）<br>**其余 18 页一处未改**。因此「全站已统一」这句话目前不成立，任何场合都不得这样表述；也不得把这两类 9 页称为「已迁」 |
+| 当前落地状态 | 契约已建立，12 个组件已创建。**「已迁」按两级口径分别记**：<br>**已迁至组件层：6 页**（HomeView / AssessView / Favorites / Vocabulary / History / LearningView）—— 圆角/图标/阴影/字号四类任意值清零，且页内主体结构已换成 `ui/` 组件；另有 4 个入口面板组件（`WritingEntryPanel` / `TranslationEntryPanel` / `ListeningEntryPanel` 及 LearningView 的语法、词汇 tab）同步迁完<br>**仅收敛任意值：18 页**（admin 的 Users / UserDetail / Questions / Notices / Activities / OperationLogs / JudgeReview + `TranslationPracticeView` / `ListeningQuizView` / `StatsView` + `VocabQuizView` / `GrammarQuizView` / `ErrorBookView` / `LoginView` / `RegisterView` / `ForgotPasswordView` / `ProfileView` / `PracticeView`）—— 只做了任意值/死类名的收敛，**未接** `AppIcon` / `AppCard`（答题页还保留无令牌的布局值与品牌色投影，`StatsView` 保留 10 处图形尺寸与配对字号行高，见 §11.1；`VocabQuiz` / `GrammarQuiz` 已接 `QuizProgressBar`）<br>**其余 10 页一处未改**。因此「全站已统一」这句话目前不成立，任何场合都不得这样表述；也不得把这两类称为「已迁」 |
 
 ---
 
@@ -427,29 +427,34 @@ slot：`#leading`（左侧图标圆/头像）、`#trailing`（右侧动作或状
 **基线一律以已提交状态为准**（`git grep … HEAD`），不取工作区。原因见下方第二条警示。
 
 ```bash
-# L1a 任意值圆角（半径族，含 rounded-t/-b/-l/-r；目标 0；当前 31 @ 71549f6）
+# L1a 任意值圆角（半径族，含 rounded-t/-b/-l/-r；目标 0；当前 31 @ ca365a1）
 # ⚠️ 旧命令 grep -ro "rounded-\[[0-9]*px\]" 漏掉带方向后缀的形式（WordDetailCard 的 rounded-t-[28px]），
 #    旧 L1b 的 grep -v "^rounded-" 又把这类一起滤掉，于是 37 + 149 = 186 ≠ 全量 187 —— 有 1 处谁都没数。
-#    此处改用半径族正则，L1a + L1b 恒等于全量实测（当前 31 + 133 = 164）。
+#    此处改用半径族正则，L1a + L1b 恒等于全量实测（当前 31 + 127 = 158）。
 git grep -ohE "rounded(-[trblse]{1,2})?-\[[0-9]*px\]" HEAD -- "src/*.vue" "src/*.ts" | wc -l
 
-# L1b 除圆角外其他属性的任意值（目标 0；当前 133 @ 71549f6）
+# L1b 除圆角外其他属性的任意值（目标 0；当前 127 @ ca365a1）
 git grep -ohE "[a-z-]+-\[[^]]*\]" HEAD -- "src/*.vue" "src/*.ts" | grep -vE "^rounded" | wc -l
 
-# 图标字号是否为死类名（目标：43 处全部换成 text-icon-lg，保 24px、零位移；当前 43 @ 71549f6）
-# ⚠️ 不要把这条的「目标 0」理解成「尺寸改成 20px」。这 43 处现状被兜底规则压成 24px，写什么都没生效。
+# 图标字号是否为死类名（目标：全部换成 text-icon-lg，保 24px、零位移；当前 0 @ ca365a1 —— 已清零）
+# ⚠️ 不要把这条的「目标 0」理解成「尺寸改成 20px」。这些处现状被兜底规则压成 24px，写什么都没生效。
 #    目标是「让写法有效且像素不变」= 全换 text-icon-lg；尺寸要不要回到作者原意是**设计修正**，另立批。
 git grep -n "material-symbols-outlined[^\"]*text-\(xs\|sm\|base\|lg\|xl\|2xl\|3xl\)\b" HEAD -- "src/views/*.vue" | wc -l
 
-# 手写 soft-glow 字面量（目标 0；当前 1 @ 71549f6）
+# 手写 soft-glow 字面量（目标 0；当前 0 @ ca365a1 —— 已清零）
 git grep -n "shadow-\[0_4px_20px_rgba(51,58,72,0.05)\]" HEAD -- "src/*.vue" "src/*.ts"
 
-# 不存在的色类（目标 0；当前 0 @ 71549f6 —— admin 审核页两处已于 P4 修正）
+# 不存在的色类（目标 0；当前 0 @ ca365a1 —— admin 审核页两处已于 P4 修正）
 git grep -n "success-container\|text-success" HEAD -- "src/*.vue" "src/*.ts"
 
-# 组件层直写图标（目标 0；当前 107 @ 71549f6，已排除 AppIcon.vue 自身）
+# 组件层直写图标（目标 0；当前 107 @ ca365a1，已排除 AppIcon.vue 自身）
 # L2 只扫 views/，组件层的直写图标它看不见，必须单列一条
 git grep -n "material-symbols-outlined" HEAD -- "src/components/*.vue" | grep -v "AppIcon.vue" | wc -l
+
+# L6 非 M3 调色板直用（bg-white / text-black / green-* / red-* 等 Tailwind 调色板，目标 0；当前 11 @ ca365a1）
+# 口径：**按类名出现计**。按「点位」计则更少（同一行的 `border-l-green-500` + `border-l-red-400` 算 1 处）——
+# 类名口径可 grep 复现，点位口径会随写法漂移（把 border-l-green-500 拆成 border-l-4 + border-green-500 就从 1 变 2）。
+git grep -oE "\b(bg|text|border|border-[lrtb]|from|via|to|ring|divide|placeholder)-(white|black|(gray|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose|slate|zinc|neutral|stone)-(50|100|200|300|400|500|600|700|800|900|950))" HEAD -- "src/*.vue" "src/*.ts" | wc -l
 ```
 
 > 基线值来自 `docs/前端UI审计与组件契约.md` §7，随每批迁移完成后更新本节。**每次更新必须重跑上面六条命令取实数，不许估算或按批减扣。**
@@ -479,7 +484,7 @@ git grep -n "material-symbols-outlined" HEAD -- "src/components/*.vue" | grep -v
 > 结果是「本批改了 7 处」与「基线只减 3」在两份报表里永远对不上 —— 不是改少了，是另外 4 处（`h-[12px]`→`h-3`、`w-[12px]`→`w-3`）
 > 根本不在旧基线里。拆开后每批可写「A 类 N 处（L1a −a、L1b −b）」，两边能相加对上。
 
-当前 L1a 31 / L1b 133 / 43 / 1 / 0 / 107 的残留分布（供下一批选题参考）：
+当前 L1a 31 / L1b 127 / 0 / 0 / 0 / 107 / L6 11 的残留分布（供下一批选题参考）：
 
 | 指标 | 主要残留位置 |
 |---|---|
@@ -496,13 +501,13 @@ git grep -ohE "[a-z-]+-\[[^]]*\]" HEAD -- "src/*.vue" "src/*.ts" | grep -vE "^ro
 ```
 
 ```
-     20 shadow
+     19 shadow
      16 scale
      14 max-w
-     12 text
       9 min-h
       9 grid-cols
       8 w
+      7 text
       7 z
       6 h
       6 bg
@@ -521,19 +526,20 @@ git grep -ohE "[a-z-]+-\[[^]]*\]" HEAD -- "src/*.vue" "src/*.ts" | grep -vE "^ro
       1 backdrop-blur
 ```
 
-**各项之和 = 20+16+14+12+9+9+8+7+6+6+5+4+3+2+2+2+2+1+1+1+1+1+1 = 133 = L1b 总数。** 对不上就说明表被手改过，重跑命令覆盖。
+**各项之和 = 19+16+14+9+9+8+7+7+6+6+5+4+3+2+2+2+2+1+1+1+1+1+1 = 127 = L1b 总数。** 对不上就说明表被手改过，重跑命令覆盖。
 
-**`shadow` 22 处的 A/B 已分完（2026-11-15）**：等于 `shadow-soft-glow` 的 **3 处 → A**（`TranscriptPanel:2`、`FeedbackPanel:76`、`VocabQuizView:113`）；`AiCard:29` 的「软阴影 + 内嵌 1px 环」**1 处 → 保留**（原子复合阴影，理由见 §11.1）；**品牌色 10 处 → §3 白名单例外**；**中性黑 8 处**（`GrammarQuizView` 7 处 + `VocabQuizView` 1 处，全在答题族）**→ 留给答题族批次**。`scale` 16 处仍未分类。
+**`shadow` 22 处的 A/B 已全部处置完（2026-11-15）**：等于 `shadow-soft-glow` 的 **3 处已改 → 0**（`TranscriptPanel:2`、`FeedbackPanel:76`、`VocabQuizView:113`，L3 归零）；`AiCard:29` 的「软阴影 + 内嵌 1px 环」**1 处 → 保留**（原子复合阴影，理由见 §11.1）；**品牌色 10 处 → §3 白名单例外**；**中性黑 8 处保留**（`GrammarQuizView` 7 处 + `VocabQuizView` 1 处，均为「词块抬升」语义，无等值令牌）。`scale` 16 处仍未分类。
 
 **图标尺寸的全量口径（两条命令分工，不是口径分裂）**：
 
 ```
-图标尺寸不统一的全量 = L2（43，具名档用错，如 text-xl）
-                     + L1b 的 text 子组里属于图标的任意值（2026-11-15 前为 9，本批已清零）
-                     = 现值 43（口径不变，数字随批次变）
+图标尺寸不统一的全量 = L2（具名档用错，如 text-xl）
+                     + L1b 的 text 子组里属于图标的任意值（如 text-[20px]）
+2026-11-15 收口前 = 43 + 9 = 52
+2026-11-15 收口后 = 0 + 0 = 0（L2 43 处全换 text-icon-lg；9 处任意字号已在上批清零）
 ```
 
-两条命令各管一半，**报总数时必须两个都提**，只说 43 会漏掉一半。不把 L2 正则扩成「也匹配 `text-[Npx]`」的理由：L2 的定义就是「具名原生字号」，一扩会让 43 这个历史基线突变、与过去所有批次不可比。
+两条命令各管一半，**报总数时必须两个都提**，只说 L2 会漏掉任意值那一半。不把 L2 正则扩成「也匹配 `text-[Npx]`」的理由：L2 的定义就是「具名原生字号」，一扩会让历史基线突变、与过去所有批次不可比。
 
 > **但这两类写法的实际渲染都是 24px（2026-11-15 实测）**：`main.css:274` 的
 > `:where(.material-symbols-outlined):not([class*="text-icon-"]){font-size:24px}` 声明在 `@tailwind utilities` 之后，
@@ -573,6 +579,9 @@ git grep -ohE "[a-z-]+-\[[^]]*\]" HEAD -- "src/*.vue" "src/*.ts" | grep -vE "^ro
 | `ListeningTypeCard:10` | `rounded-[16px]` | `rounded-2xl` | 1rem = 16px |
 | `TranscriptPanel:2`、`FeedbackPanel:76` | `shadow-[0_4px_20px_rgba(51,58,72,0.05)]` | `shadow-soft-glow` | 配置值逐字相同；实测两种写法的 computed `box-shadow` 都是 `rgba(51,58,72,0.05) 0px 4px 20px 0px` |
 | 9 处图标字号：`AudioPlayer:18/32/59/66/80/107`、`TranscriptPanel:5/16`、`ListeningTypeCard:13` | `text-[20px]`×6、`text-[24px]`×2、`text-[16px]`×1 | `text-icon-lg` | 兜底规则使这些值**实际都渲染 24px**（见 §10 说明）；`text-icon-lg` = 24/24，零位移 |
+| `VocabQuizView` 题目卡 `shadow-[0_4px_20px_rgba(51,58,72,0.05)]` | `shadow-soft-glow` | 配置同值（L3 就此归零） |
+| `VocabQuizView:119/271/284/289/302` 图标字号（`text-[14px]`×2、`text-[28px]`×3） | `text-icon-lg` | 同「9 处」同理：实际渲染 24px → 24px |
+| **全站 41 处具名档图标字号**（`ErrorBook` 8、`GrammarQuiz` 11、`VocabQuiz` 8、`Profile` 6、`Login` 2、`Register` 2、`Practice` 2、`ForgotPassword` 1） | `text-sm/lg/base/xl/2xl/3xl` | `text-icon-lg` | 全部在 `.material-symbols-outlined` 上，被兜底压成 24px；换 `text-icon-lg` 零位移，且让写法首次生效 |
 
 > **那 9 处图标字号的特殊说明**：作者写的是 20px / 16px，但 `main.css:274` 的兜底规则从未让它们生效（图标恒 24px）。
 > 本批一律换 `text-icon-lg`（24px），**保持用户当前看到的像素不变**，顺带把死类名变成有效类名（行为自此可预期）。
@@ -606,6 +615,13 @@ git grep -ohE "[a-z-]+-\[[^]]*\]" HEAD -- "src/*.vue" "src/*.ts" | grep -vE "^ro
 | `VocabularyGoalDialog:27,82` 的 `rounded-[22px]` | **待裁**：`rounded-3xl` = 24px，+2px。两张对比卡，+2 视觉可接受，可下批与其它 22px 统一 |
 | `VocabularyGoalDialog:156` 的 `scale-[0.98]` | **待裁**：scale 无 0.98 档（最近 `scale-95`，压感 −0.03）。按钮按下反馈，改则手感变弱 |
 | `WordDetailCard:6,15` 的 `rounded-[28px]` / `rounded-t-[28px]` / `max-h-[85dvh]` / `z-[130]` | **待裁（底部面板形状族）**：28px→24px 为 −4px，且 `rounded-t` 与 `sm:` 两处必须同时改；`85dvh`、`130` 均无档（`z-[120]` 已有 `BaseDrawer` 先例）。建议整体立「sheet 形状」一组再动，不要单点改 |
+| `GrammarQuizView:95` 的 `rounded-[28px]` | **保留（2026-11-15 裁定）**：全量仅 2 处（本处题目卡 + `WordDetailCard` sheet），都是大面积容器专用圆角，−4px 会削弱容器感；与 sheet 同族，等立「大容器圆角」档 |
+| `VocabQuizView` 焦点环 `focus:shadow-[0_0_0_3px_rgba(0,0,0,0.05)]` | **保留（2026-11-15 裁定）**：改 `focus:ring-4` 是 3px→4px 的 +1px，且 shadow→ring 换绘制层，与 `AiCard:29` 同因，收益仅 −1 处 |
+| `VocabQuizView` 结果明细 `min-h-[220px]` | 保留：spacing 无 220 档（`min-h-[200px]` 同族），改则卡片高度位移 |
+| 7 处 `bg-white dark:bg-*`（`QuizProgressBar:3` + `GrammarQuizView` 6） | **登记待定（亮暗配对错位）**：亮色只有 `surface-container-lowest` 等于纯白，但它的暗色是 `15,14,20` ≠ 现状 `20,19,26`；`surface` 暗色对得上、亮色是 `248,249,252` 差 7 阶。**无零位移解**，属设计决策（这块到底该是 surface 还是 container-lowest），未定前不动 |
+| `ProfileView:20` `bg-black/40` | **A 类待做**：`bg-scrim/40` 逐像素等值 —— `--color-scrim: 0 0 0` 且注释写明「不随主题变化，始终纯黑」，`black` 与 `scrim` 同值 |
+| `ProfileView:21` `text-white` | **B 类保留**：`on-primary` 亮色 `255,255,255` 但暗色 `56,38,87`，没有跨主题恒白的前景令牌，换过去暗色会变紫 |
+| `PracticeView:192` 的 `border-l-green-500` / `border-l-red-400` | **登记**：与 `VocabQuiz:373` 同一违规，本批只改 Vocab（Practice 属在途批次），提交后同处置（`tertiary` / `error`） |
 | `StatsView` 热力图 `text-[10px]`×2 | **保留**：字号 10px 无等值档；`label-xs` 是 10/**14**，行高不等值。行高已由 `leading-3`（12px）承担，两者构成 10/12 配对 |
 | `StatsView` 热力图 `gap-[3px]`×2 | **保留（图形尺寸）**：列间距与 `heatmapGrid.colWidth = 15`（12+3，`StatsView:293`）联动，改间隙会让月份标签的 `left` 偏移算错 |
 | `StatsView` 热力图 `min-w-[680px]`×1 | **保留**：53 列固定宽栅格的横向滚动保底宽度，无等值档 |
@@ -714,3 +730,18 @@ if (hasOverlay) throw new Error('存在 vite-error-overlay，本张截图不可�
 理由：Vite 的编译失败会盖一层全屏浮层，截图拍下来是「有页面、有导航、内容区空/被盖住」，看上去像「页面正常」，
 实际是编译挂了。2026-11-14 本批截图时就撞到过一次（dev server 热更新瞬间报错，重试即消失）——
 **这种截图如果直接交，等于用一张假图签字**。同一脚本里还要一并断言 API 无 4xx/5xx、控制台无 error。
+
+**组件替换的追加验收：数同类容器的出现次数，不看截图**
+
+用 `<QuizProgressBar>` 替换 `VocabQuiz` / `GrammarQuiz` 里手抄的进度条时，组件根节点自带
+`<div class="flex-1 max-w-md mx-auto relative flex items-center">`，而两页**外层也有同款 div**。
+直接在现有 wrapper 里插组件会得到「双层 `max-w-md`」，宽度被压一半 —— 而这个变化**截图上几乎看不出来**（看起来只是"窄了点"）。
+
+验收命令（数出现次数，必须为 1）：
+
+```js
+document.querySelectorAll('.max-w-md').length   // 期望 1；若为 2 说明外层没删
+```
+
+同理适用于任何「组件自带 layout 外壳」的替换（`AppCard` 自带圆角+内边距、`PageHeader` 自带间距）：
+**替换前先确认页面侧是否已有等价外壳，有就一起删**。

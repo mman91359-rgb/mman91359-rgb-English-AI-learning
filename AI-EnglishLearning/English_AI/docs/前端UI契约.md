@@ -491,9 +491,14 @@ git grep -oE "\b(bg|text|border|border-[lrtb]|from|via|to|ring|divide|placeholde
 > `ca365a1..c4ef7d3` 之间的用户并行提交（`176f81c` / `67e4a94` / `b3da9e9` / `1f48795` /
 > `2a50d43` / `116a578` 数值未变；`c4ef7d3` 的「已学词库页 + 标熟机制」把 L1a 31→28、
 > L1b 127→124、L5 107→103，属规则 ①）。
-> 当前七条：L1a 28 / L1b 124 / L2 0 / L3 0 / L4 0 / L5 103 / L6 11。
+> 当前七条：L1a 21 / L1b 124 / L2 0 / L3 0 / L4 0 / L5 103 / L6 10。
 > 答题族批次（`36e8e4f` 组件 / `1039ef9` 文档）对全部口径增量恒为 0。
 > 每批交付前先跑 `git log -1` 确认 `HEAD` 未再前进。
+>
+> **2026-11-15 复核（HEAD `28c8ac7`）**：数值锚点更新为 `@ 28c8ac7`。
+> `0f8caf3` → `28c8ac7` 的「ProfileView A 类等值替换」把 L1a 28→21（7 处 `rounded-[24px]`→`rounded-3xl`）、
+> L6 11→10（1 处 `bg-black/40`→`bg-scrim/40`）；L1b / L2 / L3 / L4 / L5 不变，属规则 ①。
+> B 类 `rounded-[32px]`（无等值档）与 `text-white`（深色遮罩合法用法）保留不动。
 >
 > **`2a50d43` 的 commit message 写「L1b 88→88」**：穷举 11 种口径（含只扫 `views` 78 / 只扫 `*.vue` 126 /
 > 去重 68 / 按行 136 / 全量含 `rounded` 158）与历史锚点（127 / 127 / 133）均得不出 88，
@@ -855,6 +860,17 @@ document.querySelectorAll('.max-w-md').length   // 期望 1；若为 2 说明外
 > 同一份交付表格实测为 `28 / 124 / 0 / 0 / 0 / 103 / 11`，两处不一致且未被交付前自查发现。
 > 自查动作：docs 提交后重跑 §10 七条命令，把实测值逐字比对「交付表格」与「文档声明」；两处不同即驳回本次交付，
 > 且不得用「宽口径」或「另计口径」给表格换一套基数。
+
+**本批（ProfileView，2026-11-15）等值替换探针实测**
+
+| 探针 | 改动前 | 改动后 | 判定 |
+|---|---|---|---|
+| 卡片圆角 | `rounded-[24px]` → `24px` | `rounded-3xl` → `24px` | 相等（`1.5rem` × 根字号 `16px` = `24px`） |
+| 遮罩背景 | `bg-black/40` → `rgba(0, 0, 0, 0.4)` | `bg-scrim/40` → `rgba(0, 0, 0, 0.4)` | 相等（`--color-scrim: 0 0 0`，见 `main.css:86` / `:177`、`tailwind.config.js:33`） |
+| 等值断言 | — | `radius_equal: true` / `color_equal: true` | 通过 |
+
+> 本批服务未启动，采用**离线探针**：Chrome headless 载入改动前 / 改动后两次 `vite build` 的 `dist/assets/index-*.css`，
+> 对 4 个被测元素跑 `getComputedStyle`。按 §11.5 分工，离线探针只证明计算样式等值，不证明数据渲染与布局，故不附新截图。
 
 **待补证据（2026-11-15 登记，不许忘）**
 

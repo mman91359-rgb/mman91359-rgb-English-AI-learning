@@ -9,7 +9,6 @@ import com.english.ai.user.entity.UserModuleStats;
 import com.english.ai.user.mapper.UserAbilityRadarMapper;
 import com.english.ai.user.mapper.UserModuleStatsMapper;
 import com.english.ai.user.service.EloCalculator;
-import com.english.ai.user.service.PracticePointCalculator;
 import com.english.ai.user.service.PracticePointService;
 import com.english.ai.user.service.PracticeTitle;
 import com.english.ai.user.service.UserAbilityRadarService;
@@ -32,9 +31,6 @@ public class UserAbilityRadarServiceImpl implements UserAbilityRadarService {
 
     /** 样本不足的阈值：低于该题数不算正确率，避免新用户一进来就显示 0% */
     private static final int MIN_SAMPLE_SIZE = 5;
-
-    /** 计分准入门槛（百分比） */
-    private static final double QUALIFY_ACCURACY = PracticePointCalculator.QUALIFY_ACCURACY;
 
     private final UserAbilityRadarMapper radarMapper;
     private final UserModuleStatsMapper moduleStatsMapper;
@@ -262,21 +258,22 @@ public class UserAbilityRadarServiceImpl implements UserAbilityRadarService {
         data.put("titleProgress", title.progressOf(points));
         data.put("nextTitle", title.isMax() ? null : title.next().getLabel());
 
-        // ===== 六维：正确率口径 =====
+        // ===== 六维：总题量百分比正确率 =====
+        // 口径为纯统计展示，不设门槛；60% 只用于「单次练习组是否发放积分」，见 PracticePointCalculator
         Map<Integer, UserModuleStats> statMap = loadStats(userId);
-        double countedSum = 0;
-        int countedNum = 0;
+        double sum = 0;
+        int num = 0;
         for (RadarDimension dimension : RadarDimension.values()) {
             DimensionView view = buildDimensionView(radar, statMap, dimension);
             fillDimension(data, dimension, view);
-            if (view.counted()) {
-                countedSum += view.score();
-                countedNum++;
+            if (view.hasData()) {
+                sum += view.score();
+                num++;
             }
         }
-        // 综合能力分 = 已达标模块的算术平均；全部未达标时返回 null，前端展示「—」
-        data.put("overallAbilityScore", countedNum == 0 ? null
-                : BigDecimal.valueOf(countedSum / countedNum).setScale(1, RoundingMode.HALF_UP));
+        // 综合能力分 = 有数据维度的算术平均；全部无数据时返回 null，前端展示「—」
+        data.put("overallAbilityScore", num == 0 ? null
+                : BigDecimal.valueOf(sum / num).setScale(1, RoundingMode.HALF_UP));
 
         // 保留 ELO 区间字段，供管理端/调试使用
         int[] range = eloRange(radar.getEloScore());
@@ -289,24 +286,24 @@ public class UserAbilityRadarServiceImpl implements UserAbilityRadarService {
 
     /**
      * 单个维度的展示视图：写作取 AI 评分得分率，其余取累计正确率。
+     *
+     * <p>只判断「样本是否够看」，不判断「是否达标」——六维是统计展示，
+     * 不因正确率低就把该维度从画像里剔掉。</p>
      */
     private DimensionView buildDimensionView(UserAbilityRadar radar, Map<Integer, UserModuleStats> statMap,
                                              RadarDimension dimension) {
         if (dimension == RadarDimension.WRITING) {
             BigDecimal score = radar.getWritingScore();
             double value = score == null ? 0 : score.doubleValue();
-            boolean hasScore = value > 0;
-            return new DimensionView(round1(value), 0, 0, hasScore && value >= QUALIFY_ACCURACY, hasScore);
+            return new DimensionView(round1(value), 0, 0, value > 0);
         }
         Counters counters = sumCounters(statMap, dimension);
         if (counters.total() <= 0) {
-            return new DimensionView(0, 0, 0, false, false);
+            return new DimensionView(0, 0, 0, false);
         }
-        double accuracy = counters.accuracy();
         // 样本不足时展示「—」，但保留真实题数，让用户知道还差几题
         boolean enough = counters.total() >= MIN_SAMPLE_SIZE;
-        boolean counted = enough && accuracy >= QUALIFY_ACCURACY;
-        return new DimensionView(round1(accuracy), counters.total(), counters.correct(), counted, enough);
+        return new DimensionView(round1(counters.accuracy()), counters.total(), counters.correct(), enough);
     }
 
     private void fillDimension(Map<String, Object> data, RadarDimension dimension, DimensionView view) {
@@ -321,7 +318,6 @@ public class UserAbilityRadarServiceImpl implements UserAbilityRadarService {
         data.put(prefix + "Score", view.score());
         data.put(prefix + "Total", view.total());
         data.put(prefix + "Correct", view.correct());
-        data.put(prefix + "Counted", view.counted());
         data.put(prefix + "HasData", view.hasData());
         data.put(prefix + "Percent", view.score());
     }
@@ -345,7 +341,6 @@ public class UserAbilityRadarServiceImpl implements UserAbilityRadarService {
             data.put(prefix + "Score", 0);
             data.put(prefix + "Total", 0);
             data.put(prefix + "Correct", 0);
-            data.put(prefix + "Counted", false);
             data.put(prefix + "HasData", false);
             data.put(prefix + "Percent", 0);
         }
@@ -382,7 +377,7 @@ public class UserAbilityRadarServiceImpl implements UserAbilityRadarService {
         }
     }
 
-    /** 单维度展示数据 */
-    private record DimensionView(double score, int total, int correct, boolean counted, boolean hasData) {
+    /** 单维度展示数据（不含达标判定，画像只做统计展示） */
+    private record DimensionView(double score, int total, int correct, boolean hasData) {
     }
 }

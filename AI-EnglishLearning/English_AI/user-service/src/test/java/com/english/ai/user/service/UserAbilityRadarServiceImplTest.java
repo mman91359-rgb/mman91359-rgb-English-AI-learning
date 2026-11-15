@@ -144,38 +144,38 @@ class UserAbilityRadarServiceImplTest {
     }
 
     @Test
-    @DisplayName("画像只统计达标的模块，未达标不计入综合能力分")
-    void radarDataOnlyCountsQualifiedModules() {
+    @DisplayName("画像展示真实正确率，综合分为有数据维度的平均值（不设60%门槛）")
+    void radarDataAveragesAllDimensionsWithData() {
         UserAbilityRadar radar = radar();
         radar.setPracticePoints(1200);
         when(radarMapper.selectOne(any())).thenReturn(radar);
-        // 词汇 8/10=80% 达标；语法 3/10=30% 未达标；其余无数据
+        // 词汇 8/10=80%；语法 3/10=30%；两个维度都应有数据，低分维度不被剔除
         when(moduleStatsMapper.listByUserId(1L)).thenReturn(List.of(
                 stat(1, 10, 8), stat(2, 10, 3)));
 
         Map<String, Object> data = service.getRadarData(1L);
 
         assertEquals(80.0, ((Number) data.get("vocabularyScore")).doubleValue(), 1e-9);
-        assertEquals(true, data.get("vocabularyCounted"));
+        assertEquals(true, data.get("vocabularyHasData"));
         assertEquals(30.0, ((Number) data.get("grammarScore")).doubleValue(), 1e-9);
-        assertEquals(false, data.get("grammarCounted"));
-        // 综合分只取达标维度
-        assertEquals(80.0, ((BigDecimal) data.get("overallAbilityScore")).doubleValue(), 1e-9);
+        assertEquals(true, data.get("grammarHasData"));
+        // (80 + 30) / 2 = 55.0
+        assertEquals(55.0, ((BigDecimal) data.get("overallAbilityScore")).doubleValue(), 1e-9);
         // 称号按积分定位：1200 落在筑基者
         assertEquals("筑基者", data.get("practiceTitle"));
         assertEquals(1200, data.get("practicePoints"));
     }
 
     @Test
-    @DisplayName("全部模块未达标时综合能力分为 null，展示「—」")
-    void radarDataReturnsNullWhenNothingQualified() {
+    @DisplayName("所有维度都无数据时综合能力分为 null，展示「—」")
+    void radarDataReturnsNullWhenNoDimensionHasData() {
         UserAbilityRadar radar = radar();
         when(radarMapper.selectOne(any())).thenReturn(radar);
-        when(moduleStatsMapper.listByUserId(1L)).thenReturn(List.of(stat(1, 10, 5)));
+        when(moduleStatsMapper.listByUserId(1L)).thenReturn(List.of());
 
         Map<String, Object> data = service.getRadarData(1L);
 
-        assertEquals(false, data.get("vocabularyCounted"));
+        assertEquals(false, data.get("vocabularyHasData"));
         assertNull(data.get("overallAbilityScore"));
     }
 
@@ -189,7 +189,6 @@ class UserAbilityRadarServiceImplTest {
         Map<String, Object> data = service.getRadarData(1L);
 
         assertEquals(false, data.get("vocabularyHasData"));
-        assertEquals(false, data.get("vocabularyCounted"));
         assertEquals(3, data.get("vocabularyTotal"));
     }
 

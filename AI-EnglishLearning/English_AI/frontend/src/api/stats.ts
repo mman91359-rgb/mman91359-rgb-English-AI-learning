@@ -36,14 +36,7 @@ export interface RadarData {
     readingCorrect: number
     translationCorrect: number
     writingCorrect: number
-    /** 六维是否达到 60% 计分门槛（未达标不计入综合能力分） */
-    vocabularyCounted: boolean
-    grammarCounted: boolean
-    listeningCounted: boolean
-    readingCounted: boolean
-    translationCounted: boolean
-    writingCounted: boolean
-    /** 六维是否有可展示数据（样本不足 5 题时为 false） */
+    /** 六维是否已有可用数据（样本不足 5 题时为 false） */
     vocabularyHasData: boolean
     grammarHasData: boolean
     listeningHasData: boolean
@@ -119,10 +112,8 @@ export type AbilityDimensionKey =
 /** 单维度得分（0~100，保留一位小数） */
 export interface AbilityDimension {
     key: AbilityDimensionKey
-    /** 非写作维度为累计正确率，写作维度为 AI 评分得分率 */
+    /** 非写作维度为累计正确率（答对数 ÷ 总题数），写作维度为 AI 评分得分率 */
     score: number
-    /** 是否达到 60% 计分门槛并计入综合能力分 */
-    counted: boolean
     /** 该维度是否已有可用数据；false 时页面展示「—」且不计入综合分 */
     hasData: boolean
     /** 累计作答总题数（写作维度为 0） */
@@ -146,7 +137,7 @@ export interface AbilityRadar {
     titleProgress: number
     /** 下一称号；已封顶为 null */
     nextTitle: string | null
-    /** 已达标模块的算术平均；全部未达标为 null */
+    /** 有数据维度的算术平均；全部无数据为 null */
     overallAbilityScore: number | null
     dimensions: AbilityDimension[]
 }
@@ -166,12 +157,10 @@ export const getAbilityRadar = async (userId: number): Promise<AbilityRadar> => 
         score: number | undefined,
         total: number | undefined,
         correct: number | undefined,
-        counted: boolean | undefined,
         hasData: boolean | undefined,
     ): AbilityDimension => ({
         key,
         score: round1(score ?? 0),
-        counted: counted ?? false,
         hasData: hasData ?? false,
         total: total ?? 0,
         correct: correct ?? 0,
@@ -190,17 +179,17 @@ export const getAbilityRadar = async (userId: number): Promise<AbilityRadar> => 
             : round1(radar.overallAbilityScore),
         dimensions: [
             dimension('vocabulary', radar.vocabularyScore, radar.vocabularyTotal,
-                radar.vocabularyCorrect, radar.vocabularyCounted, radar.vocabularyHasData),
+                radar.vocabularyCorrect, radar.vocabularyHasData),
             dimension('grammar', radar.grammarScore, radar.grammarTotal,
-                radar.grammarCorrect, radar.grammarCounted, radar.grammarHasData),
+                radar.grammarCorrect, radar.grammarHasData),
             dimension('reading', radar.readingScore, radar.readingTotal,
-                radar.readingCorrect, radar.readingCounted, radar.readingHasData),
+                radar.readingCorrect, radar.readingHasData),
             dimension('listening', radar.listeningScore, radar.listeningTotal,
-                radar.listeningCorrect, radar.listeningCounted, radar.listeningHasData),
+                radar.listeningCorrect, radar.listeningHasData),
             dimension('translation', radar.translationScore, radar.translationTotal,
-                radar.translationCorrect, radar.translationCounted, radar.translationHasData),
+                radar.translationCorrect, radar.translationHasData),
             dimension('writing', radar.writingScore, radar.writingTotal,
-                radar.writingCorrect, radar.writingCounted, radar.writingHasData),
+                radar.writingCorrect, radar.writingHasData),
         ],
     }
 }

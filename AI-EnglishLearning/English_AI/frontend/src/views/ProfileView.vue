@@ -254,8 +254,7 @@
               <span class="w-16 shrink-0 truncate font-body-sm text-body-sm text-on-surface">{{ axis.label }}</span>
               <div class="h-1 flex-1 overflow-hidden rounded-full bg-outline-variant/30">
                 <div
-                  class="h-full rounded-full transition-all"
-                  :class="axis.counted ? 'bg-primary' : 'bg-outline'"
+                  class="h-full rounded-full bg-primary transition-all"
                   :style="{ width: `${axis.hasData ? axis.score : 0}%` }"
                 ></div>
               </div>
@@ -267,13 +266,6 @@
               </span>
               <span class="w-16 shrink-0 text-right font-label-sm text-label-sm text-on-surface-variant/70 tabular-nums">
                 {{ axis.total > 0 ? `${axis.correct}/${axis.total}` : '' }}
-              </span>
-              <span
-                v-if="axis.hasData && !axis.counted"
-                class="shrink-0 rounded-full bg-error-container/40 px-2 py-0.5 font-label-sm text-label-sm text-on-error-container"
-                :title="$t('profile.ability.notCountedTip')"
-              >
-                {{ $t('profile.ability.notCounted') }}
               </span>
             </div>
           </div>
@@ -512,8 +504,6 @@ const radarAxes = computed(() =>
       label: t(meta.labelKey),
       score: dimension?.score ?? 0,
       hasData: dimension?.hasData ?? false,
-      /** 是否达到 60% 门槛并计入综合能力分 */
-      counted: dimension?.counted ?? false,
       /** 累计作答总题数 */
       total: dimension?.total ?? 0,
       /** 累计答对题数 */

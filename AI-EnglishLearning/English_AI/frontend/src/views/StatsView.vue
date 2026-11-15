@@ -63,14 +63,14 @@
                 <span
                   v-for="(day, di) in dayLabels"
                   :key="di"
-                  class="text-[10px] leading-[12px] text-on-surface-variant/50 h-3"
+                  class="text-[10px] leading-3 text-on-surface-variant/50 h-3"
                   :style="{ marginTop: di % 2 === 0 ? '0' : '0' }"
                 >{{ di % 2 === 1 ? '' : day }}</span>
               </div>
 
               <div class="flex-1">
                 <!-- 月份标签 -->
-                <div class="flex text-[10px] leading-[12px] text-on-surface-variant/50 mb-1 h-3 relative ml-0">
+                <div class="flex text-[10px] leading-3 text-on-surface-variant/50 mb-1 h-3 relative ml-0">
                   <span
                     v-for="(ml, mi) in monthLabelPositions"
                     :key="mi"
@@ -84,7 +84,7 @@
                   <div
                     v-for="(cell, i) in paddedHeatmap"
                     :key="i"
-                    class="w-3 h-3 rounded-[2px] transition-colors duration-200 border border-surface/30"
+                    class="w-3 h-3 rounded-sm transition-colors duration-200 border border-surface/30"
                     :class="cell.level > 0 ? 'cursor-pointer hover:ring-2 hover:ring-primary/30' : ''"
                     :style="{ backgroundColor: heatmapColor(cell.level) }"
                     :title="cell.tooltip"

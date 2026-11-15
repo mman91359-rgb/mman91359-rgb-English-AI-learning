@@ -579,6 +579,32 @@ git grep -ohE "[a-z-]+-\[[^]]*\]" HEAD -- "src/*.vue" "src/*.ts" | grep -vE "^ro
 > 所以这两类都是**死类名**：修的时候要按「实际渲染 24px」判断是否等值，不能按字面值算 ——
 > `text-[20px]`→`text-icon-md` 看着等值，实际是 24px→20px 的 −4px 位移；`text-[20px]`→`text-icon-lg` 才是零位移。
 
+### 10.1 只读门禁脚本（2026-11-15 增补）
+
+§10 七条基线此前靠人工逐条复跑、再肉眼比对「当前七条」，既容易漏条，也容易把工作区数字当成基线。
+现提供只读门禁脚本 `frontend/scripts/check-ui-consistency.mjs`，把「跑七条 → 比对登记值 → 给出退出码」固化成一条命令：
+
+```bash
+cd English_AI/frontend
+npm run check-ui-consistency                  # 默认复核 HEAD
+npm run check-ui-consistency -- c4ef7d3       # 复核指定 commit-ish
+node scripts/check-ui-consistency.mjs 1a024b6 # 等价的直接调用
+```
+
+| 项 | 内容 |
+|---|---|
+| 示例调用 | `npm run check-ui-consistency`（默认 `HEAD`）；`npm run check-ui-consistency -- ca365a1`（指定 commit-ish）；`node scripts/check-ui-consistency.mjs --help` 查看用法 |
+| 退出码 0 | 七条实测值全部与本节「当前七条」登记值一致 |
+| 退出码 1 | 至少一条不一致；报告逐条列出登记值、实测值与差异项 |
+| 退出码 2 | 运行错误：契约文档不可读、登记行解析失败、commit-ish 无效、git 命令失败。**不视为匹配** |
+| 注意事项 | **仅做只读校验，不自动修复**：不写任何源文件、不执行 git 写操作、不改基线数字；修复仍按 §11.1 的 A/B 判定另立批次 |
+| 口径约束 | 七条命令与本节上方逐条对应，不引入宽口径；`HEAD` / 指定 commit-ish 一律只认已提交状态，不取工作区 |
+
+> 脚本的期望值**不在代码里硬编码**，而是解析本节「当前七条：…」那一行；改登记数字后无需同步改脚本。
+> 命令注释里的 `当前 N @ <short-sha>` 属历史快照锚点，按 §11.5 豁免，不参与脚本比对。
+> PowerShell 的两条前置条件（UTF-8 输出编码、`[^\"]` 引号转义）由脚本用 argv 数组传参 + Buffer 按 UTF-8 解码规避，调用方无需额外设置。
+> 脚本自身位于 `frontend/scripts/`、本说明位于 `docs/`，均不在 `src/*.vue` / `src/*.ts` 扫描范围内，故本批对七条基线的增量恒为 0。
+
 ---
 
 ## 11. 硬规则
@@ -704,6 +730,16 @@ H9 答案明细块**不抽组件**，两页各自保留；`AnswerFeedback` 只�
 | AssessView 本地 moduleName | 动 computed / i18n 链 | 无（改引 @/config/modules） |
 
 `AiCard:14,38` 的 10px 属 8px 与 12px 之间的**非档位但合理**值（`h-7 w-7` 小图标容器本就不该用大圆角），按上方「保留」表登记，下一批不得当漏网清理。
+
+**二次补登（2026-11-15，完整措辞）**：上表为首批简记，此处按完整性质与依赖补登；**原表保留不覆盖**。§10 的历史快照锚点 `当前 N @ <short-sha>` 一律保持豁免规则，不参与本次一致性核对。
+
+| 项 | 真实性质 | 后端依赖 |
+|---|---|---|
+| `useNotifications` 种子通知 | 改动 composable 状态初始化逻辑 | 需要 `/notification/list` 接口 |
+| `degradedReport` `rawScore: 0` | 改动 `api/writing.ts` 数据流处理 | 需要真实评分 + `scoreVersion` |
+| `AssessView` 本地 `moduleName` | 改动 computed / i18n 引用链，改为引 `@/config/modules` | 无后端依赖 |
+
+`AiCard` 内 `rounded-[10px]` 补充单行说明：8px 与 12px 档位之间的非标准圆角，用于小图标容器，**B 类登记，暂不新增 Tailwind 自定义档位**；与上方「保留」表 `AiCard:14,38` 行同一处置，下一批不得当漏网清理。
 
 ### 11.2 删除非法阴影时必须同时给出替代反馈
 

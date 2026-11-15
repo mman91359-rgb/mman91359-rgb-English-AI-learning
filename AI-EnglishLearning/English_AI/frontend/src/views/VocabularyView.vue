@@ -425,7 +425,7 @@ const load = async () => {
 const loadWordBooks = async () => {
   try {
     wordBooks.value = await getWordBooks()
-    // 默认选中第一本（basic_500）
+    // 默认选中第一本（basic_foundation）
     if (!activeBookCode.value && wordBooks.value.length > 0) {
       activeBookCode.value = wordBooks.value[0].code
     }

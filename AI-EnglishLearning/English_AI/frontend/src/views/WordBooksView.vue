@@ -453,7 +453,7 @@ const progressPercent = (book: WordBookVO) => {
  * 让品牌主色留给分量最重的「四级核心」。
  */
 const BOOK_TONES: Record<string, string> = {
-  basic_500: 'bg-primary-fixed text-on-primary-fixed',
+  basic_foundation: 'bg-primary-fixed text-on-primary-fixed',
   cet4_high: 'bg-info-container text-on-info-container',
   cet4_core_1900: 'bg-primary-container text-on-primary-container',
   cet4_outline: 'bg-secondary-container text-on-secondary-container',

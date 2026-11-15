@@ -101,3 +101,84 @@ export function readEnv(filePath) {
   }
   return env
 }
+
+/** JSON 解析，失败返回 null（dump 里的 JSON 字段可能被转义过，不能假定一定可解析） */
+export function parseJsonSafe(text) {
+  if (!text) return null
+  try {
+    return JSON.parse(text)
+  } catch {
+    return null
+  }
+}
+
+/** ECDICT 的词性缩写 → 本词库统一口径（n / adj / vt / vi / prep …） */
+export const POS_MAP = {
+  a: 'adj',
+  ad: 'adv',
+  adj: 'adj',
+  adv: 'adv',
+  n: 'n',
+  v: 'v',
+  vt: 'vt',
+  vi: 'vi',
+  prep: 'prep',
+  conj: 'conj',
+  pron: 'pron',
+  num: 'num',
+  int: 'int',
+  art: 'art',
+  aux: 'aux',
+  abbr: 'abbr',
+}
+
+export function normalizePos(raw) {
+  if (!raw) return ''
+  const head = String(raw).trim().toLowerCase().replace(/\.$/, '').split(/[\s/,;]/)[0]
+  if (!head) return ''
+  return POS_MAP[head] || head
+}
+
+/**
+ * 中文释义：优先用 translation JSON 数组，其次用 meanings 拼「词性 + 英文释义」。
+ * 口径与 scripts/import-words.mjs 的 buildTranslation 一致。
+ */
+export function buildTranslation(translationJson, meaningsJson, translationText) {
+  const arr = parseJsonSafe(translationJson)
+  if (Array.isArray(arr) && arr.length) {
+    const parts = arr.map(cleanText).filter(Boolean)
+    if (parts.length) return parts.join('；').slice(0, 500)
+  }
+  const meanings = parseJsonSafe(meaningsJson)
+  if (Array.isArray(meanings) && meanings.length) {
+    const parts = meanings
+      .map((m) => {
+        if (!m) return ''
+        const pos = m.pos ? String(m.pos).trim() : ''
+        const def = cleanText(m.definition)
+        return def ? (pos ? `${pos} ${def}` : def) : ''
+      })
+      .filter(Boolean)
+    if (parts.length) return parts.slice(0, 3).join('；').slice(0, 500)
+  }
+  return cleanText(translationText).slice(0, 500)
+}
+
+/** 词性：ECDICT 的 pos 列大量为 NULL，实际要从 meanings JSON 里取第一个可用词性 */
+export function buildPos(meaningsJson, posRaw) {
+  const meanings = parseJsonSafe(meaningsJson)
+  if (Array.isArray(meanings) && meanings.length) {
+    for (const m of meanings) {
+      const p = normalizePos(m && m.pos)
+      if (p) return p.slice(0, 60)
+    }
+  }
+  return normalizePos(posRaw).slice(0, 60)
+}
+
+/** 音标：ECDICT 无斜杠，统一补上；英式缺失时退回美式 */
+export function buildPhonetic(uk, us) {
+  const raw = cleanText(uk) || cleanText(us)
+  const body = raw.replace(/^\/+/, '').replace(/\/+$/, '').trim()
+  return body ? `/${body}/` : ''
+}

@@ -354,7 +354,7 @@ public class ExerciseController {
         }
     }
 
-    /** GET /exercise/vocabulary/{userId}?page=1&size=20&bookCode=basic_500&status=LEARNING */
+    /** GET /exercise/vocabulary/{userId}?page=1&size=20&bookCode=basic_foundation&status=LEARNING */
     @GetMapping("/vocabulary/{userId}")
     public Result<Map<String, Object>> getVocabulary(@PathVariable Long userId,
                                                      @RequestParam(defaultValue = "1") Integer page,
@@ -728,7 +728,7 @@ public class ExerciseController {
 
     /**
      * 单词事件历史（LEARN/REVIEW/MASTER/FAVORITE/UNFAVORITE/IGNORE）
-     * GET /exercise/word-history/{userId}?page=1&size=20&eventType=LEARN&bookCode=basic_500&startTime=...&endTime=...
+     * GET /exercise/word-history/{userId}?page=1&size=20&eventType=LEARN&bookCode=basic_foundation&startTime=...&endTime=...
      */
     @GetMapping("/word-history/{userId}")
     public Result<Map<String, Object>> getWordLearnHistory(

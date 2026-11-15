@@ -19,7 +19,7 @@ public class WordBook {
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    /** 词书编码，如 basic_500 */
+    /** 词书编码，如 basic_foundation */
     private String code;
 
     /** 词书名称 */

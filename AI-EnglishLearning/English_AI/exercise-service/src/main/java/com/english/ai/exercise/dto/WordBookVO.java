@@ -11,7 +11,7 @@ import lombok.Data;
 public class WordBookVO {
     /** 词书ID */
     private Long id;
-    /** 词书编码，如 basic_500 */
+    /** 词书编码，如 basic_foundation */
     private String code;
     /** 词书名称 */
     private String name;

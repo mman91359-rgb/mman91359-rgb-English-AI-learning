@@ -728,21 +728,21 @@ public class ExerciseServiceImpl implements ExerciseService {
         return null;
     }
 
-    /** 按词书ID解析词书，ID 缺失或词书不存在时回落 basic_500 */
+    /** 按词书ID解析词书，ID 缺失或词书不存在时回落 basic_foundation */
     private WordBook resolveBookById(Long bookId) {
         WordBook book = null;
         if (bookId != null) {
             book = wordBookMapper.selectById(bookId);
         }
         if (book == null) {
-            // 默认回落到 basic_500
+            // 默认回落到 basic_foundation
             book = wordBookMapper.selectOne(
-                    new LambdaQueryWrapper<WordBook>().eq(WordBook::getCode, "basic_500"));
+                    new LambdaQueryWrapper<WordBook>().eq(WordBook::getCode, "basic_foundation"));
         }
         return book;
     }
 
-    /** 解析当前词书：调 user-service 拿 activeWordBookId，未设置默认 basic_500 */
+    /** 解析当前词书：调 user-service 拿 activeWordBookId，未设置默认 basic_foundation */
     private WordBook resolveActiveWordBook(Long userId) {
         PreferenceResult preference = fetchPreference(userId);
         return resolveBookById(preference != null ? preference.getActiveWordBookId() : null);

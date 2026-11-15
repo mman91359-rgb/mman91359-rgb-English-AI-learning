@@ -11,6 +11,8 @@ import com.english.ai.user.dto.CheckInResponse;
 import com.english.ai.user.dto.CheckInStatus;
 import com.english.ai.user.dto.CoinInfoResponse;
 import com.english.ai.user.dto.CoinLedgerVO;
+import com.english.ai.user.dto.MakeupCheckInRequest;
+import com.english.ai.user.dto.MakeupCheckInResponse;
 import com.english.ai.user.entity.UserCoinAccount;
 import com.english.ai.user.service.CheckInService;
 import com.english.ai.user.service.CoinService;
@@ -73,11 +75,47 @@ public class CoinController {
                     .vocabGroupReward(rewardProperties.getVocabGroup().getReward())
                     .vocabGroupDailyLimit(rewardProperties.getVocabGroup().getDailyLimit())
                     .vocabGroupTodayCount(todayGroupCount)
+                    .makeupCostCoins(rewardProperties.getMakeup().getCostCoins())
+                    .coinsPerYuan(rewardProperties.getMakeup().getCoinsPerYuan())
                     .build();
             return Result.success(response);
         } catch (RuntimeException e) {
             log.warn("查询金币信息失败: userId={}, reason={}", userId, e.getMessage());
             return Result.error("查询金币信息失败");
+        }
+    }
+
+    /**
+     * 金币补签：为本月漏签的某一天支付金币补签，并在同一事务内重算连续天数
+     * POST /user/check-in/makeup
+     * Body: {"userId": 6, "date": "2026-11-10"}
+     */
+    @PostMapping("/check-in/makeup")
+    public Result<MakeupCheckInResponse> makeupCheckIn(
+            @Valid @RequestBody MakeupCheckInRequest request,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        Long userId = request.getUserId();
+        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
+        }
+        if (!coinService.userExists(userId)) {
+            return Result.error(404, "用户不存在");
+        }
+        LocalDate date;
+        try {
+            date = LocalDate.parse(request.getDate());
+        } catch (DateTimeParseException e) {
+            return Result.badRequest("日期格式应为 yyyy-MM-dd");
+        }
+        try {
+            return Result.success(checkInService.makeupCheckIn(userId, date));
+        } catch (IllegalArgumentException e) {
+            return Result.badRequest(e.getMessage());
+        } catch (DuplicateKeyException e) {
+            return Result.badRequest("该日期已补签");
+        } catch (RuntimeException e) {
+            log.warn("补签失败: userId={}, date={}, reason={}", userId, date, e.getMessage());
+            return Result.error("补签失败");
         }
     }
 
@@ -88,7 +126,7 @@ public class CoinController {
      * cursor 为上一页最后一条流水ID，首页不传；size 默认 20，上限 50。
      * bizType 为业务类型筛选，不传表示全部；未知值只返回空列表，不报错（前向兼容）。
      * 返回补充 totalSpent / monthSpent 两个消耗口径与 bizTypeCounts 全量计数：
-     * 当前系统没有扣减出口，消耗两者恒为 0，但按 amount&lt;0 实测，不写死常量。
+     * 补签是目前的消耗出口，两者按 amount&lt;0 实测求和，不写死常量。
      */
     @GetMapping("/coin/ledger/{userId}")
     public Result<CoinLedgerVO> getCoinLedger(

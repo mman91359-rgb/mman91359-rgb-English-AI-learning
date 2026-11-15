@@ -11,6 +11,10 @@ export interface CoinInfo {
   vocabGroupReward: number
   vocabGroupDailyLimit: number
   vocabGroupTodayCount: number
+  /** 单次补签消耗金币 */
+  makeupCostCoins: number
+  /** 展示汇率：每多少金币折合 1 元人民币 */
+  coinsPerYuan: number
 }
 
 /** 签到结果 */
@@ -52,7 +56,7 @@ export interface CoinTransactionVO {
   id: number
   /** 变动值：正数为获得，负数为消耗 */
   amount: number
-  /** 业务类型：CHECK_IN / CHECK_IN_MILESTONE / VOCAB_GROUP */
+  /** 业务类型：CHECK_IN / CHECK_IN_MILESTONE / VOCAB_GROUP / CHECK_IN_MAKEUP */
   bizType: string
   /** 后端写入的中文描述，直接展示 */
   description: string
@@ -67,9 +71,9 @@ export interface CoinLedgerVO {
   userId: number
   balance: number
   totalEarned: number
-  /** 累计消耗；当前无扣减出口，恒为 0 */
+  /** 累计消耗；按 amount < 0 聚合，补签是目前的消耗出口 */
   totalSpent: number
-  /** 本月消耗，同上恒为 0 */
+  /** 本月消耗，口径同上 */
   monthSpent: number
   /** 当前页流水，按 id 倒序 */
   items: CoinTransactionVO[]
@@ -88,6 +92,30 @@ export const getCoinInfo = (userId: number): Promise<CoinInfo> => {
 /** POST /user/check-in */
 export const signIn = (userId: number): Promise<CheckInResult> => {
   return post('/user/check-in', { userId })
+}
+
+/** 补签请求 */
+export interface MakeupCheckInRequest {
+  userId: number
+  /** yyyy-MM-dd */
+  date: string
+}
+
+/** 补签结果 */
+export interface MakeupCheckInResponse {
+  date: string
+  costCoins: number
+  balance: number
+  streakDays: number
+  recalculatedCount: number
+}
+
+/** POST /user/check-in/makeup：扣费、补写签到记录、重算连续天数（后端单事务） */
+export const makeupCheckIn = (
+  userId: number,
+  date: string,
+): Promise<MakeupCheckInResponse> => {
+  return post('/user/check-in/makeup', { userId, date })
 }
 
 /**

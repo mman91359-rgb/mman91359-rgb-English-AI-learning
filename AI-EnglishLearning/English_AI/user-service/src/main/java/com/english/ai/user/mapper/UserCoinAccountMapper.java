@@ -19,6 +19,14 @@ public interface UserCoinAccountMapper extends BaseMapper<UserCoinAccount> {
     int addBalance(@Param("userId") Long userId, @Param("amount") int amount);
 
     /**
+     * 条件扣减余额：仅当余额充足时才扣，返回影响行数（0 表示余额不足）。
+     * 用条件更新而非「先查后改」，避免并发下超扣；不改变 total_earned。
+     */
+    @Update("UPDATE user_coin_account SET balance = balance - #{amount} " +
+            "WHERE user_id = #{userId} AND balance >= #{amount}")
+    int deductBalance(@Param("userId") Long userId, @Param("amount") int amount);
+
+    /**
      * 全站金币余额合计（管理看板）。
      */
     @Select("SELECT COALESCE(SUM(balance), 0) FROM user_coin_account")

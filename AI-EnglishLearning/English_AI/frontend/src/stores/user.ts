@@ -66,6 +66,9 @@ export const useUserStore = defineStore('user', () => {
   const vocabGroupReward = ref(5)
   const vocabGroupDailyLimit = ref(3)
   const vocabGroupTodayCount = ref(0)
+  /** 补签定价与展示汇率，取自后端 /user/coin/info，不在前端写死 */
+  const makeupCostCoins = ref(600)
+  const coinsPerYuan = ref(100)
   const coinLoaded = ref(false)
 
   // 每组单词数量（null 表示尚未设置，仅用于金币组）
@@ -125,6 +128,8 @@ export const useUserStore = defineStore('user', () => {
       vocabGroupReward.value = info.vocabGroupReward || 0
       vocabGroupDailyLimit.value = info.vocabGroupDailyLimit || 0
       vocabGroupTodayCount.value = info.vocabGroupTodayCount || 0
+      makeupCostCoins.value = info.makeupCostCoins || 600
+      coinsPerYuan.value = info.coinsPerYuan || 100
       coinLoaded.value = true
     } catch (e) {
       console.warn('获取金币信息失败', e)
@@ -350,6 +355,8 @@ export const useUserStore = defineStore('user', () => {
     vocabGroupReward,
     vocabGroupDailyLimit,
     vocabGroupTodayCount,
+    makeupCostCoins,
+    coinsPerYuan,
     coinLoaded,
     vocabGroupSize,
     groupSizeMin,

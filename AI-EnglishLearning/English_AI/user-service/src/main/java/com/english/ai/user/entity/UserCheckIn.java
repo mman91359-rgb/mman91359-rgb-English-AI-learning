@@ -32,6 +32,9 @@ public class UserCheckIn {
     /** 签到时的连续天数 */
     private Integer streakDays;
 
+    /** 是否补签：0 正常签到，1 金币补签 */
+    private Integer isMakeup;
+
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
 }

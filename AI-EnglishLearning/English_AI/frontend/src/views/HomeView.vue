@@ -279,6 +279,7 @@
       @prev="prevCheckInMonth"
       @next="nextCheckInMonth"
       @retry="reloadCheckInCalendar"
+      @makeup-success="reloadCheckInCalendar"
     />
   </AppLayout>
 </template>

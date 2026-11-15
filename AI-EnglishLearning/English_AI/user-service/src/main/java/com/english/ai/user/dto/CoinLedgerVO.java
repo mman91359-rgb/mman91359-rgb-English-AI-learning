@@ -28,10 +28,10 @@ public class CoinLedgerVO {
     /** 累计获得 */
     private Integer totalEarned;
 
-    /** 累计消耗（amount&lt;0 的绝对值之和；当前无扣减出口，恒为 0） */
+    /** 累计消耗（amount&lt;0 的绝对值之和；补签是目前的消耗出口） */
     private Integer totalSpent;
 
-    /** 本月消耗（按自然月统计，同样恒为 0 直到引入扣减） */
+    /** 本月消耗（按自然月统计，口径同上） */
     private Integer monthSpent;
 
     /** 当前页流水，按 id 倒序（最新在前） */

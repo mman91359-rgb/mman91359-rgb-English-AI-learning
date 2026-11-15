@@ -3,6 +3,7 @@ package com.english.ai.user.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.english.ai.user.config.CoinRewardProperties;
 import com.english.ai.user.dto.AwardCoinResponse;
+import com.english.ai.user.dto.CoinDeductResult;
 import com.english.ai.user.dto.CoinLedgerVO;
 import com.english.ai.user.dto.CoinTransactionVO;
 import com.english.ai.user.entity.UserCoinAccount;
@@ -124,6 +125,50 @@ public class CoinServiceImpl implements CoinService {
         }
         return award(userId, BIZ_VOCAB_GROUP, bizKey,
                 properties.getVocabGroup().getReward(), "完成一组单词");
+    }
+
+    @Override
+    @Transactional
+    public CoinDeductResult deduct(Long userId, String bizType, String bizKey, int amount, String description) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("扣减金额必须为正数");
+        }
+
+        // 幂等键：同一笔补签只允许扣一次
+        UserCoinTransaction existing = transactionMapper.selectOne(
+                new LambdaQueryWrapper<UserCoinTransaction>().eq(UserCoinTransaction::getBizKey, bizKey));
+        if (existing != null) {
+            throw new IllegalArgumentException("该笔补签已扣费");
+        }
+
+        // 条件更新：余额不足时影响行数为 0，避免「先查后改」在并发下超扣
+        int affected = accountMapper.deductBalance(userId, amount);
+        if (affected == 0) {
+            UserCoinAccount account = selectAccount(userId);
+            int current = account != null && account.getBalance() != null ? account.getBalance() : 0;
+            throw new IllegalArgumentException("金币余额不足，还差 " + (amount - current) + " 个金币");
+        }
+
+        UserCoinTransaction transaction = new UserCoinTransaction();
+        transaction.setUserId(userId);
+        transaction.setAmount(-amount);
+        transaction.setBizType(bizType);
+        transaction.setBizKey(bizKey);
+        transaction.setDescription(description);
+        transaction.setCreatedAt(LocalDateTime.now(clock));
+        try {
+            transactionMapper.insert(transaction);
+        } catch (DuplicateKeyException e) {
+            // 并发重复扣费：抛异常让外层事务回滚条件更新，避免扣了钱却没有流水
+            throw new IllegalArgumentException("该笔补签已扣费");
+        }
+
+        UserCoinAccount updated = selectAccount(userId);
+        int balance = updated != null && updated.getBalance() != null ? updated.getBalance() : 0;
+        transactionMapper.updateBalanceAfter(transaction.getId(), balance);
+        log.info("金币扣减成功: userId={}, bizType={}, amount={}, balance={}",
+                userId, bizType, -amount, balance);
+        return CoinDeductResult.builder().amount(-amount).balance(balance).build();
     }
 
     @Override

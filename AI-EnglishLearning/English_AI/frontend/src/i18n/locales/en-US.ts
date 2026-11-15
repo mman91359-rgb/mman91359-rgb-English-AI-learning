@@ -600,6 +600,7 @@ export default {
   coin: {
     balance: 'Coin balance',
     totalEarned: 'Total earned',
+    rateHint: '{coins} coins ≈ ¥1',
   },
   checkIn: {
     title: 'Daily check-in',
@@ -640,6 +641,20 @@ export default {
       stateFuture: 'Not yet',
       stateTodayPending: 'Today, not checked in',
       stateTodayChecked: 'Today, checked in',
+      makeupTitle: 'Make-up',
+      makeupSelectHint: 'Pick a missed day this month to make it up',
+      makeupSelected: 'Selected {date}',
+      makeupCost: '{coins} coins (about ¥{yuan})',
+      makeupBalance: 'Balance: {balance} coins',
+      makeupShortfall: 'Not enough coins, {coins} more needed',
+      makeupPay: 'Confirm payment',
+      makeupConfirmTitle: 'Confirm make-up?',
+      makeupConfirmBody: 'Make up {date} for {coins} coins. No check-in reward or milestone reward will be granted.',
+      makeupConfirm: 'Confirm',
+      makeupCancel: 'Cancel',
+      makeupSuccess: 'Make-up complete, streak recalculated',
+      makeupFailed: 'Make-up failed',
+      makeupNote: 'A make-up records the date and recalculates the streak; it does not grant coins or milestone rewards',
     },
   },
   vocabGoal: {

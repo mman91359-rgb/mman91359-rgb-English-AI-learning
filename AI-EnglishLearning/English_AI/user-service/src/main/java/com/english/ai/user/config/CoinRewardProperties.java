@@ -19,6 +19,19 @@ public class CoinRewardProperties {
 
     private VocabGroup vocabGroup = new VocabGroup();
 
+    private Makeup makeup = new Makeup();
+
+    /** 补签定价与展示汇率，集中配置，前后端不各自写死 */
+    @Data
+    public static class Makeup {
+
+        /** 单次补签消耗金币 */
+        private int costCoins = 600;
+
+        /** 展示汇率：每多少金币折合 1 元人民币 */
+        private int coinsPerYuan = 100;
+    }
+
     @Data
     public static class CheckIn {
 

@@ -85,7 +85,7 @@
                     v-for="(cell, i) in paddedHeatmap"
                     :key="i"
                     class="w-3 h-3 rounded-sm transition-colors duration-200 border border-surface/30"
-                    :class="cell.level > 0 ? 'cursor-pointer hover:ring-2 hover:ring-primary/30' : ''"
+                    :class="cell.level > 0 ? 'cursor-pointer hover:ring-2 hover:ring-info/40' : ''"
                     :style="{ backgroundColor: heatmapColor(cell.level) }"
                     :title="cell.tooltip"
                     @mouseenter="hoveredCell = i"
@@ -244,16 +244,18 @@ const minutesToLevel = (minutes: number): number => {
 const levelMinuteLabels = ['0分钟', '1~10分钟', '11~30分钟', '31~60分钟', '61~120分钟', '>120分钟']
 
 // 热力图颜色映射（基于学习时长等级）：颜色取自主题令牌，随亮暗切换重算
+// 用 info 蓝色而不是 primary 紫色：同为紫色系时，低档（12%）压在近白底上几乎不可见；
+// 蓝色与页面主色区分度高，且各档透明度拉开（22%→100%），一眼能看出深浅层次
 const heatmapPalette = computed<string[]>(() => {
   // 显式依赖主题状态，切换主题时触发重算
   void appStore.isDark
   return [
     cssColor('surface-container-highest'), // 0: 无记录
-    cssColor('primary', 0.12),             // 1: 1~10分钟
-    cssColor('primary', 0.26),             // 2: 11~30分钟
-    cssColor('primary', 0.45),             // 3: 31~60分钟
-    cssColor('primary', 0.68),             // 4: 61~120分钟
-    cssColor('primary')                    // 5: >120分钟
+    cssColor('info', 0.22),                // 1: 1~10分钟
+    cssColor('info', 0.40),                // 2: 11~30分钟
+    cssColor('info', 0.60),                // 3: 31~60分钟
+    cssColor('info', 0.82),                // 4: 61~120分钟
+    cssColor('info')                       // 5: >120分钟
   ]
 })
 

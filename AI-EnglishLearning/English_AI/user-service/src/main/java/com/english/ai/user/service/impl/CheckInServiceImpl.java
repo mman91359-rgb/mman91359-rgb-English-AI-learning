@@ -1,11 +1,14 @@
 package com.english.ai.user.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.english.ai.user.config.CoinRewardProperties;
 import com.english.ai.user.dto.AwardCoinResponse;
 import com.english.ai.user.dto.CheckInCalendarVO;
 import com.english.ai.user.dto.CheckInRecordItem;
 import com.english.ai.user.dto.CheckInResponse;
 import com.english.ai.user.dto.CheckInStatus;
+import com.english.ai.user.dto.CoinDeductResult;
+import com.english.ai.user.dto.MakeupCheckInResponse;
 import com.english.ai.user.entity.UserCheckIn;
 import com.english.ai.user.entity.UserCoinAccount;
 import com.english.ai.user.mapper.UserCheckInMapper;
@@ -20,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 每日签到实现
@@ -33,6 +37,7 @@ public class CheckInServiceImpl implements CheckInService {
     private final CoinService coinService;
     private final CoinRewardCalculator rewardCalculator;
     private final Clock clock;
+    private final CoinRewardProperties properties;
 
     @Override
     public CheckInStatus getStatus(Long userId) {
@@ -123,6 +128,85 @@ public class CheckInServiceImpl implements CheckInService {
                 .balance(balance)
                 .streakDays(streakDays)
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public MakeupCheckInResponse makeupCheckIn(Long userId, LocalDate date) {
+        if (!coinService.userExists(userId)) {
+            throw new IllegalArgumentException("用户不存在");
+        }
+
+        LocalDate today = LocalDate.now(clock);
+        LocalDate monthStart = today.withDayOfMonth(1);
+        // 业务边界：只补本月内、已过去、且在首次签到之后的空缺日期
+        if (date == null || date.isBefore(monthStart) || !date.isBefore(today)) {
+            throw new IllegalArgumentException("只能补签本月内已过去的日期");
+        }
+        LocalDate earliest = selectEarliestDate(userId);
+        if (earliest == null) {
+            throw new IllegalArgumentException("尚无签到记录，无需补签");
+        }
+        if (date.isBefore(earliest)) {
+            throw new IllegalArgumentException("补签日期不能早于首次签到日");
+        }
+        if (selectByDate(userId, date) != null) {
+            throw new IllegalArgumentException("该日期已签到");
+        }
+
+        int cost = properties.getMakeup().getCostCoins();
+        String bizKey = CoinService.BIZ_CHECK_IN_MAKEUP + ":" + userId + ":" + date;
+        // 条件扣币与幂等键失败都会抛异常，由本事务一并回滚
+        CoinDeductResult deduct = coinService.deduct(userId, CoinService.BIZ_CHECK_IN_MAKEUP,
+                bizKey, cost, "补签 " + date);
+
+        UserCheckIn makeup = new UserCheckIn();
+        makeup.setUserId(userId);
+        makeup.setCheckInDate(date);
+        makeup.setStreakDays(0);
+        makeup.setRewardCoins(0);
+        makeup.setIsMakeup(1);
+        // 唯一键 uk_user_date 兜底并发重复补签，异常由 Controller 转成 400
+        checkInMapper.insert(makeup);
+
+        int recalculated = recalculateStreaks(userId);
+        UserCheckIn latest = selectLatest(userId);
+        int streak = latest != null && latest.getStreakDays() != null ? latest.getStreakDays() : 0;
+
+        log.info("补签成功: userId={}, date={}, cost={}, recalculated={}",
+                userId, date, cost, recalculated);
+        return MakeupCheckInResponse.builder()
+                .date(date)
+                .costCoins(cost)
+                .balance(deduct.getBalance())
+                .streakDays(streak)
+                .recalculatedCount(recalculated)
+                .build();
+    }
+
+    /**
+     * 按日期升序重算该用户全部签到记录的连续天数（B 方案）。
+     * 纯规则：与前一条相差一天则 +1，否则重置为 1；只写值发生变化的行。
+     * 不改 reward_coins、不补发金币、不动账户 total_earned。
+     */
+    private int recalculateStreaks(Long userId) {
+        List<UserCheckIn> rows = checkInMapper.selectList(new LambdaQueryWrapper<UserCheckIn>()
+                .eq(UserCheckIn::getUserId, userId)
+                .orderByAsc(UserCheckIn::getCheckInDate));
+        LocalDate previous = null;
+        int streak = 0;
+        int changed = 0;
+        for (UserCheckIn row : rows) {
+            streak = previous != null && previous.plusDays(1).equals(row.getCheckInDate())
+                    ? streak + 1 : 1;
+            previous = row.getCheckInDate();
+            if (!Objects.equals(row.getStreakDays(), streak)) {
+                row.setStreakDays(streak);
+                checkInMapper.updateById(row);
+                changed++;
+            }
+        }
+        return changed;
     }
 
     @Override

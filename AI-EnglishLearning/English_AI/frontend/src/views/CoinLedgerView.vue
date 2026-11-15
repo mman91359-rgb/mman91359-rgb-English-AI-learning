@@ -27,6 +27,7 @@
             <p class="font-label-md text-label-md text-on-surface-variant">{{ $t('wallet.balance') }}</p>
             <p class="font-headline-lg text-headline-lg text-on-surface tabular-nums">{{ balanceText }}</p>
             <p class="mt-1 font-body-sm text-body-sm text-on-surface-variant">{{ $t('wallet.balanceHint') }}</p>
+            <p class="mt-1 font-label-sm text-label-sm text-outline">{{ $t('coin.rateHint', { coins: userStore.coinsPerYuan }) }}</p>
           </div>
         </div>
 
@@ -56,6 +57,7 @@
             <ul class="mt-2 space-y-1 font-body-sm text-body-sm text-on-surface-variant">
               <li>{{ $t('wallet.rules.redeem') }}</li>
               <li>{{ $t('wallet.rules.sources') }}</li>
+              <li>{{ $t('coin.rateHint', { coins: userStore.coinsPerYuan }) }}</li>
             </ul>
           </div>
         </div>
@@ -155,9 +157,11 @@ import ErrorState from '@/components/ui/ErrorState.vue'
 import { btnSecondary } from '@/components/ui/buttonStyles'
 import { useCoinLedger } from '@/composables/useCoinLedger'
 import { formatDateTime, formatNumber } from '@/utils/format'
+import { useUserStore } from '@/stores/user'
 import type { CoinTransactionVO } from '@/api/coin'
 
 const { t, locale } = useI18n()
+const userStore = useUserStore()
 const ledger = useCoinLedger()
 const { items, balance, totalEarned, totalSpent, monthSpent, hasMore, loading, loadingMore, error, loaded, counts, bizType, load, setBizType, isEmpty } = ledger
 
@@ -170,6 +174,7 @@ const chipOptions = computed(() => {
     { value: 'CHECK_IN', label: t('wallet.biz.CHECK_IN'), count: c.CHECK_IN ?? 0 },
     { value: 'CHECK_IN_MILESTONE', label: t('wallet.biz.CHECK_IN_MILESTONE'), count: c.CHECK_IN_MILESTONE ?? 0 },
     { value: 'VOCAB_GROUP', label: t('wallet.biz.VOCAB_GROUP'), count: c.VOCAB_GROUP ?? 0 },
+    { value: 'CHECK_IN_MAKEUP', label: t('wallet.biz.CHECK_IN_MAKEUP'), count: c.CHECK_IN_MAKEUP ?? 0 },
   ]
 })
 
@@ -181,7 +186,7 @@ const onBizChange = (value: string | number | (string | number)[]): void => {
 }
 
 /** 业务类型 → 图标与配色。全部写成完整字面量，禁止拼接（契约 §11.4 会静默丢类名） */
-type BizTone = 'primary' | 'secondary' | 'tertiary' | 'variant'
+type BizTone = 'primary' | 'secondary' | 'tertiary' | 'variant' | 'error'
 interface BizMeta {
   icon: string
   wrap: string
@@ -192,6 +197,7 @@ const BIZ_META: Record<string, BizMeta> = {
   CHECK_IN: { icon: 'event_available', wrap: 'bg-primary-container/30', tone: 'primary' },
   CHECK_IN_MILESTONE: { icon: 'military_tech', wrap: 'bg-tertiary-container/40', tone: 'tertiary' },
   VOCAB_GROUP: { icon: 'menu_book', wrap: 'bg-secondary-container/40', tone: 'secondary' },
+  CHECK_IN_MAKEUP: { icon: 'event_available', wrap: 'bg-error-container/40', tone: 'error' },
 }
 
 const BIZ_FALLBACK: BizMeta = { icon: 'paid', wrap: 'bg-surface-container-high', tone: 'variant' }
@@ -242,6 +248,7 @@ const BIZ_LABEL_KEYS: Record<string, string> = {
   CHECK_IN: 'wallet.biz.CHECK_IN',
   CHECK_IN_MILESTONE: 'wallet.biz.CHECK_IN_MILESTONE',
   VOCAB_GROUP: 'wallet.biz.VOCAB_GROUP',
+  CHECK_IN_MAKEUP: 'wallet.biz.CHECK_IN_MAKEUP',
 }
 
 /** 已知类型走 i18n；未知类型才用后端 description 兜底，避免英文界面冒中文 */

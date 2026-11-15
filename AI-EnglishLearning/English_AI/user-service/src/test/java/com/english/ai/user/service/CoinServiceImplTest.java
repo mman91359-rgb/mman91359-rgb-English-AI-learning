@@ -2,6 +2,7 @@ package com.english.ai.user.service;
 
 import com.english.ai.user.config.CoinRewardProperties;
 import com.english.ai.user.dto.AwardCoinResponse;
+import com.english.ai.user.dto.CoinDeductResult;
 import com.english.ai.user.dto.CoinLedgerVO;
 import com.english.ai.user.entity.SysUser;
 import com.english.ai.user.entity.UserCoinAccount;
@@ -13,6 +14,7 @@ import com.english.ai.user.service.impl.CoinServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DuplicateKeyException;
@@ -25,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -222,6 +226,45 @@ class CoinServiceImplTest {
         // 计数是全量的：筛到 VOCAB_GROUP 时 CHECK_IN 的 (3) 仍在
         assertEquals(Integer.valueOf(3), ledger.getBizTypeCounts().get("CHECK_IN"));
         assertEquals(Integer.valueOf(2), ledger.getBizTypeCounts().get("VOCAB_GROUP"));
+    }
+
+    @Test
+    void deductWritesNegativeTransactionWhenBalanceIsEnough() {
+        when(transactionMapper.selectOne(any())).thenReturn(null);
+        when(accountMapper.deductBalance(1L, 600)).thenReturn(1);
+        when(transactionMapper.insert(any())).thenReturn(1);
+        when(accountMapper.selectOne(any())).thenReturn(account(100));
+
+        CoinDeductResult result = service.deduct(1L, "CHECK_IN_MAKEUP",
+                "CHECK_IN_MAKEUP:1:2026-10-24", 600, "补签");
+
+        assertEquals(-600, result.getAmount());
+        assertEquals(100, result.getBalance());
+        ArgumentCaptor<UserCoinTransaction> captor = ArgumentCaptor.forClass(UserCoinTransaction.class);
+        verify(transactionMapper).insert(captor.capture());
+        assertEquals(-600, captor.getValue().getAmount());
+        assertEquals("CHECK_IN_MAKEUP", captor.getValue().getBizType());
+        verify(accountMapper, never()).addBalance(any(), anyInt());
+    }
+
+    @Test
+    void deductRejectsInsufficientBalance() {
+        when(transactionMapper.selectOne(any())).thenReturn(null);
+        when(accountMapper.deductBalance(1L, 600)).thenReturn(0);
+        when(accountMapper.selectOne(any())).thenReturn(account(206));
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> service.deduct(1L, "CHECK_IN_MAKEUP", "k", 600, "补签"));
+        assertTrue(ex.getMessage().contains("还差 394"));
+        verify(transactionMapper, never()).insert(any());
+    }
+
+    @Test
+    void deductIsIdempotentByBizKey() {
+        when(transactionMapper.selectOne(any())).thenReturn(tx(1L, -600));
+        assertThrows(IllegalArgumentException.class,
+                () -> service.deduct(1L, "CHECK_IN_MAKEUP", "k", 600, "补签"));
+        verify(accountMapper, never()).deductBalance(any(), anyInt());
     }
 
     private UserCoinTransaction tx(long id, int amount) {

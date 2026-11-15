@@ -1,6 +1,7 @@
 package com.english.ai.user.service;
 
 import com.english.ai.user.dto.AwardCoinResponse;
+import com.english.ai.user.dto.CoinDeductResult;
 import com.english.ai.user.dto.CoinLedgerVO;
 import com.english.ai.user.entity.UserCoinAccount;
 
@@ -10,6 +11,9 @@ import com.english.ai.user.entity.UserCoinAccount;
 public interface CoinService {
 
     String BIZ_VOCAB_GROUP = "VOCAB_GROUP";
+
+    /** 补签扣币的业务类型 */
+    String BIZ_CHECK_IN_MAKEUP = "CHECK_IN_MAKEUP";
 
     /** 获取账户，不存在则创建 */
     UserCoinAccount getOrCreateAccount(Long userId);
@@ -25,6 +29,13 @@ public interface CoinService {
 
     /** 统计今日某业务类型已发放次数 */
     int countTodayByBizType(Long userId, String bizType);
+
+    /**
+     * 条件扣减金币并写一条负数流水（补签用）。
+     * 余额不足或幂等键重复时抛 IllegalArgumentException，交给调用方事务回滚。
+     * 只改 balance，不改 total_earned；累计消耗由流水按 amount &lt; 0 聚合得出。
+     */
+    CoinDeductResult deduct(Long userId, String bizType, String bizKey, int amount, String description);
 
     /**
      * 分页查询金币流水（keyset 分页，按 id 倒序）

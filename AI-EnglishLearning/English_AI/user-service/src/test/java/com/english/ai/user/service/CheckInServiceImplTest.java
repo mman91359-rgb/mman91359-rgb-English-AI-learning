@@ -4,6 +4,8 @@ import com.english.ai.user.config.CoinRewardProperties;
 import com.english.ai.user.dto.AwardCoinResponse;
 import com.english.ai.user.dto.CheckInResponse;
 import com.english.ai.user.dto.CheckInStatus;
+import com.english.ai.user.dto.CoinDeductResult;
+import com.english.ai.user.dto.MakeupCheckInResponse;
 import com.english.ai.user.entity.UserCheckIn;
 import com.english.ai.user.entity.UserCoinAccount;
 import com.english.ai.user.mapper.UserCheckInMapper;
@@ -11,6 +13,7 @@ import com.english.ai.user.service.impl.CheckInServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -21,6 +24,7 @@ import java.time.ZoneId;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -29,6 +33,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -66,7 +71,7 @@ class CheckInServiceImplTest {
 
         Clock clock = Clock.fixed(Instant.parse("2026-10-24T04:00:00Z"), ZoneId.of("Asia/Shanghai"));
         service = new CheckInServiceImpl(checkInMapper, coinService,
-                new CoinRewardCalculator(properties), clock);
+                new CoinRewardCalculator(properties), clock, properties);
     }
 
     @Test
@@ -165,6 +170,75 @@ class CheckInServiceImplTest {
         assertEquals(12, status.getPreviewStreakBonus());
         assertEquals(30, status.getPreviewMilestoneReward());
         assertEquals(52, status.getPreviewReward());
+    }
+
+    @Test
+    void makeupCheckInRecalculatesStreakWithoutAwardingCoins() {
+        LocalDate makeupDate = TODAY.minusDays(2);
+        when(coinService.userExists(1L)).thenReturn(true);
+        // selectOne 调用顺序：最早签到日 → 目标日是否已签 → 重算后的最新一条
+        when(checkInMapper.selectOne(any())).thenReturn(
+                checkIn(TODAY.minusDays(4), 1),
+                null,
+                checkIn(TODAY.minusDays(1), 4));
+        when(coinService.deduct(eq(1L), eq("CHECK_IN_MAKEUP"), anyString(), eq(600), anyString()))
+                .thenReturn(CoinDeductResult.builder().amount(-600).balance(100).build());
+        when(checkInMapper.insert(any())).thenReturn(1);
+        // 补上 d-2 后，d-4 / d-3 / d-2 / d-1 连成 4 天；原本 d-2 与 d-1 的 streak 需要重算
+        when(checkInMapper.selectList(any())).thenReturn(List.of(
+                checkIn(TODAY.minusDays(4), 1),
+                checkIn(TODAY.minusDays(3), 2),
+                checkIn(makeupDate, 0),
+                checkIn(TODAY.minusDays(1), 1)));
+
+        MakeupCheckInResponse response = service.makeupCheckIn(1L, makeupDate);
+
+        assertEquals(600, response.getCostCoins());
+        assertEquals(100, response.getBalance());
+        assertEquals(2, response.getRecalculatedCount());
+        assertEquals(4, response.getStreakDays());
+        // 补签不发放任何奖励金币
+        verify(coinService, never()).award(any(), anyString(), anyString(), anyInt(), anyString());
+
+        ArgumentCaptor<UserCheckIn> captor = ArgumentCaptor.forClass(UserCheckIn.class);
+        verify(checkInMapper, times(2)).updateById(captor.capture());
+        assertEquals(3, captor.getAllValues().get(0).getStreakDays());
+        assertEquals(4, captor.getAllValues().get(1).getStreakDays());
+    }
+
+    @Test
+    void makeupCheckInMarksRecordAsMakeup() {
+        LocalDate makeupDate = TODAY.minusDays(2);
+        when(coinService.userExists(1L)).thenReturn(true);
+        when(checkInMapper.selectOne(any())).thenReturn(
+                checkIn(TODAY.minusDays(4), 1), null, checkIn(TODAY.minusDays(1), 4));
+        when(coinService.deduct(eq(1L), eq("CHECK_IN_MAKEUP"), anyString(), eq(600), anyString()))
+                .thenReturn(CoinDeductResult.builder().amount(-600).balance(100).build());
+        when(checkInMapper.insert(any())).thenReturn(1);
+        when(checkInMapper.selectList(any())).thenReturn(List.of(checkIn(makeupDate, 0)));
+
+        service.makeupCheckIn(1L, makeupDate);
+
+        ArgumentCaptor<UserCheckIn> captor = ArgumentCaptor.forClass(UserCheckIn.class);
+        verify(checkInMapper).insert(captor.capture());
+        assertEquals(1, captor.getValue().getIsMakeup());
+        assertEquals(0, captor.getValue().getRewardCoins());
+    }
+
+    @Test
+    void makeupCheckInRejectsFutureDate() {
+        when(coinService.userExists(1L)).thenReturn(true);
+        assertThrows(IllegalArgumentException.class, () -> service.makeupCheckIn(1L, TODAY));
+    }
+
+    @Test
+    void makeupCheckInRejectsAlreadyCheckedDate() {
+        LocalDate makeupDate = TODAY.minusDays(2);
+        when(coinService.userExists(1L)).thenReturn(true);
+        when(checkInMapper.selectOne(any())).thenReturn(
+                checkIn(TODAY.minusDays(4), 1), checkIn(makeupDate, 1));
+        assertThrows(IllegalArgumentException.class, () -> service.makeupCheckIn(1L, makeupDate));
+        verify(coinService, never()).deduct(any(), anyString(), anyString(), anyInt(), anyString());
     }
 
     private UserCheckIn checkIn(LocalDate date, int streak) {

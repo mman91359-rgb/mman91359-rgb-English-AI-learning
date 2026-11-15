@@ -106,6 +106,9 @@
             <p class="font-headline-lg text-headline-lg text-on-surface tabular-nums">
               {{ formatNumber(userStore.coinBalance, 'zh-CN') }}
             </p>
+            <p class="mt-1 font-label-sm text-label-sm text-on-surface-variant">
+              {{ $t('coin.rateHint', { coins: userStore.coinsPerYuan }) }}
+            </p>
           </div>
         </div>
         <div class="flex items-center justify-between p-4 rounded-xl bg-surface-container-low">
@@ -343,6 +346,7 @@
       @prev="prevCheckInMonth"
       @next="nextCheckInMonth"
       @retry="reloadCheckInCalendar"
+      @makeup-success="reloadCheckInCalendar"
     />
   </AppLayout>
 </template>

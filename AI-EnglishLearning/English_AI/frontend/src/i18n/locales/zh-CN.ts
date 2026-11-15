@@ -600,6 +600,7 @@ export default {
   coin: {
     balance: '金币余额',
     totalEarned: '累计获得',
+    rateHint: '{coins} 金币 ≈ ¥1',
   },
   checkIn: {
     title: '每日签到',
@@ -640,6 +641,20 @@ export default {
       stateFuture: '尚未到',
       stateTodayPending: '今天未签到',
       stateTodayChecked: '今天已签到',
+      makeupTitle: '补签',
+      makeupSelectHint: '点击本月未签到的日期即可补签',
+      makeupSelected: '已选择 {date}',
+      makeupCost: '消耗 {coins} 金币（约 ¥{yuan}）',
+      makeupBalance: '当前余额 {balance} 金币',
+      makeupShortfall: '余额不足，还差 {coins} 金币',
+      makeupPay: '确认支付',
+      makeupConfirmTitle: '确认补签？',
+      makeupConfirmBody: '将为 {date} 补签并扣除 {coins} 金币。补签不发放签到奖励，也不补发里程碑奖励。',
+      makeupConfirm: '确认补签',
+      makeupCancel: '取消',
+      makeupSuccess: '补签成功，连续天数已重算',
+      makeupFailed: '补签失败',
+      makeupNote: '补签只记录日期并重算连续天数，不补发金币、不补发里程碑奖励',
     },
   },
   vocabGoal: {

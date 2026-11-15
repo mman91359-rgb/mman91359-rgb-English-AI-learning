@@ -37,4 +37,10 @@ public class CoinInfoResponse {
 
     /** 今日已发放的词汇组奖励次数 */
     private Integer vocabGroupTodayCount;
+
+    /** 单次补签消耗金币 */
+    private Integer makeupCostCoins;
+
+    /** 展示汇率：每多少金币折合 1 元人民币 */
+    private Integer coinsPerYuan;
 }

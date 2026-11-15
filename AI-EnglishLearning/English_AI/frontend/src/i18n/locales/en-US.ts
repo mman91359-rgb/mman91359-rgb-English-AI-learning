@@ -406,6 +406,8 @@ export default {
     questionSource: '[Source] IELTS Vocabulary, Writing & Speaking',
     allTime: 'All time',
     today: 'Today',
+    yesterday: 'Yesterday',
+    unknownDate: 'Unknown date',
     thisWeek: 'This week',
     thisMonth: 'This month',
   },

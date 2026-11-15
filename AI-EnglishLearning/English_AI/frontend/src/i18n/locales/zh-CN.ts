@@ -406,6 +406,8 @@ export default {
     questionSource: '[词汇来源] 雅思词汇, Writing & Speaking',
     allTime: '全部时间',
     today: '今天',
+    yesterday: '昨天',
+    unknownDate: '日期未知',
     thisWeek: '本周',
     thisMonth: '本月',
   },

@@ -16,8 +16,8 @@
           @update:model-value="switchSourceTab($event as 'all' | 'answer' | 'word' | 'writing')"
         />
       </div>
-      <!-- 模块类型筛选 -->
-      <div class="flex items-center gap-2">
+      <!-- 模块类型筛选：单词/写作事件无模块维度，隐藏 -->
+      <div v-if="showModuleFilter" class="flex items-center gap-2">
         <span class="font-label-md text-label-md text-on-surface-variant shrink-0 w-16">{{ $t('learning.moduleType') }}</span>
         <ChipGroup
           :model-value="moduleFilter"
@@ -27,8 +27,8 @@
           @update:model-value="moduleFilter = $event as number; applyFilter()"
         />
       </div>
-      <!-- 正确/错误筛选 -->
-      <div class="flex items-center gap-2">
+      <!-- 正确/错误筛选：仅答题与全部 tab 适用 -->
+      <div v-if="showCorrectFilter" class="flex items-center gap-2">
         <span class="font-label-md text-label-md text-on-surface-variant shrink-0 w-16">{{ $t('learning.result') }}</span>
         <ChipGroup
           :model-value="correctFilter"
@@ -77,6 +77,14 @@
           @change="applyFilter()"
         />
       </div>
+      <!-- 一键重置：仅在有筛选条件时出现 -->
+      <div v-if="hasActiveFilter" class="flex items-center gap-2">
+        <span class="shrink-0 w-16"></span>
+        <button :class="btnSecondarySm" @click="resetFilters">
+          <AppIcon name="restart_alt" size="sm" class="mr-1" />
+          {{ $t('learning.resetFilter') }}
+        </button>
+      </div>
     </div>
 
     <!-- 加载中 -->
@@ -91,108 +99,119 @@
 
     <!-- 空状态 -->
     <EmptyState
-      v-else-if="history.length === 0 && wordHistory.length === 0 && timeline.length === 0 && writingHistory.length === 0"
+      v-else-if="hasNoResult"
       icon="filter_alt_off"
       :title="$t('learning.noFilterResult')"
       :action-label="$t('learning.resetFilter')"
-      @action="moduleFilter = 0; correctFilter = -1; timeRangeFilter = 'all'; bookFilter = ''; startDate = ''; endDate = ''; applyFilter()"
+      @action="resetFilters"
     />
 
     <!-- 历史记录列表 -->
     <div v-else class="space-y-3">
-      <!-- 全部：统一时间线（答题 + 单词 + 写作） -->
+      <!-- 全部：统一时间线（答题 + 单词 + 写作），按日分组 -->
       <template v-if="sourceTab === 'all'">
-        <div
-          v-for="row in timeline"
-          :key="row.source + '-' + row.id"
-          class="bg-surface-container-lowest rounded-2xl shadow-soft-glow p-4 flex items-center gap-4"
-        >
-          <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
-               :class="row.source === 'WORD' ? 'bg-primary-container/40' : row.source === 'WRITING' ? 'bg-secondary-container/40' : (row.isCorrect ? 'bg-tertiary-container/40' : 'bg-error-container/40')">
-            <AppIcon :name="timelineIcon(row)" size="lg"
-                     :class="row.source === 'WORD' ? 'text-primary' : row.source === 'WRITING' ? 'text-secondary' : (row.isCorrect ? 'text-tertiary' : 'text-error')" />
-          </div>
-          <div class="flex-1 min-w-0">
-            <p class="font-body-md text-body-md text-on-surface truncate">{{ timelineTitle(row) }}</p>
-            <div class="flex items-center gap-3 mt-1">
-              <span class="font-label-sm text-label-sm" :class="row.source === 'WORD' ? wordResultClass(row.result) : 'text-secondary'">
-                {{ timelineTag(row) }}
-              </span>
-              <span v-if="row.bookCode" class="font-label-sm text-label-sm text-on-surface-variant">{{ row.bookCode }}</span>
+        <div v-for="g in groupedTimeline" :key="g.key" class="space-y-3">
+          <p class="font-label-sm text-label-sm text-on-surface-variant px-1 pt-1">{{ g.label }}</p>
+          <div
+            v-for="row in g.items"
+            :key="row.source + '-' + row.id"
+            class="bg-surface-container-lowest rounded-2xl shadow-soft-glow p-4 flex items-center gap-4"
+          >
+            <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+                 :class="row.source === 'WORD' ? wordEventTone(row.eventType || '').wrap : row.source === 'WRITING' ? 'bg-secondary-container/40' : (row.isCorrect ? 'bg-tertiary-container/40' : 'bg-error-container/40')">
+              <AppIcon :name="timelineIcon(row)" size="lg"
+                       :class="row.source === 'WORD' ? wordEventTone(row.eventType || '').icon : row.source === 'WRITING' ? 'text-secondary' : (row.isCorrect ? 'text-tertiary' : 'text-error')" />
             </div>
-          </div>
-          <div class="text-right shrink-0">
-            <span class="font-label-sm text-label-sm text-on-surface-variant block">
-              {{ formatDateTime(row.createdAt, locale) }}
-            </span>
+            <div class="flex-1 min-w-0">
+              <p class="font-body-md text-body-md text-on-surface truncate">{{ timelineTitle(row) }}</p>
+              <div class="flex items-center gap-3 mt-1">
+                <span class="font-label-sm text-label-sm" :class="row.source === 'WORD' ? wordResultClass(row.result) : 'text-secondary'">
+                  {{ timelineTag(row) }}
+                </span>
+                <span v-if="row.bookCode" class="font-label-sm text-label-sm text-on-surface-variant">{{ bookNameOf(row.bookCode) }}</span>
+              </div>
+            </div>
+            <div class="text-right shrink-0">
+              <span class="font-label-sm text-label-sm text-on-surface-variant block">
+                {{ formatDateTime(row.createdAt, locale) }}
+              </span>
+            </div>
           </div>
         </div>
       </template>
 
-      <!-- 单词事件记录 -->
+      <!-- 单词事件记录，按日分组 -->
       <template v-else-if="sourceTab === 'word'">
-        <div
-          v-for="w in wordHistory"
-          :key="'word-' + w.id"
-          class="bg-surface-container-lowest rounded-2xl shadow-soft-glow p-4 flex items-center gap-4"
-        >
-          <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-primary-container/40">
-            <AppIcon :name="wordEventIcon(w.eventType)" size="lg" class="text-primary" />
-          </div>
-          <div class="flex-1 min-w-0">
-            <p class="font-body-md text-body-md text-on-surface truncate">
-              {{ w.word }}
-            </p>
-            <div class="flex items-center gap-3 mt-1">
-              <span class="font-label-sm text-label-sm" :class="wordResultClass(w.result)">{{ wordEventLabel(w.eventType) }}</span>
-              <span v-if="w.result" class="font-label-sm text-label-sm"
-                    :class="w.result === 'CORRECT' ? 'text-tertiary' : 'text-error'">
-                {{ w.result === 'CORRECT' ? $t('learning.correctTag') : $t('learning.incorrectTag') }}
-              </span>
-              <span v-if="w.bookCode" class="font-label-sm text-label-sm text-on-surface-variant">{{ w.bookCode }}</span>
+        <div v-for="g in groupedWordHistory" :key="g.key" class="space-y-3">
+          <p class="font-label-sm text-label-sm text-on-surface-variant px-1 pt-1">{{ g.label }}</p>
+          <div
+            v-for="w in g.items"
+            :key="'word-' + w.id"
+            class="bg-surface-container-lowest rounded-2xl shadow-soft-glow p-4 flex items-center gap-4"
+          >
+            <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0" :class="wordEventTone(w.eventType).wrap">
+              <AppIcon :name="wordEventIcon(w.eventType)" size="lg" :class="wordEventTone(w.eventType).icon" />
             </div>
-          </div>
-          <div class="text-right shrink-0">
-            <span class="font-label-sm text-label-sm text-on-surface-variant block">
-              {{ formatDateTime(w.createdAt, locale) }}
-            </span>
+            <div class="flex-1 min-w-0">
+              <p class="font-body-md text-body-md text-on-surface truncate">
+                {{ w.word }}
+              </p>
+              <div class="flex items-center gap-3 mt-1">
+                <span class="font-label-sm text-label-sm" :class="wordResultClass(w.result)">{{ wordEventLabel(w.eventType) }}</span>
+                <span v-if="w.result" class="font-label-sm text-label-sm"
+                      :class="w.result === 'CORRECT' ? 'text-tertiary' : 'text-error'">
+                  {{ w.result === 'CORRECT' ? $t('learning.correctTag') : $t('learning.incorrectTag') }}
+                </span>
+                <span v-if="w.bookCode" class="font-label-sm text-label-sm text-on-surface-variant">{{ bookNameOf(w.bookCode) }}</span>
+              </div>
+            </div>
+            <div class="text-right shrink-0">
+              <span class="font-label-sm text-label-sm text-on-surface-variant block">
+                {{ formatDateTime(w.createdAt, locale) }}
+              </span>
+            </div>
           </div>
         </div>
       </template>
 
-      <!-- 写作记录 -->
+      <!-- 写作记录，按日分组 -->
       <template v-else-if="sourceTab === 'writing'">
-        <div
-          v-for="e in writingHistory"
-          :key="'writing-' + e.id"
-          class="bg-surface-container-lowest rounded-2xl shadow-soft-glow p-4 flex items-center gap-4"
-        >
-          <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-secondary-container/40">
-            <AppIcon name="edit_note" size="lg" class="text-secondary" />
-          </div>
-          <div class="flex-1 min-w-0">
-            <p class="font-body-md text-body-md text-on-surface truncate">
-              {{ e.topicTitle || e.topicKey }}
-            </p>
-            <div class="flex items-center gap-3 mt-1">
-              <span class="font-label-sm text-label-sm text-secondary">
-                {{ e.aiScored === 1 ? `${e.weightedScore ?? '-'} 分` : '未评分' }}
-              </span>
-              <span v-if="e.wordCount" class="font-label-sm text-label-sm text-on-surface-variant">{{ e.wordCount }} 词</span>
+        <div v-for="g in groupedWritingHistory" :key="g.key" class="space-y-3">
+          <p class="font-label-sm text-label-sm text-on-surface-variant px-1 pt-1">{{ g.label }}</p>
+          <div
+            v-for="e in g.items"
+            :key="'writing-' + e.id"
+            class="bg-surface-container-lowest rounded-2xl shadow-soft-glow p-4 flex items-center gap-4"
+          >
+            <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-secondary-container/40">
+              <AppIcon name="edit_note" size="lg" class="text-secondary" />
             </div>
-          </div>
-          <div class="text-right shrink-0">
-            <span class="font-label-sm text-label-sm text-on-surface-variant block">
-              {{ formatDateTime(e.createdAt, locale) }}
-            </span>
+            <div class="flex-1 min-w-0">
+              <p class="font-body-md text-body-md text-on-surface truncate">
+                {{ e.topicTitle || e.topicKey }}
+              </p>
+              <div class="flex items-center gap-3 mt-1">
+                <span class="font-label-sm text-label-sm text-secondary">
+                  {{ e.aiScored === 1 ? `${e.weightedScore ?? '-'} 分` : '未评分' }}
+                </span>
+                <span v-if="e.wordCount" class="font-label-sm text-label-sm text-on-surface-variant">{{ e.wordCount }} 词</span>
+              </div>
+            </div>
+            <div class="text-right shrink-0">
+              <span class="font-label-sm text-label-sm text-on-surface-variant block">
+                {{ formatDateTime(e.createdAt, locale) }}
+              </span>
+            </div>
           </div>
         </div>
       </template>
 
-      <!-- 每条答题记录 -->
+      <!-- 每条答题记录，按日分组 -->
       <template v-else>
+      <div v-for="g in groupedAnswerHistory" :key="g.key" class="space-y-3">
+      <p class="font-label-sm text-label-sm text-on-surface-variant px-1 pt-1">{{ g.label }}</p>
       <div
-        v-for="item in history"
+        v-for="item in g.items"
         :key="item.logId"
         class="bg-surface-container-lowest rounded-2xl shadow-soft-glow overflow-hidden hover:bg-surface-container/40 transition-colors"
       >
@@ -338,6 +357,7 @@
 
           </div>
         </div>
+      </div>
       </div>
       </template>
 
@@ -583,6 +603,113 @@ const wordResultClass = (result?: string): string => {
   if (result === 'WRONG') return 'text-error'
   return 'text-primary'
 }
+
+/**
+ * 单词事件的图标配色：不同类型事件用不同语义色，
+ * 避免新学/复习/收藏在时间线里长得一模一样。
+ */
+const wordEventTone = (eventType: string): { wrap: string; icon: string } => {
+  switch (eventType) {
+    case 'LEARN':
+      return { wrap: 'bg-primary-container/40', icon: 'text-primary' }
+    case 'REVIEW':
+      return { wrap: 'bg-tertiary-container/40', icon: 'text-tertiary' }
+    case 'MASTER':
+      return { wrap: 'bg-tertiary-container/60', icon: 'text-tertiary' }
+    case 'FAVORITE':
+      return { wrap: 'bg-secondary-container/50', icon: 'text-secondary' }
+    case 'UNFAVORITE':
+    case 'IGNORE':
+      return { wrap: 'bg-surface-container-high', icon: 'text-on-surface-variant' }
+    default:
+      return { wrap: 'bg-primary-container/40', icon: 'text-primary' }
+  }
+}
+
+/** 词书 code → 中文名（词书列表未加载或未知 code 时回落 code） */
+const bookNameOf = (code?: string): string => {
+  if (!code) return ''
+  const hit = wordBooks.value.find(b => b.code === code)
+  return hit ? hit.name : code
+}
+
+/** 日期分组标签：今天 / 昨天 / 具体日期 */
+const dayLabel = (dateKey: string): string => {
+  if (!dateKey) return t('learning.unknownDate')
+  const now = new Date()
+  const pad = (n: number) => String(n).padStart(2, '0')
+  const todayKey = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
+  if (dateKey === todayKey) return t('learning.today')
+  const y = new Date(now)
+  y.setDate(y.getDate() - 1)
+  const yKey = `${y.getFullYear()}-${pad(y.getMonth() + 1)}-${pad(y.getDate())}`
+  if (dateKey === yKey) return t('learning.yesterday')
+  const parts = dateKey.split('-')
+  if (parts.length === 3) {
+    return locale.value === 'zh-CN'
+      ? `${parts[0]}年${Number(parts[1])}月${Number(parts[2])}日`
+      : new Date(dateKey + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  }
+  return dateKey
+}
+
+/** 按自然日把列表切成若干段，保持后端返回的时间倒序 */
+const groupByDay = <T extends { createdAt?: string }>(list: T[]) => {
+  const buckets = new Map<string, T[]>()
+  for (const item of list) {
+    const key = item.createdAt ? item.createdAt.slice(0, 10) : ''
+    const arr = buckets.get(key)
+    if (arr) arr.push(item)
+    else buckets.set(key, [item])
+  }
+  return Array.from(buckets.entries()).map(([key, items]) => ({
+    key: key || 'unknown',
+    label: dayLabel(key),
+    items,
+  }))
+}
+
+const groupedTimeline = computed(() => groupByDay(timeline.value))
+const groupedWordHistory = computed(() => groupByDay(wordHistory.value))
+const groupedAnswerHistory = computed(() => groupByDay(history.value))
+const groupedWritingHistory = computed(() => groupByDay(writingHistory.value))
+
+/** 当前 tab 是否没有任何数据（用于空态判断） */
+const hasNoResult = computed(() => {
+  switch (sourceTab.value) {
+    case 'word':
+      return wordHistory.value.length === 0
+    case 'writing':
+      return writingHistory.value.length === 0
+    case 'answer':
+      return history.value.length === 0
+    default:
+      return timeline.value.length === 0
+  }
+})
+
+/** 一键清空全部筛选条件 */
+const resetFilters = () => {
+  moduleFilter.value = 0
+  correctFilter.value = -1
+  timeRangeFilter.value = 'all'
+  bookFilter.value = ''
+  startDate.value = ''
+  endDate.value = ''
+  page.value = 1
+  load()
+}
+
+/** 当前 tab 是否适用「模块 / 答题结果」筛选：单词与写作事件没有这两个维度 */
+const showModuleFilter = computed(() => sourceTab.value === 'all' || sourceTab.value === 'answer')
+const showCorrectFilter = computed(() => sourceTab.value === 'all' || sourceTab.value === 'answer')
+
+/** 筛选区是否有任何条件被改动（决定重置按钮是否高亮） */
+const hasActiveFilter = computed(() =>
+  moduleFilter.value !== 0 || correctFilter.value !== -1 ||
+  timeRangeFilter.value !== 'all' || !!bookFilter.value ||
+  !!startDate.value || !!endDate.value
+)
 
 // ========== 数据加载 ==========
 const load = async () => {

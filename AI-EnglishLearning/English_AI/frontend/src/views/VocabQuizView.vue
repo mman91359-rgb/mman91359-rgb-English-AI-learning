@@ -154,15 +154,10 @@
 
               <!-- 答题反馈 -->
               <div v-if="showFeedback" class="mt-6 space-y-3">
-                <div
-                  class="p-3 rounded-xl font-label-lg text-label-lg text-center"
-                  :class="isCorrect
-                    ? 'bg-tertiary-container/30 text-on-tertiary-container'
-                    : 'bg-error-container/30 text-on-error-container'"
-                >
-                  <span class="material-symbols-outlined align-middle mr-1">{{ isCorrect ? 'check_circle' : 'cancel' }}</span>
-                  {{ isCorrect ? $t('learning.correct') : $t('learning.incorrect') }}
-                </div>
+                <AnswerFeedback
+                  :status="isCorrect ? 'correct' : 'incorrect'"
+                  :label="isCorrect ? $t('learning.correct') : $t('learning.incorrect')"
+                />
                 <!-- 语义匹配：判对但展示标准答案供参考 -->
                 <div v-if="isCorrect && submitResult?.isSemanticMatch && submitResult" class="bg-surface-container-low rounded-xl p-4 space-y-3">
                   <div class="bg-warning-container/40 border border-warning/30 rounded-lg p-3">
@@ -192,17 +187,10 @@
                   </div>
                 </div>
                 <!-- 收藏按钮：未收藏空心，已收藏红色实心 -->
-                <button
-                  class="w-full bg-surface border border-outline-variant py-3 rounded-xl font-label-md text-label-md hover:bg-primary-container/20 transition-colors flex items-center justify-center gap-2"
-                  :class="isCurrentFavorited ? 'text-error' : 'text-on-surface'"
-                  :aria-pressed="isCurrentFavorited"
-                  @click="handleFavorite"
-                >
-                  <span class="material-symbols-outlined text-icon-lg" :class="{ fill: isCurrentFavorited }">
-                    {{ isCurrentFavorited ? 'favorite' : 'favorite_border' }}
-                  </span>
-                  {{ isCurrentFavorited ? $t('learning.favorited') : $t('learning.favoriteSentence') }}
-                </button>
+                <FavoriteSentenceButton
+                  :favorited="isCurrentFavorited"
+                  @toggle="handleFavorite"
+                />
               </div>
             </div>
           </div>
@@ -315,20 +303,13 @@
                 >emoji_events</span>
               </div>
               <h3 class="font-headline-lg text-headline-lg text-on-surface mb-2">{{ $t('learning.practiceComplete') }}</h3>
-              <div class="flex items-center justify-center gap-8 mt-6">
-                <div class="text-center">
-                  <p class="font-display-lg text-display-lg text-primary font-bold">{{ masteredCount }}</p>
-                  <p class="font-label-md text-label-md text-on-surface-variant">{{ $t('learning.masteredLabel') }}</p>
-                </div>
-                <div class="text-center">
-                  <p class="font-display-lg text-display-lg text-on-surface font-bold">{{ attempts }}</p>
-                  <p class="font-label-md text-label-md text-on-surface-variant">{{ $t('learning.attemptsLabel') }}</p>
-                </div>
-                <div class="text-center">
-                  <p class="font-display-lg text-display-lg text-on-surface font-bold">{{ accuracy }}%</p>
-                  <p class="font-label-md text-label-md text-on-surface-variant">{{ $t('learning.accuracy') }}</p>
-                </div>
-              </div>
+              <ResultStats
+                :stats="[
+                  { value: masteredCount, label: $t('learning.masteredLabel'), highlight: true },
+                  { value: attempts, label: $t('learning.attemptsLabel') },
+                  { value: accuracy + '%', label: $t('learning.accuracy') },
+                ]"
+              />
             </div>
 
             <!-- 已掌握单词 -->
@@ -492,6 +473,9 @@ import { useI18n } from 'vue-i18n'
 import SideNavBar from '@/components/SideNavBar.vue'
 import AiSidebar from '@/components/AiSidebar.vue'
 import QuizProgressBar from '../components/quiz/QuizProgressBar.vue'
+import AnswerFeedback from '@/components/quiz/AnswerFeedback.vue'
+import ResultStats from '@/components/quiz/ResultStats.vue'
+import FavoriteSentenceButton from '@/components/quiz/FavoriteSentenceButton.vue'
 import VocabularyGoalDialog from '@/components/VocabularyGoalDialog.vue'
 import WordReviewDialog from '@/components/WordReviewDialog.vue'
 import { useUserStore } from '@/stores/user'

@@ -129,24 +129,15 @@
                 {{ $t('listening.hintText') }}
               </p>
 
-              <div class="grid grid-cols-1 gap-3">
-                <button
-                  v-for="option in parsedOptions"
-                  :key="option.key"
-                  type="button"
-                  class="w-full text-left border-2 rounded-2xl p-4 transition-all flex items-center gap-3"
-                  :class="optionClass(option.key)"
-                  :disabled="showResult || submitting"
-                  @click="selectedAnswer = option.key"
-                >
-                  <span class="w-8 h-8 rounded-full flex items-center justify-center font-label-lg text-label-lg font-bold transition-colors" :class="optionKeyClass(option.key)">
-                    {{ option.key }}
-                  </span>
-                  <span class="font-body-md text-body-md text-on-surface">{{ option.text }}</span>
-                  <span v-if="showResult && submitResult?.correctAnswerKey === option.key" class="material-symbols-outlined text-tertiary ml-auto">check</span>
-                  <span v-else-if="showResult && selectedAnswer === option.key && !submitResult?.isCorrect" class="material-symbols-outlined text-error ml-auto">close</span>
-                </button>
-              </div>
+              <QuizOptionList
+                :options="parsedOptions"
+                :selected="selectedAnswer"
+                :answer-key="submitResult?.correctAnswerKey"
+                :is-correct="submitResult?.isCorrect"
+                :revealed="showResult"
+                :disabled="showResult || submitting"
+                @select="selectedAnswer = $event"
+              />
             </div>
 
             <div class="font-label-md text-label-md text-outline-variant pt-6">{{ sourceLabel }}</div>
@@ -243,6 +234,7 @@ import StepIndicator from '../components/listening/StepIndicator.vue'
 import FeedbackPanel from '../components/listening/FeedbackPanel.vue'
 import TranscriptPanel from '../components/listening/TranscriptPanel.vue'
 import QuizProgressBar from '../components/quiz/QuizProgressBar.vue'
+import QuizOptionList from '@/components/quiz/QuizOptionList.vue'
 import LoadingState from '../components/ui/LoadingState.vue'
 import EmptyState from '../components/ui/EmptyState.vue'
 import ErrorState from '../components/ui/ErrorState.vue'
@@ -361,21 +353,7 @@ const parsedOptions = computed<ParsedOption[]>(() => {
   }
 })
 
-const optionClass = (key: string) => {
-  if (showResult.value) {
-    if (submitResult.value?.correctAnswerKey === key) return 'border-tertiary bg-tertiary-container/10'
-    if (selectedAnswer.value === key && !submitResult.value?.isCorrect) return 'border-error bg-error-container/20'
-  }
-  if (selectedAnswer.value === key) return 'border-tertiary bg-tertiary-container/10'
-  return 'border-outline-variant/30 hover:border-tertiary/50'
-}
-
-const optionKeyClass = (key: string) => {
-  if (showResult.value && submitResult.value?.correctAnswerKey === key) return 'bg-tertiary text-on-tertiary'
-  if (showResult.value && selectedAnswer.value === key && !submitResult.value?.isCorrect) return 'bg-error text-on-error'
-  if (selectedAnswer.value === key) return 'bg-tertiary text-on-tertiary'
-  return 'bg-surface-variant/50 text-on-surface-variant'
-}
+// optionClass / optionKeyClass 已迁至 components/quiz/QuizOptionList.vue（§11.6）
 
 const errorMessage = (error: unknown, fallback: string) => (error instanceof Error && error.message ? error.message : fallback)
 

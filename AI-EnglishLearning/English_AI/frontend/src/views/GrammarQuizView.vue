@@ -159,15 +159,10 @@
 
                 <!-- 反馈区 -->
                 <div v-if="showFeedback" class="w-full mt-4 space-y-2">
-                  <div
-                    class="p-3 rounded-xl text-sm font-medium text-center"
-                    :class="isCorrect
-                      ? 'bg-tertiary-container/30 text-on-tertiary-container'
-                      : 'bg-error-container/30 text-error'"
-                  >
-                    <span class="material-symbols-outlined align-middle mr-1 text-icon-lg">{{ isCorrect ? 'check_circle' : 'cancel' }}</span>
-                    {{ isCorrect ? $t('learning.correct') : $t('learning.incorrect') }}
-                  </div>
+                  <AnswerFeedback
+                    :status="isCorrect ? 'correct' : 'incorrect'"
+                    :label="isCorrect ? $t('learning.correct') : $t('learning.incorrect')"
+                  />
                   <div v-if="!isCorrect" class="bg-white dark:bg-surface-container-low rounded-xl p-3 space-y-2">
                     <div>
                       <p class="text-xs text-on-surface-variant mb-0.5">{{ $t('learning.correctAnswer') }}</p>
@@ -175,17 +170,10 @@
                     </div>
                   </div>
                   <!-- 收藏按钮：未收藏空心，已收藏红色实心 -->
-                  <button
-                    class="w-full bg-surface border border-outline-variant py-3 rounded-xl font-label-md text-label-md hover:bg-primary-container/20 transition-colors flex items-center justify-center gap-2"
-                    :class="isCurrentFavorited ? 'text-error' : 'text-on-surface'"
-                    :aria-pressed="isCurrentFavorited"
-                    @click="handleFavorite"
-                  >
-                    <span class="material-symbols-outlined text-icon-lg" :class="{ fill: isCurrentFavorited }">
-                      {{ isCurrentFavorited ? 'favorite' : 'favorite_border' }}
-                    </span>
-                    {{ isCurrentFavorited ? $t('learning.favorited') : $t('learning.favoriteSentence') }}
-                  </button>
+                  <FavoriteSentenceButton
+                    :favorited="isCurrentFavorited"
+                    @toggle="handleFavorite"
+                  />
                 </div>
               </div>
             </div>
@@ -270,20 +258,13 @@
                 <span class="material-symbols-outlined text-icon-2xl text-secondary" style="font-variation-settings: 'FILL' 1;">emoji_events</span>
               </div>
               <h3 class="font-headline-md text-headline-md text-on-surface mb-2">{{ $t('learning.grammarComplete') }}</h3>
-              <div class="flex items-center justify-center gap-8 mt-6">
-                <div class="text-center">
-                  <p class="font-display-lg text-display-lg text-primary font-bold">{{ correctCount }}</p>
-                  <p class="font-label-md text-label-md text-on-surface-variant">{{ $t('learning.correctLabel') }}</p>
-                </div>
-                <div class="text-center">
-                  <p class="font-display-lg text-display-lg text-on-surface font-bold">{{ totalCount - correctCount }}</p>
-                  <p class="font-label-md text-label-md text-on-surface-variant">{{ $t('learning.incorrectLabel') }}</p>
-                </div>
-                <div class="text-center">
-                  <p class="font-display-lg text-display-lg text-on-surface font-bold">{{ accuracy }}%</p>
-                  <p class="font-label-md text-label-md text-on-surface-variant">{{ $t('learning.accuracy') }}</p>
-                </div>
-              </div>
+              <ResultStats
+                :stats="[
+                  { value: correctCount, label: $t('learning.correctLabel'), highlight: true },
+                  { value: totalCount - correctCount, label: $t('learning.incorrectLabel') },
+                  { value: accuracy + '%', label: $t('learning.accuracy') },
+                ]"
+              />
 
               <PracticeSettleCard :result="batchSettle" :loading="batchSettling" />
             </div>
@@ -337,6 +318,9 @@ import { useI18n } from 'vue-i18n'
 import SideNavBar from '@/components/SideNavBar.vue'
 import AiSidebar from '@/components/AiSidebar.vue'
 import QuizProgressBar from '../components/quiz/QuizProgressBar.vue'
+import AnswerFeedback from '@/components/quiz/AnswerFeedback.vue'
+import ResultStats from '@/components/quiz/ResultStats.vue'
+import FavoriteSentenceButton from '@/components/quiz/FavoriteSentenceButton.vue'
 import { useUserStore } from '@/stores/user'
 import { useAppStore } from '@/stores/app'
 import { selectQuestions, submitAnswer as submitAnswerApi, getQuestionById } from '@/api/exercise'

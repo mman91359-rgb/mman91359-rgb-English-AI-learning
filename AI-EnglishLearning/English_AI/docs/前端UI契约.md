@@ -413,30 +413,34 @@ slot：`#leading`（左侧图标圆/头像）、`#trailing`（右侧动作或状
 **基线一律以已提交状态为准**（`git grep … HEAD`），不取工作区。原因见下方第二条警示。
 
 ```bash
-# L1a 任意值圆角（半径族，含 rounded-t/-b/-l/-r；目标 0；当前基线 34）
+# L1a 任意值圆角（半径族，含 rounded-t/-b/-l/-r；目标 0；当前 34 @ 7d5bd53）
 # ⚠️ 旧命令 grep -ro "rounded-\[[0-9]*px\]" 漏掉带方向后缀的形式（WordDetailCard 的 rounded-t-[28px]），
 #    旧 L1b 的 grep -v "^rounded-" 又把这类一起滤掉，于是 37 + 149 = 186 ≠ 全量 187 —— 有 1 处谁都没数。
 #    此处改用半径族正则，L1a + L1b 恒等于全量实测（当前 34 + 143 = 177）。
 git grep -ohE "rounded(-[trblse]{1,2})?-\[[0-9]*px\]" HEAD -- "src/*.vue" "src/*.ts" | wc -l
 
-# L1b 除圆角外其他属性的任意值（目标 0；当前基线 143）
+# L1b 除圆角外其他属性的任意值（目标 0；当前 143 @ 7d5bd53）
 git grep -ohE "[a-z-]+-\[[^]]*\]" HEAD -- "src/*.vue" "src/*.ts" | grep -vE "^rounded" | wc -l
 
-# 图标用原生字号承载（目标 0；当前基线 43）
+# 图标用原生字号承载（目标 0；当前 43 @ 7d5bd53）
 git grep -n "material-symbols-outlined[^\"]*text-\(xs\|sm\|base\|lg\|xl\|2xl\|3xl\)\b" HEAD -- "src/views/*.vue" | wc -l
 
-# 手写 soft-glow 字面量（目标 0；当前基线 3）
+# 手写 soft-glow 字面量（目标 0；当前 3 @ 7d5bd53）
 git grep -n "shadow-\[0_4px_20px_rgba(51,58,72,0.05)\]" HEAD -- "src/*.vue" "src/*.ts"
 
-# 不存在的色类（目标 0；当前基线 0 —— admin 审核页两处已于 P4 修正）
+# 不存在的色类（目标 0；当前 0 @ 7d5bd53 —— admin 审核页两处已于 P4 修正）
 git grep -n "success-container\|text-success" HEAD -- "src/*.vue" "src/*.ts"
 
-# 组件层直写图标（目标 0；当前基线 107，已排除 AppIcon.vue 自身）
+# 组件层直写图标（目标 0；当前 107 @ 7d5bd53，已排除 AppIcon.vue 自身）
 # L2 只扫 views/，组件层的直写图标它看不见，必须单列一条
 git grep -n "material-symbols-outlined" HEAD -- "src/components/*.vue" | grep -v "AppIcon.vue" | wc -l
 ```
 
 > 基线值来自 `docs/前端UI审计与组件契约.md` §7，随每批迁移完成后更新本节。**每次更新必须重跑上面六条命令取实数，不许估算或按批减扣。**
+>
+> **每条基线后面挂提交锚点（`当前 N @ <short-sha>`）**：`HEAD` 会往前走，不挂锚点的数字过两个月就无从对账——
+> 有人拿契约里的 34 去核，跑出来 27，会以为漏改了 7 处，而不是「契约写的是旧状态」。
+> 锚点必须与本段数字**在同一次提交里**更新：改数字就改锚点，锚点不动的数字一律视为无效。
 >
 > ⚠️ 第一条命令会把**注释里的示例**一并计入：`ui/AppCard.vue:22-23` 的 `rounded-[20px]` 是禁用示例，
 > 不是真实代码。因此 L1a 的 34 中有 2 处属注释，**实际待迁移 32 处**。后续批次收口时不必消灭这 2 处，

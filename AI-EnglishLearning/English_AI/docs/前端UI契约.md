@@ -169,7 +169,7 @@ HomeView 复习块与状态行、StatsView 三格 —— 同一值已 ≥10 处�
 | 反色 | `btnPrimaryInverse` / `btnSecondaryInverse` | — | — |
 
 > 反色档不复用 `base`：焦点环用 `focus-visible:outline-on-primary`，避免在 `bg-primary` 容器上与底色同色而不可见。
-> 2026-11-15（`2a50d43`）新增 2 个导出常量，`buttonStyles.ts` 累计 **17 个** `export const`
+> 2026-11-15（`2a50d43`）新增 2 个反色常量（`btnPrimaryInverse` / `btnSecondaryInverse`），`buttonStyles.ts` 当前共 **19 个** `export const`
 > （按已提交状态计，口径同 §10「基线只认 HEAD」）。
 
 **禁止**
@@ -492,6 +492,7 @@ git grep -oE "\b(bg|text|border|border-[lrtb]|from|via|to|ring|divide|placeholde
 > `31 / 127 / 0 / 0 / 0 / 107 / 11`，逐条未变，属规则 ②，**锚点保持 `@ ca365a1` 不变**，不改数字、不改锚点。
 > 其中 `2a50d43` 给 `buttonStyles.ts` 扩了反色两档（见 §5），不影响任意值与图标计数。
 > 每批交付前先跑 `git log -1` 确认 `HEAD` 未再前进。
+> 本次答题族收口（新增 4 组件 `AnswerFeedback` / `ResultStats` / `FavoriteSentenceButton` / `QuizOptionList` 并接入 `Vocab` / `Grammar` / `Listening` 三页）提交后 `HEAD` 再前进，七条基线复跑仍为 `31 / 127 / 0 / 0 / 0 / 107 / 11`，属规则 ②，**锚点保持 `@ ca365a1` 不变**。
 >
 > **`2a50d43` 的 commit message 写「L1b 88→88」**：穷举 11 种口径（含只扫 `views` 78 / 只扫 `*.vue` 126 /
 > 去重 68 / 按行 136 / 全量含 `rounded` 158）与历史锚点（127 / 127 / 133）均得不出 88，
@@ -804,7 +805,7 @@ document.querySelectorAll('.max-w-md').length   // 期望 1；若为 2 说明外
 
 | 项 | 状态 | 补法 |
 |---|---|---|
-| `VocabQuizView` 结果页色条（`border-l-tertiary` / `border-l-error`）**缺页面级截图** | ⏳ 触发条件：下次进答题族批次（四件套接入）时一并截 | 触发条件为 `VocabQuizView.vue:579` 的 `isLastQuestion`：`activeQueue.value.length === 1 && q != null && (streaks.value[q.id] || 0) >= 3`，即「队列仅剩 1 题」与「该词连续答对 ≥3 次」同时满足才出现（原写的「连续答对 3 次」不充分）；色值已实测（`rgb(34,197,94)→rgb(0,110,32)`、`rgb(248,113,113)→rgb(186,26,26)`），但 4px 竖线的**位置**只有截图能证 |
+| `VocabQuizView` 结果页色条（`border-l-tertiary` / `border-l-error`）**缺页面级截图** | ⏳ 触发条件：`activeQueue.length === 1 && streaks[q.id] >= 3`（即「队列仅剩 1 题」且「该词连续答对 ≥3 次」同时满足） | 触发条件为 `VocabQuizView.vue:579` 的 `isLastQuestion`：`activeQueue.value.length === 1 && q != null && (streaks.value[q.id] || 0) >= 3`，即「队列仅剩 1 题」与「该词连续答对 ≥3 次」同时满足才出现（原写的「连续答对 3 次」不充分）；色值已实测（`rgb(34,197,94)→rgb(0,110,32)`、`rgb(248,113,113)→rgb(186,26,26)`），但 4px 竖线的**位置**只有截图能证 |
 | 进度条「整块替换未新增 DOM 层级」的**反向计数**（`ca365a1^` 上量 `max-w-md` 次数） | ✅ 已闭合（静态旁证） | 三层计数：旧 `VocabQuizView.vue` `max-w-md`=1（页面 wrapper，**无 `v-if`，结构恒定**）、新文件=0（wrapper 随块删除）、新文件+组件根=1。模板结构决定渲染后必然 1 层，比「当前这次运行时量到 1」更强 |
 
 ### 11.6 组件接入时的事件边界（2026-11-15 裁定）

@@ -18,4 +18,7 @@ public interface UserPreferenceService {
 
     /** 更新当前词书 */
     PreferenceResponse updateActiveWordBook(Long userId, Long activeWordBookId);
+
+    /** 更新「收藏词并行」开关：true = 收藏词优先进入新词队列 */
+    PreferenceResponse updateIncludeFavoriteWords(Long userId, Boolean includeFavoriteWords);
 }

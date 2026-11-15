@@ -88,6 +88,10 @@ export default {
     pagePrev: '上一页',
     pageNext: '下一页',
     pageInfo: '第 {page} / {pages} 页',
+    favoriteParallel: '收藏词优先',
+    favoriteParallelHint: '收藏的词优先进入新词队列（限同等级词书）',
+    favoriteParallelSaved: '已更新收藏词并行设置',
+    favoriteParallelFailed: '保存失败，请稍后重试',
   },
   topbar: {
     notifications: '通知中心',

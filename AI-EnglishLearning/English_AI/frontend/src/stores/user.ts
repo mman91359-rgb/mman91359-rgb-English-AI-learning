@@ -9,6 +9,7 @@ import {
   updateVocabGroupSize as updateVocabGroupSizeApi,
   updateVocabularyGoals as updateVocabularyGoalsApi,
   updateActiveWordBook as updateActiveWordBookApi,
+  updateIncludeFavoriteWords as updateIncludeFavoriteWordsApi,
   type LoginRequest,
   type RegisterRequest,
   type LoginResponse,
@@ -85,6 +86,9 @@ export const useUserStore = defineStore('user', () => {
   // 当前选中的词书ID（null 表示未选）
   const activeWordBookId = ref<number | null>(null)
 
+  // 新词队列是否并行收藏词：true = 收藏词优先于词书词
+  const includeFavoriteWords = ref(false)
+
   const isLoggedIn = computed(() => isTokenValid(token.value) && !!user.value)
   const userId = computed(() => user.value?.userId)
   const username = computed(() => user.value?.username || '')
@@ -143,6 +147,7 @@ export const useUserStore = defineStore('user', () => {
       minDailyReviewWords.value = preference.minDailyReviewWords || 0
       maxDailyReviewWords.value = preference.maxDailyReviewWords || 50
       activeWordBookId.value = preference.activeWordBookId ?? null
+      includeFavoriteWords.value = !!preference.includeFavoriteWords
       preferenceLoaded.value = true
     } catch (e) {
       console.warn('获取学习偏好失败', e)
@@ -201,6 +206,17 @@ export const useUserStore = defineStore('user', () => {
     }
     const preference = await updateActiveWordBookApi(userId.value, wordBookId)
     activeWordBookId.value = preference.activeWordBookId ?? null
+    preferenceLoaded.value = true
+    return preference
+  }
+
+  /** 开启/关闭「收藏词并行」：开启后收藏词优先进入新词队列 */
+  const setIncludeFavoriteWords = async (enabled: boolean): Promise<PreferenceResponse> => {
+    if (!userId.value) {
+      throw new Error('用户未登录')
+    }
+    const preference = await updateIncludeFavoriteWordsApi(userId.value, enabled)
+    includeFavoriteWords.value = !!preference.includeFavoriteWords
     preferenceLoaded.value = true
     return preference
   }
@@ -347,6 +363,8 @@ export const useUserStore = defineStore('user', () => {
     minDailyReviewWords,
     maxDailyReviewWords,
     activeWordBookId,
+    includeFavoriteWords,
+    setIncludeFavoriteWords,
     login,
     register,
     logout,

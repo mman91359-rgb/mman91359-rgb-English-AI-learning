@@ -35,6 +35,9 @@ public class PreferenceResponse {
     /** 当前选中的词书ID（关联 exercise_db.word_book.id），null 表示未选 */
     private Long activeWordBookId;
 
+    /** 新词队列是否并行收藏词：true = 收藏词优先于词书词；null 表示未设置，按关闭处理 */
+    private Boolean includeFavoriteWords;
+
     /** 每日新背/复习目标是否都已设置 */
     private Boolean vocabularyGoalsConfigured;
 

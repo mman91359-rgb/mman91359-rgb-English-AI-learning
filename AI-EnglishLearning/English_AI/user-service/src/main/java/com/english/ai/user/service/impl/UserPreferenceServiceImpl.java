@@ -32,12 +32,7 @@ public class UserPreferenceServiceImpl implements UserPreferenceService {
 
     @Override
     public PreferenceResponse get(Long userId) {
-        UserPreference preference = selectByUserId(userId);
-        Integer groupSize = preference != null ? preference.getVocabGroupSize() : null;
-        Integer dailyNewWords = preference != null ? preference.getDailyNewWords() : null;
-        Integer dailyReviewWords = preference != null ? preference.getDailyReviewWords() : null;
-        Long activeWordBookId = preference != null ? preference.getActiveWordBookId() : null;
-        return buildResponse(userId, groupSize, dailyNewWords, dailyReviewWords, activeWordBookId);
+        return buildResponse(userId, selectByUserId(userId));
     }
 
     @Override
@@ -64,9 +59,7 @@ public class UserPreferenceServiceImpl implements UserPreferenceService {
         }
 
         log.info("更新每组单词数量: userId={}, size={}", userId, vocabGroupSize);
-        return buildResponse(userId, vocabGroupSize,
-                preference.getDailyNewWords(), preference.getDailyReviewWords(),
-                preference.getActiveWordBookId());
+        return buildResponse(userId, preference);
     }
 
     @Override
@@ -103,8 +96,7 @@ public class UserPreferenceServiceImpl implements UserPreferenceService {
 
         log.info("更新每日词汇目标: userId={}, newWords={}, reviewWords={}",
                 userId, dailyNewWords, dailyReviewWords);
-        return buildResponse(userId, preference.getVocabGroupSize(), dailyNewWords, dailyReviewWords,
-                preference.getActiveWordBookId());
+        return buildResponse(userId, preference);
     }
 
     @Override
@@ -129,8 +121,32 @@ public class UserPreferenceServiceImpl implements UserPreferenceService {
         }
 
         log.info("更新当前词书: userId={}, activeWordBookId={}", userId, activeWordBookId);
-        return buildResponse(userId, preference.getVocabGroupSize(),
-                preference.getDailyNewWords(), preference.getDailyReviewWords(), activeWordBookId);
+        return buildResponse(userId, preference);
+    }
+
+    @Override
+    @Transactional
+    public PreferenceResponse updateIncludeFavoriteWords(Long userId, Boolean includeFavoriteWords) {
+        if (userId == null || userMapper.selectById(userId) == null) {
+            throw new IllegalArgumentException("用户不存在");
+        }
+        if (includeFavoriteWords == null) {
+            throw new IllegalArgumentException("收藏词并行开关不能为空");
+        }
+
+        UserPreference preference = selectByUserId(userId);
+        if (preference == null) {
+            preference = new UserPreference();
+            preference.setUserId(userId);
+            preference.setIncludeFavoriteWords(includeFavoriteWords);
+            preferenceMapper.insert(preference);
+        } else {
+            preference.setIncludeFavoriteWords(includeFavoriteWords);
+            preferenceMapper.updateById(preference);
+        }
+
+        log.info("更新收藏词并行开关: userId={}, includeFavoriteWords={}", userId, includeFavoriteWords);
+        return buildResponse(userId, preference);
     }
 
     private UserPreference selectByUserId(Long userId) {
@@ -141,9 +157,13 @@ public class UserPreferenceServiceImpl implements UserPreferenceService {
                 new LambdaQueryWrapper<UserPreference>().eq(UserPreference::getUserId, userId));
     }
 
-    private PreferenceResponse buildResponse(Long userId, Integer groupSize,
-                                             Integer dailyNewWords, Integer dailyReviewWords,
-                                             Long activeWordBookId) {
+    private PreferenceResponse buildResponse(Long userId, UserPreference preference) {
+        Integer groupSize = preference != null ? preference.getVocabGroupSize() : null;
+        Integer dailyNewWords = preference != null ? preference.getDailyNewWords() : null;
+        Integer dailyReviewWords = preference != null ? preference.getDailyReviewWords() : null;
+        Long activeWordBookId = preference != null ? preference.getActiveWordBookId() : null;
+        Boolean includeFavoriteWords = preference != null
+                && Boolean.TRUE.equals(preference.getIncludeFavoriteWords());
         return PreferenceResponse.builder()
                 .userId(userId)
                 .vocabGroupSize(groupSize)
@@ -153,6 +173,7 @@ public class UserPreferenceServiceImpl implements UserPreferenceService {
                 .dailyNewWords(dailyNewWords)
                 .dailyReviewWords(dailyReviewWords)
                 .activeWordBookId(activeWordBookId)
+                .includeFavoriteWords(includeFavoriteWords)
                 .vocabularyGoalsConfigured(dailyNewWords != null && dailyReviewWords != null)
                 .minDailyNewWords(MIN_DAILY_NEW_WORDS)
                 .maxDailyNewWords(MAX_DAILY_NEW_WORDS)

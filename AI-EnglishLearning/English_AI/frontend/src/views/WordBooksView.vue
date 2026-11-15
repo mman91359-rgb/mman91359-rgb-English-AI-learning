@@ -80,6 +80,20 @@
                 size="lg"
                 :label="$t('wordBook.progress')"
               />
+              <div class="mt-4 flex items-center justify-between gap-3 rounded-2xl bg-on-primary/10 p-4">
+                <div class="min-w-0">
+                  <p class="font-label-lg text-label-lg">{{ $t('wordBook.favoriteParallel') }}</p>
+                  <p class="mt-1 font-label-sm text-label-sm text-on-primary/70">
+                    {{ $t('wordBook.favoriteParallelHint') }}
+                  </p>
+                </div>
+                <Switch
+                  :model-value="favoriteParallel"
+                  tone="inverse"
+                  :aria-label="$t('wordBook.favoriteParallel')"
+                  @update:model-value="toggleFavoriteParallel"
+                />
+              </div>
               <div class="mt-4 flex flex-wrap gap-3">
                 <button
                   type="button"
@@ -324,7 +338,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import AppLayout from '@/components/AppLayout.vue'
@@ -336,6 +350,7 @@ import ProgressBar from '@/components/ui/ProgressBar.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import BaseDialog from '@/components/ui/BaseDialog.vue'
 import Tag from '@/components/ui/Tag.vue'
+import Switch from '@/components/ui/Switch.vue'
 import ChipGroup from '@/components/ui/ChipGroup.vue'
 import {
   btnPrimary,
@@ -367,6 +382,9 @@ const loadError = ref('')
 const books = ref<WordBookVO[]>([])
 const stats = ref<Record<string, WordBookStatsVO>>({})
 const switchingCode = ref('')
+
+/** 收藏词并行开关（本地乐观更新，失败回滚） */
+const favoriteParallel = ref(false)
 
 const wordDialogVisible = ref(false)
 const selectedCode = ref('')
@@ -472,6 +490,7 @@ const load = async () => {
     if (!userStore.preferenceLoaded) {
       await userStore.loadPreference()
     }
+    favoriteParallel.value = userStore.includeFavoriteWords
     const list = await getWordBooks()
     books.value = list
 
@@ -499,6 +518,24 @@ const load = async () => {
     loading.value = false
   }
 }
+
+/** 收藏词并行开关：先本地翻转（乐观更新），保存失败回滚 */
+const toggleFavoriteParallel = async (enabled: boolean) => {
+  const previous = favoriteParallel.value
+  favoriteParallel.value = enabled
+  try {
+    await userStore.setIncludeFavoriteWords(enabled)
+    toast(t('wordBook.favoriteParallelSaved'), 'success')
+  } catch (e) {
+    favoriteParallel.value = previous
+    toast(t('wordBook.favoriteParallelFailed'), 'error')
+  }
+}
+
+/** 偏好在别处被改动时（例如单词本页切换），同步到本地开关 */
+watch(() => userStore.includeFavoriteWords, (value) => {
+  favoriteParallel.value = value
+})
 
 const setActiveBook = async (book: WordBookVO) => {
   if (isActive(book)) return

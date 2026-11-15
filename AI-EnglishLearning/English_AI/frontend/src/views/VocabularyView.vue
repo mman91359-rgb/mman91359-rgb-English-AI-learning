@@ -30,6 +30,16 @@
       <div class="flex items-center gap-2 mb-3">
         <AppIcon name="favorite" size="lg" tone="primary" />
         <span class="font-label-lg text-label-lg text-on-surface">收藏单词（{{ favorites.length }}）</span>
+        <div class="ml-auto flex items-center gap-2">
+          <span class="font-label-sm text-label-sm text-on-surface-variant">
+            {{ $t('wordBook.favoriteParallel') }}
+          </span>
+          <Switch
+            :model-value="favoriteParallel"
+            :aria-label="$t('wordBook.favoriteParallel')"
+            @update:model-value="toggleFavoriteParallel"
+          />
+        </div>
       </div>
       <div v-if="favorites.length === 0" class="font-body-sm text-body-sm text-on-surface-variant">暂无收藏单词</div>
       <div v-else class="space-y-2">
@@ -315,10 +325,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import AppLayout from '../components/AppLayout.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import ChipGroup from '@/components/ui/ChipGroup.vue'
+import Switch from '@/components/ui/Switch.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import ProgressBar from '@/components/ui/ProgressBar.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
@@ -358,6 +369,9 @@ const activeTab = ref<'all' | 'review' | 'mastered'>('all')
 const wordBooks = ref<WordBookVO[]>([])
 const activeBookCode = ref('')
 const favorites = ref<UserWordFavoriteVO[]>([])
+
+/** 收藏词并行开关（本地乐观更新，失败回滚） */
+const favoriteParallel = ref(false)
 const showFavorites = ref(false)
 
 // ===== 统计 =====
@@ -438,6 +452,25 @@ const loadFavorites = async () => {
 }
 
 // ===== 收藏切换 =====
+/** 收藏词并行开关：先本地翻转（乐观更新），保存失败回滚 */
+const toggleFavoriteParallel = async (enabled: boolean) => {
+  const uid = userStore.userId
+  if (!uid) return
+  const previous = favoriteParallel.value
+  favoriteParallel.value = enabled
+  try {
+    await userStore.setIncludeFavoriteWords(enabled)
+  } catch (e) {
+    favoriteParallel.value = previous
+    console.warn('更新收藏词并行开关失败', e)
+  }
+}
+
+/** 偏好在别处被改动时（例如词书中心切换），同步到本地开关 */
+watch(() => userStore.includeFavoriteWords, (value) => {
+  favoriteParallel.value = value
+})
+
 const toggleFavorite = async (word: string) => {
   const uid = userStore.userId
   if (!uid) return
@@ -611,6 +644,10 @@ onMounted(async () => {
   await loadWordBooks()
   await loadFavorites()
   await load()
+  if (!userStore.preferenceLoaded) {
+    await userStore.loadPreference()
+  }
+  favoriteParallel.value = userStore.includeFavoriteWords
 })
 </script>
 

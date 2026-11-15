@@ -88,6 +88,10 @@ export default {
     pagePrev: 'Previous',
     pageNext: 'Next',
     pageInfo: 'Page {page} / {pages}',
+    favoriteParallel: 'Favorites first',
+    favoriteParallelHint: 'Favorited words enter the new-word queue first (same level only)',
+    favoriteParallelSaved: 'Favorite-first setting updated',
+    favoriteParallelFailed: 'Save failed, please retry later',
   },
   topbar: {
     notifications: 'Notifications',

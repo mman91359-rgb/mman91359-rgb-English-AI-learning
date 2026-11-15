@@ -571,11 +571,15 @@ public class ExerciseServiceImpl implements ExerciseService {
     @Override
     public List<NewWordItemVO> selectNewWordItems(Long userId, int count) {
         int safeCount = Math.max(1, Math.min(50, count));
-        WordBook book = resolveActiveWordBook(userId);
+        // 一次拉取偏好：当前词书 + 「收藏词并行」开关，避免重复跨服务往返
+        PreferenceResult preference = fetchPreference(userId);
+        WordBook book = resolveBookById(preference != null ? preference.getActiveWordBookId() : null);
         if (book == null) {
             log.warn("新词选题: userId={} 未设置词书，返回空", userId);
             return Collections.emptyList();
         }
+        boolean includeFavorite = preference != null
+                && Boolean.TRUE.equals(preference.getIncludeFavoriteWords());
 
         String bookCode = book.getCode();
         String level = book.getLevel();
@@ -586,7 +590,7 @@ public class ExerciseServiceImpl implements ExerciseService {
                         .eq(WordBookItem::getBookCode, bookCode)
                         .orderByAsc(WordBookItem::getRankNo));
 
-        // 2. 已学/已忽略词集合（排除这些词，保证不重复学）
+        // 2. 已学词集合（排除这些词，保证不重复学）
         Set<String> learnedWords = vocabularyMapper.selectList(
                         new LambdaQueryWrapper<UserVocabulary>()
                                 .eq(UserVocabulary::getUserId, userId))
@@ -595,12 +599,28 @@ public class ExerciseServiceImpl implements ExerciseService {
                 .filter(w -> !w.isEmpty())
                 .collect(Collectors.toSet());
 
-        List<String> candidateWords = items.stream()
-                .map(WordBookItem::getWord)
-                .filter(w -> w != null && !learnedWords.contains(w.toLowerCase(Locale.ROOT)))
-                .collect(Collectors.toList());
+        // 3. 候选词池：收藏词优先（开关开启时），再接词书词
+        List<String> candidateWords = new ArrayList<>();
+        Set<String> queued = new HashSet<>();
+        if (includeFavorite) {
+            for (UserWordFavorite fav : userWordFavoriteMapper.selectList(
+                    new LambdaQueryWrapper<UserWordFavorite>()
+                            .eq(UserWordFavorite::getUserId, userId))) {
+                String w = VocabularyLearningHelper.normalizeWord(fav.getWord())
+                        .toLowerCase(Locale.ROOT);
+                if (w.isEmpty() || learnedWords.contains(w) || !queued.add(w)) continue;
+                candidateWords.add(w);
+            }
+        }
+        for (WordBookItem item : items) {
+            String w = item.getWord();
+            if (w == null) continue;
+            String key = w.toLowerCase(Locale.ROOT);
+            if (learnedWords.contains(key) || !queued.add(key)) continue;
+            candidateWords.add(w);
+        }
 
-        // 3. 最近 7 天已做题目（避免重复）
+        // 4. 最近 7 天已做题目（避免重复）
         LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
         Set<Long> recentQuestionIds = exerciseLogMapper.selectList(
                         new LambdaQueryWrapper<UserExerciseLog>()
@@ -610,7 +630,7 @@ public class ExerciseServiceImpl implements ExerciseService {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
 
-        // 4. 对候选词匹配题目（同等级，不跨级兜底）
+        // 5. 对候选词匹配题目（同等级，不跨级兜底）
         List<NewWordItemVO> result = new ArrayList<>();
         int questionBudget = safeCount * 2; // 多取一些，避免全无题时不够
         int scanned = 0;
@@ -682,9 +702,13 @@ public class ExerciseServiceImpl implements ExerciseService {
         return null;
     }
 
-    /** 解析当前词书：调 user-service 拿 activeWordBookId，未设置默认 basic_500 */
-    private WordBook resolveActiveWordBook(Long userId) {
-        Long bookId = null;
+    /**
+     * 拉取 user-service 的用户偏好，一次调用取回全部字段。
+     *
+     * <p>原先「取当前词书」与「取每日新词目标」各发一次相同请求，
+     * 这里合并为一次，避免同一请求内重复往返。</p>
+     */
+    private PreferenceResult fetchPreference(Long userId) {
         try {
             String url = userServiceUrl + "/internal/user/preference/" + userId;
             HttpHeaders headers = new HttpHeaders();
@@ -695,14 +719,17 @@ public class ExerciseServiceImpl implements ExerciseService {
                     url, HttpMethod.GET, new HttpEntity<>(headers),
                     new ParameterizedTypeReference<Result<PreferenceResult>>() {
                     });
-            if (response.getBody() != null && response.getBody().getCode() == 200
-                    && response.getBody().getData() != null) {
-                bookId = response.getBody().getData().getActiveWordBookId();
+            if (response.getBody() != null && response.getBody().getCode() == 200) {
+                return response.getBody().getData();
             }
         } catch (Exception e) {
-            log.warn("获取当前词书失败(userId={}): {}", userId, e.getMessage());
+            log.warn("获取用户偏好失败(userId={}): {}", userId, e.getMessage());
         }
+        return null;
+    }
 
+    /** 按词书ID解析词书，ID 缺失或词书不存在时回落 basic_500 */
+    private WordBook resolveBookById(Long bookId) {
         WordBook book = null;
         if (bookId != null) {
             book = wordBookMapper.selectById(bookId);
@@ -715,27 +742,17 @@ public class ExerciseServiceImpl implements ExerciseService {
         return book;
     }
 
+    /** 解析当前词书：调 user-service 拿 activeWordBookId，未设置默认 basic_500 */
+    private WordBook resolveActiveWordBook(Long userId) {
+        PreferenceResult preference = fetchPreference(userId);
+        return resolveBookById(preference != null ? preference.getActiveWordBookId() : null);
+    }
+
     /** 读取每日新背单词数，失败默认 10 */
     private int getDailyNewWords(Long userId) {
-        try {
-            String url = userServiceUrl + "/internal/user/preference/" + userId;
-            HttpHeaders headers = new HttpHeaders();
-            if (internalToken != null && !internalToken.isBlank()) {
-                headers.set("X-Internal-Token", internalToken);
-            }
-            ResponseEntity<Result<PreferenceResult>> response = restTemplate.exchange(
-                    url, HttpMethod.GET, new HttpEntity<>(headers),
-                    new ParameterizedTypeReference<Result<PreferenceResult>>() {
-                    });
-            if (response.getBody() != null && response.getBody().getCode() == 200
-                    && response.getBody().getData() != null
-                    && response.getBody().getData().getDailyNewWords() != null) {
-                return response.getBody().getData().getDailyNewWords();
-            }
-        } catch (Exception e) {
-            log.warn("获取每日新词目标失败(userId={}): {}", userId, e.getMessage());
-        }
-        return 10;
+        PreferenceResult preference = fetchPreference(userId);
+        Integer dailyNewWords = preference != null ? preference.getDailyNewWords() : null;
+        return dailyNewWords != null ? dailyNewWords : 10;
     }
 
     // ============= 定级测试题 =============

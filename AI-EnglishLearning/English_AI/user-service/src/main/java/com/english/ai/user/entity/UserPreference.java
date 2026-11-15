@@ -34,6 +34,12 @@ public class UserPreference {
     /** 当前选中的词书ID（关联 exercise_db.word_book.id），NULL 表示未选 */
     private Long activeWordBookId;
 
+    /**
+     * 新词队列是否并行收藏词：true = 收藏词优先于词书词，false = 仅按当前词书取词。
+     * 默认 false（关闭），与升级前行为一致。
+     */
+    private Boolean includeFavoriteWords;
+
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
 

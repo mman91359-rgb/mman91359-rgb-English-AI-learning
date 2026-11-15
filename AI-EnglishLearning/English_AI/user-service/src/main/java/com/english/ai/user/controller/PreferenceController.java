@@ -6,6 +6,7 @@ import com.english.ai.common.Result;
 import com.english.ai.common.UserIdentityUtil;
 import com.english.ai.user.dto.PreferenceResponse;
 import com.english.ai.user.dto.UpdateActiveWordBookRequest;
+import com.english.ai.user.dto.UpdateIncludeFavoriteWordsRequest;
 import com.english.ai.user.dto.UpdateVocabGroupSizeRequest;
 import com.english.ai.user.dto.UpdateVocabularyGoalsRequest;
 import com.english.ai.user.service.UserPreferenceService;
@@ -116,6 +117,31 @@ public class PreferenceController {
             return Result.badRequest(e.getMessage());
         } catch (RuntimeException e) {
             log.warn("更新当前词书失败: userId={}, reason={}", request.getUserId(), e.getMessage());
+            return Result.error("保存失败，请稍后重试");
+        }
+    }
+
+    /**
+     * 更新「收藏词并行」开关
+     * PUT /user/preference/include-favorite-words
+     */
+    @PutMapping("/include-favorite-words")
+    public Result<PreferenceResponse> updateIncludeFavoriteWords(
+            @Valid @RequestBody UpdateIncludeFavoriteWordsRequest request,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (request == null || request.getUserId() == null) {
+            return Result.badRequest("userId不能为空");
+        }
+        if (UserIdentityUtil.isForbidden(headerUserId, request.getUserId())) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
+        }
+        try {
+            return Result.success(preferenceService.updateIncludeFavoriteWords(
+                    request.getUserId(), request.getIncludeFavoriteWords()));
+        } catch (IllegalArgumentException e) {
+            return Result.badRequest(e.getMessage());
+        } catch (RuntimeException e) {
+            log.warn("更新收藏词并行开关失败: userId={}, reason={}", request.getUserId(), e.getMessage());
             return Result.error("保存失败，请稍后重试");
         }
     }

@@ -58,6 +58,8 @@ export interface PreferenceResponse {
   minDailyReviewWords: number
   maxDailyReviewWords: number
   activeWordBookId: number | null
+  /** 新词队列是否并行收藏词：true = 收藏词优先于词书词 */
+  includeFavoriteWords: boolean
 }
 
 export const login = (data: LoginRequest): Promise<LoginResponse> => {
@@ -109,6 +111,14 @@ export const updateVocabularyGoals = (
 /** 更新当前词书 */
 export const updateActiveWordBook = (userId: number, activeWordBookId: number): Promise<PreferenceResponse> => {
   return put('/user/preference/word-book', { userId, activeWordBookId })
+}
+
+/** 更新「收藏词并行」开关：开启后收藏词优先进入新词队列 */
+export const updateIncludeFavoriteWords = (
+  userId: number,
+  includeFavoriteWords: boolean,
+): Promise<PreferenceResponse> => {
+  return put('/user/preference/include-favorite-words', { userId, includeFavoriteWords })
 }
 
 export const submitAssessAnswer = (data: AssessSubmitRequest): Promise<any> => {

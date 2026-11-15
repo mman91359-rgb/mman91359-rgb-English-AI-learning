@@ -26,4 +26,7 @@ public class PreferenceResult {
 
     /** 每日复习单词数 */
     private Integer dailyReviewWords;
+
+    /** 新词队列是否并行收藏词：true = 收藏词优先于词书词 */
+    private Boolean includeFavoriteWords;
 }

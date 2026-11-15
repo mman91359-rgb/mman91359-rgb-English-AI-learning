@@ -408,56 +408,98 @@ slot：`#leading`（左侧图标圆/头像）、`#trailing`（右侧动作或状
 3. `git status` 中的新增文件仅限 `components/ui/` 下 8 个 `.vue` 与本文件
 4. 全站 `views/` 与 `components/` 既有文件零改动
 
-将来接线后的验收（供后续批次使用；基线已按 6 页已迁 + 10 页仅收敛后的实测值重算，2026-11-14，StatsView 收口后）：
+将来接线后的验收（供后续批次使用；基线已按 6 页已迁 + 10 页仅收敛后的实测值重算，2026-11-15，StatsView 二批收口后）：
+
+**基线一律以已提交状态为准**（`git grep … HEAD`），不取工作区。原因见下方第二条警示。
 
 ```bash
-# L1a 任意值圆角（半径族，含 rounded-t/-b/-l/-r；目标 0；当前基线 35）
+# L1a 任意值圆角（半径族，含 rounded-t/-b/-l/-r；目标 0；当前基线 34）
 # ⚠️ 旧命令 grep -ro "rounded-\[[0-9]*px\]" 漏掉带方向后缀的形式（WordDetailCard 的 rounded-t-[28px]），
 #    旧 L1b 的 grep -v "^rounded-" 又把这类一起滤掉，于是 37 + 149 = 186 ≠ 全量 187 —— 有 1 处谁都没数。
-#    此处改用半径族正则，L1a + L1b 恒等于全量实测（当前 35 + 145 = 180）。
-grep -roE "rounded(-[trblse]{1,2})?-\[[0-9]*px\]" src --include=*.vue --include=*.ts | wc -l
+#    此处改用半径族正则，L1a + L1b 恒等于全量实测（当前 34 + 143 = 177）。
+git grep -ohE "rounded(-[trblse]{1,2})?-\[[0-9]*px\]" HEAD -- "src/*.vue" "src/*.ts" | wc -l
 
-# L1b 除圆角外其他属性的任意值（目标 0；当前基线 145）
-grep -rhoE "[a-z-]+-\[[^]]*\]" --include=*.vue --include=*.ts src | grep -vE "^rounded" | wc -l
+# L1b 除圆角外其他属性的任意值（目标 0；当前基线 143）
+git grep -ohE "[a-z-]+-\[[^]]*\]" HEAD -- "src/*.vue" "src/*.ts" | grep -vE "^rounded" | wc -l
 
 # 图标用原生字号承载（目标 0；当前基线 43）
-grep -rn "material-symbols-outlined[^\"]*text-\(xs\|sm\|base\|lg\|xl\|2xl\|3xl\)\b" src/views | wc -l
+git grep -n "material-symbols-outlined[^\"]*text-\(xs\|sm\|base\|lg\|xl\|2xl\|3xl\)\b" HEAD -- "src/views/*.vue" | wc -l
 
 # 手写 soft-glow 字面量（目标 0；当前基线 3）
-grep -rn "shadow-\[0_4px_20px_rgba(51,58,72,0.05)\]" src
+git grep -n "shadow-\[0_4px_20px_rgba(51,58,72,0.05)\]" HEAD -- "src/*.vue" "src/*.ts"
 
 # 不存在的色类（目标 0；当前基线 0 —— admin 审核页两处已于 P4 修正）
-grep -rn "success-container\|text-success" src
+git grep -n "success-container\|text-success" HEAD -- "src/*.vue" "src/*.ts"
 
 # 组件层直写图标（目标 0；当前基线 107，已排除 AppIcon.vue 自身）
-# 第二条只扫 views/，组件层的直写图标它看不见，必须单列一条
-grep -rn "material-symbols-outlined" src/components --include=*.vue | grep -v "AppIcon.vue" | wc -l
+# L2 只扫 views/，组件层的直写图标它看不见，必须单列一条
+git grep -n "material-symbols-outlined" HEAD -- "src/components/*.vue" | grep -v "AppIcon.vue" | wc -l
 ```
 
 > 基线值来自 `docs/前端UI审计与组件契约.md` §7，随每批迁移完成后更新本节。**每次更新必须重跑上面六条命令取实数，不许估算或按批减扣。**
 >
 > ⚠️ 第一条命令会把**注释里的示例**一并计入：`ui/AppCard.vue:22-23` 的 `rounded-[20px]` 是禁用示例，
-> 不是真实代码。因此 L1a 的 35 中有 2 处属注释，**实际待迁移 33 处**。后续批次收口时不必消灭这 2 处，
+> 不是真实代码。因此 L1a 的 34 中有 2 处属注释，**实际待迁移 32 处**。后续批次收口时不必消灭这 2 处，
 > 除非改写注释措辞。其余各条命令同理，凡命中注释需人工排除。
+>
+> ⚠️ **为什么命令里带 `HEAD`**：基线一旦取工作区，别人的在途改动会让数字自己漂。
+> 2026-11-15 本批实测就撞上过：同一棵代码，`HEAD` 读到 L1b **145**（`min-h` 8），工作区读到 **146**（`min-h` 9），
+> 差值来自 `VocabQuizView.vue` 里一行**尚未提交**的 `min-h-[220px]`。两份报表各自都没错，但谁也说服不了谁。
+> 规则定死：**基线只认已提交状态**。要看本批进度就临时去掉 `HEAD`，并与 `HEAD` 的差值逐条对上，对不上就说明有在途改动。
 >
 > **L1 为什么必须拆成 L1a / L1b**：§11.1 的规则管的是「所有属性上的任意值」，基线却长期只统计圆角。
 > 结果是「本批改了 7 处」与「基线只减 3」在两份报表里永远对不上 —— 不是改少了，是另外 4 处（`h-[12px]`→`h-3`、`w-[12px]`→`w-3`）
 > 根本不在旧基线里。拆开后每批可写「A 类 N 处（L1a −a、L1b −b）」，两边能相加对上。
 
-当前 L1a 35 / L1b 145 / 43 / 3 / 0 / 107 的残留分布（供下一批选题参考）：
+当前 L1a 34 / L1b 143 / 43 / 3 / 0 / 107 的残留分布（供下一批选题参考）：
 
 | 指标 | 主要残留位置 |
 |---|---|
-| 任意值圆角 L1a 35 | `ProfileView`(8)、`ErrorBookView`(3)、`WordReviewDialog`(3)、`WordDetailCard`(2，含 1 处 `rounded-t-[28px]`)、`AppCard` 注释(2)、`AiCard`(2)、`VocabularyGoalDialog`(2)、`AudioPlayer`(2)、`StatsView`(1)，其余 10 处各 1（`LoginView` / `RegisterView` / `ForgotPasswordView` / `ForbiddenView` / `GrammarQuizView` / `WritingScorePanel` / `TranscriptPanel` / `ListeningTypeCard` / `FeedbackPanel` / `AiFeedbackPanel`） |
-| 其他属性任意值 L1b 145 | 按属性：`shadow-[…]` 22、`text-[…]` 21、`scale-[…]` 16、`max-w-[…]` 14、`grid-cols-[…]` 9、`w-[…]` 8、`min-h-[…]` 8、`z-[…]` 7、`h-[…]` 6、`bg-[…]` 6、`gap-[…]` 5、`min-w-[…]` 4、`leading-[…]` 4、`max-h-[…]` 3，其余 1~2 处各 1（`transition` 2 / `ml` 2 / `-translate-y` 2 / `tracking` / `pt` / `border-t` / `border-r` / `border-l` / `backdrop-blur`）。<br>**A/B 分类尚未做**：本批只处理了 `StatsView` 一页的 7 处，其余 `shadow` 22 处、`scale` 16 处等都还没分过 A/B —— 下一批若要动它们，必须先在 §11.1 建立对应分组，不得直接按「阴影都是 B 类」推断 |
+| 任意值圆角 L1a 34 | `ProfileView`(8)、`ErrorBookView`(3)、`WordReviewDialog`(3)、`WordDetailCard`(2，含 1 处 `rounded-t-[28px]`)、`AppCard` 注释(2)、`AiCard`(2)、`VocabularyGoalDialog`(2)、`AudioPlayer`(2)，其余 10 处各 1（`LoginView` / `RegisterView` / `ForgotPasswordView` / `ForbiddenView` / `GrammarQuizView` / `WritingScorePanel` / `TranscriptPanel` / `ListeningTypeCard` / `FeedbackPanel` / `AiFeedbackPanel`）。`StatsView` 已归零 |
 | 图标原生字号 43 | `ErrorBookView`、`PracticeView`、`GrammarQuizView`、`VocabQuizView`、`ProfileView`、`LoginView`、`RegisterView`、`ForgotPasswordView` |
 | soft-glow 字面量 3 | `FeedbackPanel:76`、`TranscriptPanel:2`、`VocabQuizView:113` |
 | 不存在的色类 0 | 已清零。`AdminJudgeReviewView:83` 改 `bg-tertiary-container/50 text-on-tertiary-container`、`:96` 改 `text-tertiary hover:bg-tertiary-container/20`，依据 §7 的 `success → tertiary` 映射，与 `AdminQuestionsView:94` 的既有写法逐字一致 |
 | 组件层直写图标 107 | `AiSidebarContent`(12)、`VocabularyGoalDialog`(9)、`AudioPlayer`(6)、`AiActionBar`(5)、`TopAppBar`(5)、`WritingScorePanel`(4)、`WordDetailCard`(4)、`AiCard`(4)、`admin/AdminTopbar`(4)、`admin/AdminSidebar`(4)、`WordReviewDialog`(4)。<br>其中 **10 处属 `ui/` 组件自身**（`AppLogo` 3、`StreakDisplay` 3、`FormHint` 2、`EmptyState` / `ErrorState` 各 1），按 §8.1 **全部豁免**：前两者靠 scoped 类继承字号，`FormHint` 需 16px、`EmptyState`/`ErrorState` 需 48px，`AppIcon` 均无对应档。<br>真实待迁 = 107 − 10 = **97**（`LoadingState` / `BaseDialog` 两处已改完） |
 
+**L1b 的属性分组只贴命令产物，不手填表格**（手填必然与总数对不上，2026-11-15 就发生过一次：表内可见项相加 137，而 L1b 实为 145）：
+
+```bash
+git grep -ohE "[a-z-]+-\[[^]]*\]" HEAD -- "src/*.vue" "src/*.ts" | grep -vE "^rounded" | sed 's/-\[.*//' | sort | uniq -c | sort -rn
+```
+
+```
+     22 shadow
+     21 text
+     16 scale
+     14 max-w
+      9 grid-cols
+      8 w
+      8 min-h
+      7 z
+      6 h
+      6 bg
+      5 gap
+      4 min-w
+      3 max-h
+      2 transition
+      2 ml
+      2 leading
+      2 -translate-y
+      1 tracking
+      1 pt
+      1 border-t
+      1 border-r
+      1 border-l
+      1 backdrop-blur
+```
+
+**各项之和 = 22+21+16+14+9+8+8+7+6+6+5+4+3+2+2+2+2+1+1+1+1+1+1 = 143 = L1b 总数。** 对不上就说明表被手改过，重跑命令覆盖。
+
+**A/B 分类尚未做**：`StatsView` 已清零，其余 `shadow` 22 处、`scale` 16 处等都还没分过 A/B —— 下一批若要动它们，必须先在 §11.1 建立对应分组，不得直接按「阴影都是 B 类」推断。
+
 ---
 
-## 11. 两条硬规则
+## 11. 硬规则
 
 ### 11.1 任意值分两类，不许混称「等值」
 
@@ -473,9 +515,16 @@ grep -rn "material-symbols-outlined" src/components --include=*.vue | grep -v "A
 **判定细则（可复算，不许凭档位名猜）**：
 
 1. **先取令牌实际值**。权威来源两个，必须一致：`node -e "const t=require('tailwindcss/defaultTheme');console.log(t.borderRadius.sm, t.lineHeight['3'], t.spacing['3'])"` 与构建产物 `dist/assets/index-*.css` 里的 `.rounded-sm{border-radius:.125rem}`。本项目 `tailwind.config.js` 用 `extend` 覆盖，**未被覆盖的档位仍是框架默认值**，不能因为「配置里没写」就断定档位不存在。
-2. **成对的字号 / 行高不可拆**。典型：`StatsView` 热力图小格的 `text-[10px]` + `leading-[12px]` 是同一元素的 10/12 配对；`label-xs` 是 10/**14**（`tailwind.config.js:125`），换过去行高 +2px，会把 12px 高的格子撑破。这种必须整对保留，且要在登记表写明「配对」二字，防止后来者只换其中一个。
-3. **只有一侧有等值档时，允许只换那一侧**。`leading-[12px]` 有 `leading-3`=12px 的等值档，换它不破坏配对；但本批按「B 类一律保留」的指令未动，见本节末「待裁定」表。
+2. **字号与行高要分开判**。`text-[…]` 的 fontSize 令牌把行高捆在一起（`label-xs` = 10/**14**，`tailwind.config.js:125），所以 `text-[10px]`→`label-xs` 会连带把行高 +2px，属**位移**，不能用。但 `leading-[12px]` 有独立令牌 `leading-3` = 12px，**可以单独换**，换完配对关系仍是 10/12（2026-11-15 已按此改完 `StatsView` 两处）。
+3. **配对登记写清「谁不能动、谁可以动」**。只说「成对保留」会让后来者以为两个都不能碰；必须写成「`text-[10px]` 不动（无等值字号档），行高由 `leading-3` 承担」。
 4. **位移为 0 才是 A 类**。只要算出来的 px 有变化（哪怕 1px），就是 B 类就近取档，必须逐条登记位移，禁止写成「等值」。
+
+已发生的 A 类 —— **已改**（零位移，无需登记位移，只记依据）：
+
+| 位置 | 原值 | 现值 | 等值依据 |
+|---|---|---|---|
+| `StatsView:87` 热力图格子 | `rounded-[2px]` | `rounded-sm` | 0.125rem = 2px；同文件 `:51` 图例方块原本就在用 `rounded-sm` |
+| `StatsView:66,73` 标签 | `leading-[12px]` | `leading-3` | 0.75rem = 12px |
 
 已发生的 B 类 —— **已改**（逐条登记位移）：
 
@@ -499,19 +548,14 @@ grep -rn "material-symbols-outlined" src/components --include=*.vue | grep -v "A
 | 答题页图标 `text-[14px]`（帮助）/ `text-[16px]`（提示灯泡） | **真例外**：`AppIcon` 档位为 18/20/24/32/36，两者都落在档位空档上。就近取 18px 会改变小标签内的行高 |
 | 听力音量条 `w-[3px]` ×3 + `gap-[2px]` | **真例外**：音频波形条的条宽与间隙，属图形尺寸不是排版间距，不受 §2 管辖 |
 | 品牌色投影 6 处 | 见 §3「登记例外」表，语义是彩色发光 |
-| `StatsView` 热力图 `text-[10px]`×2 + `leading-[12px]`×2 | **成对保留**（细则 2）：10/12 配对，`label-xs` 是 10/14，换则行高 +2px、撑破 12px 高的格子 |
-| `StatsView` 热力图 `rounded-[2px]`×1 · `gap-[3px]`×2 | **保留（图形尺寸）**：格子圆角与列间距属图形参数，与 `heatmapGrid = { cellSize: 12, gap: 3, colWidth: 15 }`（`StatsView:293`）联动，改间隙会让月份标签的 `left` 偏移算错 |
+| `StatsView` 热力图 `text-[10px]`×2 | **保留**：字号 10px 无等值档；`label-xs` 是 10/**14**，行高不等值。行高已由 `leading-3`（12px）承担，两者构成 10/12 配对 |
+| `StatsView` 热力图 `gap-[3px]`×2 | **保留（图形尺寸）**：列间距与 `heatmapGrid.colWidth = 15`（12+3，`StatsView:293`）联动，改间隙会让月份标签的 `left` 偏移算错 |
 | `StatsView` 热力图 `min-w-[680px]`×1 | **保留**：53 列固定宽栅格的横向滚动保底宽度，无等值档 |
 | `StatsView` 图表 `h-[300px]`×1 | **保留**：ECharts 容器高度，spacing 无 300 档（`h-72`=288 / `h-80`=320） |
 | `StatsView` 星期标签 `pt-[18px]`×1 | **保留**：4.5 无档（`pt-4`=16 / `pt-5`=20），改则星期标签与热力图首行纵向错位 |
 | `ErrorBookView` `rounded-[20px]`×3 · `max-h-[85dvh]` · `min-h-[100px]` · `min-w-[50px]` · `w-[90vw]` · `z-[120]` | **整页不进本批，只登记**：A 类为 0，唯一可动的是 3 处 `rounded-[20px]`→`rounded-2xl`（−4px、无收益）；该页是答题族（审计第 3 批）成员，后续要整体迁 `QuizOptionList` / `AnswerFeedback`，现在单独改一趟等于同页改两次。`z-[120]` 与 `BaseDrawer` 同值，沿用既有先例 |
 
-**待裁定（2 项，按现行标准其实属 A 类）**：本批指令把 `StatsView` 的 B 类定为「一律保留」，以下两项因此**未改**，但它们存在逐像素等值的令牌，与「B 类＝没有等值档」的定义冲突，需裁定后归位（要么改并同步减基线，要么在契约里把这两个值登记为显式例外）：
-
-| 位置 | 现值 | 等值令牌 | 证据 | 状态 |
-|---|---|---|---|---|
-| `StatsView:87` 热力图格子 | `rounded-[2px]` | `rounded-sm` = 0.125rem = **2px** | `defaultTheme.borderRadius.sm` + 构建产物 `.rounded-sm{border-radius:.125rem}`；同文件 `:51` 图例方块已在用 `rounded-sm`，两者视觉应一致 | 未改，待裁定 |
-| `StatsView:66,73` 标签（2 处） | `leading-[12px]` | `leading-3` = 0.75rem = **12px** | `defaultTheme.lineHeight['3']` | 未改，待裁定（配对约束只禁止动 `text-[10px]`，行高本身有等值档） |
+**一条判定纪律（2026-11-15 的教训）**：`StatsView` 这两项一度被归到「B 类 · 一律保留」，理由是「批指令这么写的」。但 B 类的定义是「契约内没有等值档」，而 `rounded-sm`/`leading-3` 恰好**逐像素等值**——把它们记进 B 类表，等于用一句指令把定义改错了。正确做法是：**分类冲突时先提判**（附令牌实测值 + 构建产物证据），由裁定方决定改或显式豁免，不得自行并入 B 类表蒙过去。裁定结果已并入上方「A 类 —— 已改」。
 
 ### 11.2 删除非法阴影时必须同时给出替代反馈
 
@@ -577,3 +621,38 @@ grep -c 'bg-primary-container\\/30' /tmp/only.css   # 期望 ≥1
 > 与本条无关（不要误伤）：`buttonStyles.ts` 的 `` `${base} bg-primary hover:bg-primary/90` `` 是安全的
 > —— `base` 是布局类，`bg-primary` 与 `hover:bg-primary/90` 本身就是完整字面量。
 > 只有「把带斜杠的类拆成两段」才是违规。
+
+### 11.5 等值替换的验收：以计算样式为准，截图只作佐证
+
+**规则**：任何一批「A 类等值替换」，交付前必须跑一段**计算样式探针**（Playwright `getComputedStyle`），
+把被改元素的关键属性实测出来，与改动前逐项相等；截图只用来证明「页面能渲染」，**不能用来证明「没变」**。
+
+**为什么不能只截图**：12px→12px、24px→24px 这类改动，肉眼看不出差别，截图既证明不了等值，也证明不了零位移；
+反过来，截图能一眼看出的，往往已经是整块塌掉级别的退化，那时早就晚了。像素级等值只有计算样式能作证。
+
+本批（`StatsView`）的实测值与判定：
+
+| 探针 | 实测 | 判定 | 来源 |
+|---|---|---|---|
+| 热力图格子 | `12px × 12px`，圆角 `2px` | 与 `w-[12px] h-[12px] rounded-[2px]` 逐项相等 | 页面探针 11-14 + 离线探针 11-15 |
+| 网格间距 | `column-gap: 3px` / `row-gap: 3px`，`grid-template-rows: 12px ×7` | 未动，且 `h-3` 解析出来正是 12px | 页面探针 11-14 + 离线探针 11-15 |
+| 卡片圆角 | `24px`（3 张卡） | `rounded-3xl` = 1.5rem = 24px | 页面探针 11-14 + 离线探针 11-15 |
+| 标签行高 | `font-size: 10px` / `line-height: 12px` / `height: 12px` | `leading-3` = 0.75rem = 12px，10/12 配对未破 | 离线探针 11-15 |
+| 格子数 / 图表高 | 371 格 / `300px` | 数据与容器未受影响 | 页面探针 11-14 |
+| 横向溢出 | `scrollWidth − clientWidth = 0` | 换类名没有引入横向滚动 | 页面探针 11-14 |
+
+> **两种探针的分工**：页面探针（登录 → SPA 内导航 → `getComputedStyle`）同时验证「数据渲染 + 样式」，但要求
+> 前端与 8081/8086 全在跑；**服务停着时用离线探针**——写一个只 `<link>` 构建产物 `dist/assets/index-*.css` 的空页面，
+> 放上被测类名的元素，量 `getComputedStyle`。两者读的是同一份 CSS，令牌解析值等价，但离线探针证明不了数据与布局，
+> 交付时必须标明用的是哪一种。2026-11-15 本批就是服务全停、只跑了离线探针，故未附新截图。
+
+**截图脚本必须先断言页面没有 `vite-error-overlay`**：
+
+```js
+const hasOverlay = await page.evaluate(() => !!document.querySelector('vite-error-overlay'))
+if (hasOverlay) throw new Error('存在 vite-error-overlay，本张截图不可信，先修编译错误')
+```
+
+理由：Vite 的编译失败会盖一层全屏浮层，截图拍下来是「有页面、有导航、内容区空/被盖住」，看上去像「页面正常」，
+实际是编译挂了。2026-11-14 本批截图时就撞到过一次（dev server 热更新瞬间报错，重试即消失）——
+**这种截图如果直接交，等于用一张假图签字**。同一脚本里还要一并断言 API 无 4xx/5xx、控制台无 error。

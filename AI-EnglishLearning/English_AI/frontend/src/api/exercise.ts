@@ -512,12 +512,48 @@ export interface WordBookStatsVO {
     todayPlan: number
 }
 
+/** 词书单词表条目 */
+export interface WordBookWordVO {
+    word: string
+    phonetic?: string
+    translation?: string
+    pos?: string
+    example?: string
+    exampleTranslation?: string
+    rankNo?: number
+    wordId?: number
+    /** 当前用户学习状态: LEARNING/REVIEWING/MASTERED/IGNORE；未学为 undefined */
+    status?: string
+    /** 是否已掌握 0/1；未学为 0 */
+    isMastered?: number
+}
+
+export interface WordBookWordsPage {
+    records: WordBookWordVO[]
+    total: number
+    page: number
+    size: number
+}
+
 export const getWordBooks = (): Promise<WordBookVO[]> => {
     return get('/exercise/word-books')
 }
 
 export const getWordBookStats = (bookCode: string, userId: number): Promise<WordBookStatsVO> => {
     return get(`/exercise/word-books/${bookCode}/stats`, { userId })
+}
+
+/** 词书单词表：按书内名次分页，带释义与用户学习状态 */
+export const getWordBookWords = (
+    bookCode: string,
+    userId: number,
+    page: number = 1,
+    size: number = 20,
+    keyword?: string,
+): Promise<WordBookWordsPage> => {
+    const params: Record<string, any> = { userId, page, size }
+    if (keyword && keyword.trim()) params.keyword = keyword.trim()
+    return get(`/exercise/word-books/${encodeURIComponent(bookCode)}/words`, params)
 }
 
 // ========== 单词收藏 ==========

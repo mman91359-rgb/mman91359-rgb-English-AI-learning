@@ -225,6 +225,39 @@ public class ExerciseController {
         }
     }
 
+    /**
+     * GET /exercise/word-books/{bookCode}/words?userId=1&page=1&size=20&keyword=abandon
+     * 词书单词表：按书内名次分页，带释义与当前用户学习状态。
+     */
+    @GetMapping("/word-books/{bookCode}/words")
+    public Result<Map<String, Object>> getWordBookWords(
+            @PathVariable String bookCode,
+            @RequestParam Long userId,
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "20") Integer size,
+            @RequestParam(required = false) String keyword,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
+        }
+        try {
+            List<WordBookWordVO> records = exerciseService.getWordBookWords(userId, bookCode, page, size, keyword);
+            long total = exerciseService.getWordBookWordCount(bookCode, keyword);
+            int safePage = page == null || page < 1 ? 1 : page;
+            int safeSize = size == null ? 20 : Math.max(1, Math.min(50, size));
+            Map<String, Object> result = new java.util.HashMap<>();
+            result.put("records", records);
+            result.put("total", total);
+            result.put("page", safePage);
+            result.put("size", safeSize);
+            return Result.success(result);
+        } catch (BusinessException e) {
+            return Result.error(e.getCode(), e.getMessage());
+        } catch (RuntimeException e) {
+            return Result.error(e.getMessage());
+        }
+    }
+
     // ========== 单词收藏 ==========
 
     /** POST /exercise/word-favorites */

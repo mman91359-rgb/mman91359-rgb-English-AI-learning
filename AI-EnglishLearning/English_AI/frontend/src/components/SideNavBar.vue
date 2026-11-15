@@ -89,6 +89,7 @@ onMounted(() => {
 const mainNavItems = computed(() => [
   { name: 'home', path: '/dashboard', label: t('nav.home'), icon: 'home' },
   { name: 'stats', path: '/stats', label: t('nav.stats'), icon: 'analytics' },
+  { name: 'word-books', path: '/word-books', label: t('nav.wordBooks'), icon: 'library_books' },
   { name: 'learning', path: '/learning', label: t('nav.learning'), icon: 'school' },
   { name: 'profile', path: '/profile', label: t('nav.profile'), icon: 'person' },
 ])

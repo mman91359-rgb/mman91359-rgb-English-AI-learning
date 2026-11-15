@@ -4,6 +4,7 @@ import { useUserStore } from '@/stores/user'
 // 全部路由懒加载：按页面拆包，避免单一巨型 chunk
 const HomeView = () => import('../views/HomeView.vue')
 const LearningView = () => import('../views/LearningView.vue')
+const WordBooksView = () => import('../views/WordBooksView.vue')
 const StatsView = () => import('../views/StatsView.vue')
 const ProfileView = () => import('../views/ProfileView.vue')
 const LoginView = () => import('../views/LoginView.vue')
@@ -73,6 +74,12 @@ const router = createRouter({
       name: 'learning',
       component: LearningView,
       meta: { requiresAuth: true, studyTracked: true },
+    },
+    {
+      path: '/word-books',
+      name: 'word-books',
+      component: WordBooksView,
+      meta: { requiresAuth: true },
     },
     {
       path: '/listening',

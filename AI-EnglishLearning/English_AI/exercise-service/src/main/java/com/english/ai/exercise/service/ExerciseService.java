@@ -5,6 +5,7 @@ import com.english.ai.exercise.dto.NewWordItemVO;
 import com.english.ai.exercise.dto.UserWordLearnLogVO;
 import com.english.ai.exercise.dto.WordBookVO;
 import com.english.ai.exercise.dto.WordBookStatsVO;
+import com.english.ai.exercise.dto.WordBookWordVO;
 import com.english.ai.exercise.dto.UserWordFavoriteVO;
 import com.english.ai.exercise.dto.WritingHistoryVO;
 import com.english.ai.exercise.dto.TimelineItemVO;
@@ -108,6 +109,17 @@ public interface ExerciseService {
 
     /** 词书学习统计（待背/已学/忽略/已掌握/今日计划） */
     WordBookStatsVO getWordBookStats(Long userId, String bookCode);
+
+    /**
+     * 词书单词表（分页）。
+     *
+     * <p>按 word_book_item.rank_no 升序返回整本词书的词条，并补充字典释义和
+     * 当前用户的学习状态；keyword 为空时不过滤，非空时按单词前缀/包含匹配。</p>
+     */
+    List<WordBookWordVO> getWordBookWords(Long userId, String bookCode, Integer page, Integer size, String keyword);
+
+    /** 词书单词表总数（与分页同口径） */
+    long getWordBookWordCount(String bookCode, String keyword);
 
     // ========== 单词收藏 ==========
 

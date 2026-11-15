@@ -39,6 +39,22 @@ export const btnDialogSecondary = `${base} flex-1 bg-surface-container-low px-4 
 /** 幽灵按钮：无边框，仅悬停时浮现底色 */
 export const btnGhostSm = `${base} px-4 py-2 text-on-surface-variant hover:bg-surface-container-high/60 active:bg-surface-container-high`
 
+/** ——— 反色档：品牌色容器（bg-primary）上的按钮 ——— */
+
+/**
+ * 反色按钮底座：形状、字号与常规档一致，唯一差别是焦点环用 on-primary。
+ * 常规底座的 focus-visible:outline-primary 在品牌色容器上与底色同色，焦点环会不可见，
+ * 所以这里不复用 base，而是单独声明一份。
+ */
+const inverseBase =
+  'inline-flex items-center justify-center gap-2 rounded-full font-label-lg text-label-lg transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-primary disabled:pointer-events-none disabled:opacity-60'
+
+/** 反色主按钮：品牌色容器上的主动作 */
+export const btnPrimaryInverse = `${inverseBase} bg-on-primary px-5 py-2.5 text-primary hover:bg-on-primary/90 active:bg-on-primary/80`
+
+/** 反色次按钮：品牌色容器上的次要动作 */
+export const btnSecondaryInverse = `${inverseBase} border border-on-primary/40 px-5 py-2.5 text-on-primary hover:bg-on-primary/10 active:bg-on-primary/20`
+
 /** ——— 小档 36px：区块头部与卡片工具条，图标配 text-icon-sm ——— */
 
 /** 小档 · 主：区块内的唯一主动作（如报告页的重新生成） */

@@ -26,6 +26,7 @@ import com.english.ai.exercise.dto.CoinAwardResult;
 import com.english.ai.exercise.dto.PreferenceResult;
 import com.english.ai.exercise.dto.WordBookVO;
 import com.english.ai.exercise.dto.WordBookStatsVO;
+import com.english.ai.exercise.dto.WordBookWordVO;
 import com.english.ai.exercise.dto.NewWordItemVO;
 import com.english.ai.exercise.dto.WordCardVO;
 import com.english.ai.exercise.dto.UserWordFavoriteVO;
@@ -354,6 +355,100 @@ public class ExerciseServiceImpl implements ExerciseService {
                 .toLearn(toLearn)
                 .todayPlan(todayPlan)
                 .build();
+    }
+
+    @Override
+    public List<WordBookWordVO> getWordBookWords(Long userId, String bookCode, Integer page, Integer size,
+                                                 String keyword) {
+        assertWordBookExists(bookCode);
+
+        int safePage = page == null || page < 1 ? 1 : page;
+        int safeSize = size == null ? 20 : Math.max(1, Math.min(50, size));
+        int offset = (safePage - 1) * safeSize;
+
+        LambdaQueryWrapper<WordBookItem> wrapper = new LambdaQueryWrapper<WordBookItem>()
+                .eq(WordBookItem::getBookCode, bookCode);
+        if (keyword != null && !keyword.isBlank()) {
+            wrapper.like(WordBookItem::getWord, keyword.trim().toLowerCase(Locale.ROOT));
+        }
+        wrapper.orderByAsc(WordBookItem::getRankNo)
+                .last("LIMIT " + offset + "," + safeSize);
+
+        List<WordBookItem> items = wordBookItemMapper.selectList(wrapper);
+        if (items.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<String> words = items.stream()
+                .map(WordBookItem::getWord)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        if (words.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // 不在 SQL 里跨表 JOIN：word_book_item 与 word_dictionary 的 collation 不同，
+        // 分两次按 word 批量查询，避免 1267 Illegal mix of collations。
+        Map<String, WordDictionary> dictionaryMap = wordDictionaryMapper.selectList(
+                        new LambdaQueryWrapper<WordDictionary>().in(WordDictionary::getWord, words))
+                .stream()
+                .filter(wd -> wd.getWord() != null)
+                .collect(Collectors.toMap(wd -> wordKey(wd.getWord()), wd -> wd, (a, b) -> a));
+
+        Map<String, UserVocabulary> userVocabularyMap = vocabularyMapper.selectList(
+                        new LambdaQueryWrapper<UserVocabulary>()
+                                .eq(UserVocabulary::getUserId, userId)
+                                .in(UserVocabulary::getWord, words))
+                .stream()
+                .filter(v -> v.getWord() != null)
+                .collect(Collectors.toMap(v -> wordKey(v.getWord()), v -> v, (a, b) -> a));
+
+        List<WordBookWordVO> result = new ArrayList<>(items.size());
+        for (WordBookItem item : items) {
+            String key = wordKey(item.getWord());
+            WordDictionary dictionary = dictionaryMap.get(key);
+            UserVocabulary vocabulary = userVocabularyMap.get(key);
+            result.add(WordBookWordVO.builder()
+                    .word(item.getWord())
+                    .phonetic(dictionary == null ? null : dictionary.getPhonetic())
+                    .translation(dictionary == null ? null : dictionary.getTranslation())
+                    .pos(dictionary == null ? null : dictionary.getPos())
+                    .example(dictionary == null ? null : dictionary.getExample())
+                    .exampleTranslation(dictionary == null ? null : dictionary.getExampleTranslation())
+                    .rankNo(item.getRankNo())
+                    .wordId(dictionary == null ? null : dictionary.getId())
+                    .status(vocabulary == null ? null : vocabulary.getStatus())
+                    .isMastered(vocabulary != null && vocabulary.getIsMastered() != null
+                            && vocabulary.getIsMastered() == 1 ? 1 : 0)
+                    .build());
+        }
+        return result;
+    }
+
+    @Override
+    public long getWordBookWordCount(String bookCode, String keyword) {
+        assertWordBookExists(bookCode);
+        LambdaQueryWrapper<WordBookItem> wrapper = new LambdaQueryWrapper<WordBookItem>()
+                .eq(WordBookItem::getBookCode, bookCode);
+        if (keyword != null && !keyword.isBlank()) {
+            wrapper.like(WordBookItem::getWord, keyword.trim().toLowerCase(Locale.ROOT));
+        }
+        Long count = wordBookItemMapper.selectCount(wrapper);
+        return count == null ? 0L : count;
+    }
+
+    /** 词书不存在时统一抛业务异常，避免词表接口返回空数据掩盖配置问题。 */
+    private void assertWordBookExists(String bookCode) {
+        WordBook book = wordBookMapper.selectOne(
+                new LambdaQueryWrapper<WordBook>().eq(WordBook::getCode, bookCode));
+        if (book == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND, "词书不存在");
+        }
+    }
+
+    /** 单词比较键：去选项前缀后统一小写，兼容存量数据的大小写差异。 */
+    private static String wordKey(String word) {
+        return VocabularyLearningHelper.normalizeWord(word).toLowerCase(Locale.ROOT);
     }
 
     /**

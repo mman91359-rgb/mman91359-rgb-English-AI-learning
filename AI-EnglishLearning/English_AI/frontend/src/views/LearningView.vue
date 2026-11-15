@@ -214,6 +214,14 @@
           @click="goToHistory"
         />
         <EntryCard
+          icon="library_books"
+          tone="secondary"
+          :title="$t('wordBook.title')"
+          :description="$t('wordBook.entryDesc')"
+          class="col-span-1 md:col-span-4"
+          @click="goToWordBooks"
+        />
+        <EntryCard
           icon="bookmark"
           tone="primary"
           :title="$t('learning.myVocabulary')"
@@ -531,6 +539,10 @@ const goToHistory = () => {
 
 const goToVocabulary = () => {
   router.push('/vocabulary')
+}
+
+const goToWordBooks = () => {
+  router.push('/word-books')
 }
 
 // 学习过的语法：复用错题本（语法模块）

@@ -670,6 +670,12 @@ git grep -ohE "[a-z-]+-\[[^]]*\]" HEAD -- "src/*.vue" "src/*.ts" | grep -vE "^ro
 > 理由：等值替换不改语义，但会混进对方的 `git diff`，对方一保存就冲突，而且他的 review 会看到一堆不属于他的改动。
 > 2026-11-15 的答题族批恰好碰到 `ProfileView` / `PracticeView` 是干净的，所以只动了图标字号、8 处圆角未碰——这是**运气，不是流程**。
 
+> **更正登记（2026-11-15）**：段 B-1 交付报告写「`ProfileView.vue` 已不在脏列表」，**该判断作废**。
+> 实测 `git status --porcelain -- src/views/ProfileView.vue` 仍为 `M`，它是「金币钱包 + 补签」整套功能的承载体
+> （钱包入口 / 余额展示），不是零散改动，短期内不会变干净。
+> **B-2 的 14 处圆角（ProfileView 8 + AiCard 2 + VocabularyGoalDialog 2 + WordDetailCard 2）全部挂起**；
+> 下一批不得据旧报告认定该文件干净而动手，每次都要重跑本条的单点状态核查。
+
 **答题族抽组件的差异登记（2026-11-15 裁定，不擅自统一）**
 
 > 以下是**设计差异**，不是任意值 A/B 分类，故单列于此，不并入上方「保留」表——
@@ -686,6 +692,18 @@ git grep -ohE "[a-z-]+-\[[^]]*\]" HEAD -- "src/*.vue" "src/*.ts" | grep -vE "^ro
 
 H9 答案明细块**不抽组件**，两页各自保留；`AnswerFeedback` 只覆盖 H8 反馈条。
 第 6 处字号差异同样保留：`ResultStats` 不接管标题。
+
+**段 C 顺延项登记（2026-11-15 裁定）**
+
+> 三项**全部越出「只改表现层」边界**，故整体顺延段 C；其中仅两项叠加后端依赖，段 C 接手时不得把第三项一并挂到后端上。
+
+| 项 | 真实性质 | 后端依赖 |
+|---|---|---|
+| useNotifications 种子通知 | 动 composable 状态初始化 | 需 /notification/list |
+| degradedReport rawScore:0 | 动 api/writing.ts 数据流 | 需真实评分 + scoreVersion |
+| AssessView 本地 moduleName | 动 computed / i18n 链 | 无（改引 @/config/modules） |
+
+`AiCard:14,38` 的 10px 属 8px 与 12px 之间的**非档位但合理**值（`h-7 w-7` 小图标容器本就不该用大圆角），按上方「保留」表登记，下一批不得当漏网清理。
 
 ### 11.2 删除非法阴影时必须同时给出替代反馈
 

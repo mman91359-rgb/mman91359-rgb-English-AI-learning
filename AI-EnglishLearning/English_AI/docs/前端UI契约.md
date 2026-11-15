@@ -721,23 +721,13 @@ H9 答案明细块**不抽组件**，两页各自保留；`AnswerFeedback` 只�
 
 **段 C 顺延项登记（2026-11-15 裁定）**
 
-> 三项**全部越出「只改表现层」边界**，故整体顺延段 C；其中仅两项叠加后端依赖，段 C 接手时不得把第三项一并挂到后端上。
+> 三项**全部越出「只改表现层」边界**，故整体顺延段 C；其中仅两项叠加后端依赖，段 C 接手时不得把第三项一并挂到后端上。§10 的历史快照锚点 `当前 N @ <short-sha>` 一律保持豁免规则，不参与本次一致性核对。
 
 | 项 | 真实性质 | 后端依赖 |
 |---|---|---|
-| useNotifications 种子通知 | 动 composable 状态初始化 | 需 /notification/list |
-| degradedReport rawScore:0 | 动 api/writing.ts 数据流 | 需真实评分 + scoreVersion |
-| AssessView 本地 moduleName | 动 computed / i18n 链 | 无（改引 @/config/modules） |
-
-`AiCard:14,38` 的 10px 属 8px 与 12px 之间的**非档位但合理**值（`h-7 w-7` 小图标容器本就不该用大圆角），按上方「保留」表登记，下一批不得当漏网清理。
-
-**二次补登（2026-11-15，完整措辞）**：上表为首批简记，此处按完整性质与依赖补登；**原表保留不覆盖**。§10 的历史快照锚点 `当前 N @ <short-sha>` 一律保持豁免规则，不参与本次一致性核对。
-
-| 项 | 真实性质 | 后端依赖 |
-|---|---|---|
-| `useNotifications` 种子通知 | 改动 composable 状态初始化逻辑 | 需要 `/notification/list` 接口 |
-| `degradedReport` `rawScore: 0` | 改动 `api/writing.ts` 数据流处理 | 需要真实评分 + `scoreVersion` |
-| `AssessView` 本地 `moduleName` | 改动 computed / i18n 引用链，改为引 `@/config/modules` | 无后端依赖 |
+| useNotifications 种子通知 | 改动 composable 状态初始化逻辑 | 需要 /notification/list 接口 |
+| degradedReport rawScore: 0 | 改动 api/writing.ts 数据流处理 | 需要真实评分 + scoreVersion |
+| AssessView 本地 moduleName | 改动 computed / i18n 引用链，改引 @/config/modules | 无后端依赖 |
 
 `AiCard` 内 `rounded-[10px]` 补充单行说明：8px 与 12px 档位之间的非标准圆角，用于小图标容器，**B 类登记，暂不新增 Tailwind 自定义档位**；与上方「保留」表 `AiCard:14,38` 行同一处置，下一批不得当漏网清理。
 

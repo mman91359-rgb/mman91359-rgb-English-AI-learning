@@ -748,6 +748,17 @@ H9 答案明细块**不抽组件**，两页各自保留；`AnswerFeedback` 只�
 
 `AiCard` 内 `rounded-[10px]` 补充单行说明：8px 与 12px 档位之间的非标准圆角，用于小图标容器，**B 类登记，暂不新增 Tailwind 自定义档位**；与上方「保留」表 `AiCard:14,38` 行同一处置，下一批不得当漏网清理。
 
+**段 C-1 移交注记：`isPreview` 标记已写入但零读取（2026-11-16 登记）**
+
+> C-0a 按裁定只加了标记、未接接口：`types/writing.ts` 的 `WritingTopic.isPreview?: boolean` 与
+> `mocks/writing.ts` 10 题的 `isPreview: true` **没有任何读取处**，全站读取数为 0。
+> 同时 `writing.preview.badge` 有 4 个渲染点**无条件显示**、未绑定 `isPreview`：
+> `WritingEntryPanel.vue:9`、`WritingHistoryView.vue:10`、`WritingPracticeView.vue:16`、`WritingReportView.vue:10`。
+> 当前 badge 恒显与「题库是 mock」事实一致，故 C-0a 不算错；但真题库上线后这 4 处不会自动消失。
+> **C-1 接真题库时必须把 4 处改成 `v-if="topic.isPreview"`**（或等价的按标记渲染），
+> 并在接入时确认真题库返回项不带 `isPreview`，否则预览徽标会误标真题。
+> 本注记只登记事实与移交动作，C-0a 未改任何 badge 渲染逻辑。
+
 ### 11.2 删除非法阴影时必须同时给出替代反馈
 
 `shadow-sm` / `shadow-md` 等非法阴影若承担「可交互」提示，删除时必须同时补一种替代反馈，**边框 / 底色 / 位移三者取一**。只删不加＝制造退化。

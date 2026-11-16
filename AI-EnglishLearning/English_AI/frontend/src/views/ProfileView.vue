@@ -379,7 +379,7 @@ const { show: toast } = useToast()
 
 // ========== 用户基本信息 ==========
 const displayName = computed(() => {
-  return userStore.user?.nickname || userStore.user?.username || '同学'
+  return userStore.user?.nickname || userStore.user?.username || t('auth.guestName')
 })
 
 const userLevel = ref(t('profile.beginner'))
@@ -413,7 +413,7 @@ const handleAvatarChange = async (e: Event) => {
     return
   }
   if (file.size > 5 * 1024 * 1024) {
-    toast('头像文件不能超过5MB', 'error')
+    toast(t('profile.avatarFileTooLarge'), 'error')
     return
   }
 
@@ -426,7 +426,7 @@ const handleAvatarChange = async (e: Event) => {
     userStore.updateAvatar(avatarUrl)
     toast(t('profile.avatarUpdated'), 'success')
   } catch (e: any) {
-    toast(e.message || '头像上传失败', 'error')
+    toast(e.message || t('profile.avatarUploadFailed'), 'error')
   } finally {
     avatarUploading.value = false
     // 重置 input，允许再次选择同一文件
@@ -465,7 +465,7 @@ const submitNickname = async () => {
     return
   }
   if (newNickname.length > 20) {
-    toast('昵称长度不能超过20个字符', 'warning')
+    toast(t('profile.nicknameLength'), 'warning')
     return
   }
 
@@ -482,10 +482,10 @@ const submitNickname = async () => {
   try {
     await updateNickname(userId, newNickname)
     userStore.updateNickname(newNickname)
-    toast('昵称修改成功', 'success')
+    toast(t('profile.nicknameChanged'), 'success')
     closeNicknameDialog()
   } catch (e: any) {
-    toast(e.message || '昵称修改失败', 'error')
+    toast(e.message || t('profile.nicknameChangeFailed'), 'error')
   } finally {
     nicknameSubmitting.value = false
   }

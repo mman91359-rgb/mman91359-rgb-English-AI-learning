@@ -192,7 +192,7 @@
               </p>
               <div class="flex items-center gap-3 mt-1">
                 <span class="font-label-sm text-label-sm text-secondary">
-                  {{ e.aiScored === 1 ? `${e.weightedScore ?? '-'} 分` : '未评分' }}
+                  {{ e.aiScored === 1 ? `${e.weightedScore ?? '-'} 分` : $t('history.notScored') }}
                 </span>
                 <span v-if="e.wordCount" class="font-label-sm text-label-sm text-on-surface-variant">{{ e.wordCount }} 词</span>
               </div>
@@ -760,7 +760,7 @@ const load = async () => {
     }
   } catch (e) {
     console.warn('加载学习历史失败', e)
-    loadError.value = e instanceof Error ? e.message : '加载学习历史失败'
+    loadError.value = e instanceof Error ? e.message : t('history.loadFailed')
   } finally {
     loading.value = false
   }

@@ -418,6 +418,7 @@ export default {
     cardUnknown: '不认识',
     cardAddToVocabulary: '加入学习',
     addedToVocabulary: '已加入单词本',
+    favoriteFailed: '收藏失败',
     eventLearn: '新学',
     eventReview: '复习',
     eventMaster: '掌握',

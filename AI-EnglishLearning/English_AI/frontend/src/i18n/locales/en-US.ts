@@ -417,6 +417,7 @@ export default {
     cardUnknown: "Don't know",
     cardAddToVocabulary: 'Add to vocabulary',
     addedToVocabulary: 'Added to vocabulary',
+    favoriteFailed: 'Failed to save',
     eventLearn: 'Learned',
     eventReview: 'Reviewed',
     eventMaster: 'Mastered',

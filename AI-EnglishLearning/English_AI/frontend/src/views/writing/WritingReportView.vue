@@ -21,17 +21,17 @@
           <div
             class="relative flex h-28 w-28 shrink-0 items-center justify-center rounded-full"
             :style="{ background: `conic-gradient(rgb(var(--color-primary)) ${ratio}%, rgb(var(--color-surface-container-high)) 0)` }"
-            :aria-label="$t('writing.report.scoreOf', { score: score.rawScore, max: SCORE_MAX })"
+            :aria-label="isDegraded ? $t('writing.report.notScored') : $t('writing.report.scoreOf', { score: score.rawScore, max: SCORE_MAX })"
           >
             <span class="flex h-[88px] w-[88px] flex-col items-center justify-center rounded-full bg-surface-container-lowest">
-              <span class="font-headline-lg text-headline-lg tabular-nums text-on-surface">{{ score.rawScore }}</span>
-              <span class="font-label-sm text-label-sm text-on-surface-variant">/ {{ SCORE_MAX }}</span>
+              <span :class="isDegraded ? 'font-headline-md text-headline-md text-on-surface-variant' : 'font-headline-lg text-headline-lg tabular-nums text-on-surface'">{{ isDegraded ? $t('writing.report.notScored') : score.rawScore }}</span>
+              <span v-if="!isDegraded" class="font-label-sm text-label-sm text-on-surface-variant">/ {{ SCORE_MAX }}</span>
             </span>
           </div>
           <div class="flex flex-col gap-1">
             <span class="font-label-md text-label-md text-on-surface-variant">{{ $t('writing.report.title') }}</span>
-            <span class="font-headline-sm text-headline-sm text-on-surface">{{ $t(SCORE_LEVEL_LABEL_KEYS[score.level]) }}</span>
-            <span class="font-body-sm text-body-sm text-primary">
+            <span class="font-headline-sm text-headline-sm text-on-surface">{{ isDegraded ? $t('writing.report.notScored') : $t(SCORE_LEVEL_LABEL_KEYS[score.level]) }}</span>
+            <span v-if="!isDegraded" class="font-body-sm text-body-sm text-primary">
               {{ $t('writing.report.weighted') }}：{{ $t('writing.score.weightedValue', { score: score.weightedScore }) }}
             </span>
           </div>
@@ -61,7 +61,7 @@
       </section>
 
       <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <section class="flex flex-col gap-4 rounded-2xl border border-outline-variant/40 bg-surface-container-lowest p-6 shadow-soft-glow">
+        <section v-if="!isDegraded" class="flex flex-col gap-4 rounded-2xl border border-outline-variant/40 bg-surface-container-lowest p-6 shadow-soft-glow">
           <h2 class="font-body-lg text-body-lg font-semibold text-on-surface">{{ $t('writing.report.dimensions') }}</h2>
           <WritingDimensionBar
             v-for="dimension in WRITING_DIMENSIONS"
@@ -144,6 +144,7 @@ const submission = ref<WritingSubmission | null>(null)
 const favoriteIds = ref<string[]>([])
 
 const score = computed(() => submission.value!.report)
+const isDegraded = computed(() => score.value?.scoreVersion === 'degraded')
 const ratio = computed(() => Math.round((score.value.rawScore / SCORE_MAX) * 100))
 const isFavorite = computed(() => Boolean(submission.value && favoriteIds.value.includes(submission.value.topicId)))
 
@@ -217,6 +218,7 @@ function buildTopicContext(topic: WritingTopic): string {
  * 模型能从正文里自己找到——带了反而是在替它做重复劳动。
  */
 function buildScoreSummary(s: WritingScore): string {
+  if (isDegraded.value) return t('writing.report.degradedHint')
   const lines: string[] = [
     `总分 ${s.rawScore}/${SCORE_MAX}，折算 ${s.weightedScore.toFixed(1)}/106.5，等级：${t(SCORE_LEVEL_LABEL_KEYS[s.level])}`,
   ]

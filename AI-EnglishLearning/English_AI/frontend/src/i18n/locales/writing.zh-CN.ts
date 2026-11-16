@@ -84,6 +84,7 @@ const extra = {
     unfavorite: '取消收藏',
     askAi: '问 AI',
     notScored: '未评分',
+    degradedHint: '本次评分服务不可用，未产生分数',
   },
   history: {
     type: '题型',

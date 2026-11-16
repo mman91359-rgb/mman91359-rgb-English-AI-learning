@@ -84,6 +84,7 @@ const extra = {
     unfavorite: 'Remove favorite',
     askAi: 'Ask AI',
     notScored: 'Not scored',
+    degradedHint: 'Scoring service unavailable; no score was produced',
   },
   history: {
     type: 'Type',

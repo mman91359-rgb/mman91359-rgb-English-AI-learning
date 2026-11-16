@@ -376,7 +376,7 @@
               </p>
 
               <template v-if="cardFlipped">
-                <p class="font-body-lg text-body-lg text-on-surface mt-4">{{ currentCard.translation || '暂无释义' }}</p>
+                <p class="font-body-lg text-body-lg text-on-surface mt-4">{{ currentCard.translation || $t('learning.noTranslation') }}</p>
                 <div v-if="currentCard.example" class="mt-3 pl-3 border-l-2 border-primary/40 text-left w-full">
                   <p class="font-body-sm text-body-sm text-on-surface italic">{{ currentCard.example }}</p>
                   <p v-if="currentCard.exampleTranslation" class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
@@ -481,6 +481,7 @@ import WordReviewDialog from '@/components/WordReviewDialog.vue'
 import { useUserStore } from '@/stores/user'
 import { useAppStore } from '@/stores/app'
 import { useToast } from '@/composables/useToast'
+import { MASTERY_STREAK } from '@/config/constants'
 import {
   selectNewWordItems,
   submitAnswer as submitAnswerApi,
@@ -673,18 +674,18 @@ const instantHintMessage = computed(() => {
   // 模式 1：注意 "X"（X）和 "Y"（Y）的区别
   let m = analysis.match(/注意\s*['"「]?([^'",」）)]+)['"」]?（([^）)]+)）[^和]*和\s*['"「]?([^'",」）)]+)['"」]?（([^）)]+)）[^的]*的区别/)
   if (m) {
-    return `你可能知道这个单词，但搞混拼写了。注意 "${m[1]}"（${m[2]}）和 "${m[3]}"（${m[4]}）的区别。`
+    return t('learning.instantHint.mixedWithPos', { w1: m[1], m1: m[2], w2: m[3], m2: m[4] })
   }
   // 模式 2：注意 "X" 和 "Y" 的区别
   m = analysis.match(/注意\s*['"「]?([^'",」]+)['"」]?[^和]*和\s*['"「]?([^'",」]+)['"」]?[^的]*的区别/)
   if (m) {
-    return `你可能知道这个单词，但搞混拼写了。注意 "${m[1]}" 和 "${m[2]}" 的区别。`
+    return t('learning.instantHint.mixed', { w1: m[1], w2: m[2] })
   }
   // 模式 3：仅区别提示
   if (analysis.includes('区别')) {
-    return '你可能知道这个单词，但拼写有误，请注意形近词之间的区别。'
+    return t('learning.instantHint.similarWord')
   }
-  return '你可能知道这个单词，但拼写有误，请仔细检查。'
+  return t('learning.instantHint.checkCarefully')
 })
 
 /**
@@ -1059,7 +1060,7 @@ const handleSubmit = async () => {
     const currentStreak = streaks.value[q.id] || 0
     streaks.value = {
       ...streaks.value,
-      [q.id]: result.isCorrect ? Math.min(3, currentStreak + 1) : 0,
+      [q.id]: result.isCorrect ? Math.min(MASTERY_STREAK, currentStreak + 1) : 0,
     }
 
     // 新词模式：把这次作答记进单词本。
@@ -1198,7 +1199,7 @@ const handleFavorite = async () => {
     const state = await sentenceFavorite.toggle(favoriteText.value, q.id)
     if (state === true) toast(t('learning.favorited'), 'success')
   } catch (e) {
-    toast(e instanceof Error ? e.message : '收藏失败', 'error')
+    toast(e instanceof Error ? e.message : t('learning.favoriteFailed'), 'error')
   }
 }
 

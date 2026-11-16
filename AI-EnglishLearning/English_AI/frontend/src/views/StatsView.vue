@@ -208,7 +208,7 @@ import { cssColor } from '@/utils/themeTokens'
 import { useRouter } from 'vue-router'
 import { getExerciseStats, getVocabularySummary, type VocabularySummaryVO } from '@/api/exercise'
 
-const { tm } = useI18n()
+const { tm, t } = useI18n()
 const router = useRouter()
 const userStore = useUserStore()
 const appStore = useAppStore()
@@ -227,8 +227,8 @@ type HeatmapCell = {
 }
 const heatmapData = ref<HeatmapCell[]>([])
 
-// 星期标签（周一~周日）
-const dayLabels = ['一', '二', '三', '四', '五', '六', '日']
+// 星期标签（单字，周一~周日）
+const dayLabels = tm('stats.weekdayShort') as unknown as string[]
 
 // 基于学习时长（分钟）计算颜色等级
 const minutesToLevel = (minutes: number): number => {
@@ -241,7 +241,7 @@ const minutesToLevel = (minutes: number): number => {
 }
 
 // 各等级对应的时长范围 tooltip
-const levelMinuteLabels = ['0分钟', '1~10分钟', '11~30分钟', '31~60分钟', '61~120分钟', '>120分钟']
+const levelMinuteLabels = tm('stats.minutesTiers') as unknown as string[]
 
 // 热力图颜色映射（基于学习时长等级）：颜色取自主题令牌，随亮暗切换重算
 // 用 info 蓝色而不是 primary 紫色：同为紫色系时，低档（12%）压在近白底上几乎不可见；
@@ -288,8 +288,8 @@ const paddedHeatmap = computed<PaddedCell[]>(() => {
       level,
       isEmpty: level === 0,
       tooltip: level > 0
-        ? `${d.date}\n学习 ${d.dailyMinutes} 分钟\n答题 ${d.questionCount} 道`
-        : `${d.date}\n无记录`
+        ? t('stats.heatmapTip', { date: d.date, minutes: d.dailyMinutes, count: d.questionCount })
+        : t('stats.heatmapNone', { date: d.date })
     })
   }
   // 补齐到完整行
@@ -303,7 +303,7 @@ const paddedHeatmap = computed<PaddedCell[]>(() => {
 const monthLabelPositions = computed(() => {
   if (heatmapData.value.length === 0) return []
   // 用 tm() 取得原始数组（t() 在非 legacy 模式下会把数组当成字符串返回，导致取到单个字符）
-  const months = (tm('stats.months') as unknown as string[]) || ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月']
+  const months = (tm('stats.months') as unknown as string[]) || []
   const firstDate = new Date(heatmapData.value[0].date + 'T00:00:00')
   let startDay = firstDate.getDay() - 1
   if (startDay < 0) startDay = 6
@@ -373,7 +373,7 @@ const renderChart = () => {
       textStyle: { color: cssColor('on-surface'), fontSize: 13 },
       formatter: (params: any) => {
         const p = Array.isArray(params) ? params[0] : params
-        return `${p.name}<br/>学习时长: <b>${p.value} 分钟</b>`
+        return t('stats.chartTip', { name: p.name, value: p.value })
       }
     },
     grid: {
@@ -397,7 +397,7 @@ const renderChart = () => {
     },
     yAxis: {
       type: 'value',
-      name: '分钟',
+      name: t('stats.minutes'),
       nameTextStyle: { color: cssColor('outline'), fontSize: 11 },
       axisLine: { show: false },
       axisTick: { show: false },

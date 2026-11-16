@@ -4,6 +4,7 @@ import type { WritingScore, WritingTopic } from '../types/writing'
 export const WRITING_TOPICS: WritingTopic[] = [
   {
     id: 'topic-short-cet4',
+    isPreview: true,
     type: 'SHORT_ESSAY',
     level: 'CET4',
     title: '关于“慢生活”的看法',
@@ -18,6 +19,7 @@ export const WRITING_TOPICS: WritingTopic[] = [
   },
   {
     id: 'topic-short-cet6',
+    isPreview: true,
     type: 'SHORT_ESSAY',
     level: 'CET6',
     title: '科技发展与人际关系',
@@ -31,6 +33,7 @@ export const WRITING_TOPICS: WritingTopic[] = [
   },
   {
     id: 'topic-practical-cet4',
+    isPreview: true,
     type: 'PRACTICAL',
     level: 'CET4',
     title: '图书馆借阅规则变更通知',
@@ -44,6 +47,7 @@ export const WRITING_TOPICS: WritingTopic[] = [
   },
   {
     id: 'topic-practical-cet6',
+    isPreview: true,
     type: 'PRACTICAL',
     level: 'CET6',
     title: '推荐信',
@@ -57,6 +61,7 @@ export const WRITING_TOPICS: WritingTopic[] = [
   },
   {
     id: 'topic-argument-cet4',
+    isPreview: true,
     type: 'ARGUMENTATIVE',
     level: 'CET4',
     title: '网络购物利大于弊吗',
@@ -70,6 +75,7 @@ export const WRITING_TOPICS: WritingTopic[] = [
   },
   {
     id: 'topic-argument-cet6',
+    isPreview: true,
     type: 'ARGUMENTATIVE',
     level: 'CET6',
     title: '大学是否应取消考勤制度',
@@ -83,6 +89,7 @@ export const WRITING_TOPICS: WritingTopic[] = [
   },
   {
     id: 'topic-chart-cet4',
+    isPreview: true,
     type: 'CHART',
     level: 'CET4',
     title: '青年阅读习惯的变化',
@@ -96,6 +103,7 @@ export const WRITING_TOPICS: WritingTopic[] = [
   },
   {
     id: 'topic-chart-cet6',
+    isPreview: true,
     type: 'CHART',
     level: 'CET6',
     title: '城市通勤方式结构变化',
@@ -109,6 +117,7 @@ export const WRITING_TOPICS: WritingTopic[] = [
   },
   {
     id: 'topic-letter-cet4',
+    isPreview: true,
     type: 'LETTER',
     level: 'CET4',
     title: '给朋友的道歉信',
@@ -122,6 +131,7 @@ export const WRITING_TOPICS: WritingTopic[] = [
   },
   {
     id: 'topic-letter-cet6',
+    isPreview: true,
     type: 'LETTER',
     level: 'CET6',
     title: '给招聘负责人的感谢信',

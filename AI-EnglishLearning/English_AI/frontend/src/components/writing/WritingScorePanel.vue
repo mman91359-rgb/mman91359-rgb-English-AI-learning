@@ -2,7 +2,7 @@
   <aside class="flex flex-col gap-5 rounded-3xl border border-outline-variant/40 bg-surface-container-lowest p-6 shadow-soft-glow">
     <header class="flex items-center gap-2">
       <span class="flex h-9 w-9 items-center justify-center rounded-full bg-tertiary-container/40 text-tertiary">
-        <span class="material-symbols-outlined text-icon-md">rate_review</span>
+        <AppIcon name="rate_review" size="md" />
       </span>
       <h2 class="font-headline-sm text-headline-sm text-on-surface">{{ $t('writing.score.dimensionTitle') }}</h2>
     </header>
@@ -22,7 +22,7 @@
 
     <template v-else-if="phase === 'scoring'">
       <div class="flex flex-col items-center gap-3 py-4" role="status" aria-live="polite">
-        <span class="material-symbols-outlined animate-spin text-icon-2xl text-primary motion-reduce:animate-none" aria-hidden="true">progress_activity</span>
+        <AppIcon name="progress_activity" size="2xl" tone="primary" class="animate-spin motion-reduce:animate-none" />
         <p class="font-body-sm text-body-sm text-on-surface-variant">{{ $t('writing.practice.scoring') }}</p>
       </div>
       <ol class="flex flex-col gap-3">
@@ -32,9 +32,10 @@
           class="flex items-center gap-3 font-body-sm text-body-sm"
           :class="index <= scoringStep ? 'text-on-surface' : 'text-outline'"
         >
-          <span class="material-symbols-outlined text-icon-sm">
-            {{ index < scoringStep ? 'check_circle' : index === scoringStep ? 'progress_activity' : 'radio_button_unchecked' }}
-          </span>
+          <AppIcon
+            :name="index < scoringStep ? 'check_circle' : index === scoringStep ? 'progress_activity' : 'radio_button_unchecked'"
+            size="sm"
+          />
           {{ $t(key) }}
         </li>
       </ol>
@@ -42,7 +43,7 @@
 
     <template v-else-if="phase === 'failed'">
       <div class="flex flex-col items-center gap-3 py-6 text-center">
-        <span class="material-symbols-outlined text-icon-2xl text-error">error</span>
+        <AppIcon name="error" size="2xl" tone="error" />
         <p class="font-body-sm text-body-sm text-on-surface-variant">{{ $t('writing.practice.scoringFailed') }}</p>
         <button type="button" class="rounded-full bg-primary px-5 py-2 font-label-lg text-label-lg text-on-primary" @click="$emit('retry')">
           {{ $t('writing.practice.retry') }}
@@ -80,6 +81,7 @@
 
 <script setup lang="ts">
 import WritingDimensionBar from './WritingDimensionBar.vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
 import { btnPrimary } from '@/components/ui/buttonStyles'
 import type { WritingScore } from '../../types/writing'
 import {

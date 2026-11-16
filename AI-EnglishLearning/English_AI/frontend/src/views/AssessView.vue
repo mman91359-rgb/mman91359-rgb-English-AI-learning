@@ -44,7 +44,7 @@
         <AppCard tone="surface" padding="regular">
           <div class="flex items-center justify-between mb-5">
             <Tag tone="primary" size="md">
-              {{ moduleName(currentQuestion.moduleType) }} Lv.{{ currentQuestion.difficultyLevel }}
+              {{ moduleName(currentQuestion.moduleType, t) }} Lv.{{ currentQuestion.difficultyLevel }}
             </Tag>
             <span class="font-label-md text-label-md text-on-surface-variant">
               {{ currentIndex + 1 }} / {{ questions.length }}
@@ -101,6 +101,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import AppLayout from '@/components/AppLayout.vue'
 import AppCard from '@/components/ui/AppCard.vue'
@@ -113,12 +114,14 @@ import EmptyState from '@/components/ui/EmptyState.vue'
 import { btnPrimaryBlock, btnSecondary } from '@/components/ui/buttonStyles'
 import { inputClassLg } from '@/components/ui/formStyles'
 import { getAssessQuestions, getQuestionById, type QuestionVO } from '@/api/exercise'
+import { moduleName } from '@/config/modules'
 import { submitAssessAnswer } from '@/api/user'
 import { useUserStore } from '@/stores/user'
 import { useToast } from '@/composables/useToast'
 
 const router = useRouter()
 const userStore = useUserStore()
+const { t } = useI18n()
 const { show: toast } = useToast()
 
 const loading = ref(true)
@@ -150,16 +153,6 @@ const parsedOptions = computed(() => {
     return []
   }
 })
-
-const moduleName = (moduleType: number) => {
-  const names: Record<number, string> = {
-    1: '词汇',
-    2: '语法',
-    3: '翻译',
-    4: '听力',
-  }
-  return names[moduleType] || '综合'
-}
 
 const normalize = (value: string) => value.trim().toLowerCase().replace(/\s+/g, ' ')
 

@@ -12,7 +12,7 @@
           <img
             v-if="avatarFullUrl"
             :src="avatarFullUrl"
-            alt="头像"
+            :alt="$t('profile.avatarAlt')"
             class="w-full h-full object-cover"
           />
           <span v-else class="material-symbols-outlined text-[80px] text-primary fill">featured_seasonal_and_gifts</span>

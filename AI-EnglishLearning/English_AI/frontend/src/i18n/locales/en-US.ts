@@ -531,6 +531,7 @@ export default {
     changePassword: 'Change Password',
     editNickname: 'Edit Nickname',
     nicknamePlaceholder: 'Enter a new nickname (up to 20 characters)',
+    avatarAlt: 'Avatar',
     uploading: 'Uploading...',
     selectImage: 'Please select an image file',
     avatarFileTooLarge: 'Avatar file cannot exceed 5MB',
@@ -999,6 +1000,9 @@ export default {
   history: {
     notScored: 'Not scored',
     loadFailed: 'Failed to load learning history',
+    scoreUnit: 'pt',
+    wordUnit: 'words',
+    dateFormat: '{m}/{d}/{y}',
     grammarHint: {
       subjunctive: '* Incorrect use of the subjunctive mood, check tense agreement and verb forms',
       conjunction: '* Incorrect use of conjunction, check the grammar rules carefully',

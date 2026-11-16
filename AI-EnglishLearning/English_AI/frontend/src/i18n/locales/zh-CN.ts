@@ -531,6 +531,7 @@ export default {
     changePassword: '修改密码',
     editNickname: '修改昵称',
     nicknamePlaceholder: '请输入新昵称（最多 20 个字符）',
+    avatarAlt: '头像',
     uploading: '上传中...',
     selectImage: '请选择图片文件',
     avatarFileTooLarge: '头像文件不能超过5MB',
@@ -999,6 +1000,9 @@ export default {
   history: {
     notScored: '未评分',
     loadFailed: '加载学习历史失败',
+    scoreUnit: '分',
+    wordUnit: '词',
+    dateFormat: '{y}年{m}月{d}日',
     grammarHint: {
       subjunctive: '* 虚拟语气使用错误，请检查时态匹配和动词形式',
       conjunction: '* 连词使用错误，请仔细核对语法规则',

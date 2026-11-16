@@ -192,9 +192,9 @@
               </p>
               <div class="flex items-center gap-3 mt-1">
                 <span class="font-label-sm text-label-sm text-secondary">
-                  {{ e.aiScored === 1 ? `${e.weightedScore ?? '-'} 分` : $t('history.notScored') }}
+                  {{ e.aiScored === 1 ? `${e.weightedScore ?? '-'} ${$t('history.scoreUnit')}` : $t('history.notScored') }}
                 </span>
-                <span v-if="e.wordCount" class="font-label-sm text-label-sm text-on-surface-variant">{{ e.wordCount }} 词</span>
+                <span v-if="e.wordCount" class="font-label-sm text-label-sm text-on-surface-variant">{{ e.wordCount }} {{ $t('history.wordUnit') }}</span>
               </div>
             </div>
             <div class="text-right shrink-0">
@@ -594,7 +594,7 @@ const timelineTag = (row: TimelineItemVO): string => {
     return base
   }
   if (row.source === 'WRITING') {
-    return row.weightedScore != null ? `${row.weightedScore} 分` : t('learning.tabWriting')
+    return row.weightedScore != null ? `${row.weightedScore} ${t('history.scoreUnit')}` : t('learning.tabWriting')
   }
   return row.isCorrect === 1 ? t('learning.correctTag') : t('learning.incorrectTag')
 }
@@ -650,9 +650,7 @@ const dayLabel = (dateKey: string): string => {
   if (dateKey === yKey) return t('learning.yesterday')
   const parts = dateKey.split('-')
   if (parts.length === 3) {
-    return locale.value === 'zh-CN'
-      ? `${parts[0]}年${Number(parts[1])}月${Number(parts[2])}日`
-      : new Date(dateKey + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    return t('history.dateFormat', { y: parts[0], m: Number(parts[1]), d: Number(parts[2]) })
   }
   return dateKey
 }

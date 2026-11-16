@@ -32,10 +32,11 @@
             :aria-label="favoriteIds.includes(topic.id) ? $t('writing.entry.unfavorite') : $t('writing.entry.favorite')"
             @click="$emit('toggleFavorite', topic.id)"
           >
-            <span
-              class="material-symbols-outlined text-icon-md"
-              :class="{ fill: favoriteIds.includes(topic.id) }"
-            >{{ favoriteIds.includes(topic.id) ? 'favorite' : 'favorite_border' }}</span>
+            <AppIcon
+              :name="favoriteIds.includes(topic.id) ? 'favorite' : 'favorite_border'"
+              :filled="favoriteIds.includes(topic.id)"
+              size="md"
+            />
           </button>
           <button type="button" class="rounded-full bg-primary px-4 py-2 font-label-lg text-label-lg text-on-primary" @click="$emit('select', topic.id)">
             {{ $t('writing.entry.startPractice') }}
@@ -48,6 +49,7 @@
 
 <script setup lang="ts">
 import BaseDialog from '../ui/BaseDialog.vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
 import type { WritingTopic } from '../../types/writing'
 import { WRITING_LEVEL_LABEL_KEYS, WRITING_TYPE_META } from '../../utils/writing'
 

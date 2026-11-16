@@ -491,7 +491,7 @@ git grep -oE "\b(bg|text|border|border-[lrtb]|from|via|to|ring|divide|placeholde
 > `ca365a1..c4ef7d3` 之间的用户并行提交（`176f81c` / `67e4a94` / `b3da9e9` / `1f48795` /
 > `2a50d43` / `116a578` 数值未变；`c4ef7d3` 的「已学词库页 + 标熟机制」把 L1a 31→28、
 > L1b 127→124、L5 107→103，属规则 ①）。
-> 当前七条：L1a 21 / L1b 124 / L2 0 / L3 0 / L4 0 / L5 103 / L6 10。
+> 当前七条：L1a 21 / L1b 124 / L2 0 / L3 0 / L4 0 / L5 96 / L6 10。
 > 答题族批次（`36e8e4f` 组件 / `1039ef9` 文档）对全部口径增量恒为 0。
 > 每批交付前先跑 `git log -1` 确认 `HEAD` 未再前进。
 >
@@ -499,6 +499,11 @@ git grep -oE "\b(bg|text|border|border-[lrtb]|from|via|to|ring|divide|placeholde
 > `0f8caf3` → `28c8ac7` 的「ProfileView A 类等值替换」把 L1a 28→21（7 处 `rounded-[24px]`→`rounded-3xl`）、
 > L6 11→10（1 处 `bg-black/40`→`bg-scrim/40`）；L1b / L2 / L3 / L4 / L5 不变，属规则 ①。
 > B 类 `rounded-[32px]`（无等值档）与 `text-white`（深色遮罩合法用法）保留不动。
+>
+> **2026-11-16 复核（达成提交 `f05d79d`）**：数值锚点更新为 `@ f05d79d`。
+> `f05d79d` 的「写作族 L5 收口」把 L5 103→96（`components/writing/` 7 处直写图标改 `AppIcon`）；
+> `views/writing/` 15 处口径外，对七条增量恒为 0；L1a / L1b / L2 / L3 / L4 / L6 不变，属规则 ①。
+> 其后 `e6c7817` 的「写作题库 isPreview 标注」只加类型字段与题目标记，对七条增量恒为 0。
 >
 > **`2a50d43` 的 commit message 写「L1b 88→88」**：穷举 11 种口径（含只扫 `views` 78 / 只扫 `*.vue` 126 /
 > 去重 68 / 按行 136 / 全量含 `rounded` 158）与历史锚点（127 / 127 / 133）均得不出 88，

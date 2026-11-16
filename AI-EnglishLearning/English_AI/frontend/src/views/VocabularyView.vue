@@ -4,7 +4,7 @@
 
     <!-- 词书选择器 + 收藏入口 -->
     <div class="flex items-center gap-2 mb-4 overflow-x-auto">
-      <span class="font-label-md text-label-md text-on-surface-variant shrink-0">词书</span>
+      <span class="font-label-md text-label-md text-on-surface-variant shrink-0">{{ $t('learning.wordBook') }}</span>
       <div class="flex items-center gap-2 flex-1 overflow-x-auto">
         <button
           v-for="b in wordBooks"
@@ -18,7 +18,7 @@
       </div>
       <button
         class="shrink-0 w-9 h-9 rounded-full flex items-center justify-center bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container-low transition-colors"
-        :title="'收藏本'"
+        :title="$t('vocabulary.favoritesTitle')"
         @click="showFavorites = !showFavorites"
       >
         <AppIcon name="favorite" size="md" :tone="showFavorites ? 'primary' : undefined" />
@@ -29,7 +29,7 @@
     <div v-if="showFavorites" class="bg-surface-container-lowest rounded-2xl p-4 shadow-soft-glow mb-6">
       <div class="flex items-center gap-2 mb-3">
         <AppIcon name="favorite" size="lg" tone="primary" />
-        <span class="font-label-lg text-label-lg text-on-surface">收藏单词（{{ favorites.length }}）</span>
+        <span class="font-label-lg text-label-lg text-on-surface">{{ $t('vocabulary.favoritesCount', { count: favorites.length }) }}</span>
         <div class="ml-auto flex items-center gap-2">
           <span class="font-label-sm text-label-sm text-on-surface-variant">
             {{ $t('wordBook.favoriteParallel') }}
@@ -41,7 +41,7 @@
           />
         </div>
       </div>
-      <div v-if="favorites.length === 0" class="font-body-sm text-body-sm text-on-surface-variant">暂无收藏单词</div>
+      <div v-if="favorites.length === 0" class="font-body-sm text-body-sm text-on-surface-variant">{{ $t('vocabulary.noFavoriteWords') }}</div>
       <div v-else class="space-y-2">
         <div v-for="f in favorites" :key="f.id" class="flex items-center gap-3">
           <div class="flex-1 min-w-0">
@@ -50,7 +50,7 @@
               <span v-if="f.pos" class="font-label-sm text-label-sm text-primary italic">{{ f.pos }}</span>
               <span v-if="f.phonetic" class="font-body-sm text-body-sm text-on-surface-variant">{{ f.phonetic }}</span>
             </div>
-            <p class="font-body-sm text-body-sm text-on-surface-variant">{{ f.translation || '暂无释义' }}</p>
+            <p class="font-body-sm text-body-sm text-on-surface-variant">{{ f.translation || $t('learning.noTranslation') }}</p>
           </div>
           <button :class="btnIcon" @click="toggleFavorite(f.word)">
             <AppIcon name="favorite" size="lg" tone="error" />
@@ -63,11 +63,11 @@
     <div class="grid grid-cols-3 gap-3 mb-6">
       <div class="bg-surface-container-lowest rounded-2xl p-4 shadow-soft-glow text-center">
         <p class="font-headline-lg text-headline-lg text-primary">{{ stats.total }}</p>
-        <p class="font-label-md text-label-md text-on-surface-variant mt-1">单词总数</p>
+        <p class="font-label-md text-label-md text-on-surface-variant mt-1">{{ $t('vocabulary.totalWords') }}</p>
       </div>
       <div class="bg-surface-container-lowest rounded-2xl p-4 shadow-soft-glow text-center">
         <p class="font-headline-lg text-headline-lg text-tertiary">{{ stats.mastered }}</p>
-        <p class="font-label-md text-label-md text-on-surface-variant mt-1">已掌握</p>
+        <p class="font-label-md text-label-md text-on-surface-variant mt-1">{{ $t('learning.mastered') }}</p>
       </div>
       <div
         class="bg-surface-container-lowest rounded-2xl p-4 shadow-soft-glow text-center cursor-pointer hover:bg-surface-container-low transition-colors"
@@ -76,7 +76,7 @@
         <p class="font-headline-lg text-headline-lg" :class="stats.review > 0 ? 'text-error' : 'text-on-surface-variant'">
           {{ stats.review }}
         </p>
-        <p class="font-label-md text-label-md text-on-surface-variant mt-1">今日待复习</p>
+        <p class="font-label-md text-label-md text-on-surface-variant mt-1">{{ $t('vocabulary.todayReview') }}</p>
       </div>
     </div>
 
@@ -84,13 +84,13 @@
     <form class="bg-surface-container-lowest rounded-2xl p-6 shadow-soft-glow mb-6" @submit.prevent="handleAdd">
       <div class="flex items-center gap-2 mb-3">
         <AppIcon name="library_add" size="lg" tone="primary" />
-        <span class="font-label-lg text-label-lg text-on-surface">智能添加单词</span>
+        <span class="font-label-lg text-label-lg text-on-surface">{{ $t('vocabulary.smartAddTitle') }}</span>
       </div>
       <div class="flex flex-col sm:flex-row gap-3">
         <input
           v-model="newWord"
           :class="[inputClassOnCard, 'flex-1']"
-          placeholder="输入单词，AI 自动补全音标、释义、例句"
+          :placeholder="$t('vocabulary.smartAddPlaceholder')"
           required
         />
         <button
@@ -99,7 +99,7 @@
           :disabled="adding"
         >
           <AppIcon :name="adding ? 'progress_activity' : 'add'" size="sm" />
-          {{ adding ? 'AI 生成中...' : '智能添加' }}
+          {{ adding ? $t('vocabulary.aiGenerating') : $t('vocabulary.smartAdd') }}
         </button>
       </div>
       <p v-if="addHint" class="mt-2 font-body-sm text-body-sm text-on-surface-variant">{{ addHint }}</p>
@@ -148,7 +148,7 @@
             class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-colors"
             :class="w.isMastered ? 'bg-tertiary-container/40 text-on-tertiary-container' : 'bg-outline-variant/20 text-outline'"
             @click="handleToggle(w)"
-            :title="`掌握度 ${w.masteryLevel ?? 0}/5`"
+            :title="$t('vocabulary.masteryLevel', { level: w.masteryLevel ?? 0 })"
           >
             <AppIcon :name="w.isMastered ? 'check_circle' : 'radio_button_unchecked'" size="lg" />
           </button>
@@ -164,7 +164,7 @@
             </div>
             <!-- 释义 -->
             <p class="font-body-md text-body-md text-on-surface-variant mt-1">
-              {{ w.translation || '暂无释义' }}
+              {{ w.translation || $t('learning.noTranslation') }}
             </p>
             <!-- 例句 -->
             <div v-if="w.example" class="mt-2 pl-3 border-l-2 border-primary/40">
@@ -175,7 +175,7 @@
             </div>
             <!-- 搭配 -->
             <p v-if="w.collocation" class="mt-2 font-body-sm text-body-sm text-on-surface-variant">
-              <span class="text-outline">搭配：</span>{{ w.collocation }}
+              <span class="text-outline">{{ $t('vocabulary.collocationLabel') }}</span>{{ w.collocation }}
             </p>
             <!-- 掌握度进度条 + 复习信息 -->
             <div class="mt-2 flex items-center gap-3">
@@ -227,7 +227,7 @@
         <div class="mb-4 flex items-center justify-between">
           <div class="flex items-center gap-2">
             <AppIcon name="school" size="lg" tone="primary" />
-            <span id="review-dialog-title" class="font-headline-md text-headline-md text-on-surface">复习模式</span>
+            <span id="review-dialog-title" class="font-headline-md text-headline-md text-on-surface">{{ $t('vocabulary.reviewMode') }}</span>
           </div>
           <button
             type="button"
@@ -280,7 +280,7 @@
               @click="flipped = true"
             >
               <AppIcon name="visibility" size="lg" />
-              查看释义
+              {{ $t('wordReview.showMeaning') }}
             </button>
           </div>
 
@@ -292,7 +292,7 @@
               @click="handleReview(false)"
             >
               <AppIcon :name="reviewing ? 'progress_activity' : 'close'" size="lg" />
-              没记住
+              {{ $t('wordReview.forgot') }}
             </button>
             <button
               class="py-3 bg-tertiary-container/40 text-on-tertiary-container rounded-xl font-label-md text-label-md hover:bg-tertiary-container/60 transition-colors flex items-center justify-center gap-1"
@@ -300,7 +300,7 @@
               @click="handleReview(true)"
             >
               <AppIcon :name="reviewing ? 'progress_activity' : 'check'" size="lg" />
-              记住了
+              {{ $t('wordReview.remembered') }}
             </button>
           </div>
         </div>
@@ -308,15 +308,15 @@
         <!-- 复习完成 -->
         <div v-else class="py-12 text-center">
           <span class="material-symbols-outlined text-icon-3xl text-primary">celebration</span>
-          <p class="mt-4 font-headline-md text-headline-md text-on-surface">今日复习完成！</p>
+          <p class="mt-4 font-headline-md text-headline-md text-on-surface">{{ $t('vocabulary.reviewDone') }}</p>
           <p class="mt-2 font-body-md text-body-md text-on-surface-variant">
-            记住 {{ reviewCorrect }} 个，未记住 {{ reviewWrong }} 个
+            {{ $t('vocabulary.reviewSummary', { correct: reviewCorrect, wrong: reviewWrong }) }}
           </p>
           <button
             :class="['mt-6', btnPrimary]"
             @click="exitReview"
           >
-            完成
+            {{ $t('common.finish') }}
           </button>
         </div>
       </div>
@@ -326,6 +326,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import AppLayout from '../components/AppLayout.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import ChipGroup from '@/components/ui/ChipGroup.vue'
@@ -357,6 +358,7 @@ import { btnIcon, btnIconDanger, btnPrimary } from '@/components/ui/buttonStyles
 import { inputClassOnCard } from '@/components/ui/formStyles'
 
 const userStore = useUserStore()
+const { t } = useI18n()
 const words = ref<VocabularyVO[]>([])
 const loading = ref(true)
 const loadError = ref('')
@@ -383,9 +385,9 @@ const stats = computed(() => ({
 
 // ===== 筛选 =====
 const tabs = computed(() => [
-  { key: 'all' as const, label: '全部', count: words.value.length },
-  { key: 'review' as const, label: '待复习', count: stats.value.review },
-  { key: 'mastered' as const, label: '已掌握', count: stats.value.mastered },
+  { key: 'all' as const, label: t('learning.all'), count: words.value.length },
+  { key: 'review' as const, label: t('vocabulary.tabReview'), count: stats.value.review },
+  { key: 'mastered' as const, label: t('learning.mastered'), count: stats.value.mastered },
 ])
 
 const filteredWords = computed(() => {
@@ -399,9 +401,9 @@ const filteredWords = computed(() => {
 })
 
 const emptyHint = computed(() => {
-  if (activeTab.value === 'review') return '今日没有待复习的单词'
-  if (activeTab.value === 'mastered') return '还没有已掌握的单词'
-  return '单词本为空'
+  if (activeTab.value === 'review') return t('vocabulary.emptyReview')
+  if (activeTab.value === 'mastered') return t('vocabulary.emptyMastered')
+  return t('learning.vocabularyEmpty')
 })
 
 // ===== 加载 =====
@@ -415,7 +417,7 @@ const load = async () => {
     words.value = res.records || []
   } catch (e) {
     console.warn('加载单词本失败', e)
-    loadError.value = e instanceof Error ? e.message : '加载单词本失败'
+    loadError.value = e instanceof Error ? e.message : t('vocabulary.loadFailed')
   } finally {
     loading.value = false
   }
@@ -521,9 +523,9 @@ const handleAdd = async () => {
     })
     words.value.unshift(vo)
     newWord.value = ''
-    addHint.value = 'AI 已自动补全音标、释义、例句'
+    addHint.value = t('vocabulary.aiCompleted')
   } catch (e: any) {
-    addHint.value = '添加失败：' + (e?.message || '请稍后重试')
+    addHint.value = t('vocabulary.addFailed') + (e?.message || t('vocabulary.tryLater'))
   } finally {
     adding.value = false
     setTimeout(() => (addHint.value = ''), 4000)
@@ -560,9 +562,9 @@ const formatReviewDate = (dateStr: string) => {
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
   const target = new Date(d.getFullYear(), d.getMonth(), d.getDate())
   const diff = Math.round((target.getTime() - today.getTime()) / 86400000)
-  if (diff < 0) return '已到期'
-  if (diff === 0) return '今日复习'
-  return `${diff}天后复习`
+  if (diff < 0) return t('vocabulary.overdue')
+  if (diff === 0) return t('vocabulary.dueToday')
+  return t('vocabulary.daysLater', { days: diff })
 }
 
 // ===== 复习模式 =====

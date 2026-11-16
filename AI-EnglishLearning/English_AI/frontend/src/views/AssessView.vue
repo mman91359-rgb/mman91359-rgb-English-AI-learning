@@ -5,7 +5,7 @@
       <PageHeader :title="$t('assess.title')" :subtitle="$t('notification.welcomeContent')" flush>
         <template #actions>
           <button :class="btnSecondary" @click="router.push('/dashboard')">
-            稍后再测
+            {{ $t('assess.laterTest') }}
           </button>
         </template>
       </PageHeader>
@@ -18,15 +18,15 @@
         </div>
         <h2 class="font-headline-lg text-headline-lg text-on-surface">{{ $t('assess.completed') }}</h2>
         <p class="mt-3 font-body-md text-body-md text-on-surface-variant">
-          本次答对 {{ correctCount }} / {{ questions.length }} 题
+          {{ $t('assess.correctSummary', { correct: correctCount, total: questions.length }) }}
         </p>
         <div class="mt-6 grid grid-cols-2 gap-4">
           <div class="rounded-xl bg-surface-container-low p-4">
-            <p class="font-label-md text-label-md text-on-surface-variant">当前等级</p>
+            <p class="font-label-md text-label-md text-on-surface-variant">{{ $t('assess.currentLevel') }}</p>
             <p class="mt-1 font-headline-md text-headline-md text-primary">{{ finalRadar?.eloLevel || '-' }}</p>
           </div>
           <div class="rounded-xl bg-surface-container-low p-4">
-            <p class="font-label-md text-label-md text-on-surface-variant">能力分</p>
+            <p class="font-label-md text-label-md text-on-surface-variant">{{ $t('assess.abilityScore') }}</p>
             <p class="mt-1 font-headline-md text-headline-md text-primary">{{ finalRadar?.eloScore || '-' }}</p>
           </div>
         </div>
@@ -34,7 +34,7 @@
           :class="['mt-8', btnPrimaryBlock]"
           @click="router.push('/dashboard')"
         >
-          进入首页
+          {{ $t('assess.enterHome') }}
         </button>
       </AppCard>
 
@@ -82,7 +82,7 @@
             :disabled="submitting || !selectedAnswer.trim()"
             @click="submitCurrent"
           >
-            {{ submitting ? '提交中...' : currentIndex === questions.length - 1 ? '完成测评' : '下一题' }}
+            {{ submitting ? $t('assess.submitting') : currentIndex === questions.length - 1 ? $t('assess.finishAssess') : $t('learning.next') }}
           </button>
         </AppCard>
       </div>
@@ -175,7 +175,7 @@ const loadQuestions = async () => {
     questions.value = await getAssessQuestions()
   } catch (e) {
     console.warn('加载定级测评题失败', e)
-    toast('测评题加载失败，请稍后重试', 'error')
+    toast(t('assess.loadFailed'), 'error')
   } finally {
     loading.value = false
   }
@@ -209,7 +209,7 @@ const submitCurrent = async () => {
     }
   } catch (e) {
     console.warn('提交定级测评失败', e)
-    toast('提交失败，请稍后重试', 'error')
+    toast(t('assess.submitFailed'), 'error')
   } finally {
     submitting.value = false
   }

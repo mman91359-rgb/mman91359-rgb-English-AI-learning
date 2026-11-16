@@ -194,7 +194,7 @@
                 <span class="font-label-sm text-label-sm text-secondary">
                   {{ e.aiScored === 1 ? `${e.weightedScore ?? '-'} ${$t('history.scoreUnit')}` : $t('history.notScored') }}
                 </span>
-                <span v-if="e.wordCount" class="font-label-sm text-label-sm text-on-surface-variant">{{ e.wordCount }} {{ $t('history.wordUnit') }}</span>
+                <span v-if="e.wordCount" class="font-label-sm text-label-sm text-on-surface-variant">{{ e.wordCount }} {{ $t('learnedWords.wordsUnit') }}</span>
               </div>
             </div>
             <div class="text-right shrink-0">
@@ -411,7 +411,7 @@ import {
 } from '@/api/exercise'
 import { btnSecondarySm } from '@/components/ui/buttonStyles'
 
-const { t, locale } = useI18n()
+const { t, tm, locale } = useI18n()
 const userStore = useUserStore()
 
 // ========== 数据状态 ==========
@@ -650,7 +650,13 @@ const dayLabel = (dateKey: string): string => {
   if (dateKey === yKey) return t('learning.yesterday')
   const parts = dateKey.split('-')
   if (parts.length === 3) {
-    return t('history.dateFormat', { y: parts[0], m: Number(parts[1]), d: Number(parts[2]) })
+    const months = tm('stats.months') as unknown as string[]
+    return t('history.dateFormat', {
+      y: parts[0],
+      m: Number(parts[1]),
+      mon: months[Number(parts[1]) - 1],
+      d: Number(parts[2]),
+    })
   }
   return dateKey
 }

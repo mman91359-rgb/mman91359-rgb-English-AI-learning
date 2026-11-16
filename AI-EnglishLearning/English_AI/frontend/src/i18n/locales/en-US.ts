@@ -1001,8 +1001,7 @@ export default {
     notScored: 'Not scored',
     loadFailed: 'Failed to load learning history',
     scoreUnit: 'pt',
-    wordUnit: 'words',
-    dateFormat: '{m}/{d}/{y}',
+    dateFormat: '{mon} {d}, {y}',
     grammarHint: {
       subjunctive: '* Incorrect use of the subjunctive mood, check tense agreement and verb forms',
       conjunction: '* Incorrect use of conjunction, check the grammar rules carefully',

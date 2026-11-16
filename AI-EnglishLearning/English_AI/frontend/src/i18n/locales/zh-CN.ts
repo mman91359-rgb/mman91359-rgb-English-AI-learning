@@ -1001,7 +1001,6 @@ export default {
     notScored: '未评分',
     loadFailed: '加载学习历史失败',
     scoreUnit: '分',
-    wordUnit: '词',
     dateFormat: '{y}年{m}月{d}日',
     grammarHint: {
       subjunctive: '* 虚拟语气使用错误，请检查时态匹配和动词形式',

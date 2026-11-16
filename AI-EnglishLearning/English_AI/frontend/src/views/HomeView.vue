@@ -300,6 +300,7 @@ import { btnIcon, btnIconSm, btnPrimary } from '@/components/ui/buttonStyles'
 import { useToast } from '@/composables/useToast'
 import { useUserStore } from '@/stores/user'
 import { moduleName } from '@/config/modules'
+import { homeDailyDefaults } from '@/config/learningDefaults'
 import { getDailyWord, getExerciseStats } from '@/api/exercise'
 import type { DailyWordVO } from '@/api/exercise'
 import { getReviewTasks } from '@/api/learning'
@@ -362,8 +363,8 @@ onUnmounted(() => {
 // ========== 每日词汇目标（新背 + 复习） ==========
 const todayLearnedWords = ref(0)
 const todayReviewedWords = ref(0)
-const dailyNewWordsTarget = computed(() => userStore.dailyNewWords ?? 10)
-const dailyReviewWordsTarget = computed(() => userStore.dailyReviewWords ?? 5)
+const dailyNewWordsTarget = computed(() => userStore.dailyNewWords ?? homeDailyDefaults.newWords)
+const dailyReviewWordsTarget = computed(() => userStore.dailyReviewWords ?? homeDailyDefaults.reviewWords)
 
 const newWordProgress = computed(() => {
   const completed = todayLearnedWords.value

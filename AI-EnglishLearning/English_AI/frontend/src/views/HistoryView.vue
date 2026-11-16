@@ -881,23 +881,23 @@ const escapeHtml = (str: string): string => {
 const getGrammarErrorHint = (item: ExerciseHistoryVO): string => {
   const knowledgePoint = extractKnowledgePoint(item)
   const hints: Record<string, string> = {
-    '虚拟语气': '* 虚拟语气使用错误，请检查时态匹配和动词形式',
-    'since': '* 连词使用错误，请仔细核对语法规则',
-    'for': '* 连词使用错误，请仔细核对语法规则',
-    '条件状语': '* 条件状语从句使用错误，请检查时态搭配',
-    '定语从句': '* 定语从句关系词使用错误，请检查先行词和从句结构',
-    '时态': '* 时态使用错误，请根据时间状语选择正确时态',
-    '主谓一致': '* 主谓一致错误，请检查主语和谓语的数是否一致',
-    '比较级': '* 比较级使用错误，请检查比较对象和修饰词',
-    '被动语态': '* 被动语态使用错误，请检查助动词和过去分词',
-    '情态动词': '* 情态动词使用错误，请检查情态动词的含义和搭配'
+    '虚拟语气': t('history.grammarHint.subjunctive'),
+    'since': t('history.grammarHint.conjunction'),
+    'for': t('history.grammarHint.conjunction'),
+    '条件状语': t('history.grammarHint.conditional'),
+    '定语从句': t('history.grammarHint.relativeClause'),
+    '时态': t('history.grammarHint.tense'),
+    '主谓一致': t('history.grammarHint.subjectVerb'),
+    '比较级': t('history.grammarHint.comparative'),
+    '被动语态': t('history.grammarHint.passive'),
+    '情态动词': t('history.grammarHint.modal')
   }
   for (const [keyword, hint] of Object.entries(hints)) {
     if (knowledgePoint.includes(keyword)) {
       return hint
     }
   }
-  return '* 语法使用错误，请仔细核对语法规则'
+  return t('history.grammarHint.default')
 }
 
 onMounted(async () => {

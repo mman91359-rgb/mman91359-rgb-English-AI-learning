@@ -288,6 +288,7 @@ import { useAiStore } from '@/stores/ai'
 import { getErrorBook, getFavorites, getVocabularyPage } from '@/api/exercise'
 import { getCurveStats } from '@/api/learning'
 import { useToast } from '@/composables/useToast'
+import { homeDailyDefaults, learningDailyTargets } from '@/config/learningDefaults'
 
 const { t } = useI18n()
 const { show: toast } = useToast()
@@ -330,8 +331,8 @@ const DAILY_TARGET_KEY_VOCAB = 'dailyTarget_vocab'
 const DAILY_TARGET_KEY_GRAMMAR = 'dailyTarget_grammar'
 
 const defaultTargets: Record<string, number> = {
-  vocab: 20,
-  grammar: 10,
+  vocab: learningDailyTargets.vocab,
+  grammar: learningDailyTargets.grammar,
 }
 
 const getTargetKey = () => {
@@ -340,7 +341,7 @@ const getTargetKey = () => {
 }
 
 const getDefaultTarget = () => {
-  return defaultTargets[activeTab.value] || 20
+  return defaultTargets[activeTab.value] || learningDailyTargets.vocab
 }
 
 const dailyTarget = ref(Number(localStorage.getItem(getTargetKey())) || getDefaultTarget())
@@ -374,8 +375,8 @@ const cancelTarget = () => {
 const showVocabularyGoalDialog = ref(false)
 const goalSaving = ref(false)
 const goalError = ref('')
-const dailyNewWordsDisplay = computed(() => userStore.dailyNewWords ?? 10)
-const dailyReviewWordsDisplay = computed(() => userStore.dailyReviewWords ?? 5)
+const dailyNewWordsDisplay = computed(() => userStore.dailyNewWords ?? homeDailyDefaults.newWords)
+const dailyReviewWordsDisplay = computed(() => userStore.dailyReviewWords ?? homeDailyDefaults.reviewWords)
 
 // 本次练习模式：new（新学） / review（复习），二选一
 const vocabMode = ref<'new' | 'review'>('new')

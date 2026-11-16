@@ -9,7 +9,7 @@
             :aria-label="$t('writing.practice.backToLearning')"
             @click="router.push({ path: '/learning', query: { tab: 'writing' } })"
           >
-            <span class="material-symbols-outlined">arrow_back_ios_new</span>
+            <AppIcon name="arrow_back_ios_new" size="lg" />
           </button>
           <QuizProgressBar :answered="submittedCount" :total="topicCount || 1" />
           <span class="inline-flex rounded-full bg-warning-container px-3 py-1 font-label-md text-label-md text-on-warning-container">
@@ -23,7 +23,7 @@
             :aria-label="$t('topbar.currentLanguage')"
             @click="toggleLocale"
           >
-            <span class="material-symbols-outlined">translate</span>
+            <AppIcon name="translate" size="lg" />
             {{ appStore.language === 'zh-CN' ? 'EN' : '中文' }}
           </button>
           <button
@@ -32,7 +32,7 @@
             :aria-label="$t('topbar.notifications')"
             @click="toast($t('common.comingSoon'), 'info')"
           >
-            <span class="material-symbols-outlined">notifications</span>
+            <AppIcon name="notifications" size="lg" />
           </button>
           <button
             type="button"
@@ -40,7 +40,7 @@
             :aria-label="appStore.isDark ? $t('topbar.switchToLight') : $t('topbar.switchToDark')"
             @click="appStore.toggleTheme"
           >
-            <span class="material-symbols-outlined">{{ appStore.isDark ? 'light_mode' : 'dark_mode' }}</span>
+            <AppIcon :name="appStore.isDark ? 'light_mode' : 'dark_mode'" size="lg" />
           </button>
           <div class="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-surface-variant font-label-md text-label-md text-on-surface-variant">
             {{ avatarText }}
@@ -128,6 +128,7 @@ import AppLayout from '../../components/AppLayout.vue'
 import QuizProgressBar from '../../components/quiz/QuizProgressBar.vue'
 import BaseDialog from '../../components/ui/BaseDialog.vue'
 import ConfirmDialog from '../../components/admin/ConfirmDialog.vue'
+import AppIcon from '../../components/ui/AppIcon.vue'
 import EmptyState from '../../components/ui/EmptyState.vue'
 import { btnIcon, btnPrimary, btnSecondary } from '@/components/ui/buttonStyles'
 import ErrorState from '../../components/ui/ErrorState.vue'

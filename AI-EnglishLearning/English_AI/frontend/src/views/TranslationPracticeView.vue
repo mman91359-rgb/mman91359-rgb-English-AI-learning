@@ -186,6 +186,7 @@ import AiFeedbackPanel from '../components/ai/AiFeedbackPanel.vue'
 import QuizProgressBar from '../components/quiz/QuizProgressBar.vue'
 import WordDetailCard from '../components/word/WordDetailCard.vue'
 import { useToast } from '../composables/useToast'
+import { DEFAULT_SET_SIZE } from '@/config/constants'
 import { useUserStore } from '../stores/user'
 import { useAiStore } from '../stores/ai'
 import { selectTranslationQuestions, submitTranslation, isPassageTranslation } from '../api/translation'
@@ -280,7 +281,7 @@ onMounted(async () => {
   }
   void sentenceFavorite.load()
   try {
-    questions.value = await selectTranslationQuestions(userId, 5)
+    questions.value = await selectTranslationQuestions(userId, DEFAULT_SET_SIZE)
     // 本组翻译题共用一个结算键
     startBatch(3)
     if (questions.value.length === 0) {

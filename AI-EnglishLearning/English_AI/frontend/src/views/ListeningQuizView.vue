@@ -241,6 +241,7 @@ import ErrorState from '../components/ui/ErrorState.vue'
 import { useUserStore } from '../stores/user'
 import { useAppStore } from '../stores/app'
 import { useToast } from '../composables/useToast'
+import { DEFAULT_SET_SIZE } from '@/config/constants'
 import {
   selectListeningQuestions,
   submitListeningAnswer,
@@ -368,7 +369,7 @@ const loadQuestions = async () => {
   loadError.value = ''
   try {
     const type = typeof route.query.type === 'string' ? route.query.type : ''
-    questions.value = await selectListeningQuestions(userId, 5, type || undefined)
+    questions.value = await selectListeningQuestions(userId, DEFAULT_SET_SIZE, type || undefined)
     currentIndex.value = 0
     selectedAnswer.value = ''
     showResult.value = false

@@ -23,8 +23,8 @@
       <div v-if="weakPoints.length > 0" class="bg-surface-container-lowest rounded-[20px] p-5 shadow-soft-glow mb-6">
         <div class="flex items-center gap-2 mb-4">
           <span class="material-symbols-outlined text-warning text-icon-lg">lightbulb</span>
-          <h3 class="font-headline-sm text-headline-sm text-on-surface">薄弱知识点</h3>
-          <span class="font-label-sm text-label-sm text-on-surface-variant">（错题数排名前10）</span>
+          <h3 class="font-headline-sm text-headline-sm text-on-surface">{{ $t('errorBook.weakPoints') }}</h3>
+          <span class="font-label-sm text-label-sm text-on-surface-variant">{{ $t('errorBook.weakPointsHint') }}</span>
         </div>
         <div class="flex flex-wrap gap-2">
           <span
@@ -267,7 +267,7 @@
             >
               <span v-if="generating[q.id]" class="material-symbols-outlined text-icon-lg animate-spin">progress_activity</span>
               <span v-else class="material-symbols-outlined text-icon-lg">auto_fix_high</span>
-              {{ generating[q.id] ? '生成中...' : '生成同类练习' }}
+              {{ generating[q.id] ? $t('errorBook.generating') : $t('errorBook.generateSimilar') }}
             </button>
           </div>
         </div>
@@ -291,7 +291,7 @@
         >
           <div class="mb-4 flex items-center justify-between">
             <h3 id="similar-dialog-title" class="font-headline-md text-headline-md text-on-surface">
-              同类强化练习
+              {{ $t('errorBook.similarTitle') }}
               <span class="font-label-sm text-label-sm text-on-surface-variant ml-2">
                 {{ currentSimilarIndex + 1 }} / {{ similarQuestions.length }}
               </span>
@@ -373,14 +373,14 @@
                   v-if="similarSubmitted[currentSimilarIndex]?.isCorrect"
                   class="bg-tertiary-container/25 rounded-xl p-3 text-center"
                 >
-                  <p class="font-label-md text-label-md text-on-tertiary-container">回答正确！</p>
+                  <p class="font-label-md text-label-md text-on-tertiary-container">{{ $t('learning.correct') }}</p>
                 </div>
                 <div v-else class="bg-surface-container rounded-xl p-3 space-y-1">
                   <p class="font-label-sm text-label-sm text-on-surface-variant">
-                    你的答案：<span class="text-error">{{ similarSelectedAnswers[currentSimilarIndex] }}</span>
+                    {{ $t('errorBook.yourAnswerColon') }}<span class="text-error">{{ similarSelectedAnswers[currentSimilarIndex] }}</span>
                   </p>
                   <p class="font-label-sm text-label-sm text-primary">
-                    正确答案：{{ similarQuestions[currentSimilarIndex]?.correctAnswer }}
+                    {{ $t('errorBook.correctAnswerColon') }}{{ similarQuestions[currentSimilarIndex]?.correctAnswer }}
                   </p>
                   <p v-if="similarQuestions[currentSimilarIndex]?.analysis" class="font-body-sm text-body-sm text-on-surface-variant">
                     {{ similarQuestions[currentSimilarIndex].analysis }}
@@ -395,14 +395,14 @@
                   class="flex-1 bg-secondary text-on-secondary py-2.5 rounded-xl font-label-md text-label-md hover:bg-secondary/90 transition-colors"
                   @click="handleSimilarSubmit"
                 >
-                  提交答案
+                  {{ $t('learning.confirmSubmit') }}
                 </button>
                 <button
                   v-else
                   class="flex-1 bg-on-surface text-surface py-2.5 rounded-xl font-label-md text-label-md hover:bg-on-surface/90 transition-colors"
                   @click="nextSimilarQuestion"
                 >
-                  {{ currentSimilarIndex < similarQuestions.length - 1 ? '下一题' : '完成' }}
+                  {{ currentSimilarIndex < similarQuestions.length - 1 ? $t('learning.next') : $t('common.finish') }}
                 </button>
               </div>
             </div>
@@ -410,7 +410,7 @@
 
           <div v-else class="text-center py-12">
             <span class="material-symbols-outlined text-icon-3xl text-outline">quiz</span>
-            <p class="mt-3 text-on-surface-variant font-body-md text-body-md">暂无生成的题目</p>
+            <p class="mt-3 text-on-surface-variant font-body-md text-body-md">{{ $t('errorBook.noSimilarQuestions') }}</p>
           </div>
         </div>
       </div>
@@ -805,13 +805,13 @@ const handleGenerateSimilar = async (q: QuestionVO) => {
       similarShowAnswer.value = {}
       similarSubmitted.value = {}
       similarModalVisible.value = true
-      toast(`已生成 ${questions.length} 道同类题`, 'success')
+      toast(t('errorBook.generatedCount', { count: questions.length }), 'success')
     } else {
-      toast('暂无可生成的同类题，请稍后再试', 'error')
+      toast(t('errorBook.noSimilarAvailable'), 'error')
     }
   } catch (e) {
     console.warn('生成同类题失败', e)
-    toast('生成同类题失败，请稍后再试', 'error')
+    toast(t('errorBook.generateFailed'), 'error')
   } finally {
     generating.value[q.id] = false
   }

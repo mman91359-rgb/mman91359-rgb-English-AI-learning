@@ -30,7 +30,7 @@
           @change="handleAvatarChange"
         />
         <!-- 上传提示 -->
-        <p v-if="avatarUploading" class="text-label-sm font-label-sm text-primary mb-2">上传中...</p>
+        <p v-if="avatarUploading" class="text-label-sm font-label-sm text-primary mb-2">{{ $t('profile.uploading') }}</p>
         <div class="flex items-center gap-2 group cursor-pointer" @click="openNicknameDialog">
           <h1 class="font-headline-lg text-headline-lg text-on-background">{{ displayName }}</h1>
           <span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors text-icon-lg">edit</span>
@@ -409,7 +409,7 @@ const handleAvatarChange = async (e: Event) => {
 
   // 前端校验
   if (!file.type.startsWith('image/')) {
-    toast('请选择图片文件', 'error')
+    toast(t('profile.selectImage'), 'error')
     return
   }
   if (file.size > 5 * 1024 * 1024) {
@@ -424,7 +424,7 @@ const handleAvatarChange = async (e: Event) => {
   try {
     const avatarUrl = await uploadAvatar(userId, file)
     userStore.updateAvatar(avatarUrl)
-    toast('头像更新成功', 'success')
+    toast(t('profile.avatarUpdated'), 'success')
   } catch (e: any) {
     toast(e.message || '头像上传失败', 'error')
   } finally {
@@ -461,7 +461,7 @@ const closeNicknameDialog = () => {
 const submitNickname = async () => {
   const newNickname = nicknameInput.value.trim()
   if (!newNickname) {
-    toast('昵称不能为空', 'warning')
+    toast(t('profile.nicknameEmpty'), 'warning')
     return
   }
   if (newNickname.length > 20) {

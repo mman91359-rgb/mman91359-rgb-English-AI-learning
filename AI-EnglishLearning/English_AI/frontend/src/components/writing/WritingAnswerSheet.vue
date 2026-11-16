@@ -60,7 +60,7 @@
             :aria-expanded="hintsOpen"
             @click="$emit('toggleHints')"
           >
-            <span class="material-symbols-outlined text-icon-sm">{{ hintsOpen ? 'expand_less' : 'expand_more' }}</span>
+            <AppIcon :name="hintsOpen ? 'expand_less' : 'expand_more'" size="sm" />
             {{ hintsOpen ? $t('writing.practice.hideHints') : $t('writing.practice.viewHints') }}
           </button>
           <div v-if="hintsOpen" class="mt-3 grid grid-cols-1 gap-4 rounded-xl bg-surface-container-low p-4 sm:grid-cols-2">
@@ -105,7 +105,7 @@
               {{ $t('writing.practice.saveDraft') }}
             </button>
             <button type="button" class="flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2 font-label-lg text-label-lg text-on-primary disabled:opacity-50" :disabled="disabled || wordCount === 0" @click="$emit('submit')">
-              <span class="material-symbols-outlined text-icon-sm">send</span>
+              <AppIcon name="send" size="sm" />
               {{ $t('writing.practice.submit') }}
             </button>
           </div>
@@ -123,6 +123,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import AppIcon from '@/components/ui/AppIcon.vue'
 import type { WritingTopic } from '../../types/writing'
 import { WRITING_LEVEL_LABEL_KEYS, WRITING_TYPE_META } from '../../utils/writing'
 

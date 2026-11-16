@@ -578,6 +578,9 @@ export default {
     loadFailed: '加载单词本失败',
     aiCompleted: 'AI 已自动补全音标、释义、例句',
     addFailed: '添加失败：',
+    tryLater: '请稍后重试',
+    overdue: '已到期',
+    dueToday: '今日复习',
     daysLater: '{days}天后复习',
   },
   settings: {

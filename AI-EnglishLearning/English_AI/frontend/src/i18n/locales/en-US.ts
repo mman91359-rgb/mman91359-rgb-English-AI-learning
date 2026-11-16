@@ -578,6 +578,9 @@ export default {
     loadFailed: 'Failed to load vocabulary',
     aiCompleted: 'AI has completed phonetics, meanings and examples',
     addFailed: 'Failed to add: ',
+    tryLater: 'please try again later',
+    overdue: 'Overdue',
+    dueToday: 'Review today',
     daysLater: 'Review in {days} days',
   },
   settings: {

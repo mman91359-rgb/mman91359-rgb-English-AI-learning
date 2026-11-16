@@ -3,7 +3,7 @@
     <template #topbar>
       <div class="mx-auto flex h-20 w-full max-w-[1192px] items-center justify-between px-gutter">
         <button type="button" class="flex items-center gap-2 rounded-full px-3 py-2 font-label-lg text-label-lg text-on-surface-variant transition-colors hover:bg-surface-container-high/50" @click="router.push({ path: '/learning', query: { tab: 'writing' } })">
-          <span class="material-symbols-outlined text-icon-md">arrow_back</span>
+          <AppIcon name="arrow_back" size="md" />
           {{ $t('writing.practice.backToLearning') }}
         </button>
         <span class="rounded-full bg-warning-container px-3 py-1 font-label-md text-label-md text-on-warning-container">
@@ -38,22 +38,23 @@
         </div>
         <div class="flex flex-wrap gap-3">
           <button type="button" :class="btnSecondarySm" @click="router.push('/writing/history')">
-            <span class="material-symbols-outlined text-icon-sm">history</span>
+            <AppIcon name="history" size="sm" />
             {{ $t('writing.report.history') }}
           </button>
           <button type="button" :class="btnSecondarySm" @click="toggleFavorite">
-            <span
-              class="material-symbols-outlined text-icon-sm"
-              :class="{ fill: isFavorite }"
-            >{{ isFavorite ? 'favorite' : 'favorite_border' }}</span>
+            <AppIcon
+              :name="isFavorite ? 'favorite' : 'favorite_border'"
+              :filled="isFavorite"
+              size="sm"
+            />
             {{ isFavorite ? $t('writing.report.unfavorite') : $t('writing.report.favorite') }}
           </button>
           <button type="button" :class="btnSecondarySm" @click="askAi">
-            <span class="material-symbols-outlined text-icon-sm">forum</span>
+            <AppIcon name="forum" size="sm" />
             {{ $t('writing.report.askAi') }}
           </button>
           <button type="button" :class="btnPrimarySm" @click="rewrite">
-            <span class="material-symbols-outlined text-icon-sm">refresh</span>
+            <AppIcon name="refresh" size="sm" />
             {{ $t('writing.report.again') }}
           </button>
         </div>
@@ -111,6 +112,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import AppLayout from '../../components/AppLayout.vue'
+import AppIcon from '../../components/ui/AppIcon.vue'
 import EmptyState from '../../components/ui/EmptyState.vue'
 import ErrorState from '../../components/ui/ErrorState.vue'
 import LoadingState from '../../components/ui/LoadingState.vue'

@@ -2,7 +2,7 @@
   <div class="flex flex-col gap-3 rounded-2xl border border-outline-variant/40 bg-surface-container-lowest p-6 shadow-soft-glow">
     <div class="flex items-center gap-2">
       <span class="flex h-8 w-8 items-center justify-center rounded-lg" :class="toneClass">
-        <span class="material-symbols-outlined text-icon-sm">{{ icon }}</span>
+        <AppIcon :name="icon" size="sm" />
       </span>
       <h3 class="font-body-lg text-body-lg font-semibold text-on-surface">{{ title }}</h3>
     </div>
@@ -14,6 +14,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
 
 const props = defineProps<{
   title: string

@@ -461,7 +461,7 @@ git grep -n "material-symbols-outlined" HEAD -- "src/components/*.vue" | grep -v
 # 类名口径可 grep 复现，点位口径会随写法漂移（把 border-l-green-500 拆成 border-l-4 + border-green-500 就从 1 变 2）。
 git grep -oE "\b(bg|text|border|border-[lrtb]|from|via|to|ring|divide|placeholder)-(white|black|(gray|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose|slate|zinc|neutral|stone)-(50|100|200|300|400|500|600|700|800|900|950))" HEAD -- "src/*.vue" "src/*.ts" | wc -l
 
-# L8 视图层直写图标（目标 0；当前 170 @ <本次提交>，按行计；与 L5 并列、互不合并）
+# L8 视图层直写图标（目标 0；当前 170 @ d7a2784，按行计；与 L5 并列、互不合并）
 # L5 的 pathspec 是 src/components/*.vue，覆盖不到 views/；L8 单列 views/*.vue 把盲区显性化
 # 导入 AppIcon 的语句不含 material-symbols-outlined 字面量，无需额外 grep -v
 git grep -n "material-symbols-outlined" HEAD -- "src/views/*.vue" | wc -l
@@ -497,7 +497,7 @@ git grep -n "material-symbols-outlined" HEAD -- "src/views/*.vue" | wc -l
 > `2a50d43` / `116a578` 数值未变；`c4ef7d3` 的「已学词库页 + 标熟机制」把 L1a 31→28、
 > L1b 127→124、L5 107→103，属规则 ①）。
 > 当前八条：L1a 21 / L1b 124 / L2 0 / L3 0 / L4 0 / L5 96 / L6 10 / L8 170。
-> L8 于 <本次提交> 起生效（达成值 170），此前历史快照锚点无此项；L5 历史锚点全部保留可比。
+> L8 于 `d7a2784` 起生效（达成值 170），此前历史快照锚点无此项；L5 历史锚点全部保留可比。
 > 答题族批次（`36e8e4f` 组件 / `1039ef9` 文档）对全部口径增量恒为 0。
 > 每批交付前先跑 `git log -1` 确认 `HEAD` 未再前进。
 >
@@ -615,7 +615,7 @@ node scripts/check-ui-consistency.mjs 1a024b6 # 等价的直接调用
 | 退出码 2 | 运行错误：契约文档不可读、登记行解析失败、commit-ish 无效、git 命令失败。**不视为匹配** |
 | 注意事项 | **仅做只读校验，不自动修复**：不写任何源文件、不执行 git 写操作、不改基线数字；修复仍按 §11.1 的 A/B 判定另立批次 |
 | 口径约束 | 八条命令与本节上方逐条对应，不引入宽口径；`HEAD` / 指定 commit-ish 一律只认已提交状态，不取工作区 |
-| L5 / L8 分工 | **L5 只覆盖 `src/components/*.vue` 组件层，views 层走 L8**：两条并列、互不合并、互不改 pathspec。L5 历史锚点保持可比；L8 自 <本次提交> 起生效 |
+| L5 / L8 分工 | **L5 只覆盖 `src/components/*.vue` 组件层，views 层走 L8**：两条并列、互不合并、互不改 pathspec。L5 历史锚点保持可比；L8 自 `d7a2784` 起生效 |
 
 > 脚本的期望值**不在代码里硬编码**，而是解析本节「当前八条：…」那一行；改登记数字后无需同步改脚本。
 > 命令注释里的 `当前 N @ <short-sha>` 属历史快照锚点，按 §11.5 豁免，不参与脚本比对。

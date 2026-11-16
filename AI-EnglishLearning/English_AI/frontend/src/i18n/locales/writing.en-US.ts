@@ -83,6 +83,7 @@ const extra = {
     favorite: 'Favorite topic',
     unfavorite: 'Remove favorite',
     askAi: 'Ask AI',
+    notScored: 'Not scored',
   },
   history: {
     type: 'Type',
@@ -110,6 +111,7 @@ const extra = {
     DRAFT: 'Draft',
     SCORING: 'Scoring',
     FAILED: 'Failed',
+    NOT_SCORED: 'Not scored',
   },
   common: {
     back: 'Back',

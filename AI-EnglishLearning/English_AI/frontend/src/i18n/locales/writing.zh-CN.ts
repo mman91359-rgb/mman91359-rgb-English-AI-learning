@@ -83,6 +83,7 @@ const extra = {
     favorite: '收藏题目',
     unfavorite: '取消收藏',
     askAi: '问 AI',
+    notScored: '未评分',
   },
   history: {
     type: '题型',
@@ -110,6 +111,7 @@ const extra = {
     DRAFT: '草稿',
     SCORING: '评分中',
     FAILED: '评分失败',
+    NOT_SCORED: '未评分',
   },
   common: {
     back: '返回',

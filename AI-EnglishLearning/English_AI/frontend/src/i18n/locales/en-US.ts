@@ -533,8 +533,13 @@ export default {
     nicknamePlaceholder: 'Enter a new nickname (up to 20 characters)',
     uploading: 'Uploading...',
     selectImage: 'Please select an image file',
+    avatarFileTooLarge: 'Avatar file cannot exceed 5MB',
+    avatarUploadFailed: 'Failed to upload avatar',
     avatarUpdated: 'Avatar updated',
     nicknameEmpty: 'Nickname cannot be empty',
+    nicknameLength: 'Nickname cannot exceed 20 characters',
+    nicknameChanged: 'Nickname updated',
+    nicknameChangeFailed: 'Failed to update nickname',
     save: 'Save',
     saving: 'Saving…',
     totalStudyTime: 'Total Study Time',
@@ -992,6 +997,8 @@ export default {
     idleLogout: 'You have been signed out due to inactivity.',
   },
   history: {
+    notScored: 'Not scored',
+    loadFailed: 'Failed to load learning history',
     grammarHint: {
       subjunctive: '* Incorrect use of the subjunctive mood, check tense agreement and verb forms',
       conjunction: '* Incorrect use of conjunction, check the grammar rules carefully',

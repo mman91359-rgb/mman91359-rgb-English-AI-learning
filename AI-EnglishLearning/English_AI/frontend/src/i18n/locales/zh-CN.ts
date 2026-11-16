@@ -533,8 +533,13 @@ export default {
     nicknamePlaceholder: '请输入新昵称（最多 20 个字符）',
     uploading: '上传中...',
     selectImage: '请选择图片文件',
+    avatarFileTooLarge: '头像文件不能超过5MB',
+    avatarUploadFailed: '头像上传失败',
     avatarUpdated: '头像更新成功',
     nicknameEmpty: '昵称不能为空',
+    nicknameLength: '昵称长度不能超过20个字符',
+    nicknameChanged: '昵称修改成功',
+    nicknameChangeFailed: '昵称修改失败',
     save: '保存',
     saving: '保存中…',
     totalStudyTime: '累计学习时间',
@@ -992,6 +997,8 @@ export default {
     idleLogout: '长时间未操作，已自动退出登录',
   },
   history: {
+    notScored: '未评分',
+    loadFailed: '加载学习历史失败',
     grammarHint: {
       subjunctive: '* 虚拟语气使用错误，请检查时态匹配和动词形式',
       conjunction: '* 连词使用错误，请仔细核对语法规则',

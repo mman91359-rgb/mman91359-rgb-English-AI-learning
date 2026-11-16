@@ -3,7 +3,7 @@
     <template #topbar>
       <div class="mx-auto flex h-20 w-full max-w-[1192px] items-center justify-between px-gutter">
         <button type="button" :class="btnGhostSm" @click="router.push({ path: '/learning', query: { tab: 'writing' } })">
-          <span class="material-symbols-outlined text-icon-sm">arrow_back</span>
+          <AppIcon name="arrow_back" size="sm" />
           {{ $t('writing.practice.backToLearning') }}
         </button>
         <span class="rounded-full bg-warning-container px-3 py-1 font-label-md text-label-md text-on-warning-container">
@@ -55,7 +55,7 @@
             :aria-pressed="filterFavorites"
             @click="setParams({ favorites: filterFavorites ? undefined : '1' })"
           >
-            <span class="material-symbols-outlined text-icon-sm">{{ filterFavorites ? 'favorite' : 'favorite_border' }}</span>
+            <AppIcon :name="filterFavorites ? 'favorite' : 'favorite_border'" size="sm" />
             {{ $t('writing.history.favoritesOnly') }}
           </button>
           <button
@@ -65,7 +65,7 @@
             :aria-pressed="filterLow"
             @click="setParams({ low: filterLow ? undefined : '1' })"
           >
-            <span class="material-symbols-outlined text-icon-sm">priority_high</span>
+            <AppIcon name="priority_high" size="sm" />
             {{ $t('writing.history.lowScoresOnly') }}
           </button>
         </div>
@@ -90,7 +90,7 @@
         <li v-for="item in items" :key="item.id" class="flex flex-col gap-3 border-b border-outline-variant/40 p-5 transition-colors last:border-b-0 hover:bg-surface-container-low md:flex-row md:items-center">
           <button type="button" class="flex min-w-0 flex-1 items-center gap-4 text-left" @click="openItem(item)">
             <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary-container/60 text-on-secondary-container">
-              <span class="material-symbols-outlined text-icon-md">{{ item.type ? typeIcon(item.type) : 'edit_note' }}</span>
+              <AppIcon :name="item.type ? typeIcon(item.type) : 'edit_note'" size="md" />
             </span>
             <span class="flex min-w-0 flex-col gap-1">
               <span class="truncate font-body-lg text-body-lg font-semibold text-on-surface">{{ item.title }}</span>
@@ -109,10 +109,11 @@
               :aria-label="favoriteIds.includes(item.topicId) ? $t('writing.entry.unfavorite') : $t('writing.entry.favorite')"
               @click.stop="toggleFavorite(item.topicId)"
             >
-              <span
-                class="material-symbols-outlined text-icon-md"
-                :class="{ fill: favoriteIds.includes(item.topicId) }"
-              >{{ favoriteIds.includes(item.topicId) ? 'favorite' : 'favorite_border' }}</span>
+              <AppIcon
+                :name="favoriteIds.includes(item.topicId) ? 'favorite' : 'favorite_border'"
+                :filled="favoriteIds.includes(item.topicId)"
+                size="md"
+              />
             </button>
           </div>
         </li>
@@ -130,6 +131,7 @@ import AdminFilterBar from '../../components/admin/AdminFilterBar.vue'
 import AdminFilterField from '../../components/admin/AdminFilterField.vue'
 import AdminFilterSelect from '../../components/admin/AdminFilterSelect.vue'
 import StatusBadge from '../../components/admin/StatusBadge.vue'
+import AppIcon from '../../components/ui/AppIcon.vue'
 import EmptyState from '../../components/ui/EmptyState.vue'
 import ErrorState from '../../components/ui/ErrorState.vue'
 import LoadingState from '../../components/ui/LoadingState.vue'

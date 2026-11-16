@@ -2,12 +2,12 @@
 /**
  * 前端 UI 一致性门禁（只读）
  *
- * 口径来源：English_AI/docs/前端UI契约.md §10「验收方式」的七条 git grep 命令，
- *           以及同节「当前七条：L1a 28 / L1b 124 / ...」登记行。
+ * 口径来源：English_AI/docs/前端UI契约.md §10「验收方式」的八条 git grep 命令，
+ *           以及同节「当前八条：L1a 21 / L1b 124 / ... / L8 170」登记行。
  *
  * 设计约束：
  * 1. 只读：不写任何源文件，不执行任何 git 写操作，只打印报告并设置退出码。
- * 2. 完全复刻 §10 口径：七条命令的 flags / pattern / pathspec / 过滤管道逐条对应；
+ * 2. 完全复刻 §10 口径：八条命令的 flags / pattern / pathspec / 过滤管道逐条对应；
  *    用 spawnSync 的 argv 数组传参（不经 shell），等价于在 frontend/ 下手敲 §10 里的命令；
  *    命令中的 `| grep -v ...` 用等价的 JS 行过滤复刻，`| wc -l` 与「无 wc -l 时按输出行计」用行数复刻。
  * 3. PowerShell 兼容：
@@ -19,7 +19,7 @@
  *    §10 命令注释里的 `当前 N @ <short-sha>` 属历史快照锚点，按 §11.5 豁免，不参与比对。
  *
  * 用法：node scripts/check-ui-consistency.mjs [commit-ish]
- * 退出码：0 = 七条全部与文档登记匹配；1 = 存在不匹配；2 = 运行错误
+ * 退出码：0 = 八条全部与文档登记匹配；1 = 存在不匹配；2 = 运行错误
  */
 
 import { spawnSync } from 'node:child_process'
@@ -33,7 +33,7 @@ const CONTRACT_PATH = resolve(FRONTEND_ROOT, '..', 'docs', '前端UI契约.md')
 const PATHSPEC_ALL = ['src/*.vue', 'src/*.ts']
 
 /**
- * 七条口径，一条对应 §10 一条命令。
+ * 八条口径，一条对应 §10 一条命令。
  * flags / pattern / pathspec 原样照抄；exclude 对应命令里的 `| grep -v ...`；
  * tail 记录该命令末尾是 `| wc -l` 还是「直接看输出行」。
  */
@@ -103,6 +103,16 @@ const RULES = [
     exclude: null,
     tail: '| wc -l',
   },
+  {
+    // L5 只覆盖 components 层；views 层直写图标单列 L8，两条互不合并（§10 口径）
+    id: 'L8',
+    name: '视图层直写图标',
+    flags: '-n',
+    pattern: 'material-symbols-outlined',
+    pathspec: ['src/views/*.vue'],
+    exclude: null,
+    tail: '| wc -l',
+  },
 ]
 
 const IDS = RULES.map((rule) => rule.id)
@@ -143,7 +153,7 @@ function measure(rule, ref) {
   return lines.length
 }
 
-/** 从契约文档 §10「当前七条：」行读取登记值；历史快照锚点行不参与 */
+/** 从契约文档 §10「当前八条：」行读取登记值；历史快照锚点行不参与 */
 function readRegistered() {
   let text
   try {
@@ -152,11 +162,11 @@ function readRegistered() {
     throw new Error(`契约文档不可读：${CONTRACT_PATH}（${error.message}）`)
   }
   const lines = text.split(/\r?\n/)
-  const index = lines.findIndex((line) => line.replace(/^>\s*/, '').startsWith('当前七条：'))
-  if (index < 0) throw new Error('契约文档 §10 未找到「当前七条：」登记行')
+  const index = lines.findIndex((line) => line.replace(/^>\s*/, '').startsWith('当前八条：'))
+  if (index < 0) throw new Error('契约文档 §10 未找到「当前八条：」登记行')
   const line = lines[index]
   const values = {}
-  for (const match of line.matchAll(/L(1a|1b|2|3|4|5|6)\s+(\d+)/g)) {
+  for (const match of line.matchAll(/L(1a|1b|2|3|4|5|6|8)\s+(\d+)/g)) {
     values[`L${match[1]}`] = Number(match[2])
   }
   const missing = IDS.filter((id) => !(id in values))
@@ -180,7 +190,7 @@ function pad(text, width) {
 function printUsage() {
   console.log('用法：node scripts/check-ui-consistency.mjs [commit-ish]')
   console.log('  commit-ish 省略时取 HEAD；脚本只读，不修复任何问题。')
-  console.log('  退出码：0 = 七条全部匹配；1 = 存在不匹配；2 = 运行错误')
+  console.log('  退出码：0 = 八条全部匹配；1 = 存在不匹配；2 = 运行错误')
 }
 
 function printReport({ ref, short, registered, rows }) {

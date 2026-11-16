@@ -460,6 +460,11 @@ git grep -n "material-symbols-outlined" HEAD -- "src/components/*.vue" | grep -v
 # 口径：**按类名出现计**。按「点位」计则更少（同一行的 `border-l-green-500` + `border-l-red-400` 算 1 处）——
 # 类名口径可 grep 复现，点位口径会随写法漂移（把 border-l-green-500 拆成 border-l-4 + border-green-500 就从 1 变 2）。
 git grep -oE "\b(bg|text|border|border-[lrtb]|from|via|to|ring|divide|placeholder)-(white|black|(gray|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose|slate|zinc|neutral|stone)-(50|100|200|300|400|500|600|700|800|900|950))" HEAD -- "src/*.vue" "src/*.ts" | wc -l
+
+# L8 视图层直写图标（目标 0；当前 170 @ <本次提交>，按行计；与 L5 并列、互不合并）
+# L5 的 pathspec 是 src/components/*.vue，覆盖不到 views/；L8 单列 views/*.vue 把盲区显性化
+# 导入 AppIcon 的语句不含 material-symbols-outlined 字面量，无需额外 grep -v
+git grep -n "material-symbols-outlined" HEAD -- "src/views/*.vue" | wc -l
 ```
 
 > **PowerShell 下复跑本节命令的两条前置条件**（2026-11-15 实测）：
@@ -473,7 +478,7 @@ git grep -oE "\b(bg|text|border|border-[lrtb]|from|via|to|ring|divide|placeholde
 > **L5 计数口径：按文件行计，以 `-n` 为准**（当前每行至多 1 处命中，`-n` 与 `-o` 同为 109）。
 > 将来若出现同一行两处 `material-symbols-outlined`，两者会分叉，一律以 `-n` 为准，不用 `-o` / `-c` 求和覆写。
 
-> 基线值来自 `docs/前端UI审计与组件契约.md` §7，随每批迁移完成后更新本节。**每次更新必须重跑上面七条命令取实数，不许估算或按批减扣。**
+> 基线值来自 `docs/前端UI审计与组件契约.md` §7，随每批迁移完成后更新本节。**每次更新必须重跑上面八条命令取实数，不许估算或按批减扣。**
 >
 > **每条基线后面挂提交锚点（`当前 N @ <short-sha>`）**：`HEAD` 会往前走，不挂锚点的数字过两个月就无从对账——
 > 有人拿契约里的 31 去核，跑出来 27，会以为漏改了 7 处，而不是「契约写的是旧状态」。
@@ -491,7 +496,8 @@ git grep -oE "\b(bg|text|border|border-[lrtb]|from|via|to|ring|divide|placeholde
 > `ca365a1..c4ef7d3` 之间的用户并行提交（`176f81c` / `67e4a94` / `b3da9e9` / `1f48795` /
 > `2a50d43` / `116a578` 数值未变；`c4ef7d3` 的「已学词库页 + 标熟机制」把 L1a 31→28、
 > L1b 127→124、L5 107→103，属规则 ①）。
-> 当前七条：L1a 21 / L1b 124 / L2 0 / L3 0 / L4 0 / L5 96 / L6 10。
+> 当前八条：L1a 21 / L1b 124 / L2 0 / L3 0 / L4 0 / L5 96 / L6 10 / L8 170。
+> L8 于 <本次提交> 起生效（达成值 170），此前历史快照锚点无此项；L5 历史锚点全部保留可比。
 > 答题族批次（`36e8e4f` 组件 / `1039ef9` 文档）对全部口径增量恒为 0。
 > 每批交付前先跑 `git log -1` 确认 `HEAD` 未再前进。
 >
@@ -591,8 +597,8 @@ git grep -ohE "[a-z-]+-\[[^]]*\]" HEAD -- "src/*.vue" "src/*.ts" | grep -vE "^ro
 
 ### 10.1 只读门禁脚本（2026-11-15 增补）
 
-§10 七条基线此前靠人工逐条复跑、再肉眼比对「当前七条」，既容易漏条，也容易把工作区数字当成基线。
-现提供只读门禁脚本 `frontend/scripts/check-ui-consistency.mjs`，把「跑七条 → 比对登记值 → 给出退出码」固化成一条命令：
+§10 八条基线此前靠人工逐条复跑、再肉眼比对「当前八条」，既容易漏条，也容易把工作区数字当成基线。
+现提供只读门禁脚本 `frontend/scripts/check-ui-consistency.mjs`，把「跑八条 → 比对登记值 → 给出退出码」固化成一条命令：
 
 ```bash
 cd English_AI/frontend
@@ -604,16 +610,17 @@ node scripts/check-ui-consistency.mjs 1a024b6 # 等价的直接调用
 | 项 | 内容 |
 |---|---|
 | 示例调用 | `npm run check-ui-consistency`（默认 `HEAD`）；`npm run check-ui-consistency -- ca365a1`（指定 commit-ish）；`node scripts/check-ui-consistency.mjs --help` 查看用法 |
-| 退出码 0 | 七条实测值全部与本节「当前七条」登记值一致 |
+| 退出码 0 | 八条实测值全部与本节「当前八条」登记值一致 |
 | 退出码 1 | 至少一条不一致；报告逐条列出登记值、实测值与差异项 |
 | 退出码 2 | 运行错误：契约文档不可读、登记行解析失败、commit-ish 无效、git 命令失败。**不视为匹配** |
 | 注意事项 | **仅做只读校验，不自动修复**：不写任何源文件、不执行 git 写操作、不改基线数字；修复仍按 §11.1 的 A/B 判定另立批次 |
-| 口径约束 | 七条命令与本节上方逐条对应，不引入宽口径；`HEAD` / 指定 commit-ish 一律只认已提交状态，不取工作区 |
+| 口径约束 | 八条命令与本节上方逐条对应，不引入宽口径；`HEAD` / 指定 commit-ish 一律只认已提交状态，不取工作区 |
+| L5 / L8 分工 | **L5 只覆盖 `src/components/*.vue` 组件层，views 层走 L8**：两条并列、互不合并、互不改 pathspec。L5 历史锚点保持可比；L8 自 <本次提交> 起生效 |
 
-> 脚本的期望值**不在代码里硬编码**，而是解析本节「当前七条：…」那一行；改登记数字后无需同步改脚本。
+> 脚本的期望值**不在代码里硬编码**，而是解析本节「当前八条：…」那一行；改登记数字后无需同步改脚本。
 > 命令注释里的 `当前 N @ <short-sha>` 属历史快照锚点，按 §11.5 豁免，不参与脚本比对。
 > PowerShell 的两条前置条件（UTF-8 输出编码、`[^\"]` 引号转义）由脚本用 argv 数组传参 + Buffer 按 UTF-8 解码规避，调用方无需额外设置。
-> 脚本自身位于 `frontend/scripts/`、本说明位于 `docs/`，均不在 `src/*.vue` / `src/*.ts` 扫描范围内，故本批对七条基线的增量恒为 0。
+> 脚本自身位于 `frontend/scripts/`、本说明位于 `docs/`，均不在 `src/*.vue` / `src/*.ts` 扫描范围内，故本批对八条基线的增量恒为 0。
 
 ---
 
@@ -863,7 +870,7 @@ document.querySelectorAll('.max-w-md').length   // 期望 1；若为 2 说明外
 > （`当前 N @ <short-sha>`）记录的是该次提交达成时的数值，不参与本次一致性核对。
 > 触发场景：2026-11-15 答题族批次的交付里，文档复核注声明「仍为 `31 / 127 / 0 / 0 / 0 / 107 / 11`」，
 > 同一份交付表格实测为 `28 / 124 / 0 / 0 / 0 / 103 / 11`，两处不一致且未被交付前自查发现。
-> 自查动作：docs 提交后重跑 §10 七条命令，把实测值逐字比对「交付表格」与「文档声明」；两处不同即驳回本次交付，
+> 自查动作：docs 提交后重跑 §10 八条命令，把实测值逐字比对「交付表格」与「文档声明」；两处不同即驳回本次交付，
 > 且不得用「宽口径」或「另计口径」给表格换一套基数。
 
 **本批（ProfileView，2026-11-15）等值替换探针实测**

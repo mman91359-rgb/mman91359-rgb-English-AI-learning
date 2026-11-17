@@ -4,7 +4,7 @@
       <header class="h-20 sticky top-0 z-40 bg-background/80 backdrop-blur-md flex items-center justify-between px-gutter w-full max-w-[1192px] mx-auto">
         <div class="flex items-center gap-4 flex-1">
           <button type="button" :class="btnIcon" :aria-label="$t('common.back')" @click="router.push({ path: '/learning', query: { tab: 'translation' } })">
-            <span class="material-symbols-outlined">arrow_back_ios_new</span>
+            <AppIcon name="arrow_back_ios_new" size="lg" />
           </button>
           <QuizProgressBar :answered="answeredCount" :total="questions.length" />
         </div>
@@ -20,7 +20,7 @@
     <div class="flex-1 w-full max-w-[1192px] mx-auto px-gutter py-8 pb-24 md:pb-8">
       <!-- 加载 / 空态 -->
       <div v-if="loading" class="flex flex-col items-center justify-center py-24 gap-4 text-on-surface-variant">
-        <span class="material-symbols-outlined text-icon-3xl animate-spin">progress_activity</span>
+        <span class="animate-spin"><AppIcon name="progress_activity" size="3xl" /></span>
         <p class="font-body-lg">{{ $t('common.loading') }}</p>
       </div>
 
@@ -46,13 +46,13 @@
             </div>
 
             <div class="flex items-center gap-2 mb-4">
-              <span class="material-symbols-outlined text-secondary text-icon-sm">menu_book</span>
+              <AppIcon name="menu_book" size="sm" tone="secondary" />
               <span class="font-label-md text-label-md text-on-surface-variant">{{ $t('translation.sourceLabel') }}</span>
             </div>
 
             <div class="bg-secondary-container/10 rounded-2xl p-6 mb-6">
               <div class="flex items-center gap-2 mb-3">
-                <span class="material-symbols-outlined text-secondary text-icon-md">translate</span>
+                <AppIcon name="translate" size="md" tone="secondary" />
                 <span class="font-label-lg text-label-lg text-secondary">{{ $t('translation.translatePrompt') }}</span>
               </div>
               <p class="font-headline-md text-headline-md text-on-surface leading-relaxed">{{ currentQuestion.stem }}</p>
@@ -60,7 +60,7 @@
 
             <div class="flex flex-col gap-2 flex-1">
               <div class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-primary text-icon-md">edit</span>
+                <AppIcon name="edit" size="md" tone="primary" />
                 <span class="font-label-lg text-label-lg text-on-surface-variant">{{ $t('translation.yourTranslation') }}</span>
               </div>
               <textarea
@@ -84,7 +84,7 @@
               class="self-start mt-4 flex items-center gap-2 bg-primary-container/15 text-primary px-4 py-2 rounded-full font-label-lg text-label-lg hover:bg-primary-container/25 transition-colors"
               @click="showHint = !showHint"
             >
-              <span class="material-symbols-outlined text-icon-sm">lightbulb</span>{{ $t('translation.viewHint') }}
+              <AppIcon name="lightbulb" size="sm" />{{ $t('translation.viewHint') }}
             </button>
           </div>
 
@@ -96,7 +96,7 @@
               :disabled="submitting"
               @click="submit"
             >
-              <span class="material-symbols-outlined">{{ submitting ? 'progress_activity' : 'arrow_forward' }}</span>
+              <AppIcon :name="submitting ? 'progress_activity' : 'arrow_forward'" size="lg" />
               {{ submitting ? $t('common.loading') : $t('translation.submit') }}
             </button>
             <button
@@ -105,7 +105,7 @@
               class="flex-1 bg-gradient-to-r from-tertiary to-tertiary-fixed-dim text-on-tertiary py-4 rounded-2xl font-label-lg text-label-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-[0_4px_14px_rgba(0,110,32,0.25)]"
               @click="next"
             >
-              <span class="material-symbols-outlined">arrow_forward</span>{{ currentIndex < questions.length - 1 ? $t('translation.nextQuestion') : $t('translation.finish') }}
+              <AppIcon name="arrow_forward" size="lg" />{{ currentIndex < questions.length - 1 ? $t('translation.nextQuestion') : $t('translation.finish') }}
             </button>
             <button
               v-if="!submitted"
@@ -113,14 +113,14 @@
               class="flex-1 bg-gradient-to-r from-secondary to-secondary-fixed-dim text-on-secondary py-4 rounded-2xl font-label-lg text-label-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-[0_4px_14px_rgba(12,103,128,0.25)]"
               @click="reset"
             >
-              <span class="material-symbols-outlined">replay</span>{{ $t('translation.reset') }}
+              <AppIcon name="replay" size="lg" />{{ $t('translation.reset') }}
             </button>
           </div>
         </section>
 
         <aside class="w-full min-w-0 flex flex-col gap-4">
           <div class="flex items-center gap-2 mb-2">
-            <span class="material-symbols-outlined text-tertiary">spellcheck</span>
+            <AppIcon name="spellcheck" size="lg" tone="tertiary" />
             <h3 class="font-headline-md text-headline-md text-on-surface">{{ $t('translation.aiFeedback') }}</h3>
           </div>
 
@@ -154,13 +154,13 @@
             class="flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-outline-variant/60 bg-surface-container-lowest font-label-lg text-label-lg text-on-surface-variant transition-colors hover:bg-surface-container-low"
             @click="askAi"
           >
-            <span class="material-symbols-outlined text-icon-md" aria-hidden="true">forum</span>
+            <AppIcon name="forum" size="md" />
             {{ $t('translation.askAi') }}
           </button>
 
           <div v-if="submitted && result?.suggestions?.length" class="bg-tertiary-container/15 rounded-2xl p-5 border border-tertiary/20">
             <div class="flex items-center gap-2 mb-3">
-              <span class="material-symbols-outlined text-tertiary text-icon-md">bookmark</span>
+              <AppIcon name="bookmark" size="md" tone="tertiary" />
               <span class="font-label-lg text-label-lg text-tertiary">{{ $t('translation.suggestions') }}</span>
             </div>
             <ul class="space-y-2">
@@ -185,6 +185,7 @@ import FeedbackPanel from '../components/listening/FeedbackPanel.vue'
 import AiFeedbackPanel from '../components/ai/AiFeedbackPanel.vue'
 import QuizProgressBar from '../components/quiz/QuizProgressBar.vue'
 import WordDetailCard from '../components/word/WordDetailCard.vue'
+import AppIcon from '../components/ui/AppIcon.vue'
 import { useToast } from '../composables/useToast'
 import { DEFAULT_SET_SIZE } from '@/config/constants'
 import { useUserStore } from '../stores/user'

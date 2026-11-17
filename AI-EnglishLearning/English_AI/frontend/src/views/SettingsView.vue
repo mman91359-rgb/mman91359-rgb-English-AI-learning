@@ -10,9 +10,7 @@
         <!-- 主题模式 -->
         <div class="flex items-center gap-4 p-5">
           <div class="w-10 h-10 rounded-full bg-primary-container/30 flex items-center justify-center text-primary flex-shrink-0">
-            <span class="material-symbols-outlined">
-              {{ appStore.isDark ? 'dark_mode' : 'light_mode' }}
-            </span>
+            <AppIcon :name="appStore.isDark ? 'dark_mode' : 'light_mode'" size="lg" />
           </div>
           <div class="flex-1 min-w-0">
             <p class="font-body-lg text-body-lg text-on-surface">{{ $t('settings.theme') }}</p>
@@ -38,7 +36,7 @@
         <!-- 语言设置 -->
         <div class="flex items-center gap-4 p-5 cursor-pointer hover:bg-surface-container-low/50 transition-colors" @click="showLang = !showLang">
           <div class="w-10 h-10 rounded-full bg-secondary-container/30 flex items-center justify-center text-secondary flex-shrink-0">
-            <span class="material-symbols-outlined">language</span>
+            <AppIcon name="language" size="lg" />
           </div>
           <div class="flex-1 min-w-0">
             <p class="font-body-lg text-body-lg text-on-surface">{{ $t('settings.language') }}</p>
@@ -62,14 +60,14 @@
           >
             <span class="text-xl">{{ l.flag }}</span>
             <span class="font-body-md text-body-md">{{ l.label }}</span>
-            <span v-if="appStore.language === l.value" class="material-symbols-outlined ml-auto text-primary">check_circle</span>
+            <AppIcon v-if="appStore.language === l.value" name="check_circle" size="lg" tone="primary" class="ml-auto" />
           </div>
         </div>
 
         <!-- 通知设置 -->
         <div class="flex items-center gap-4 p-5 cursor-pointer hover:bg-surface-container-low/50 transition-colors" @click="toastComingSoon">
           <div class="w-10 h-10 rounded-full bg-tertiary-container/30 flex items-center justify-center text-tertiary flex-shrink-0">
-            <span class="material-symbols-outlined">notifications</span>
+            <AppIcon name="notifications" size="lg" />
           </div>
           <div class="flex-1 min-w-0">
             <p class="font-body-lg text-body-lg text-on-surface">{{ $t('profile.notificationSettings') }}</p>
@@ -86,7 +84,7 @@
       <div class="bg-surface rounded-2xl shadow-soft-glow overflow-hidden divide-y divide-outline-variant/30">
         <div class="flex items-center gap-4 p-5 cursor-pointer hover:bg-surface-container-low/50 transition-colors" @click="toastComingSoon">
           <div class="w-10 h-10 rounded-full bg-primary-container/30 flex items-center justify-center text-primary flex-shrink-0">
-            <span class="material-symbols-outlined">shield</span>
+            <AppIcon name="shield" size="lg" />
           </div>
           <div class="flex-1 min-w-0">
             <p class="font-body-lg text-body-lg text-on-surface">{{ $t('profile.privacySettings') }}</p>
@@ -98,7 +96,7 @@
         <!-- 修改密码 -->
         <div class="flex items-center gap-4 p-5 cursor-pointer hover:bg-surface-container-low/50 transition-colors" @click="openPasswordDialog">
           <div class="w-10 h-10 rounded-full bg-primary-container/30 flex items-center justify-center text-primary flex-shrink-0">
-            <span class="material-symbols-outlined">lock</span>
+            <AppIcon name="lock" size="lg" />
           </div>
           <div class="flex-1 min-w-0">
             <p class="font-body-lg text-body-lg text-on-surface">{{ $t('profile.changePassword') }}</p>
@@ -110,7 +108,7 @@
         <!-- 绑定手机 -->
         <div class="flex items-center gap-4 p-5 cursor-pointer hover:bg-surface-container-low/50 transition-colors" @click="openPhoneDialog">
           <div class="w-10 h-10 rounded-full bg-primary-container/30 flex items-center justify-center text-primary flex-shrink-0">
-            <span class="material-symbols-outlined">phone_iphone</span>
+            <AppIcon name="phone_iphone" size="lg" />
           </div>
           <div class="flex-1 min-w-0">
             <p class="font-body-lg text-body-lg text-on-surface">{{ $t('settings.bindPhone') }}</p>
@@ -128,7 +126,7 @@
       class="w-full bg-error-container/30 text-error font-label-lg text-label-lg py-4 rounded-2xl hover:bg-error-container/60 transition-colors flex items-center justify-center gap-2"
       @click="handleLogout"
     >
-      <span class="material-symbols-outlined">logout</span>
+      <AppIcon name="logout" size="lg" />
       {{ $t('profile.logout') }}
     </button>
 
@@ -248,6 +246,7 @@ import { inputClassLg, inputErrorClass } from '@/components/ui/formStyles'
 import { btnDialogPrimary, btnDialogSecondary, btnSecondarySm } from '@/components/ui/buttonStyles'
 import BaseDialog from '@/components/ui/BaseDialog.vue'
 import FormHint from '@/components/ui/FormHint.vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
 import { useCountdown } from '@/composables/useCountdown'
 
 const router = useRouter()

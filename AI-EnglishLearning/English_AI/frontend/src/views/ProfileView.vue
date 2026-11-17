@@ -99,7 +99,7 @@
       <div class="bg-surface-container-lowest rounded-3xl p-8 soft-shadow border border-surface-container-low">
         <div class="flex items-center gap-4 mb-6">
           <div class="w-12 h-12 rounded-full bg-tertiary-container/20 flex items-center justify-center">
-            <span class="material-symbols-outlined text-tertiary text-icon-lg fill">paid</span>
+            <AppIcon name="paid" size="lg" tone="tertiary" filled />
           </div>
           <div>
             <p class="font-label-md text-label-md text-on-surface-variant">{{ $t('coin.balance') }}</p>
@@ -131,7 +131,7 @@
         <div class="flex items-start justify-between gap-3 mb-6">
           <div class="flex items-center gap-4">
             <div class="w-12 h-12 rounded-full bg-primary-container/20 flex items-center justify-center">
-              <span class="material-symbols-outlined text-primary text-icon-lg">event_available</span>
+              <AppIcon name="event_available" size="lg" tone="primary" />
             </div>
             <div>
               <p class="font-label-md text-label-md text-on-surface-variant">{{ $t('checkIn.title') }}</p>
@@ -156,7 +156,7 @@
               aria-haspopup="dialog"
               @click="showCheckInCalendar = true"
             >
-              <span class="material-symbols-outlined text-icon-lg" aria-hidden="true">calendar_month</span>
+              <AppIcon name="calendar_month" size="lg" />
             </button>
           </div>
         </div>
@@ -212,7 +212,7 @@
 
         <!-- 错误态 -->
         <div v-else-if="radarError" class="flex flex-col items-center gap-3 py-12 text-center">
-          <span class="material-symbols-outlined text-icon-2xl text-error">error_outline</span>
+          <AppIcon name="error_outline" size="2xl" tone="error" />
           <p class="font-body-md text-body-md text-on-surface-variant">{{ radarError }}</p>
           <button
             type="button"
@@ -261,7 +261,7 @@
           <!-- 六维正确率明细 -->
           <div class="mt-6 grid grid-cols-1 gap-x-8 lg:grid-cols-2 border-t border-outline-variant/20 pt-4">
             <div v-for="axis in radarAxes" :key="axis.key" class="flex items-center gap-2 py-2">
-              <span class="material-symbols-outlined text-icon-sm text-on-surface-variant">{{ axis.icon }}</span>
+              <AppIcon :name="axis.icon" size="sm" tone="variant" />
               <span class="w-16 shrink-0 truncate font-body-sm text-body-sm text-on-surface">{{ axis.label }}</span>
               <div class="h-1 flex-1 overflow-hidden rounded-full bg-outline-variant/30">
                 <div
@@ -297,7 +297,7 @@
         <router-link to="/settings/privacy" class="bg-surface-container-lowest rounded-3xl p-6 soft-shadow flex items-center justify-between hover:-translate-y-1 transition-transform group">
           <div class="flex items-center gap-4">
             <div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center group-hover:bg-primary-fixed-dim/20 transition-colors">
-              <span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">shield_person</span>
+              <span class="text-on-surface-variant group-hover:text-primary transition-colors"><AppIcon name="shield_person" size="lg" tone="variant" /></span>
             </div>
             <span class="font-body-lg text-body-lg text-on-surface font-medium">{{ $t('profile.privacySettings') }}</span>
           </div>
@@ -306,7 +306,7 @@
         <router-link to="/settings/account" class="bg-surface-container-lowest rounded-3xl p-6 soft-shadow flex items-center justify-between hover:-translate-y-1 transition-transform group">
           <div class="flex items-center gap-4">
             <div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center group-hover:bg-primary-fixed-dim/20 transition-colors">
-              <span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">manage_accounts</span>
+              <span class="text-on-surface-variant group-hover:text-primary transition-colors"><AppIcon name="manage_accounts" size="lg" tone="variant" /></span>
             </div>
             <span class="font-body-lg text-body-lg text-on-surface font-medium">{{ $t('profile.accountSettings') }}</span>
           </div>
@@ -315,14 +315,14 @@
         <router-link to="/settings/notifications" class="bg-surface-container-lowest rounded-3xl p-6 soft-shadow flex items-center justify-between hover:-translate-y-1 transition-transform group">
           <div class="flex items-center gap-4">
             <div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center group-hover:bg-primary-fixed-dim/20 transition-colors">
-              <span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">notifications_active</span>
+              <span class="text-on-surface-variant group-hover:text-primary transition-colors"><AppIcon name="notifications_active" size="lg" tone="variant" /></span>
             </div>
             <span class="font-body-lg text-body-lg text-on-surface font-medium">{{ $t('profile.notificationSettings') }}</span>
           </div>
           <span class="material-symbols-outlined text-outline-variant">chevron_right</span>
         </router-link>
         <div class="mt-auto bg-primary-fixed-dim/10 rounded-3xl p-6 border border-primary-fixed-dim/20 flex flex-col items-center justify-center text-center">
-          <span class="material-symbols-outlined text-primary text-icon-2xl mb-2">workspace_premium</span>
+          <AppIcon name="workspace_premium" size="2xl" tone="primary" class="mb-2" />
           <h4 class="font-label-lg text-label-lg text-primary mb-1">{{ $t('profile.upgradePro') }}</h4>
           <p class="font-label-md text-label-md text-on-surface-variant mb-4">{{ $t('profile.upgradeDesc') }}</p>
           <button class="w-full bg-primary text-on-primary py-2 rounded-xl font-label-lg text-label-lg hover:bg-primary/90 transition-colors">

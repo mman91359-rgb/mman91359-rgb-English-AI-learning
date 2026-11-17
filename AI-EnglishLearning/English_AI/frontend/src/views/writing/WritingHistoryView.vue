@@ -101,7 +101,7 @@
             <span class="tabular-nums">{{ $t('writing.history.words', { count: item.wordCount }) }}</span>
             <span class="tabular-nums">{{ formatDuration(item.durationSeconds) }}</span>
             <span class="tabular-nums text-on-surface">{{ item.score === null ? '—' : $t('writing.history.scoreValue', { score: item.score }) }}</span>
-            <StatusBadge :tone="statusMeta(item.status).tone" :label="$t(statusMeta(item.status).labelKey)" />
+            <StatusBadge :tone="statusMeta(item.status, item.scoreVersion).tone" :label="$t(statusMeta(item.status, item.scoreVersion).labelKey)" />
             <button
               type="button"
               class="flex h-9 w-9 items-center justify-center rounded-xl transition-colors"
@@ -154,6 +154,8 @@ import {
 
 interface HistoryRow extends WritingHistoryItem {
   updatedAt: string
+  /** 评分版本：'degraded' 表示评分服务不可用（未产生分数），其余为正常评分 */
+  scoreVersion: string | null
 }
 
 const route = useRoute()
@@ -192,11 +194,12 @@ const allItems = computed<HistoryRow[]>(() => {
       topicId: submission.topicId,
       title: topic?.title ?? t('writing.history.unknownTopic'),
       type: topic?.type ?? null,
-      score: submission.rawScore,
+      score: submission.status === 'FAILED' ? null : submission.rawScore,
       wordCount: submission.wordCount,
       durationSeconds: submission.durationSeconds,
       createdAt: submission.createdAt,
-      status: 'SCORED',
+      status: submission.status,
+      scoreVersion: submission.report?.scoreVersion ?? null,
       updatedAt: submission.createdAt,
     }
   })
@@ -212,6 +215,7 @@ const allItems = computed<HistoryRow[]>(() => {
       durationSeconds: 0,
       createdAt: draft.updatedAt,
       status: 'DRAFT',
+      scoreVersion: null,
       updatedAt: draft.updatedAt,
     }
   })
@@ -278,7 +282,9 @@ const clearFilters = () => setParams({
   low: undefined,
 })
 
-const statusMeta = (status: WritingSubmissionStatus): { tone: BadgeTone; labelKey: string } => {
+const statusMeta = (status: WritingSubmissionStatus, scoreVersion: string | null): { tone: BadgeTone; labelKey: string } => {
+  // 评分服务不可用（未产生分数）与提交/判题失败是两回事：前者显示中性「未评分」
+  if (scoreVersion === 'degraded') return { tone: 'neutral', labelKey: 'writing.status.NOT_SCORED' }
   if (status === 'SCORED') return { tone: 'success', labelKey: 'writing.status.SCORED' }
   if (status === 'DRAFT') return { tone: 'neutral', labelKey: 'writing.status.DRAFT' }
   if (status === 'SCORING') return { tone: 'info', labelKey: 'writing.status.SCORING' }

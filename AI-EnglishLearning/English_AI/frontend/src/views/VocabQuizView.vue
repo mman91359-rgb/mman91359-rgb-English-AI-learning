@@ -22,7 +22,7 @@
             :aria-label="$t('common.back')"
             @click="goBack"
           >
-            <span class="material-symbols-outlined">arrow_back_ios_new</span>
+            <AppIcon name="arrow_back_ios_new" size="lg" />
           </button>
 
           <!-- 奖杯 + 进度条：进度 = 已掌握 / 总数（answeredCount 只是 masteredCount 的别名，不是答题数） -->
@@ -36,15 +36,13 @@
             :aria-label="appStore.isDark ? $t('topbar.switchToLight') : $t('topbar.switchToDark')"
             @click="appStore.toggleTheme"
           >
-            <span class="material-symbols-outlined">
-              {{ appStore.isDark ? 'light_mode' : 'dark_mode' }}
-            </span>
+            <AppIcon :name="appStore.isDark ? 'light_mode' : 'dark_mode'" size="lg" />
           </button>
           <button
             :class="['relative', btnIcon]"
             :aria-label="$t('topbar.notifications')"
           >
-            <span class="material-symbols-outlined">notifications</span>
+            <AppIcon name="notifications" size="lg" />
             <span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
           </button>
           <button
@@ -52,7 +50,7 @@
             :aria-label="$t('topbar.currentLanguage')"
             @click="cycleLanguage"
           >
-            <span class="material-symbols-outlined">language</span>
+            <AppIcon name="language" size="lg" />
           </button>
           <div
             class="w-8 h-8 rounded-full bg-primary text-on-primary ml-2 flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-primary/50 hover:scale-105 active:scale-95 transition-all text-sm font-bold select-none overflow-hidden"
@@ -84,7 +82,7 @@
             <div class="absolute top-6 left-6 flex items-center gap-2">
               <span class="bg-secondary-fixed/50 text-secondary font-label-md text-label-md px-3 py-1 rounded-full flex items-center gap-1">
                 {{ $t('learning.difficultyLevel', { level: currentDifficulty }) }}
-                <span class="material-symbols-outlined text-icon-lg">help</span>
+                <AppIcon name="help" size="lg" />
               </span>
             </div>
             <!-- 右上：全新徽章 -->
@@ -137,12 +135,12 @@
                     <!-- 实时拼写状态图标 -->
                     <span
                       v-if="inputStatus === 'correct' && !showFeedback"
-                      class="material-symbols-outlined absolute -right-8 top-1/2 -translate-y-1/2 text-tertiary text-icon-lg pointer-events-none animate-pulse"
-                    >check_circle</span>
+                      class="absolute -right-8 top-1/2 -translate-y-1/2 pointer-events-none animate-pulse"
+                    ><AppIcon name="check_circle" size="lg" tone="tertiary" /></span>
                     <span
                       v-if="inputStatus === 'wrong' && !showFeedback && userAnswer.trim().length >= 2"
-                      class="material-symbols-outlined absolute -right-8 top-1/2 -translate-y-1/2 text-error text-icon-lg pointer-events-none"
-                    >error</span>
+                      class="absolute -right-8 top-1/2 -translate-y-1/2 pointer-events-none"
+                    ><AppIcon name="error" size="lg" tone="error" /></span>
                   </div>
                 </template>
               </div>
@@ -209,7 +207,7 @@
                 class="shrink-0 w-9 h-9 rounded-full hover:bg-error-container/50 flex items-center justify-center text-error/70 transition-colors"
                 :title="$t('learning.favoriteHint')"
               >
-                <span class="material-symbols-outlined text-icon-lg">favorite_border</span>
+                <AppIcon name="favorite_border" size="lg" />
               </button>
             </div>
           </Transition>
@@ -224,7 +222,7 @@
                 @click="toggleHint"
               >
                 <div class="w-12 h-12 rounded-full bg-primary-container/20 flex items-center justify-center group-hover:bg-primary-container/30 transition-colors">
-                  <span class="material-symbols-outlined text-icon-lg">{{ showHint ? 'visibility_off' : 'help' }}</span>
+                  <AppIcon :name="showHint ? 'visibility_off' : 'help'" size="lg" />
                 </div>
                 <span class="font-label-md text-label-md font-bold">{{ showHint ? $t('learning.hideHint') : $t('learning.hint') }}</span>
               </button>
@@ -237,12 +235,12 @@
                 @click="toggleSpeech"
               >
                 <div class="w-12 h-12 rounded-full bg-primary-container/20 flex items-center justify-center group-hover:bg-primary-container/30 transition-colors relative">
-                  <span class="material-symbols-outlined text-icon-lg">{{ isListening ? 'mic_off' : 'mic' }}</span>
+                  <AppIcon :name="isListening ? 'mic_off' : 'mic'" size="lg" />
                   <div
                     v-if="!isListening"
                     class="absolute -top-12 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface font-label-md text-label-md whitespace-nowrap px-3 py-1.5 rounded-md shadow-lg flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
                   >
-                    <span class="material-symbols-outlined text-icon-lg">touch_app</span> {{ $t('learning.handsFreeMode') }}
+                    <AppIcon name="touch_app" size="lg" /> {{ $t('learning.handsFreeMode') }}
                     <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-inverse-surface transform rotate-45"></div>
                   </div>
                 </div>
@@ -255,7 +253,7 @@
                 @click="askAi"
               >
                 <div class="w-12 h-12 rounded-full bg-primary-container/20 flex items-center justify-center group-hover:bg-primary-container/30 transition-colors">
-                  <span class="material-symbols-outlined text-icon-lg">help</span>
+                  <AppIcon name="help" size="lg" />
                 </div>
                 <span class="font-label-md text-label-md font-bold">{{ $t('learning.askAi') }}</span>
               </button>
@@ -267,7 +265,7 @@
               :disabled="!showFeedback && !userAnswer.trim()"
               @click="showFeedback ? goNext() : handleSubmit()"
             >
-              <span class="material-symbols-outlined font-bold">{{ showFeedback ? 'arrow_forward' : 'check' }}</span>
+              <AppIcon :name="showFeedback ? 'arrow_forward' : 'check'" size="lg" class="font-bold" />
               {{ showFeedback ? (isLastQuestion ? $t('learning.viewResults') : $t('learning.next')) : $t('learning.confirmBtn') }}
             </button>
           </div>
@@ -282,7 +280,7 @@
               {{ $t('learning.firstTwoLetters') }}<span class="text-primary font-bold text-lg">{{ hintLetters }}</span>
             </p>
             <p v-if="hintLoading" class="font-body-sm text-body-sm text-on-surface-variant mt-1 flex items-center gap-1">
-              <span class="material-symbols-outlined text-icon-lg animate-spin">progress_activity</span>
+              <span class="animate-spin"><AppIcon name="progress_activity" size="lg" /></span>
               {{ $t('learning.loadingMoreHint') }}
             </p>
             <p v-else-if="questionAnswer" class="font-body-md text-body-md text-on-surface mt-1">
@@ -297,10 +295,7 @@
             <!-- 成绩卡片 -->
             <div class="bg-surface rounded-3xl p-8 md:p-12 shadow-soft-glow text-center mb-8 border border-outline-variant/20">
               <div class="w-20 h-20 rounded-full bg-primary-container/20 flex items-center justify-center mx-auto mb-4">
-                <span
-                  class="material-symbols-outlined text-icon-2xl text-secondary"
-                  style="font-variation-settings: 'FILL' 1;"
-                >emoji_events</span>
+                <AppIcon name="emoji_events" size="2xl" tone="secondary" filled />
               </div>
               <h3 class="font-headline-lg text-headline-lg text-on-surface mb-2">{{ $t('learning.practiceComplete') }}</h3>
               <ResultStats
@@ -326,7 +321,7 @@
                     class="w-7 h-7 rounded-full flex items-center justify-center text-sm shrink-0 mt-0.5"
                     :class="item.correct ? 'bg-tertiary-container/45 text-on-tertiary-container' : 'bg-error-container/45 text-on-error-container'"
                   >
-                    <span class="material-symbols-outlined text-icon-lg">{{ item.correct ? 'check' : 'close' }}</span>
+                    <AppIcon :name="item.correct ? 'check' : 'close'" size="lg" />
                   </span>
                   <div class="flex-1 min-w-0">
                     <p class="font-body-md text-body-md text-on-surface mb-2">{{ item.question.stem }}</p>

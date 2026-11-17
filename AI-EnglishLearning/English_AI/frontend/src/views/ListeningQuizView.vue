@@ -9,7 +9,7 @@
             :aria-label="$t('common.back')"
             @click="goBack"
           >
-            <span class="material-symbols-outlined">arrow_back_ios_new</span>
+            <AppIcon name="arrow_back_ios_new" size="lg" />
           </button>
           <QuizProgressBar :answered="answeredCount" :total="questions.length || 5" />
         </div>
@@ -20,7 +20,7 @@
             :aria-label="appStore.isDark ? $t('topbar.switchToLight') : $t('topbar.switchToDark')"
             @click="appStore.toggleTheme"
           >
-            <span class="material-symbols-outlined">{{ appStore.isDark ? 'light_mode' : 'dark_mode' }}</span>
+            <AppIcon :name="appStore.isDark ? 'light_mode' : 'dark_mode'" size="lg" />
           </button>
           <button
             type="button"
@@ -28,7 +28,7 @@
             :aria-label="$t('nav.settings')"
             @click="toast($t('common.comingSoon'), 'info')"
           >
-            <span class="material-symbols-outlined">settings</span>
+            <AppIcon name="settings" size="lg" />
           </button>
           <div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center overflow-hidden">
             <span class="font-label-md text-label-md text-on-surface-variant">{{ avatarText }}</span>
@@ -56,7 +56,7 @@
 
       <div v-else-if="showSummary" class="max-w-3xl mx-auto">
         <div class="bg-surface-container-lowest rounded-3xl p-8 shadow-soft-glow text-center">
-          <span class="material-symbols-outlined text-icon-3xl text-primary">headphones</span>
+          <AppIcon name="headphones" size="3xl" tone="primary" />
           <h3 class="font-headline-lg text-headline-lg text-on-surface mt-4">{{ $t('listening.completeTitle') }}</h3>
           <p class="font-body-lg text-body-lg text-on-surface-variant mt-2">
             {{ $t('listening.completeSummary', { correct: correctCount, total: questions.length, rate: accuracy }) }}
@@ -114,7 +114,7 @@
             <div class="mt-6">
               <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center gap-2">
-                  <span class="material-symbols-outlined text-primary text-icon-md">quiz</span>
+                  <AppIcon name="quiz" size="md" tone="primary" />
                   <span class="font-label-lg text-label-lg text-on-surface">{{ $t('listening.chooseAnswer') }}</span>
                 </div>
                 <button
@@ -149,7 +149,7 @@
               class="flex-1 bg-gradient-to-r from-primary to-primary-fixed-dim text-on-primary py-4 rounded-2xl font-label-lg text-label-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-[0_4px_14px_rgba(103,85,140,0.25)]"
               @click="toggleRate"
             >
-              <span class="material-symbols-outlined">speed</span>{{ rateLabel(playbackRate) }}
+              <AppIcon name="speed" size="lg" />{{ rateLabel(playbackRate) }}
             </button>
             <button
               type="button"
@@ -158,7 +158,7 @@
               :title="$t('listening.volume')"
               @click="toggleGain"
             >
-              <span class="material-symbols-outlined text-icon-md">{{ gainIcon }}</span>
+              <AppIcon :name="gainIcon" size="md" />
               <span class="flex items-end gap-[2px]" aria-hidden="true">
                 <span class="w-[3px] rounded-full bg-current" :class="gainLevel >= 0 ? 'h-2' : 'h-2'" :style="{ opacity: gainLevel >= 0 ? 1 : 0.3 }"></span>
                 <span class="w-[3px] rounded-full bg-current" :class="gainLevel >= 1 ? 'h-3' : 'h-2'" :style="{ opacity: gainLevel >= 1 ? 1 : 0.3 }"></span>
@@ -170,7 +170,7 @@
               class="flex-1 bg-gradient-to-r from-secondary to-secondary-fixed-dim text-on-secondary py-4 rounded-2xl font-label-lg text-label-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-[0_4px_14px_rgba(12,103,128,0.25)]"
               @click="replayCurrent"
             >
-              <span class="material-symbols-outlined">replay</span>{{ $t('listening.replay') }}
+              <AppIcon name="replay" size="lg" />{{ $t('listening.replay') }}
             </button>
             <button
               type="button"
@@ -178,7 +178,7 @@
               :disabled="submitting"
               @click="handleNext"
             >
-              <span class="material-symbols-outlined">{{ showResult ? 'arrow_forward' : 'check' }}</span>
+              <AppIcon :name="showResult ? 'arrow_forward' : 'check'" size="lg" />
               {{ showResult ? (isLastQuestion ? $t('learning.viewResults') : $t('learning.next')) : (submitting ? $t('common.loading') : $t('listening.submitAnswer')) }}
             </button>
           </div>
@@ -186,7 +186,7 @@
 
         <aside class="w-full min-w-0 flex flex-col gap-4">
           <div class="flex items-center gap-2 mb-2">
-            <span class="material-symbols-outlined text-tertiary">headphones</span>
+            <AppIcon name="headphones" size="lg" tone="tertiary" />
             <h3 class="font-headline-md text-headline-md text-on-surface">{{ $t('listening.aiFeedback') }}</h3>
           </div>
 
@@ -213,7 +213,7 @@
 
           <div class="bg-tertiary-container/15 rounded-2xl p-5 border border-tertiary/20">
             <div class="flex items-center gap-2 mb-3">
-              <span class="material-symbols-outlined text-tertiary text-icon-md">bookmark</span>
+              <AppIcon name="bookmark" size="md" tone="tertiary" />
               <span class="font-label-lg text-label-lg text-tertiary">{{ $t('listening.corePhrases') }}</span>
             </div>
             <p class="font-body-md text-body-md text-on-surface-variant">{{ $t('listening.corePhrasesEmpty') }}</p>
@@ -230,6 +230,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import AppLayout from '../components/AppLayout.vue'
 import AudioPlayer from '../components/AudioPlayer.vue'
+import AppIcon from '../components/ui/AppIcon.vue'
 import StepIndicator from '../components/listening/StepIndicator.vue'
 import FeedbackPanel from '../components/listening/FeedbackPanel.vue'
 import TranscriptPanel from '../components/listening/TranscriptPanel.vue'

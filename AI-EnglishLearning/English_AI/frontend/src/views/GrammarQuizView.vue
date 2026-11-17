@@ -15,7 +15,7 @@
             :aria-label="$t('common.back')"
             @click="goBack"
           >
-            <span class="material-symbols-outlined text-icon-lg">arrow_back_ios_new</span>
+            <AppIcon name="arrow_back_ios_new" size="lg" />
           </button>
 
           <!-- 奖杯 + 进度条：进度 = 已答 / 总数 -->
@@ -28,13 +28,13 @@
             :aria-label="appStore.isDark ? $t('topbar.switchToLight') : $t('topbar.switchToDark')"
             @click="appStore.toggleTheme"
           >
-            <span class="material-symbols-outlined text-icon-lg">{{ appStore.isDark ? 'light_mode' : 'dark_mode' }}</span>
+            <AppIcon :name="appStore.isDark ? 'light_mode' : 'dark_mode'" size="lg" />
           </button>
           <button
             :class="['relative', btnIcon]"
             :aria-label="$t('topbar.notifications')"
           >
-            <span class="material-symbols-outlined text-icon-lg">notifications</span>
+            <AppIcon name="notifications" size="lg" />
             <span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
           </button>
           <button
@@ -42,7 +42,7 @@
             :aria-label="$t('topbar.currentLanguage')"
             @click="cycleLanguage"
           >
-            <span class="material-symbols-outlined text-icon-lg">language</span>
+            <AppIcon name="language" size="lg" />
           </button>
           <div
             class="w-8 h-8 rounded-full bg-primary text-on-primary ml-2 flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-primary/50 hover:scale-105 active:scale-95 transition-all text-sm font-bold select-none overflow-hidden"
@@ -77,7 +77,7 @@
                 <!-- 左上：难度等级徽章 -->
                 <div class="bg-info-container/80 text-on-info-container px-3.5 py-1.5 rounded-full flex items-center gap-1.5 text-sm font-medium">
                   {{ $t('learning.difficultyLevelGrammar', { level: currentDifficulty }) }}
-                  <span class="material-symbols-outlined text-icon-lg">help</span>
+                  <AppIcon name="help" size="lg" />
                 </div>
                 <!-- 右上：New 红色徽章 -->
                 <div class="bg-error text-on-error px-3.5 py-1.5 rounded-full text-sm font-medium shadow-sm flex items-center relative">
@@ -106,7 +106,7 @@
                   class="text-xs text-error/70 hover:text-error flex items-center gap-1 transition-colors"
                   @click="clearAllWords()"
                 >
-                  <span class="material-symbols-outlined text-icon-lg">delete</span>{{ $t('learning.clearBtn') }}
+                  <AppIcon name="delete" size="lg" />{{ $t('learning.clearBtn') }}
                 </button>
               </div>
               <div
@@ -153,7 +153,7 @@
                   v-else
                   class="w-full flex flex-col items-center justify-center text-outline text-base py-8 gap-2"
                 >
-                  <span class="material-symbols-outlined text-icon-lg">drag_indicator</span>
+                  <AppIcon name="drag_indicator" size="lg" />
                   {{ $t('learning.dragOrClickHint') }}
                 </div>
 
@@ -215,7 +215,7 @@
               :disabled="showFeedback"
               @click="revealAnswer"
             >
-              <span class="material-symbols-outlined mb-0.5 text-icon-lg">done_all</span>
+              <AppIcon name="done_all" size="lg" class="mb-0.5" />
               {{ $t('learning.viewAnswerBtn') }}
             </button>
             <!-- 语音模式 -->
@@ -226,7 +226,7 @@
               @click="toggleSpeech"
               :aria-label="$t('learning.voiceMode')"
             >
-              <span class="material-symbols-outlined text-icon-lg" style="font-variation-settings: 'FILL' 1;">mic</span>
+              <AppIcon name="mic" size="lg" filled />
             </button>
             <!-- 问AI -->
             <button
@@ -234,7 +234,7 @@
               @click="askAi"
               :aria-label="$t('learning.askAi')"
             >
-              <span class="material-symbols-outlined text-icon-lg">help</span>
+              <AppIcon name="help" size="lg" />
             </button>
             <!-- 确认/下一题大按钮 -->
             <button
@@ -255,7 +255,7 @@
           <div class="max-w-3xl mx-auto w-full">
             <div class="bg-surface rounded-3xl p-8 md:p-12 shadow-soft-glow text-center mb-8 border border-outline-variant/20">
               <div class="w-20 h-20 rounded-full bg-primary-container/20 flex items-center justify-center mx-auto mb-4">
-                <span class="material-symbols-outlined text-icon-2xl text-secondary" style="font-variation-settings: 'FILL' 1;">emoji_events</span>
+                <AppIcon name="emoji_events" size="2xl" tone="secondary" filled />
               </div>
               <h3 class="font-headline-md text-headline-md text-on-surface mb-2">{{ $t('learning.grammarComplete') }}</h3>
               <ResultStats
@@ -317,6 +317,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import SideNavBar from '@/components/SideNavBar.vue'
 import AiSidebar from '@/components/AiSidebar.vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
 import QuizProgressBar from '../components/quiz/QuizProgressBar.vue'
 import AnswerFeedback from '@/components/quiz/AnswerFeedback.vue'
 import ResultStats from '@/components/quiz/ResultStats.vue'

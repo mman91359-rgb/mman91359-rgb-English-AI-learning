@@ -252,7 +252,7 @@
 
 | 位置 | 内容 | 风险 | 治理方式 |
 |---|---|---|---|
-| `src/api/writing.ts:132-149` (`degradedReport`) | 评分失败返回 `rawScore:0 / level:'NEEDS_WORK' / issues:['AI 评分暂不可用…']` | 🔴 **0 分会被当成真实得分**展示在报告页与历史趋势图 | 报告页对 `scoreVersion==='degraded'` 显示"未评分"态而非 0 分；`WritingHistoryView` 的 `trendItems` 需过滤 `status!=='SCORED'`（当前只滤 `status`，`degraded` 的 `status` 是 `'FAILED'`，已过滤 ✓，但 `WritingReportView` 未区分） |
+| `src/api/writing.ts:132-149` (`degradedReport`) | 评分失败返回 `rawScore:0 / level:'NEEDS_WORK' / issues:['AI 评分暂不可用…']` | 🔴 **0 分会被当成真实得分**展示在报告页与历史趋势图 | 报告页对 `scoreVersion==='degraded'` 显示"未评分"态而非 0 分。勘误（2026-11-17）：原文称「`degraded` 的 `status` 是 `'FAILED'`，趋势图已过滤 ✓」属审计漏判——后端 `aiScored=false` 经 `toSubmission` 确实推导为 `FAILED`，但 `WritingHistoryView` 曾硬编码 `status:'SCORED'` 覆盖该值，导致趋势图误收 0 分。已于 `9f99c03` 修正为 `status: submission.status`，并按 `scoreVersion` 显示中性「未评分」徽章；报告页/提交页 toast/本地面板/AI 成绩卡/AI 上下文均已按 `degraded` 降级（批次 2–5）。 |
 | `views/ListeningQuizView.vue:325-328` | `feedbackMessage` 无解析时回退 `listening.feedbackPending` | ⚪️ 文案层兜底，可接受 | 保留 |
 | `views/ListeningQuizView.vue:220-226` | "核心短语"固定输出 `corePhrasesEmpty` | ⚪️ | 保留，但区块标题应标注"暂无"而非留白 |
 | `views/TranslationPracticeView.vue:256-258` | `handleLookup` 只 toast "查词功能开发中" | ⚪️ 点击有反馈，无死链 | 保留 |

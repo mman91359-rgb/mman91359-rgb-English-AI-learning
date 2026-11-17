@@ -11,7 +11,7 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div class="bg-surface-container-lowest rounded-xl p-6 card-shadow">
             <div class="flex items-center text-on-surface-variant mb-2">
-              <span class="material-symbols-outlined mr-2 text-primary text-icon-md">schedule</span>
+              <AppIcon name="schedule" size="md" tone="primary" class="mr-2" />
               <span class="font-label-md text-label-md">{{ $t('stats.todayHours') }}</span>
             </div>
             <div class="text-headline-lg font-headline-lg text-on-surface">
@@ -21,7 +21,7 @@
           </div>
           <div class="bg-surface-container-lowest rounded-xl p-6 card-shadow">
             <div class="flex items-center text-on-surface-variant mb-2">
-              <span class="material-symbols-outlined mr-2 text-secondary text-icon-md" :class="{ 'opacity-30': userStore.checkInStreak < 3 }">local_fire_department</span>
+              <AppIcon name="local_fire_department" size="md" tone="secondary" class="mr-2" :class="{ 'opacity-30': userStore.checkInStreak < 3 }" />
               <span class="font-label-md text-label-md">{{ $t('stats.streakDays') }}</span>
             </div>
             <div class="text-headline-lg font-headline-lg text-on-surface">
@@ -30,7 +30,7 @@
           </div>
           <div class="bg-surface-container-lowest rounded-xl p-6 card-shadow">
             <div class="flex items-center text-on-surface-variant mb-2">
-              <span class="material-symbols-outlined mr-2 text-tertiary text-icon-md">calendar_month</span>
+              <AppIcon name="calendar_month" size="md" tone="tertiary" class="mr-2" />
               <span class="font-label-md text-label-md">{{ $t('stats.activeDays') }}</span>
             </div>
             <div class="text-headline-lg font-headline-lg text-on-surface">
@@ -123,7 +123,7 @@
           <div class="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
           <div class="relative z-10 text-center mb-6">
             <div class="inline-flex items-center justify-center w-20 h-20 bg-surface-container-lowest rounded-full shadow-sm mb-4">
-              <span class="material-symbols-outlined text-icon-2xl text-warning fill">trophy</span>
+              <AppIcon name="trophy" size="2xl" tone="warning" filled />
             </div>
             <h3 class="font-headline-md text-headline-md text-on-surface">{{ $t('stats.myVocabulary') }}</h3>
             <p class="text-label-md font-label-md text-on-surface-variant mt-1">{{ $t('stats.testedAt') }} {{ vocabTestDate }}</p>
@@ -132,21 +132,21 @@
             <div class="bg-surface-container-lowest/60 backdrop-blur-sm rounded-xl p-4 text-center border border-surface-container-lowest">
               <p class="text-label-md font-label-md text-on-surface-variant mb-1">{{ $t('stats.masteredWords') }}</p>
               <div class="text-headline-lg font-headline-lg text-primary flex items-center justify-center">
-                <span class="material-symbols-outlined mr-2 text-primary text-icon-md">auto_stories</span>
+                <AppIcon name="auto_stories" size="md" tone="primary" class="mr-2" />
                 {{ formatNumber(masteredWords) }}
               </div>
             </div>
             <div class="bg-surface-container-lowest/60 backdrop-blur-sm rounded-xl p-4 text-center border border-surface-container-lowest">
               <p class="text-label-md font-label-md text-on-surface-variant mb-1">{{ $t('stats.vocabularyRate') }}</p>
               <div class="text-headline-lg font-headline-lg text-primary flex items-center justify-center">
-                <span class="material-symbols-outlined mr-2 text-primary text-icon-md">check_circle</span>
+                <AppIcon name="check_circle" size="md" tone="primary" class="mr-2" />
                 {{ vocabularyRate }}%
               </div>
             </div>
             <div class="bg-surface-container-lowest/60 backdrop-blur-sm rounded-xl p-4 text-center border border-surface-container-lowest">
               <p class="text-label-md font-label-md text-on-surface-variant mb-1">{{ $t('stats.nationalRank') }}</p>
               <div class="text-headline-lg font-headline-lg text-primary flex items-center justify-center">
-                <span class="material-symbols-outlined mr-2 text-primary text-icon-md">trending_up</span>
+                <AppIcon name="trending_up" size="md" tone="primary" class="mr-2" />
                 {{ $t('stats.top') }} {{ nationalRank }}%
               </div>
             </div>

@@ -18,7 +18,7 @@
             class="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 rounded-full bg-primary origin-center transition-all duration-300"
             :class="isLogin ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-0'"
           ></span>
-          <span class="material-symbols-outlined transition-transform duration-300 group-hover:scale-110">login</span>
+          <span class="transition-transform duration-300 group-hover:scale-110"><AppIcon name="login" size="lg" /></span>
           <span class="font-label-lg text-label-lg transition-all duration-300 group-hover:tracking-wide">{{ $t('auth.login') }}</span>
         </router-link>
         <router-link
@@ -34,7 +34,7 @@
             class="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 rounded-full bg-primary origin-center transition-all duration-300"
             :class="!isLogin ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-0'"
           ></span>
-          <span class="material-symbols-outlined transition-transform duration-300 group-hover:scale-110">person_add</span>
+          <span class="transition-transform duration-300 group-hover:scale-110"><AppIcon name="person_add" size="lg" /></span>
           <span class="font-label-lg text-label-lg transition-all duration-300 group-hover:tracking-wide">{{ $t('auth.register') }}</span>
         </router-link>
       </nav>
@@ -57,7 +57,7 @@
           <div class="col-span-1 md:col-span-8 md:col-start-3 lg:col-span-6 lg:col-start-4 bg-surface rounded-3xl p-8 sm:p-10 shadow-soft-glow relative overflow-hidden">
             <div class="text-center mb-10">
               <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-container/10 mb-4">
-                <span class="material-symbols-outlined text-primary text-icon-lg fill">person_add</span>
+                <AppIcon name="person_add" size="lg" tone="primary" filled />
               </div>
               <h1 class="font-headline-xl text-headline-xl text-on-surface mb-2">{{ $t('auth.register') }}</h1>
               <p class="font-body-md text-body-md text-on-surface-variant">{{ $t('app.subtitle') }}</p>
@@ -66,7 +66,7 @@
             <form class="space-y-5" novalidate @submit.prevent="handleRegister">
               <div class="relative group">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <span class="material-symbols-outlined text-secondary group-focus-within:text-primary transition-colors">badge</span>
+                  <span class="text-secondary group-focus-within:text-primary transition-colors"><AppIcon name="badge" size="lg" /></span>
                 </div>
                 <input
                   v-model="form.nickname"
@@ -80,7 +80,7 @@
 
               <div class="relative group">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <span class="material-symbols-outlined text-secondary group-focus-within:text-primary transition-colors">alternate_email</span>
+                  <span class="text-secondary group-focus-within:text-primary transition-colors"><AppIcon name="alternate_email" size="lg" /></span>
                 </div>
                 <input
                   v-model="form.account"
@@ -97,7 +97,7 @@
                 <div class="flex flex-col gap-2 sm:flex-row">
                   <div class="relative flex-1 group">
                     <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                      <span class="material-symbols-outlined text-secondary transition-colors group-focus-within:text-primary">verified_user</span>
+                      <span class="text-secondary transition-colors group-focus-within:text-primary"><AppIcon name="verified_user" size="lg" /></span>
                     </div>
                     <input
                       v-model="form.code"
@@ -123,7 +123,7 @@
 
               <div class="relative group">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <span class="material-symbols-outlined text-secondary group-focus-within:text-primary transition-colors">lock</span>
+                  <span class="text-secondary group-focus-within:text-primary transition-colors"><AppIcon name="lock" size="lg" /></span>
                 </div>
                 <input
                   v-model="form.password"
@@ -139,9 +139,7 @@
                   @click="togglePassword"
                 >
                   <Transition name="icon-fade" mode="out-in">
-                    <span :key="showPassword ? 'visible' : 'hidden'" class="material-symbols-outlined">
-                      {{ showPassword ? 'visibility' : 'visibility_off' }}
-                    </span>
+                    <span :key="showPassword ? 'visible' : 'hidden'"><AppIcon :name="showPassword ? 'visibility' : 'visibility_off'" size="lg" /></span>
                   </Transition>
                 </button>
                 <FormHint v-if="validationErrors.password" :message="validationErrors.password" />
@@ -149,7 +147,7 @@
 
               <div class="relative group">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <span class="material-symbols-outlined text-secondary group-focus-within:text-primary transition-colors">lock_reset</span>
+                  <span class="text-secondary group-focus-within:text-primary transition-colors"><AppIcon name="lock_reset" size="lg" /></span>
                 </div>
                 <input
                   v-model="form.confirmPassword"
@@ -164,14 +162,14 @@
                   type="button"
                   @click="toggleConfirmPassword"
                 >
-                  <span class="material-symbols-outlined">{{ showConfirmPassword ? 'visibility' : 'visibility_off' }}</span>
+                  <AppIcon :name="showConfirmPassword ? 'visibility' : 'visibility_off'" size="lg" />
                 </button>
                 <FormHint v-if="validationErrors.confirmPassword" :message="validationErrors.confirmPassword" />
               </div>
 
               <div class="relative group">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <span class="material-symbols-outlined text-secondary group-focus-within:text-primary transition-colors">school</span>
+                  <span class="text-secondary group-focus-within:text-primary transition-colors"><AppIcon name="school" size="lg" /></span>
                 </div>
                 <select
                   v-model="form.cetLevel"
@@ -195,7 +193,7 @@
                   type="submit"
                 >
                   <span>{{ isLoading ? $t('auth.register') + '...' : $t('auth.register') }}</span>
-                  <span v-if="isLoading" class="material-symbols-outlined animate-spin">progress_activity</span>
+                  <span v-if="isLoading" class="animate-spin"><AppIcon name="progress_activity" size="lg" /></span>
                 </button>
               </div>
             </form>
@@ -224,6 +222,7 @@ import { sendVerificationCode } from '@/api/user'
 import { inputClassLg, inputErrorClass } from '@/components/ui/formStyles'
 import FormHint from '@/components/ui/FormHint.vue'
 import AppLogo from '@/components/ui/AppLogo.vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
 import { btnIcon, btnPrimaryBlock } from '@/components/ui/buttonStyles'
 
 const route = useRoute()

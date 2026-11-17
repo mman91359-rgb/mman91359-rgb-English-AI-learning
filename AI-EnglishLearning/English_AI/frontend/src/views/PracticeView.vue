@@ -113,7 +113,7 @@
               class="p-4 rounded-xl font-label-lg text-label-lg text-center"
               :class="submitResult?.isCorrect ? 'bg-tertiary-container/30 text-on-tertiary-container' : 'bg-error-container/30 text-on-error-container'"
             >
-              <span class="material-symbols-outlined align-middle mr-1">{{ submitResult?.isCorrect ? 'check_circle' : 'cancel' }}</span>
+              <AppIcon :name="submitResult?.isCorrect ? 'check_circle' : 'cancel'" size="lg" class="align-middle mr-1" />
               {{ submitResult?.isCorrect ? $t('learning.correct') : $t('learning.incorrect') }}
             </div>
             <div v-if="submitResult?.correctAnswer" class="bg-surface rounded-xl p-4 border border-outline-variant/20">
@@ -131,9 +131,7 @@
             :aria-pressed="isCurrentFavorited"
             @click="handleFavorite"
           >
-            <span class="material-symbols-outlined text-icon-lg" :class="{ fill: isCurrentFavorited }">
-              {{ isCurrentFavorited ? 'favorite' : 'favorite_border' }}
-            </span>
+            <AppIcon :name="isCurrentFavorited ? 'favorite' : 'favorite_border'" size="lg" :filled="isCurrentFavorited" />
             {{ isCurrentFavorited ? $t('learning.favorited') : $t('learning.favoriteSentence') }}
           </button>
             <button
@@ -160,7 +158,7 @@
       <div class="max-w-3xl mx-auto">
         <div class="bg-surface rounded-2xl p-8 shadow-soft-glow text-center mb-8">
           <div class="w-20 h-20 rounded-full bg-primary-container/20 flex items-center justify-center mx-auto mb-4">
-            <span class="material-symbols-outlined text-icon-2xl text-primary">emoji_events</span>
+            <AppIcon name="emoji_events" size="2xl" tone="primary" />
           </div>
           <h3 class="font-headline-lg text-headline-lg text-on-surface mb-2">{{ $t('learning.practiceComplete') }}</h3>
           <div class="flex items-center justify-center gap-8 mt-6">
@@ -196,7 +194,7 @@
                 class="w-7 h-7 rounded-full flex items-center justify-center text-sm shrink-0 mt-0.5"
                 :class="item.submitResult?.isCorrect ? 'bg-tertiary-container/45 text-on-tertiary-container' : 'bg-error-container/45 text-on-error-container'"
               >
-                <span class="material-symbols-outlined text-icon-lg">{{ item.submitResult?.isCorrect ? 'check' : 'close' }}</span>
+                <AppIcon :name="item.submitResult?.isCorrect ? 'check' : 'close'" size="lg" />
               </span>
               <div class="flex-1 min-w-0">
                 <p class="font-body-md text-body-md text-on-surface mb-2">{{ item.question.stem }}</p>
@@ -234,6 +232,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import AppLayout from '../components/AppLayout.vue'
+import AppIcon from '../components/ui/AppIcon.vue'
 import { useUserStore } from '@/stores/user'
 import { moduleName as moduleLabel } from '@/config/modules'
 import { selectQuestions, submitAnswer } from '@/api/exercise'

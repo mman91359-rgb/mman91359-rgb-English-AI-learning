@@ -22,7 +22,7 @@
       <!-- 薄弱知识点卡片 -->
       <div v-if="weakPoints.length > 0" class="bg-surface-container-lowest rounded-[20px] p-5 shadow-soft-glow mb-6">
         <div class="flex items-center gap-2 mb-4">
-          <span class="material-symbols-outlined text-warning text-icon-lg">lightbulb</span>
+          <AppIcon name="lightbulb" size="lg" tone="warning" />
           <h3 class="font-headline-sm text-headline-sm text-on-surface">{{ $t('errorBook.weakPoints') }}</h3>
           <span class="font-label-sm text-label-sm text-on-surface-variant">{{ $t('errorBook.weakPointsHint') }}</span>
         </div>
@@ -61,7 +61,7 @@
           class="flex items-center gap-2 px-4 py-2.5 border border-error/40 text-error rounded-xl font-label-md text-label-md hover:bg-error/5 transition-colors shrink-0"
           @click="clearAll"
         >
-          <span class="material-symbols-outlined text-icon-lg">delete_sweep</span>
+          <AppIcon name="delete_sweep" size="lg" />
           {{ $t('learning.clearAll') }}
         </button>
       </div>
@@ -134,7 +134,7 @@
                 class="font-label-sm text-label-sm text-error/70 hover:text-error flex items-center gap-1 transition-colors"
                 @click="clearGrammarWords(q.id)"
               >
-                <span class="material-symbols-outlined text-icon-lg">delete</span>{{ $t('learning.clearBtn') }}
+                <AppIcon name="delete" size="lg" />{{ $t('learning.clearBtn') }}
               </button>
             </div>
             <!-- 已选单词区 -->
@@ -151,11 +151,11 @@
                   @click="removeGrammarWord(q.id, sIdx)"
                 >
                   {{ word }}
-                  <span v-if="!showAnswer[q.id]" class="material-symbols-outlined text-icon-lg text-on-surface-variant">close</span>
+                  <span v-if="!showAnswer[q.id]"><AppIcon name="close" size="lg" tone="variant" /></span>
                 </button>
               </template>
               <div v-else class="w-full flex flex-col items-center justify-center text-on-surface-variant/40 py-6 gap-1">
-                <span class="material-symbols-outlined text-icon-lg">drag_indicator</span>
+                <AppIcon name="drag_indicator" size="lg" />
                 <span class="font-label-sm text-label-sm">{{ $t('learning.dragOrClickHint') }}</span>
               </div>
             </div>
@@ -225,7 +225,7 @@
                 class="inline-flex items-center gap-1 text-primary font-label-md underline underline-offset-4 hover:text-primary/80 transition-colors"
               >
                 {{ $t('learning.continuePractice') }}
-                <span class="material-symbols-outlined text-icon-lg">arrow_forward</span>
+                <AppIcon name="arrow_forward" size="lg" />
               </router-link>
             </div>
 
@@ -265,8 +265,8 @@
               :disabled="generating[q.id]"
               @click="handleGenerateSimilar(q)"
             >
-              <span v-if="generating[q.id]" class="material-symbols-outlined text-icon-lg animate-spin">progress_activity</span>
-              <span v-else class="material-symbols-outlined text-icon-lg">auto_fix_high</span>
+              <span v-if="generating[q.id]" class="animate-spin"><AppIcon name="progress_activity" size="lg" /></span>
+              <span v-else><AppIcon name="auto_fix_high" size="lg" /></span>
               {{ generating[q.id] ? $t('errorBook.generating') : $t('errorBook.generateSimilar') }}
             </button>
           </div>
@@ -422,6 +422,7 @@
 import { ref, computed, reactive, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppLayout from '../components/AppLayout.vue'
+import AppIcon from '../components/ui/AppIcon.vue'
 import { useUserStore } from '@/stores/user'
 import { getErrorBook, submitAnswer, getWeakPoints, generateSimilar, type QuestionVO, type SubmitResponse, type WeakKnowledgePoint } from '@/api/exercise'
 import { useToast } from '@/composables/useToast'

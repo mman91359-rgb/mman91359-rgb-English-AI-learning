@@ -18,7 +18,7 @@
             class="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 rounded-full bg-primary origin-center transition-all duration-300"
             :class="isLogin ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-0'"
           ></span>
-          <span class="material-symbols-outlined transition-transform duration-300 group-hover:scale-110">login</span>
+          <span class="transition-transform duration-300 group-hover:scale-110"><AppIcon name="login" size="lg" /></span>
           <span class="font-label-lg text-label-lg transition-all duration-300 group-hover:tracking-wide">{{ $t('auth.login') }}</span>
         </router-link>
         <router-link
@@ -34,7 +34,7 @@
             class="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 rounded-full bg-primary origin-center transition-all duration-300"
             :class="!isLogin ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-0'"
           ></span>
-          <span class="material-symbols-outlined transition-transform duration-300 group-hover:scale-110">person_add</span>
+          <span class="transition-transform duration-300 group-hover:scale-110"><AppIcon name="person_add" size="lg" /></span>
           <span class="font-label-lg text-label-lg transition-all duration-300 group-hover:tracking-wide">{{ $t('auth.register') }}</span>
         </router-link>
       </nav>
@@ -57,7 +57,7 @@
           <div class="col-span-1 md:col-span-6 md:col-start-4 bg-surface rounded-3xl p-8 sm:p-10 shadow-soft-glow relative overflow-hidden">
             <div class="text-center mb-10">
               <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-container/10 mb-4">
-                <span class="material-symbols-outlined text-primary text-icon-lg fill">auto_stories</span>
+                <AppIcon name="auto_stories" size="lg" tone="primary" filled />
               </div>
               <h1 class="font-headline-xl text-headline-xl text-on-surface mb-2">{{ $t('app.title') }}</h1>
               <p class="font-body-md text-body-md text-on-surface-variant">{{ $t('app.subtitle') }}</p>
@@ -67,7 +67,7 @@
               <div>
                 <div class="relative group">
                   <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <span class="material-symbols-outlined text-secondary group-focus-within:text-primary transition-colors">alternate_email</span>
+                    <span class="text-secondary group-focus-within:text-primary transition-colors"><AppIcon name="alternate_email" size="lg" /></span>
                   </div>
                   <input
                     v-model="account"
@@ -84,7 +84,7 @@
               <div>
                 <div class="relative group">
                   <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <span class="material-symbols-outlined text-secondary group-focus-within:text-primary transition-colors">lock</span>
+                    <span class="text-secondary group-focus-within:text-primary transition-colors"><AppIcon name="lock" size="lg" /></span>
                   </div>
                   <input
                     v-model="password"
@@ -101,9 +101,11 @@
                     @click="togglePassword"
                   >
                     <Transition name="icon-fade" mode="out-in">
-                      <span :key="showPassword ? 'visible' : 'hidden'" class="material-symbols-outlined">
-                        {{ showPassword ? 'visibility' : 'visibility_off' }}
-                      </span>
+                      <AppIcon
+                        :key="showPassword ? 'visible' : 'hidden'"
+                        :name="showPassword ? 'visibility' : 'visibility_off'"
+                        size="lg"
+                      />
                     </Transition>
                   </button>
                 </div>
@@ -131,7 +133,7 @@
                   type="submit"
                 >
                   <span>{{ isLoading ? $t('auth.login') + '...' : $t('auth.login') }}</span>
-                  <span v-if="isLoading" class="material-symbols-outlined animate-spin">progress_activity</span>
+                  <span v-if="isLoading" class="animate-spin"><AppIcon name="progress_activity" size="lg" /></span>
                 </button>
               </div>
             </form>
@@ -157,6 +159,7 @@ import { useUserStore } from '@/stores/user'
 import { useToast } from '@/composables/useToast'
 import { inputClassLg, inputErrorClass } from '@/components/ui/formStyles'
 import FormHint from '@/components/ui/FormHint.vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
 import { btnIcon, btnPrimaryBlock } from '@/components/ui/buttonStyles'
 import AppLogo from '@/components/ui/AppLogo.vue'
 

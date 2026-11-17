@@ -6,11 +6,11 @@
       </div>
       <nav class="flex flex-col gap-2">
         <router-link to="/login" class="flex items-center gap-4 rounded-xl px-4 py-3 font-label-lg text-label-lg text-on-surface-variant transition-colors hover:bg-primary-container/10 hover:text-primary">
-          <span class="material-symbols-outlined">login</span>
+          <AppIcon name="login" size="lg" />
           {{ $t('auth.login') }}
         </router-link>
         <router-link to="/register" class="flex items-center gap-4 rounded-xl px-4 py-3 font-label-lg text-label-lg text-on-surface-variant transition-colors hover:bg-primary-container/10 hover:text-primary">
-          <span class="material-symbols-outlined">person_add</span>
+          <AppIcon name="person_add" size="lg" />
           {{ $t('auth.register') }}
         </router-link>
       </nav>
@@ -22,14 +22,14 @@
           <div class="relative overflow-hidden rounded-3xl bg-surface p-8 shadow-soft-glow sm:p-10">
             <div class="mb-8 text-center">
               <div class="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary-container/10">
-                <span class="material-symbols-outlined fill text-icon-lg text-primary">lock_reset</span>
+                <AppIcon name="lock_reset" size="lg" tone="primary" filled />
               </div>
               <h1 class="mb-2 font-headline-xl text-headline-xl text-on-surface">{{ $t('auth.forgotTitle') }}</h1>
               <p class="font-body-md text-body-md text-on-surface-variant">{{ $t('auth.forgotSubtitle') }}</p>
             </div>
 
             <p class="mb-6 flex items-start gap-2 rounded-xl bg-warning-container px-4 py-3 font-body-sm text-body-sm text-on-warning-container">
-              <span class="material-symbols-outlined text-icon-md">info</span>
+              <AppIcon name="info" size="md" />
               <span>{{ $t('auth.mockSmsHint') }}</span>
             </p>
 
@@ -37,7 +37,7 @@
               <div>
                 <div class="relative group">
                   <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                    <span class="material-symbols-outlined text-secondary transition-colors group-focus-within:text-primary">smartphone</span>
+                    <span class="text-secondary transition-colors group-focus-within:text-primary"><AppIcon name="smartphone" size="lg" /></span>
                   </div>
                   <input
                     v-model="phone"
@@ -56,7 +56,7 @@
                 <div class="flex flex-col gap-2 sm:flex-row">
                   <div class="relative flex-1 group">
                     <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                      <span class="material-symbols-outlined text-secondary transition-colors group-focus-within:text-primary">verified_user</span>
+                      <span class="text-secondary transition-colors group-focus-within:text-primary"><AppIcon name="verified_user" size="lg" /></span>
                     </div>
                     <input
                       v-model="code"
@@ -84,7 +84,7 @@
               <div>
                 <div class="relative group">
                   <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                    <span class="material-symbols-outlined text-secondary transition-colors group-focus-within:text-primary">lock</span>
+                    <span class="text-secondary transition-colors group-focus-within:text-primary"><AppIcon name="lock" size="lg" /></span>
                   </div>
                   <input
                     v-model="newPassword"
@@ -103,7 +103,7 @@
               <div>
                 <div class="relative group">
                   <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                    <span class="material-symbols-outlined text-secondary transition-colors group-focus-within:text-primary">lock</span>
+                    <span class="text-secondary transition-colors group-focus-within:text-primary"><AppIcon name="lock" size="lg" /></span>
                   </div>
                   <input
                     v-model="confirmPassword"
@@ -126,7 +126,7 @@
                 :class="btnPrimaryBlock"
               >
                 <span>{{ submitting ? $t('common.loading') : $t('auth.resetPassword') }}</span>
-                <span v-if="submitting" class="material-symbols-outlined animate-spin">progress_activity</span>
+                <span v-if="submitting" class="animate-spin"><AppIcon name="progress_activity" size="lg" /></span>
               </button>
             </form>
 
@@ -151,6 +151,7 @@ import { useCountdown } from '../composables/useCountdown'
 import { resetPasswordByPhone, sendVerificationCode } from '../api/user'
 import { inputClassLg, inputErrorClass } from '@/components/ui/formStyles'
 import FormHint from '@/components/ui/FormHint.vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
 import AppLogo from '@/components/ui/AppLogo.vue'
 import { btnPrimaryBlock } from '@/components/ui/buttonStyles'
 

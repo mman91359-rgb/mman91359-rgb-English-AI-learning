@@ -330,7 +330,13 @@ const submit = async (auto = false) => {
     phase.value = 'scored'
     stopAutoSave()
     stop()
-    toast(auto ? t('writing.practice.autoSubmitted') : t('writing.practice.scoredToast'), 'success')
+    const submittedDegraded = submission.report?.scoreVersion === 'degraded'
+    toast(
+      submittedDegraded
+        ? t('writing.practice.degradedSubmitted')
+        : auto ? t('writing.practice.autoSubmitted') : t('writing.practice.scoredToast'),
+      submittedDegraded ? 'info' : 'success',
+    )
     void router.push({ path: '/writing/report', query: { submission: submission.id } })
   } catch {
     phase.value = 'failed'

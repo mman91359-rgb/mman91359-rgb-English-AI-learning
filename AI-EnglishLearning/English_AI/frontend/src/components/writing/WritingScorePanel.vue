@@ -55,15 +55,15 @@
       <div class="flex items-center justify-between rounded-2xl bg-surface-container-low px-4 py-4">
         <div class="flex flex-col">
           <span class="font-label-md text-label-md text-on-surface-variant">{{ $t('writing.score.raw') }}</span>
-          <span class="font-headline-md text-headline-md tabular-nums text-on-surface">{{ score.rawScore }} / {{ SCORE_MAX }}</span>
+          <span class="font-headline-md text-headline-md tabular-nums text-on-surface">{{ isDegraded ? $t('writing.report.notScored') : `${score.rawScore} / ${SCORE_MAX}` }}</span>
         </div>
-        <div class="flex flex-col items-end">
+        <div v-if="!isDegraded" class="flex flex-col items-end">
           <span class="font-label-md text-label-md text-on-surface-variant">{{ $t('writing.score.weighted') }}</span>
           <span class="font-body-lg text-body-lg tabular-nums text-primary">{{ $t('writing.score.weightedValue', { score: score.weightedScore }) }}</span>
         </div>
       </div>
-      <p class="font-label-lg text-label-lg text-on-surface">{{ $t(SCORE_LEVEL_LABEL_KEYS[score.level]) }}</p>
-      <div class="flex flex-col gap-4">
+      <p class="font-label-lg text-label-lg text-on-surface">{{ isDegraded ? $t('writing.report.notScored') : $t(SCORE_LEVEL_LABEL_KEYS[score.level]) }}</p>
+      <div v-if="!isDegraded" class="flex flex-col gap-4">
         <WritingDimensionBar
           v-for="dimension in WRITING_DIMENSIONS"
           :key="dimension"
@@ -80,6 +80,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import WritingDimensionBar from './WritingDimensionBar.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import { btnPrimary } from '@/components/ui/buttonStyles'
@@ -93,7 +94,7 @@ import {
   WRITING_DIMENSIONS,
 } from '../../utils/writing'
 
-withDefaults(defineProps<{
+const props = withDefaults(defineProps<{
   phase: 'idle' | 'scoring' | 'scored' | 'failed'
   score?: WritingScore | null
   scoringStep?: number
@@ -101,6 +102,8 @@ withDefaults(defineProps<{
   score: null,
   scoringStep: 0,
 })
+
+const isDegraded = computed(() => props.score?.scoreVersion === 'degraded')
 
 defineEmits<{ retry: []; viewReport: [] }>()
 </script>

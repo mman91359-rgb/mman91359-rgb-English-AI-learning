@@ -297,7 +297,7 @@
         <router-link to="/settings/privacy" class="bg-surface-container-lowest rounded-3xl p-6 soft-shadow flex items-center justify-between hover:-translate-y-1 transition-transform group">
           <div class="flex items-center gap-4">
             <div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center group-hover:bg-primary-fixed-dim/20 transition-colors">
-              <span class="text-on-surface-variant group-hover:text-primary transition-colors"><AppIcon name="shield_person" size="lg" tone="variant" /></span>
+              <span class="text-on-surface-variant group-hover:text-primary transition-colors"><AppIcon name="shield_person" size="lg" /></span>
             </div>
             <span class="font-body-lg text-body-lg text-on-surface font-medium">{{ $t('profile.privacySettings') }}</span>
           </div>
@@ -306,7 +306,7 @@
         <router-link to="/settings/account" class="bg-surface-container-lowest rounded-3xl p-6 soft-shadow flex items-center justify-between hover:-translate-y-1 transition-transform group">
           <div class="flex items-center gap-4">
             <div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center group-hover:bg-primary-fixed-dim/20 transition-colors">
-              <span class="text-on-surface-variant group-hover:text-primary transition-colors"><AppIcon name="manage_accounts" size="lg" tone="variant" /></span>
+              <span class="text-on-surface-variant group-hover:text-primary transition-colors"><AppIcon name="manage_accounts" size="lg" /></span>
             </div>
             <span class="font-body-lg text-body-lg text-on-surface font-medium">{{ $t('profile.accountSettings') }}</span>
           </div>
@@ -315,7 +315,7 @@
         <router-link to="/settings/notifications" class="bg-surface-container-lowest rounded-3xl p-6 soft-shadow flex items-center justify-between hover:-translate-y-1 transition-transform group">
           <div class="flex items-center gap-4">
             <div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center group-hover:bg-primary-fixed-dim/20 transition-colors">
-              <span class="text-on-surface-variant group-hover:text-primary transition-colors"><AppIcon name="notifications_active" size="lg" tone="variant" /></span>
+              <span class="text-on-surface-variant group-hover:text-primary transition-colors"><AppIcon name="notifications_active" size="lg" /></span>
             </div>
             <span class="font-body-lg text-body-lg text-on-surface font-medium">{{ $t('profile.notificationSettings') }}</span>
           </div>

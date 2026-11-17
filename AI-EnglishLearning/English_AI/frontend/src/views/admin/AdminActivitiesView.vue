@@ -3,7 +3,7 @@
     <div class="flex flex-wrap items-center justify-between gap-4">
       <p class="font-body-md text-body-md text-on-surface-variant">{{ $t('adminConsole.activity.subtitle') }}</p>
       <button type="button" :class="btnPrimary" @click="editing = 'create'">
-        <span class="material-symbols-outlined text-icon-md">add</span>
+        <AppIcon name="add" size="md" />
         {{ $t('adminConsole.activity.create') }}
       </button>
     </div>
@@ -84,20 +84,20 @@
             <div class="flex items-center justify-end gap-2">
               <template v-if="row.status === 'DRAFT'">
                 <button type="button" class="flex items-center gap-1 rounded-full px-3 py-1.5 font-label-lg text-label-lg text-on-surface-variant hover:bg-surface-container-high" @click="editing = row">
-                  <span class="material-symbols-outlined text-icon-sm">edit</span>
+                  <AppIcon name="edit" size="sm" />
                   {{ $t('adminConsole.common.edit') }}
                 </button>
                 <button type="button" class="flex items-center gap-1 rounded-full bg-primary px-3 py-1.5 font-label-lg text-label-lg text-on-primary" @click="operation = { kind: 'publish', activity: row }">
-                  <span class="material-symbols-outlined text-icon-sm">rocket_launch</span>
+                  <AppIcon name="rocket_launch" size="sm" />
                   {{ $t('adminConsole.activity.publish') }}
                 </button>
                 <button type="button" class="flex items-center gap-1 rounded-full bg-error px-3 py-1.5 font-label-lg text-label-lg text-on-error" @click="operation = { kind: 'delete', activity: row }">
-                  <span class="material-symbols-outlined text-icon-sm">delete</span>
+                  <AppIcon name="delete" size="sm" />
                   {{ $t('adminConsole.common.delete') }}
                 </button>
               </template>
               <button v-else-if="row.status === 'PUBLISHED'" type="button" class="flex items-center gap-1 rounded-full border border-outline-variant px-3 py-1.5 font-label-lg text-label-lg text-on-surface-variant" @click="operation = { kind: 'end', activity: row }">
-                <span class="material-symbols-outlined text-icon-sm">stop_circle</span>
+                <AppIcon name="stop_circle" size="sm" />
                 {{ $t('adminConsole.activity.end') }}
               </button>
             </div>
@@ -139,6 +139,7 @@
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import AppIcon from '../../components/ui/AppIcon.vue'
 import AdminDataTable from '../../components/admin/AdminDataTable.vue'
 import AdminFilterBar from '../../components/admin/AdminFilterBar.vue'
 import AdminFilterField from '../../components/admin/AdminFilterField.vue'

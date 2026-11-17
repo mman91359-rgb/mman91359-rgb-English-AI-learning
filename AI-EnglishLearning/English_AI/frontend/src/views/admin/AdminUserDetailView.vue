@@ -8,7 +8,7 @@
   />
   <div v-else-if="data" class="flex flex-col gap-6">
     <RouterLink to="/admin/users" class="inline-flex w-fit items-center gap-1 font-label-lg text-label-lg text-primary hover:underline">
-      <span class="material-symbols-outlined text-icon-md">arrow_back</span>
+      <AppIcon name="arrow_back" size="md" />
       {{ $t('adminConsole.users.backToList') }}
     </RouterLink>
 
@@ -33,15 +33,15 @@
           :class="data.user.status === 1 ? btnDangerSm : btnPrimarySm"
           @click="action = { kind: 'status', user: data.user }"
         >
-          <span class="material-symbols-outlined text-icon-sm">{{ data.user.status === 1 ? 'block' : 'check_circle' }}</span>
+          <AppIcon :name="data.user.status === 1 ? 'block' : 'check_circle'" size="sm" />
           {{ data.user.status === 1 ? $t('adminConsole.users.actionDisable') : $t('adminConsole.users.actionEnable') }}
         </button>
         <button type="button" :class="btnSecondarySm" @click="action = { kind: 'reset', user: data.user }">
-          <span class="material-symbols-outlined text-icon-sm">lock_reset</span>
+          <AppIcon name="lock_reset" size="sm" />
           {{ $t('adminConsole.users.actionReset') }}
         </button>
         <button type="button" :class="btnSecondarySm" @click="action = { kind: 'setPassword', user: data.user }">
-          <span class="material-symbols-outlined text-icon-sm">key</span>
+          <AppIcon name="key" size="sm" />
           {{ $t('adminConsole.users.actionSetPassword') }}
         </button>
         <button
@@ -50,7 +50,7 @@
           :class="btnSecondarySm"
           @click="action = { kind: 'role', user: data.user }"
         >
-          <span class="material-symbols-outlined text-icon-sm">manage_accounts</span>
+          <AppIcon name="manage_accounts" size="sm" />
           {{ $t('adminConsole.users.actionRole') }}
         </button>
       </div>
@@ -102,6 +102,7 @@
 import { computed, ref } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import AppIcon from '../../components/ui/AppIcon.vue'
 import ErrorState from '../../components/ui/ErrorState.vue'
 import LoadingState from '../../components/ui/LoadingState.vue'
 import StatusBadge from '../../components/admin/StatusBadge.vue'

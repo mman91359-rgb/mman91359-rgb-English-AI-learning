@@ -100,19 +100,19 @@
           <template #cell-actions="{ row }">
             <div class="flex items-center justify-end gap-1">
               <button type="button" class="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant transition-all duration-200 hover:scale-110 hover:bg-primary-container/30 hover:text-primary active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:pointer-events-none disabled:opacity-50" :aria-label="$t('adminConsole.users.actionView')" :title="$t('adminConsole.users.actionView')" @click="router.push(`/admin/users/${row.id}`)">
-                <span class="material-symbols-outlined text-icon-md">visibility</span>
+                <AppIcon name="visibility" size="md" />
               </button>
               <button v-if="row.id !== currentUserId" type="button" class="flex h-8 w-8 items-center justify-center rounded-full transition-all duration-200 hover:scale-110 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:pointer-events-none disabled:opacity-50" :class="row.status === 1 ? 'text-error hover:bg-error-container' : 'text-on-surface-variant hover:bg-primary-container/30 hover:text-primary'" :aria-label="row.status === 1 ? $t('adminConsole.users.actionDisable') : $t('adminConsole.users.actionEnable')" :title="row.status === 1 ? $t('adminConsole.users.actionDisable') : $t('adminConsole.users.actionEnable')" @click="action = { kind: 'status', user: row }">
-                <span class="material-symbols-outlined text-icon-md">{{ row.status === 1 ? 'block' : 'check_circle' }}</span>
+                <AppIcon :name="row.status === 1 ? 'block' : 'check_circle'" size="md" />
               </button>
               <button type="button" class="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant transition-all duration-200 hover:scale-110 hover:bg-primary-container/30 hover:text-primary active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:pointer-events-none disabled:opacity-50" :aria-label="$t('adminConsole.users.actionReset')" :title="$t('adminConsole.users.actionReset')" @click="action = { kind: 'reset', user: row }">
-                <span class="material-symbols-outlined text-icon-md">lock_reset</span>
+                <AppIcon name="lock_reset" size="md" />
               </button>
               <button type="button" class="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant transition-all duration-200 hover:scale-110 hover:bg-primary-container/30 hover:text-primary active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:pointer-events-none disabled:opacity-50" :aria-label="$t('adminConsole.users.actionSetPassword')" :title="$t('adminConsole.users.actionSetPassword')" @click="action = { kind: 'setPassword', user: row }">
-                <span class="material-symbols-outlined text-icon-md">key</span>
+                <AppIcon name="key" size="md" />
               </button>
               <button v-if="row.id !== currentUserId" type="button" class="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant transition-all duration-200 hover:scale-110 hover:bg-primary-container/30 hover:text-primary active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:pointer-events-none disabled:opacity-50" :aria-label="$t('adminConsole.users.actionRole')" :title="$t('adminConsole.users.actionRole')" @click="action = { kind: 'role', user: row }">
-                <span class="material-symbols-outlined text-icon-md">manage_accounts</span>
+                <AppIcon name="manage_accounts" size="md" />
               </button>
             </div>
           </template>
@@ -141,6 +141,7 @@
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import AppIcon from '../../components/ui/AppIcon.vue'
 import AdminDataTable from '../../components/admin/AdminDataTable.vue'
 import AdminFilterBar from '../../components/admin/AdminFilterBar.vue'
 import AdminFilterField from '../../components/admin/AdminFilterField.vue'

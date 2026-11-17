@@ -67,6 +67,7 @@ const extra = {
     confirmSubmit: 'Submit',
     continueWriting: 'Keep writing',
     scoredToast: 'Scoring complete; opening your report',
+    degradedSubmitted: 'Essay saved; scoring service unavailable',
   },
   score: {
     raw: 'Raw score',

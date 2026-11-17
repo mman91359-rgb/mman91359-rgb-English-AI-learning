@@ -67,6 +67,7 @@ const extra = {
     confirmSubmit: '确认提交',
     continueWriting: '继续写作',
     scoredToast: '评分完成，正在打开报告',
+    degradedSubmitted: '作文已保存，评分服务暂不可用',
   },
   score: {
     raw: '原始分',

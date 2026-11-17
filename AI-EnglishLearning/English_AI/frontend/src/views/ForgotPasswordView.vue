@@ -19,7 +19,7 @@
     <main class="flex min-h-screen w-full flex-1 flex-col md:ml-sidebar-width">
       <div class="flex flex-1 items-center px-gutter py-8">
         <div class="mx-auto w-full max-w-xl">
-          <div class="relative overflow-hidden rounded-[24px] bg-surface p-8 shadow-soft-glow sm:p-10">
+          <div class="relative overflow-hidden rounded-3xl bg-surface p-8 shadow-soft-glow sm:p-10">
             <div class="mb-8 text-center">
               <div class="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary-container/10">
                 <span class="material-symbols-outlined fill text-icon-lg text-primary">lock_reset</span>

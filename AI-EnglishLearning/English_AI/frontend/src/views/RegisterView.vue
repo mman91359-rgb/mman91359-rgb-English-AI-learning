@@ -54,7 +54,7 @@
 
       <div class="flex-1 px-gutter py-8 w-full max-w-container-max mx-auto space-y-8 flex flex-col justify-center">
         <div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
-          <div class="col-span-1 md:col-span-8 md:col-start-3 lg:col-span-6 lg:col-start-4 bg-surface rounded-[24px] p-8 sm:p-10 shadow-soft-glow relative overflow-hidden">
+          <div class="col-span-1 md:col-span-8 md:col-start-3 lg:col-span-6 lg:col-start-4 bg-surface rounded-3xl p-8 sm:p-10 shadow-soft-glow relative overflow-hidden">
             <div class="text-center mb-10">
               <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-container/10 mb-4">
                 <span class="material-symbols-outlined text-primary text-icon-lg fill">person_add</span>

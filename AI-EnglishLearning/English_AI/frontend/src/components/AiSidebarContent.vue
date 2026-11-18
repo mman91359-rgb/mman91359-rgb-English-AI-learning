@@ -4,7 +4,7 @@
     <div class="flex items-center justify-between border-b border-outline-variant/30 px-6 py-4">
       <div class="flex items-center gap-3">
         <div class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-container">
-          <span class="material-symbols-outlined text-icon-lg text-on-primary">forum</span>
+          <AppIcon name="forum" size="lg" tone="onPrimary" />
         </div>
         <div>
           <div class="font-label-lg text-label-lg font-semibold text-on-surface">{{ $t('ai.title') }}</div>
@@ -23,7 +23,7 @@
           :aria-label="$t('ai.clearChat')"
           @click="aiStore.clearMessages()"
         >
-          <span class="material-symbols-outlined text-icon-md text-on-surface-variant">delete_outline</span>
+          <AppIcon name="delete_outline" size="md" tone="variant" />
         </button>
         <button
           type="button"
@@ -31,7 +31,7 @@
           :aria-label="$t('ai.close')"
           @click="$emit('close')"
         >
-          <span class="material-symbols-outlined text-on-surface-variant">close</span>
+          <AppIcon name="close" size="md" tone="variant" />
         </button>
       </div>
     </div>
@@ -43,7 +43,7 @@
         <div class="relative mb-6">
           <div class="absolute inset-0 scale-150 rounded-full bg-gradient-to-br from-primary/20 to-primary-container/10 blur-2xl"></div>
           <div class="relative flex h-20 w-20 items-center justify-center rounded-2xl border border-outline-variant/20 bg-surface-container-lowest shadow-lg dark:bg-surface">
-            <span class="material-symbols-outlined fill text-icon-xl text-primary">support_agent</span>
+            <AppIcon name="support_agent" size="xl" tone="primary" filled />
           </div>
         </div>
         <h3 class="mb-2 font-headline-md text-headline-md font-bold text-on-surface">{{ $t('ai.subtitle') }}</h3>
@@ -59,14 +59,14 @@
             @click="sendQuickAction('vocab')"
           >
             <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-fixed dark:bg-primary-container/20">
-              <span class="material-symbols-outlined text-primary">menu_book</span>
+              <AppIcon name="menu_book" size="md" tone="primary" />
             </div>
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2">
                 <span class="font-body-md text-body-md font-medium text-on-surface">{{ $t('ai.quickVocab') }}</span>
               </div>
             </div>
-            <span class="material-symbols-outlined text-icon-md text-outline transition-colors group-hover:text-primary">chevron_right</span>
+            <span class="text-outline group-hover:text-primary transition-colors"><AppIcon name="chevron_right" size="md" /></span>
           </button>
 
           <button
@@ -75,14 +75,14 @@
             @click="sendQuickAction('grammar')"
           >
             <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary-fixed dark:bg-secondary-container/30">
-              <span class="material-symbols-outlined text-secondary">schema</span>
+              <AppIcon name="schema" size="md" tone="secondary" />
             </div>
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2">
                 <span class="font-body-md text-body-md font-medium text-on-surface">{{ $t('ai.quickGrammar') }}</span>
               </div>
             </div>
-            <span class="material-symbols-outlined text-icon-md text-outline transition-colors group-hover:text-primary">chevron_right</span>
+            <span class="text-outline group-hover:text-primary transition-colors"><AppIcon name="chevron_right" size="md" /></span>
           </button>
         </div>
       </div>
@@ -151,7 +151,7 @@
                   v-if="msg.isStreaming"
                   class="mt-2 flex items-center gap-1.5 font-body-xs text-body-xs text-on-surface-variant"
                 >
-                  <span class="material-symbols-outlined animate-spin text-icon-sm" aria-hidden="true">progress_activity</span>
+                  <AppIcon name="progress_activity" size="sm" class="animate-spin" />
                   <span>{{ t('ai.card.generating') }}</span>
                 </div>
               </div>
@@ -166,7 +166,7 @@
                 :aria-label="$t('ai.copy')"
                 @click="copyMessage(msg.content)"
               >
-                <span class="material-symbols-outlined text-icon-sm" aria-hidden="true">content_copy</span>
+                <AppIcon name="content_copy" size="sm" />
                 <span>{{ $t('ai.copy') }}</span>
               </button>
             </div>
@@ -189,7 +189,7 @@
     <!-- 输入区 -->
     <div class="border-t border-outline-variant/30 px-5 py-4">
       <div class="flex items-center gap-2 rounded-full border border-outline-variant/20 bg-surface-container-lowest px-4 py-2.5 shadow-sm transition-colors focus-within:border-primary/50 dark:bg-surface">
-        <span class="material-symbols-outlined text-icon-md text-outline">add</span>
+        <AppIcon name="add" size="md" tone="outline" />
         <input
           v-model="inputText"
           class="flex-1 bg-transparent font-body-md text-body-md text-on-surface outline-none placeholder:text-on-surface-variant/50"
@@ -204,7 +204,7 @@
           :disabled="!inputText.trim() || aiStore.isLoading"
           @click="handleSend"
         >
-          <span class="material-symbols-outlined fill text-icon-md">arrow_upward</span>
+          <AppIcon name="arrow_upward" size="md" filled />
         </button>
       </div>
       <!-- 底部提示 -->
@@ -226,6 +226,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import AppIcon from './ui/AppIcon.vue'
 import { useI18n } from 'vue-i18n'
 import { useAiStore, type ChatMessage, type FeedbackKind } from '@/stores/ai'
 import { useToast } from '@/composables/useToast'

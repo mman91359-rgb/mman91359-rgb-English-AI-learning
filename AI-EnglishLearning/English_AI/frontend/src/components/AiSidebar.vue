@@ -45,7 +45,7 @@
           class="flex h-11 shrink-0 items-center gap-1.5 border-b border-outline-variant/40 px-5 font-label-lg text-label-lg text-primary transition-colors hover:bg-surface-container-low md:hidden"
           @click="aiStore.close()"
         >
-          <span class="material-symbols-outlined text-icon-md" aria-hidden="true">arrow_back</span>
+          <AppIcon name="arrow_back" size="md" />
           <span>{{ t('ai.backToQuestion') }}</span>
         </button>
 
@@ -59,6 +59,7 @@
 
 <script setup lang="ts">
 import AiSidebarContent from './AiSidebarContent.vue'
+import AppIcon from './ui/AppIcon.vue'
 import { useAiStore } from '@/stores/ai'
 import { useI18n } from 'vue-i18n'
 

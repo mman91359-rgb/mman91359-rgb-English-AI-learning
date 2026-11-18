@@ -259,7 +259,7 @@ HomeView 复习块与状态行、StatsView 三格 —— 同一值已 ≥10 处�
 | `name` | `string` | 必填 | Material Symbols 连字名，如 `check` / `arrow_back` |
 | `size` | `'sm'\|'md'\|'lg'\|'xl'\|'2xl'\|'3xl'` | `'md'` | 映射到 `text-icon-*`：18/20/24/32/36/48px |
 | `filled` | `boolean` | `false` | 输出 `.fill` 类 |
-| `tone` | 10 档：`current`/`primary`/`secondary`/`tertiary`/`error`/`warning`/`variant`/`outline`/`outlineVariant`/`onSurface` | `'current'` | 各自映射：`current`=不设色继承父级；`primary`=`text-primary`；`secondary`=`text-secondary`；`tertiary`=`text-tertiary`；`error`=`text-error`；`warning`=`text-warning`；`variant`=`text-on-surface-variant`（历史命名，不更名）；`outline`=`text-outline`；`outlineVariant`=`text-outline-variant`；`onSurface`=`text-on-surface` |
+| `tone` | 11 档：`current`/`primary`/`secondary`/`tertiary`/`error`/`warning`/`variant`/`outline`/`outlineVariant`/`onSurface`/`onPrimary` | `'current'` | 各自映射：`current`=不设色继承父级；`primary`=`text-primary`；`secondary`=`text-secondary`；`tertiary`=`text-tertiary`；`error`=`text-error`；`warning`=`text-warning`；`variant`=`text-on-surface-variant`（历史命名，不更名）；`outline`=`text-outline`；`outlineVariant`=`text-outline-variant`；`onSurface`=`text-on-surface`；`onPrimary`=`text-on-primary`（primary 实底上的前景色，与 onSurface 同族） |
 | `ariaLabel` | `string` | `''` | 有值时取消 `aria-hidden` 并加 `role="img"` |
 
 **禁止用法**

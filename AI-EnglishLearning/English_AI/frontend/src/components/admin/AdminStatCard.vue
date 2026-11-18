@@ -3,7 +3,7 @@
     <div class="flex items-center justify-between">
       <span class="font-label-md text-label-md text-on-surface-variant">{{ label }}</span>
       <span class="flex h-10 w-10 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110" :class="toneClass">
-        <span class="material-symbols-outlined text-icon-md">{{ icon }}</span>
+        <AppIcon :name="icon" size="md" />
       </span>
     </div>
     <div class="flex flex-col gap-1">
@@ -15,6 +15,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import AppIcon from '../ui/AppIcon.vue'
 
 const props = withDefaults(defineProps<{
   label: string

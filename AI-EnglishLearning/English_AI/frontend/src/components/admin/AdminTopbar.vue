@@ -11,7 +11,7 @@
       :aria-label="$t('adminConsole.topbar.switchLocale')"
       @click="toggleLocale"
     >
-      <span class="material-symbols-outlined text-icon-md">translate</span>
+      <AppIcon name="translate" size="md" />
       {{ appStore.language === 'zh-CN' ? 'EN' : '中文' }}
     </button>
 
@@ -21,13 +21,13 @@
       :aria-label="$t('adminConsole.topbar.toggleTheme')"
       @click="appStore.toggleTheme"
     >
-      <span class="material-symbols-outlined text-icon-md">{{ appStore.isDark ? 'light_mode' : 'dark_mode' }}</span>
+      <AppIcon :name="appStore.isDark ? 'light_mode' : 'dark_mode'" size="md" />
     </button>
 
     <div class="flex items-center gap-3 border-l border-outline-variant/50 pl-4">
       <div class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-primary-container text-on-primary-container">
         <img v-if="adminAvatarUrl" :src="adminAvatarUrl" alt="" class="h-full w-full object-cover" />
-        <span v-else class="material-symbols-outlined text-icon-md">admin_panel_settings</span>
+        <AppIcon v-else name="admin_panel_settings" size="md" />
       </div>
       <div class="hidden flex-col sm:flex">
         <span class="font-label-md text-label-md text-on-surface">{{ userStore.username || $t('adminConsole.topbar.adminRole') }}</span>
@@ -40,7 +40,7 @@
         :title="$t('adminConsole.topbar.logout')"
         @click="logout"
       >
-        <span class="material-symbols-outlined text-icon-md">logout</span>
+        <AppIcon name="logout" size="md" />
       </button>
     </div>
   </header>
@@ -52,6 +52,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAppStore } from '../../stores/app'
 import { useUserStore } from '../../stores/user'
+import AppIcon from '../ui/AppIcon.vue'
 
 const route = useRoute()
 const router = useRouter()

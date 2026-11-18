@@ -1,8 +1,7 @@
 <template>
   <div class="relative w-full sm:w-64">
-    <span class="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-icon-md text-outline">
-      search
-    </span>
+    <AppIcon name="search" size="md" tone="outline"
+      class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2" />
     <input
       v-model="draft"
       type="search"
@@ -16,6 +15,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { inputClass } from '@/components/ui/formStyles'
+import AppIcon from '../ui/AppIcon.vue'
 
 const props = defineProps<{
   modelValue: string

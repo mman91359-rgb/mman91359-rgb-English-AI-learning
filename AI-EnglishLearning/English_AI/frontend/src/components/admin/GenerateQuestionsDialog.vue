@@ -36,7 +36,7 @@
         {{ $t('adminConsole.common.cancel') }}
       </button>
       <button type="button" :class="btnPrimary" :disabled="submitting" @click="submit">
-        <span class="material-symbols-outlined text-icon-md">add_notes</span>
+        <AppIcon name="add_notes" size="md" />
         {{ submitting ? $t('adminConsole.common.loading') : $t('adminConsole.question.generateConfirm') }}
       </button>
     </template>
@@ -48,6 +48,7 @@ import { reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import BaseDialog from '../ui/BaseDialog.vue'
 import FormField from './FormField.vue'
+import AppIcon from '../ui/AppIcon.vue'
 import { inputClass } from '@/components/ui/formStyles'
 import { btnPrimary, btnSecondary } from '@/components/ui/buttonStyles'
 import { useToast } from '../../composables/useToast'

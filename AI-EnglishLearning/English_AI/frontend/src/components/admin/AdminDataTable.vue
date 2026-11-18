@@ -35,12 +35,8 @@
                 :aria-label="$t('adminConsole.table.expand')"
                 @click="toggleExpanded(rowKey(row))"
               >
-                <span
-                  class="material-symbols-outlined text-icon-md transition-transform duration-200"
-                  :class="expandedKey === rowKey(row) ? 'rotate-180' : ''"
-                >
-                  expand_more
-                </span>
+                <AppIcon name="expand_more" size="md" class="transition-transform duration-200"
+                  :class="expandedKey === rowKey(row) ? 'rotate-180' : ''" />
               </button>
             </td>
             <td
@@ -69,6 +65,7 @@
 import { computed, ref, useSlots } from 'vue'
 import EmptyState from '../ui/EmptyState.vue'
 import LoadingState from '../ui/LoadingState.vue'
+import AppIcon from '../ui/AppIcon.vue'
 import type { TableColumn } from './tableTypes'
 import { btnIconSm } from '@/components/ui/buttonStyles'
 

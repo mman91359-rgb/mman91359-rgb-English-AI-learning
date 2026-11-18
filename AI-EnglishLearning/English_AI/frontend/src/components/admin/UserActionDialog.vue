@@ -40,7 +40,7 @@
         {{ tempPassword }}
       </code>
       <p class="flex items-start gap-2 rounded-xl bg-warning-container px-4 py-3 font-body-sm text-body-sm text-on-warning-container">
-        <span class="material-symbols-outlined text-icon-md">warning</span>
+        <AppIcon name="warning" size="md" />
         <span>{{ $t('adminConsole.users.tempPasswordOnce') }}</span>
       </p>
     </div>
@@ -50,7 +50,7 @@
         class="flex items-center gap-1 rounded-full border border-outline-variant px-4 py-2 font-label-lg text-label-lg text-on-surface-variant"
         @click="copyTemporaryPassword"
       >
-        <span class="material-symbols-outlined text-icon-sm">content_copy</span>
+        <AppIcon name="content_copy" size="sm" />
         {{ $t('adminConsole.common.copy') }}
       </button>
       <button type="button" :class="btnPrimary" @click="close">
@@ -173,6 +173,7 @@ import { useI18n } from 'vue-i18n'
 import BaseDialog from '../ui/BaseDialog.vue'
 import ConfirmDialog from './ConfirmDialog.vue'
 import FormField from './FormField.vue'
+import AppIcon from '../ui/AppIcon.vue'
 import { inputClass } from '@/components/ui/formStyles'
 import { btnPrimary, btnSecondary } from '@/components/ui/buttonStyles'
 import { useToast } from '../../composables/useToast'

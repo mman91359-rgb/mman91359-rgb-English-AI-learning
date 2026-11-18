@@ -49,7 +49,7 @@
         <span class="font-label-lg text-label-lg text-on-surface">{{ $t('adminConsole.notice.preview') }}</span>
         <div class="flex flex-col gap-3 rounded-2xl border border-outline-variant/40 bg-surface-container-low p-4">
           <div class="flex items-center gap-2">
-            <span class="material-symbols-outlined text-icon-md text-primary">notifications</span>
+            <AppIcon name="notifications" size="md" tone="primary" />
             <span class="font-label-lg text-label-lg text-on-surface">
               {{ draft.title.trim() || $t('adminConsole.notice.previewPlaceholderTitle') }}
             </span>
@@ -80,6 +80,7 @@ import { reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import BaseDrawer from './BaseDrawer.vue'
 import FormField from './FormField.vue'
+import AppIcon from '../ui/AppIcon.vue'
 import { inputClass } from '@/components/ui/formStyles'
 import { btnPrimary, btnSecondary } from '@/components/ui/buttonStyles'
 import { useToast } from '../../composables/useToast'

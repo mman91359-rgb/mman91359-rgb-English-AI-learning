@@ -5,7 +5,7 @@
   >
     <div class="flex h-admin-topbar items-center gap-3 px-4" :class="collapsed ? 'justify-center' : ''">
       <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-on-primary">
-        <span class="material-symbols-outlined text-icon-md">school</span>
+        <AppIcon name="school" size="md" />
       </span>
       <div v-if="!collapsed" class="flex min-w-0 flex-col">
         <span class="truncate font-label-lg text-label-lg text-primary">Recall-睿考</span>
@@ -30,9 +30,7 @@
             : 'border-transparent text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface'"
           :style="collapsed ? 'justify-content:center' : undefined"
         >
-          <span class="material-symbols-outlined text-icon-md transition-transform duration-200 group-hover:scale-110">
-            {{ item.icon }}
-          </span>
+          <AppIcon :name="item.icon" size="md" class="transition-transform duration-200 group-hover:scale-110" />
           <span v-if="!collapsed" class="truncate">{{ $t(item.labelKey) }}</span>
         </router-link>
       </div>
@@ -45,7 +43,7 @@
         class="flex h-10 items-center gap-3 rounded-xl px-3 font-body-sm text-body-sm text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-on-surface"
         :style="collapsed ? 'justify-content:center' : undefined"
       >
-        <span class="material-symbols-outlined text-icon-md">arrow_back</span>
+        <AppIcon name="arrow_back" size="md" />
         <span v-if="!collapsed" class="truncate">{{ $t('adminConsole.nav.backToLearning') }}</span>
       </router-link>
       <button
@@ -54,7 +52,7 @@
         :aria-label="collapsed ? $t('adminConsole.nav.expand') : $t('adminConsole.nav.collapse')"
         @click="$emit('toggle')"
       >
-        <span class="material-symbols-outlined text-icon-md">{{ collapsed ? 'chevron_right' : 'chevron_left' }}</span>
+        <AppIcon :name="collapsed ? 'chevron_right' : 'chevron_left'" size="md" />
         <span v-if="!collapsed" class="font-label-md text-label-md">{{ $t('adminConsole.nav.collapse') }}</span>
       </button>
     </div>
@@ -64,6 +62,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import AppIcon from '../ui/AppIcon.vue'
 
 defineProps<{ collapsed: boolean }>()
 defineEmits<{ toggle: [] }>()

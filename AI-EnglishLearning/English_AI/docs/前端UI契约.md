@@ -259,7 +259,10 @@ HomeView 复习块与状态行、StatsView 三格 —— 同一值已 ≥10 处�
 | `name` | `string` | 必填 | Material Symbols 连字名，如 `check` / `arrow_back` |
 | `size` | `'sm'\|'md'\|'lg'\|'xl'\|'2xl'` | `'md'` | 映射到 `text-icon-*`：18/20/24/32/36px |
 | `filled` | `boolean` | `false` | 输出 `.fill` 类 |
-| `tone` | `'current'\|'primary'\|'secondary'\|'tertiary'\|'error'\|'warning'\|'variant'` | `'current'` | `current` 表示不设色、继承父级 |
+| `tone` | `'current'\|'primary'\|'secondary'\|'tertiary'\|'error'\|'warning'\|'variant'\|'outline'\|'outlineVariant'\|'onSurface'` | `'current'` | `current` 不设色、继承父级；`variant` 等价 `text-on-surface-variant`，命名历史遗留、不做更名 |
+| `tone` | `'outline'` | `—` | M3 语义色，对应 `text-outline` |
+| `tone` | `'outlineVariant'` | `—` | M3 语义色，对应 `text-outline-variant` |
+| `tone` | `'onSurface'` | `—` | M3 语义色，对应 `text-on-surface` |
 | `ariaLabel` | `string` | `''` | 有值时取消 `aria-hidden` 并加 `role="img"` |
 
 **禁止用法**

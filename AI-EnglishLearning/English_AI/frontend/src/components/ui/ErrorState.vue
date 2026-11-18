@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col items-center justify-center py-20 text-center" role="alert">
-    <span class="material-symbols-outlined text-icon-3xl text-error" aria-hidden="true">error_outline</span>
+    <AppIcon name="error_outline" size="3xl" tone="error" />
     <p class="mt-4 font-body-lg text-body-lg text-on-surface">{{ title || $t('common.error') }}</p>
     <p v-if="message" class="mt-2 max-w-md font-body-md text-body-md text-on-surface-variant">{{ message }}</p>
     <button
@@ -16,6 +16,7 @@
 
 <script setup lang="ts">
 import { btnPrimarySm } from './buttonStyles'
+import AppIcon from './AppIcon.vue'
 
 withDefaults(defineProps<{
   message?: string

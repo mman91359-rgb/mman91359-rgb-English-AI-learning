@@ -56,7 +56,7 @@ const badgeClass = computed(() => {
 
 <style scoped>
 /* 图标字号统一走 1em，从外层 text-icon-* 令牌继承，
-   避开 .material-symbols-outlined 自带的 24px 基础规则（同特异性、后置声明会赢） */
+   避开 Material Symbols 字体自带的 24px 基础规则（同特异性、后置声明会赢） */
 .logo-glyph {
   font-size: 1em;
   line-height: 1;

@@ -15,7 +15,7 @@ import { computed } from 'vue'
 /**
  * 表单提示行（校验错误 / 规则说明）。
  *
- * 单独抽组件是因为 main.css 把 .material-symbols-outlined 的字号固定在 24px，
+ * 单独抽组件是因为 main.css 把 Material Symbols 字体的字号固定在 24px，
  * 且该规则位于 Tailwind utilities 之后，页面里写 text-sm 根本不生效，
  * 导致图标比文字大一圈。这里用 scoped 属性选择器把图标定到 16px，与 14px 正文对齐。
  */

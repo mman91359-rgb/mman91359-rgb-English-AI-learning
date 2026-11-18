@@ -257,17 +257,15 @@ HomeView 复习块与状态行、StatsView 三格 —— 同一值已 ≥10 处�
 | prop | 类型 | 默认 | 说明 |
 |---|---|---|---|
 | `name` | `string` | 必填 | Material Symbols 连字名，如 `check` / `arrow_back` |
-| `size` | `'sm'\|'md'\|'lg'\|'xl'\|'2xl'` | `'md'` | 映射到 `text-icon-*`：18/20/24/32/36px |
+| `size` | `'sm'\|'md'\|'lg'\|'xl'\|'2xl'\|'3xl'` | `'md'` | 映射到 `text-icon-*`：18/20/24/32/36/48px |
 | `filled` | `boolean` | `false` | 输出 `.fill` 类 |
-| `tone` | `'current'\|'primary'\|'secondary'\|'tertiary'\|'error'\|'warning'\|'variant'\|'outline'\|'outlineVariant'\|'onSurface'` | `'current'` | `current` 不设色、继承父级；`variant` 等价 `text-on-surface-variant`，命名历史遗留、不做更名 |
-| `tone` | `'outline'` | `—` | M3 语义色，对应 `text-outline` |
-| `tone` | `'outlineVariant'` | `—` | M3 语义色，对应 `text-outline-variant` |
-| `tone` | `'onSurface'` | `—` | M3 语义色，对应 `text-on-surface` |
+| `tone` | 10 档：`current`/`primary`/`secondary`/`tertiary`/`error`/`warning`/`variant`/`outline`/`outlineVariant`/`onSurface` | `'current'` | 各自映射：`current`=不设色继承父级；`primary`=`text-primary`；`secondary`=`text-secondary`；`tertiary`=`text-tertiary`；`error`=`text-error`；`warning`=`text-warning`；`variant`=`text-on-surface-variant`（历史命名，不更名）；`outline`=`text-outline`；`outlineVariant`=`text-outline-variant`；`onSurface`=`text-on-surface` |
 | `ariaLabel` | `string` | `''` | 有值时取消 `aria-hidden` 并加 `role="img"` |
 
 **禁止用法**
 
-- 禁止用来承载 `text-icon-3xl`（48px）等表外档位。需要 48px 请直接用既有 `EmptyState` / `ErrorState`。
+- 48px 走 `size="3xl"`（映射 `text-icon-3xl`）。`EmptyState` / `ErrorState` 内部的 48px 图标同样迁入 AppIcon（L5 批次），不再反向引用组件。
+- 禁止承载表外尺寸（`text-[80px]` / `text-[14px]` / `text-[16px]` 这类任意值）：`ProfileView:18`、`ListeningQuizView:89`/`:125`、`FormHint.vue` 的 16px 均属此列，永久锁定。
 - 禁止 `size="inherit"`。`StreakDisplay`、`AppLogo` 依赖 scoped 的 `.flame-glyph` / `.logo-glyph`（特异性 (0,2,0)）继承外层字号，本轮不迁移，也不为该场景提供档位。
 - 禁止用它替换 `StreakDisplay` 内部的火焰字形。
 
@@ -499,7 +497,7 @@ git grep -n "material-symbols-outlined" HEAD -- "src/views/*.vue" | wc -l
 > `ca365a1..c4ef7d3` 之间的用户并行提交（`176f81c` / `67e4a94` / `b3da9e9` / `1f48795` /
 > `2a50d43` / `116a578` 数值未变；`c4ef7d3` 的「已学词库页 + 标熟机制」把 L1a 31→28、
 > L1b 127→124、L5 107→103，属规则 ①）。
-> 当前八条：L1a 17 / L1b 124 / L2 0 / L3 0 / L4 0 / L5 96 / L6 10 / L8 8。
+> 当前八条：L1a 17 / L1b 124 / L2 0 / L3 0 / L4 0 / L5 94 / L6 10 / L8 8。
 > **L8 = 8 为永久基线**（2026-11-18 裁定，段 D 收口）：剩余 8 处经判据「跨页面 ≥3 次 + M3 标准语义色」评估后永久锁定，不再追 0；详见 §11.8。
 > L8 于 `d7a2784` 起生效（达成值 170），此前历史快照锚点无此项；L5 历史锚点全部保留可比。
 > 答题族批次（`36e8e4f` 组件 / `1039ef9` 文档）对全部口径增量恒为 0。

@@ -16,7 +16,7 @@
         :class="btnSecondarySm"
         @click="reload"
       >
-        <span class="material-symbols-outlined text-icon-sm" :class="loading ? 'animate-spin' : ''">refresh</span>
+        <AppIcon name="refresh" size="sm" :class="loading ? 'animate-spin' : ''" />
         {{ $t('adminConsole.common.refresh') }}
       </button>
     </div>
@@ -26,7 +26,7 @@
       role="status"
       class="flex items-center gap-3 rounded-xl border border-warning/30 bg-warning-container px-4 py-3 text-on-warning-container"
     >
-      <span class="material-symbols-outlined text-icon-md">warning</span>
+      <AppIcon name="warning" size="md" />
       <span class="font-body-sm text-body-sm">{{ $t('adminConsole.overview.degradedBanner') }}</span>
     </div>
 
@@ -126,6 +126,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import AppIcon from '../../components/ui/AppIcon.vue'
 import AdminChartCard from '../../components/admin/AdminChartCard.vue'
 import AdminStatCard from '../../components/admin/AdminStatCard.vue'
 import LoadingState from '../../components/ui/LoadingState.vue'

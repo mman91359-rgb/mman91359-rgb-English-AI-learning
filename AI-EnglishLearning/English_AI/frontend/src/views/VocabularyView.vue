@@ -307,7 +307,7 @@
 
         <!-- 复习完成 -->
         <div v-else class="py-12 text-center">
-          <span class="material-symbols-outlined text-icon-3xl text-primary">celebration</span>
+          <AppIcon name="celebration" size="3xl" tone="primary" />
           <p class="mt-4 font-headline-md text-headline-md text-on-surface">{{ $t('vocabulary.reviewDone') }}</p>
           <p class="mt-2 font-body-md text-body-md text-on-surface-variant">
             {{ $t('vocabulary.reviewSummary', { correct: reviewCorrect, wrong: reviewWrong }) }}

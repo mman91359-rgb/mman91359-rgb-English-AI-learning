@@ -94,11 +94,11 @@
           <template #cell-actions="{ row }">
             <div v-if="row.status === 'PENDING'" class="flex justify-end gap-2">
               <button type="button" class="flex items-center gap-1 rounded-full px-3 py-1.5 font-label-lg text-label-lg text-tertiary hover:bg-tertiary-container/20" @click="resolveTarget = { row, verdict: 'PASS' }">
-                <span class="material-symbols-outlined text-icon-sm">check</span>
+                <AppIcon name="check" size="sm" />
                 {{ $t('adminConsole.judgeReview.pass') }}
               </button>
               <button type="button" class="flex items-center gap-1 rounded-full px-3 py-1.5 font-label-lg text-label-lg text-error hover:bg-error-container/40" @click="resolveTarget = { row, verdict: 'FAIL' }">
-                <span class="material-symbols-outlined text-icon-sm">close</span>
+                <AppIcon name="close" size="sm" />
                 {{ $t('adminConsole.judgeReview.fail') }}
               </button>
             </div>
@@ -162,6 +162,7 @@
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import AppIcon from '../../components/ui/AppIcon.vue'
 import AdminDataTable from '../../components/admin/AdminDataTable.vue'
 import AdminFilterBar from '../../components/admin/AdminFilterBar.vue'
 import AdminFilterField from '../../components/admin/AdminFilterField.vue'

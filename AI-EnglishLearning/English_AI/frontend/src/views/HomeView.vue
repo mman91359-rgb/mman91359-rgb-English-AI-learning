@@ -118,7 +118,7 @@
               aria-haspopup="dialog"
               @click="showCheckInCalendar = true"
             >
-              <span class="material-symbols-outlined text-icon-lg" aria-hidden="true">calendar_month</span>
+              <AppIcon name="calendar_month" size="lg" />
             </button>
           </template>
         </SectionHeader>

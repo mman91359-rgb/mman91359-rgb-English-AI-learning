@@ -7,7 +7,7 @@
         :class="btnPrimary"
         @click="generateOpen = true"
       >
-        <span class="material-symbols-outlined text-icon-md">add_notes</span>
+        <AppIcon name="add_notes" size="md" />
         {{ $t('adminConsole.question.generate') }}
       </button>
     </div>
@@ -92,11 +92,11 @@
           <template #cell-actions="{ row }">
             <div v-if="row.status === 'PENDING'" class="flex justify-end gap-2">
               <button type="button" class="flex items-center gap-1 rounded-full px-3 py-1.5 font-label-lg text-label-lg text-tertiary hover:bg-tertiary-container/20" @click="approveTarget = row">
-                <span class="material-symbols-outlined text-icon-sm">check</span>
+                <AppIcon name="check" size="sm" />
                 {{ $t('adminConsole.question.approve') }}
               </button>
               <button type="button" class="flex items-center gap-1 rounded-full px-3 py-1.5 font-label-lg text-label-lg text-error hover:bg-error-container/40" @click="rejectTarget = row">
-                <span class="material-symbols-outlined text-icon-sm">close</span>
+                <AppIcon name="close" size="sm" />
                 {{ $t('adminConsole.question.reject') }}
               </button>
             </div>
@@ -167,6 +167,7 @@
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import AppIcon from '../../components/ui/AppIcon.vue'
 import AdminDataTable from '../../components/admin/AdminDataTable.vue'
 import AdminFilterBar from '../../components/admin/AdminFilterBar.vue'
 import AdminFilterField from '../../components/admin/AdminFilterField.vue'

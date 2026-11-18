@@ -47,9 +47,7 @@
                   :aria-pressed="favorited"
                   @click="toggleFavorite"
                 >
-                  <span class="material-symbols-outlined text-icon-md" :class="{ fill: favorited }">
-                    {{ favorited ? 'bookmark' : 'bookmark_border' }}
-                  </span>
+                  <AppIcon :name="favorited ? 'bookmark' : 'bookmark_border'" size="md" :filled="favorited" />
                 </button>
                 <button
                   type="button"
@@ -57,7 +55,7 @@
                   :aria-label="$t('word.close')"
                   @click="emit('close')"
                 >
-                  <span class="material-symbols-outlined text-icon-md">close</span>
+                  <AppIcon name="close" size="md" />
                 </button>
               </div>
             </div>
@@ -69,7 +67,7 @@
                 :aria-label="$t('word.speak')"
                 @click="speak(word)"
               >
-                <span class="material-symbols-outlined text-icon-sm">volume_up</span>
+                <AppIcon name="volume_up" size="sm" />
               </button>
 
               <div class="flex gap-0.5 rounded-full bg-surface/15 p-0.5 dark:bg-on-primary-container/15">
@@ -100,7 +98,7 @@
 
           <div class="overflow-y-auto px-4 pb-4 pt-3">
             <div v-if="loading" class="flex items-center gap-2 py-6 text-on-surface-variant">
-              <span class="material-symbols-outlined animate-spin text-icon-md">progress_activity</span>
+              <AppIcon name="progress_activity" size="md" class="animate-spin" />
               <span class="font-body-md text-body-md">{{ $t('word.loading') }}</span>
             </div>
 
@@ -171,6 +169,7 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import AppIcon from '../ui/AppIcon.vue'
 import { getWordDetail } from '../../api/word'
 import type { ExamLevel, WordDetail, WordSense } from '../../api/word'
 import type { Accent } from '../../composables/useSpeech'

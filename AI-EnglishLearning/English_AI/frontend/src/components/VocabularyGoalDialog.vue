@@ -4,7 +4,7 @@
           <div class="flex items-start justify-between gap-4 mb-2">
             <div class="flex items-center gap-3">
               <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-container/20">
-                <span class="material-symbols-outlined text-primary text-2xl">tune</span>
+                <AppIcon name="tune" size="md" tone="primary" />
               </div>
               <div>
                 <h3 class="font-headline-md text-headline-md text-on-surface">{{ $t('vocabGoal.title') }}</h3>
@@ -17,7 +17,7 @@
               :aria-label="$t('common.close')"
               @click="close"
             >
-              <span class="material-symbols-outlined">close</span>
+              <AppIcon name="close" size="md" />
             </button>
           </div>
 
@@ -26,7 +26,7 @@
             <!-- 新背 -->
             <div class="rounded-[22px] border border-primary/15 bg-gradient-to-br from-primary-container/15 to-surface-container-lowest p-5">
               <div class="flex items-center gap-3 mb-1">
-                <span class="material-symbols-outlined text-primary text-2xl">fiber_new</span>
+                <AppIcon name="fiber_new" size="md" tone="primary" />
                 <span class="font-label-lg text-label-lg text-on-surface">{{ $t('vocabGoal.newWordsTitle') }}</span>
               </div>
               <p class="font-body-sm text-body-sm text-on-surface-variant mb-4">{{ $t('vocabGoal.newWordsDesc') }}</p>
@@ -38,7 +38,7 @@
                   :disabled="newInput <= minNew"
                   @click="adjustNew(-1)"
                 >
-                  <span class="material-symbols-outlined text-lg">remove</span>
+                  <AppIcon name="remove" size="md" />
                 </button>
                 <div class="flex items-baseline gap-1">
                   <input
@@ -57,7 +57,7 @@
                   :disabled="newInput >= maxNew"
                   @click="adjustNew(1)"
                 >
-                  <span class="material-symbols-outlined text-lg">add</span>
+                  <AppIcon name="add" size="md" />
                 </button>
               </div>
 
@@ -81,7 +81,7 @@
             <!-- 复习 -->
             <div class="rounded-[22px] border border-tertiary/15 bg-gradient-to-br from-tertiary-container/10 to-surface-container-lowest p-5">
               <div class="flex items-center gap-3 mb-1">
-                <span class="material-symbols-outlined text-tertiary text-2xl">history_edu</span>
+                <AppIcon name="history_edu" size="md" tone="tertiary" />
                 <span class="font-label-lg text-label-lg text-on-surface">{{ $t('vocabGoal.reviewWordsTitle') }}</span>
               </div>
               <p class="font-body-sm text-body-sm text-on-surface-variant mb-4">{{ $t('vocabGoal.reviewWordsDesc') }}</p>
@@ -93,7 +93,7 @@
                   :disabled="reviewInput <= minReview"
                   @click="adjustReview(-1)"
                 >
-                  <span class="material-symbols-outlined text-lg">remove</span>
+                  <AppIcon name="remove" size="md" />
                 </button>
                 <div class="flex items-baseline gap-1">
                   <input
@@ -112,7 +112,7 @@
                   :disabled="reviewInput >= maxReview"
                   @click="adjustReview(1)"
                 >
-                  <span class="material-symbols-outlined text-lg">add</span>
+                  <AppIcon name="add" size="md" />
                 </button>
               </div>
 
@@ -136,7 +136,7 @@
 
           <!-- 汇总 + 错误 -->
           <div class="mt-5 flex items-center gap-2 rounded-2xl bg-surface-container-low px-4 py-3">
-            <span class="material-symbols-outlined text-primary text-xl">summarize</span>
+            <AppIcon name="summarize" size="md" tone="primary" />
             <span class="font-body-md text-body-md text-on-surface">
               {{ $t('vocabGoal.summary', { newWords: newInput, reviewWords: reviewInput }) }}
             </span>
@@ -167,6 +167,7 @@
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import BaseDialog from './ui/BaseDialog.vue'
+import AppIcon from './ui/AppIcon.vue'
 import { btnIcon } from '@/components/ui/buttonStyles'
 
 interface Props {

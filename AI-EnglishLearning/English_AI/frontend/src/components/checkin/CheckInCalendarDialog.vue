@@ -13,7 +13,7 @@
         :aria-label="$t('checkIn.calendar.prevMonth')"
         @click="onPrev"
       >
-        <span class="material-symbols-outlined text-icon-md" aria-hidden="true">chevron_left</span>
+        <AppIcon name="chevron_left" size="md" />
       </button>
       <span class="font-label-lg text-label-lg text-on-surface tabular-nums sm:font-headline-sm sm:text-headline-sm">{{ monthLabel }}</span>
       <button
@@ -23,7 +23,7 @@
         :aria-label="$t('checkIn.calendar.nextMonth')"
         @click="onNext"
       >
-        <span class="material-symbols-outlined text-icon-md" aria-hidden="true">chevron_right</span>
+        <AppIcon name="chevron_right" size="md" />
       </button>
     </div>
 
@@ -171,6 +171,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import AppIcon from '../ui/AppIcon.vue'
 import { useI18n } from 'vue-i18n'
 import BaseDialog from '@/components/ui/BaseDialog.vue'
 import {

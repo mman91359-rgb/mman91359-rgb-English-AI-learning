@@ -500,6 +500,7 @@ git grep -n "material-symbols-outlined" HEAD -- "src/views/*.vue" | wc -l
 > `2a50d43` / `116a578` 数值未变；`c4ef7d3` 的「已学词库页 + 标熟机制」把 L1a 31→28、
 > L1b 127→124、L5 107→103，属规则 ①）。
 > 当前八条：L1a 17 / L1b 124 / L2 0 / L3 0 / L4 0 / L5 96 / L6 10 / L8 8。
+> **L8 = 8 为永久基线**（2026-11-18 裁定，段 D 收口）：剩余 8 处经判据「跨页面 ≥3 次 + M3 标准语义色」评估后永久锁定，不再追 0；详见 §11.8。
 > L8 于 `d7a2784` 起生效（达成值 170），此前历史快照锚点无此项；L5 历史锚点全部保留可比。
 > 答题族批次（`36e8e4f` 组件 / `1039ef9` 文档）对全部口径增量恒为 0。
 > 每批交付前先跑 `git log -1` 确认 `HEAD` 未再前进。
@@ -924,4 +925,51 @@ document.querySelectorAll('.max-w-md').length   // 期望 1；若为 2 说明外
 否则会留下一个 Exit 1 的中间 commit，`bisect` 时无法区分
 「真实退化」与「登记未同步」这两种完全不同的情况。
 门禁脚本的期望值从登记行解析（不在脚本内硬编码），故代码改了计数却不改登记行，门禁必然 Exit 1。
+
+### 11.8 段 D 图标迁移结项（2026-11-18）
+
+**战绩**：L8 起点 170 → 终点 8，累计迁移 162 处，13 个 commit。L8 = 8 定为**永久基线**，不再追 0。
+
+**commit 链**（按 L8 数列变化）：
+
+| 阶段 | commit | L8 变化 | 迁移处数 |
+| --- | --- | --- | --- |
+| 段 D 前段（3 文件） | `16fe2f7` / `f7bc059` / `eb2b16a`，登记 `bb08906` | 170→146 | 24 |
+| D-2 Profile / Translation | `eee6dea` / `1c6f8b2` | 146→137→125 | 9 + 12 |
+| hover bug 修复 | `41ddae7` | 不变 | 0（删 3 处静态 tone） |
+| D-3 三答题页 | `e0d86bf` | 125→87 | 38 |
+| D-4 四页 | `8215926` | 87→56 | 31 |
+| D-5 admin 四页 | `1a29c97` | 56→36 | 20 |
+| D-6 六页（段 D 收口） | `485dd54` | 36→26 | 10 |
+| AppIcon 扩 tone 三档 | `89b0b87` | 不变 | 0（组件能力） |
+| 解锁 18 处（tone 三档落地） | `e1293d7` | 26→8 | 18 |
+
+**8 处永久锁定清单**（静态展示图标，不参与 hover/focus/主题切换，写法合规）：
+
+| 文件:行 | 原写法 | 原因归类 |
+| --- | --- | --- |
+| `ProfileView.vue:18` | `text-[80px]` | 头像占位唯一场景；扩 xxl=80 只为 1 处 |
+| `ListeningQuizView.vue:89` | `text-[14px]` | 徽章内小图标；扩 xs=14 只为 1 处 |
+| `ListeningQuizView.vue:125` | `text-[16px]` | 徽章内小图标；扩 xs=16 只为 1 处 |
+| `ProfileView.vue:21` | `text-white` | 头像相机按钮叠深色底，局部用法 |
+| `ProfileView.vue:79` | `secondary-fixed-dim` | 个人页三色统计卡专用 |
+| `ProfileView.vue:84` | `primary-container` | 同上 |
+| `ProfileView.vue:89` | `tertiary-fixed-dim` | 同上 |
+| `VocabQuizView.vue:202` | `text-error/70` | 提示图标淡化；需改 tone 生成机制而非加档 |
+
+**判据**：跨页面 ≥3 次 + M3 标准语义色 → 扩档；单页局部或特例尺寸 → 锁定。若扩这 8 处，tone 将 10→14 档、size 7→9 档，其中 4 档仅 Profile 单页使用，组件退化为「给特例开口子」的色板，语义约束失效。L8 停在 8 是可解释的终点。
+
+**AppIcon tone 三档扩展决策**（`89b0b87`）：
+
+- **扩** `outline` / `outlineVariant` / `onSurface`：跨 8 文件共 **18 处**（Settings 5 + ErrorBook 4 + Profile 4 + Grammar 1 + Translation 1 + Login 1 + Register 1 + Practice 1），均为 M3 标准语义色、已在 tailwind config 定义，映射见 §8.1。`variant`=text-on-surface-variant 为历史命名，不更名、不删。
+- **分布校验**（与 `e1293d7` 的 L8 26→8 闭合）：18 处中 17 处直接写 `tone` —— `outline` 8（Settings 5 + ErrorBook 2 + Grammar 1）、`outlineVariant` 4（Profile 3 + Translation 1）、`onSurface` 5（ErrorBook 2 + Login 1 + Register 1 + Practice 1）；余 1 处（`ProfileView:36` `edit`）为包裹写法，内层 tone 留空以继承外层 `group-hover:text-primary`，故不计入静态 tone 数。`18 = 17 + 1`，与 `git diff e1293d7` 逐文件实测一致。
+- **不扩** 4 个特殊色（white / secondary-fixed-dim / primary-container / tertiary-fixed-dim）：全部仅 Profile 单页使用，不满足跨页面判据。
+- `TONE_CLASS` 用 `Record<NonNullable<typeof props.tone>, string>` 标注，新增档漏映射会 type-check 报错。
+
+**两条硬规则沉淀**：
+
+1. **外层有交互态颜色 → 内层 tone 必须 current**（`41ddae7` 修复的 bug）：如 Profile:36 的 `group-hover:text-primary`，外层保留静态色 + 交互态色，内层 `<AppIcon>` 不设 tone；设静态 tone 会阻断继承、hover 失效。cursor-pointer 等布局类走 `class` 通道，颜色走 `tone`，不混通道。
+2. **指令/布局类留外层，颜色走 tone**：v-if / v-else / :key / :class / @click 一律留在 AppIcon 或其外层 span 上；颜色只通过 tone 表达，禁止额外叠色彩类。D-6 `AdminOverview:19` 的 `:class="loading ? 'animate-spin' : ''"` 即透传 AppIcon 根。
+
+**待办（非阻塞）**：契约 §8.1 的 size 枚举行漏 `3xl`（AppIcon.vue 实际支持），以及 tone 三行 prop 列同名——下次整理文档时一并处理，不影响运行与门禁。
 

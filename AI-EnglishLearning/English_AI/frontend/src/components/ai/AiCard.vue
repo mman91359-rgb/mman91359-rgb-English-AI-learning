@@ -12,10 +12,10 @@
   >
     <span class="flex h-7 w-full items-center gap-2.5">
       <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-[10px] bg-surface-container-high text-on-surface-variant">
-        <span class="material-symbols-outlined text-icon-md">{{ resolvedIcon }}</span>
+        <AppIcon :name="resolvedIcon" size="md" />
       </span>
       <span class="min-w-0 flex-1 truncate font-headline-sm text-headline-sm text-on-surface">{{ resolvedTitle }}</span>
-      <span class="material-symbols-outlined shrink-0 text-icon-sm text-on-surface-variant" aria-hidden="true">expand_more</span>
+      <AppIcon name="expand_more" size="sm" tone="variant" class="shrink-0" />
     </span>
     <span class="mt-2 w-full truncate font-body-sm text-body-sm text-on-surface-variant">{{ resolvedSummary }}</span>
   </button>
@@ -36,10 +36,10 @@
       @click="emit('toggle')"
     >
       <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-[10px] bg-surface-container-high text-on-surface-variant">
-        <span class="material-symbols-outlined text-icon-md">{{ resolvedIcon }}</span>
+        <AppIcon :name="resolvedIcon" size="md" />
       </span>
       <span class="min-w-0 flex-1 truncate font-headline-sm text-headline-sm text-on-surface">{{ resolvedTitle }}</span>
-      <span class="material-symbols-outlined shrink-0 text-icon-sm text-on-surface-variant" aria-hidden="true">expand_less</span>
+      <AppIcon name="expand_less" size="sm" tone="variant" class="shrink-0" />
     </button>
 
     <div
@@ -87,6 +87,7 @@
 import { computed, nextTick, ref, useId, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { renderSection, type AiCardType, type AiSection } from '@/utils/aiContent'
+import AppIcon from '../ui/AppIcon.vue'
 
 const props = defineProps<{
   /** 纯文本分节卡用；结构化结果卡传空数组，内容走默认插槽 */

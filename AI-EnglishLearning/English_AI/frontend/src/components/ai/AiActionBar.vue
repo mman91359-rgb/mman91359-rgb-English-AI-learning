@@ -6,7 +6,7 @@
       class="flex h-9 items-center gap-1.5 rounded-full px-3 font-label-md text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-high"
       @click="emit('copy')"
     >
-      <span class="material-symbols-outlined text-icon-md">content_copy</span>
+      <AppIcon name="content_copy" size="md" />
       <span>{{ $t('ai.action.copy') }}</span>
     </button>
     <button
@@ -17,9 +17,7 @@
       :aria-pressed="favorited"
       @click="emit('favorite')"
     >
-      <span class="material-symbols-outlined text-icon-md" :class="{ fill: favorited }">
-        {{ favorited ? 'favorite' : 'favorite_border' }}
-      </span>
+      <AppIcon :name="favorited ? 'favorite' : 'favorite_border'" size="md" :filled="favorited" />
       <span>{{ favorited ? $t('ai.action.favorited') : $t('ai.action.favorite') }}</span>
     </button>
     <button
@@ -28,7 +26,7 @@
       class="flex h-9 items-center gap-1.5 rounded-full px-3 font-label-md text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-high"
       @click="emit('addError')"
     >
-      <span class="material-symbols-outlined text-icon-md">error</span>
+      <AppIcon name="error" size="md" />
       <span>{{ $t('ai.action.addError') }}</span>
     </button>
     <button
@@ -37,7 +35,7 @@
       class="flex h-9 items-center gap-1.5 rounded-full px-3 font-label-md text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-high"
       @click="emit('addVocab')"
     >
-      <span class="material-symbols-outlined text-icon-md">bookmark</span>
+      <AppIcon name="bookmark" size="md" />
       <span>{{ $t('ai.action.addVocab') }}</span>
     </button>
     <button
@@ -46,7 +44,7 @@
       class="flex h-9 items-center gap-1.5 rounded-full px-3 font-label-md text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-high"
       @click="emit('mastered')"
     >
-      <span class="material-symbols-outlined text-icon-md">task_alt</span>
+      <AppIcon name="task_alt" size="md" />
       <span>{{ $t('ai.action.mastered') }}</span>
     </button>
   </div>
@@ -58,6 +56,8 @@
  * 通过 props 控制显示哪些按钮，事件由父组件处理。
  * 收藏按钮由父组件传 favorited 驱动图标与颜色（空心 → 红色实心）。
  */
+import AppIcon from '../ui/AppIcon.vue'
+
 withDefaults(defineProps<{
   actions?: {
     copy?: boolean

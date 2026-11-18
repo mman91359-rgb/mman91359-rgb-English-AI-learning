@@ -2,7 +2,7 @@
   <div class="flex flex-col rounded-3xl border border-outline-variant/40 bg-surface-container-lowest shadow-soft-glow">
     <header v-if="!hideHeader" class="flex items-center gap-2 px-6 pt-5">
       <span class="flex h-9 w-9 items-center justify-center rounded-full bg-tertiary-container/40 text-tertiary">
-        <span class="material-symbols-outlined text-icon-md">rate_review</span>
+        <AppIcon name="rate_review" size="md" />
       </span>
       <h2 class="font-headline-sm text-headline-sm text-on-surface">{{ $t('ai.panel.title') }}</h2>
     </header>
@@ -17,7 +17,7 @@
       </div>
 
       <div v-else-if="error" class="flex flex-col items-center gap-3 py-6 text-center">
-        <span class="material-symbols-outlined text-icon-2xl text-error" aria-hidden="true">error</span>
+        <AppIcon name="error" size="2xl" tone="error" />
         <p class="font-body-md text-body-md text-on-surface-variant">{{ error }}</p>
       </div>
 
@@ -59,6 +59,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import AppIcon from '../ui/AppIcon.vue'
 import AiActionBar from './AiActionBar.vue'
 import WritingFeedback from './templates/WritingFeedback.vue'
 import TranslationFeedback from './templates/TranslationFeedback.vue'

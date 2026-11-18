@@ -15,7 +15,7 @@
 
     <!-- 失败态：给出重试，而不是留一块空白让用户猜 -->
     <div v-else-if="error" class="flex flex-col items-center gap-2 py-4 text-center">
-      <span class="material-symbols-outlined text-icon-lg text-error" aria-hidden="true">error</span>
+      <AppIcon name="error" size="lg" tone="error" />
       <p class="font-body-sm text-body-sm text-on-surface-variant">{{ error }}</p>
       <button
         type="button"
@@ -51,7 +51,7 @@
         class="flex h-10 w-full items-center justify-center gap-1.5 rounded-xl bg-primary/10 font-label-lg text-label-lg text-primary transition-colors hover:bg-primary/15"
         @click="openFull"
       >
-        <span class="material-symbols-outlined text-icon-sm" aria-hidden="true">open_in_new</span>
+        <AppIcon name="open_in_new" size="sm" />
         <span>{{ t('ai.card.openFullReport') }}</span>
       </button>
     </template>
@@ -60,6 +60,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import AppIcon from '../ui/AppIcon.vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import WritingFeedback from './templates/WritingFeedback.vue'

@@ -27,7 +27,7 @@
       <h3 class="font-label-lg text-label-lg text-on-surface">{{ $t('writing.report.strengths') }}</h3>
       <ul class="flex flex-col gap-2">
         <li v-for="(s, i) in score.strengths" :key="i" class="flex items-start gap-2 font-body-md text-body-md text-on-surface">
-          <span class="material-symbols-outlined text-icon-sm text-tertiary">check_circle</span>
+          <AppIcon name="check_circle" size="sm" tone="tertiary" />
           <span>{{ s }}</span>
         </li>
       </ul>
@@ -37,7 +37,7 @@
       <h3 class="font-label-lg text-label-lg text-on-surface">{{ $t('writing.report.issues') }}</h3>
       <ul class="flex flex-col gap-2">
         <li v-for="(s, i) in score.issues" :key="i" class="flex items-start gap-2 font-body-md text-body-md text-on-surface">
-          <span class="material-symbols-outlined text-icon-sm text-error">info</span>
+          <AppIcon name="info" size="sm" tone="error" />
           <span>{{ s }}</span>
         </li>
       </ul>
@@ -57,6 +57,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import AppIcon from '../../ui/AppIcon.vue'
 import WritingCorrectionList from '../../writing/WritingCorrectionList.vue'
 import WritingDimensionBar from '../../writing/WritingDimensionBar.vue'
 import type { WritingScore } from '../../../types/writing'

@@ -138,7 +138,7 @@
                     @click="!showFeedback && removeWord(idx)"
                   >
                     {{ token.word }}
-                    <span v-if="!showFeedback" class="material-symbols-outlined text-icon-lg text-outline">close</span>
+                    <AppIcon v-if="!showFeedback" name="close" size="lg" tone="outline" />
                     <div
                       v-if="dragOverSelectedIdx === idx && dragOverSide === 'left'"
                       class="absolute -left-1 top-1/2 -translate-y-1/2 w-0.5 h-8 bg-primary rounded-full"

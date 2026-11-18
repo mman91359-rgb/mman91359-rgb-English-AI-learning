@@ -2,7 +2,7 @@
   <AppLayout>
     <div class="flex items-center gap-4 mb-8">
       <button :class="btnIcon" @click="$router.back()">
-        <span class="material-symbols-outlined text-on-surface">arrow_back</span>
+        <AppIcon name="arrow_back" size="lg" tone="onSurface" />
       </button>
       <h2 class="font-headline-lg text-headline-lg text-on-surface">{{ $t('app.title') }} - {{ $t('learning.myErrorBook') }}</h2>
     </div>
@@ -68,7 +68,7 @@
 
       <!-- 筛选后无结果 -->
       <div v-if="filteredErrors.length === 0" class="text-center py-12">
-        <span class="material-symbols-outlined text-icon-3xl text-outline">filter_alt_off</span>
+        <AppIcon name="filter_alt_off" size="3xl" tone="outline" />
         <p class="mt-3 text-on-surface-variant font-body-md text-body-md">{{ $t('learning.noFilterResult') }}</p>
         <button
           class="mt-3 px-5 py-2 rounded-full border border-outline-variant text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-variant transition-colors"
@@ -302,7 +302,7 @@
               :aria-label="$t('common.close')"
               @click="closeSimilarModal"
             >
-              <span class="material-symbols-outlined text-on-surface">close</span>
+              <AppIcon name="close" size="lg" tone="onSurface" />
             </button>
           </div>
 
@@ -409,7 +409,7 @@
           </div>
 
           <div v-else class="text-center py-12">
-            <span class="material-symbols-outlined text-icon-3xl text-outline">quiz</span>
+            <AppIcon name="quiz" size="3xl" tone="outline" />
             <p class="mt-3 text-on-surface-variant font-body-md text-body-md">{{ $t('errorBook.noSimilarQuestions') }}</p>
           </div>
         </div>

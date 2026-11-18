@@ -44,7 +44,7 @@
       <header class="h-20 sticky top-0 z-40 bg-background/80 backdrop-blur-md flex items-center justify-between px-gutter w-full max-w-container-max mx-auto">
         <div class="flex items-center gap-4">
           <div class="md:hidden">
-            <span class="material-symbols-outlined text-on-surface text-icon-lg cursor-pointer">menu</span>
+            <AppIcon name="menu" size="lg" tone="onSurface" class="cursor-pointer" />
           </div>
         </div>
         <div class="flex items-center gap-4">

@@ -25,7 +25,7 @@
       </div>
 
       <div v-else-if="!currentQuestion" class="flex flex-col items-center justify-center py-24 gap-4">
-        <span class="material-symbols-outlined text-icon-3xl text-outline-variant">translate</span>
+        <AppIcon name="translate" size="3xl" tone="outlineVariant" />
         <p class="font-body-lg text-on-surface-variant">{{ $t('translation.noQuestions') }}</p>
         <button type="button" class="px-6 py-3 bg-primary text-on-primary rounded-full font-label-lg" @click="router.push({ path: '/learning', query: { tab: 'translation' } })">
           {{ $t('common.back') }}

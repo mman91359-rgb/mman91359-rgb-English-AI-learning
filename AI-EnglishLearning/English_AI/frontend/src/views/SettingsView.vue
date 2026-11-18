@@ -42,7 +42,7 @@
             <p class="font-body-lg text-body-lg text-on-surface">{{ $t('settings.language') }}</p>
             <p class="font-label-md text-label-md text-on-surface-variant">{{ $t('settings.currentLanguage') }}{{ currentLangLabel }}</p>
           </div>
-          <span class="material-symbols-outlined text-outline">{{ showLang ? 'expand_less' : 'chevron_right' }}</span>
+          <AppIcon :name="showLang ? 'expand_less' : 'chevron_right'" size="lg" tone="outline" />
         </div>
 
         <!-- 语言选项展开区 -->
@@ -73,7 +73,7 @@
             <p class="font-body-lg text-body-lg text-on-surface">{{ $t('profile.notificationSettings') }}</p>
             <p class="font-label-md text-label-md text-on-surface-variant">{{ $t('settings.notificationDesc') }}</p>
           </div>
-          <span class="material-symbols-outlined text-outline">chevron_right</span>
+          <AppIcon name="chevron_right" size="lg" tone="outline" />
         </div>
       </div>
     </section>
@@ -90,7 +90,7 @@
             <p class="font-body-lg text-body-lg text-on-surface">{{ $t('profile.privacySettings') }}</p>
             <p class="font-label-md text-label-md text-on-surface-variant">{{ $t('settings.privacyDesc') }}</p>
           </div>
-          <span class="material-symbols-outlined text-outline">chevron_right</span>
+          <AppIcon name="chevron_right" size="lg" tone="outline" />
         </div>
 
         <!-- 修改密码 -->
@@ -102,7 +102,7 @@
             <p class="font-body-lg text-body-lg text-on-surface">{{ $t('profile.changePassword') }}</p>
             <p class="font-label-md text-label-md text-on-surface-variant">{{ $t('settings.passwordDesc') }}</p>
           </div>
-          <span class="material-symbols-outlined text-outline">chevron_right</span>
+          <AppIcon name="chevron_right" size="lg" tone="outline" />
         </div>
 
         <!-- 绑定手机 -->
@@ -116,7 +116,7 @@
               {{ userStore.phone ? maskPhone(userStore.phone) : $t('settings.phoneNotBound') }}
             </p>
           </div>
-          <span class="material-symbols-outlined text-outline">chevron_right</span>
+          <AppIcon name="chevron_right" size="lg" tone="outline" />
         </div>
       </div>
     </section>

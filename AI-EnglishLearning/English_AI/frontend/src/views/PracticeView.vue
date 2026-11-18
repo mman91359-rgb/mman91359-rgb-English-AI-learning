@@ -7,7 +7,7 @@
         :class="btnIcon"
         @click="$router.back()"
       >
-        <span class="material-symbols-outlined text-on-surface">arrow_back</span>
+        <AppIcon name="arrow_back" size="lg" tone="onSurface" />
       </button>
       <div class="flex-1">
         <h2 class="font-headline-lg text-headline-lg text-on-surface">{{ moduleName }}{{ $t('learning.practice') }}</h2>

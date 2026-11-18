@@ -33,7 +33,7 @@
         <p v-if="avatarUploading" class="text-label-sm font-label-sm text-primary mb-2">{{ $t('profile.uploading') }}</p>
         <div class="flex items-center gap-2 group cursor-pointer" @click="openNicknameDialog">
           <h1 class="font-headline-lg text-headline-lg text-on-background">{{ displayName }}</h1>
-          <span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors text-icon-lg">edit</span>
+          <span class="text-outline group-hover:text-primary transition-colors"><AppIcon name="edit" size="lg" /></span>
         </div>
         <p class="font-body-md text-body-md text-on-surface-variant mt-2">{{ userLevel }}</p>
 
@@ -301,7 +301,7 @@
             </div>
             <span class="font-body-lg text-body-lg text-on-surface font-medium">{{ $t('profile.privacySettings') }}</span>
           </div>
-          <span class="material-symbols-outlined text-outline-variant">chevron_right</span>
+          <AppIcon name="chevron_right" size="lg" tone="outlineVariant" />
         </router-link>
         <router-link to="/settings/account" class="bg-surface-container-lowest rounded-3xl p-6 soft-shadow flex items-center justify-between hover:-translate-y-1 transition-transform group">
           <div class="flex items-center gap-4">
@@ -310,7 +310,7 @@
             </div>
             <span class="font-body-lg text-body-lg text-on-surface font-medium">{{ $t('profile.accountSettings') }}</span>
           </div>
-          <span class="material-symbols-outlined text-outline-variant">chevron_right</span>
+          <AppIcon name="chevron_right" size="lg" tone="outlineVariant" />
         </router-link>
         <router-link to="/settings/notifications" class="bg-surface-container-lowest rounded-3xl p-6 soft-shadow flex items-center justify-between hover:-translate-y-1 transition-transform group">
           <div class="flex items-center gap-4">
@@ -319,7 +319,7 @@
             </div>
             <span class="font-body-lg text-body-lg text-on-surface font-medium">{{ $t('profile.notificationSettings') }}</span>
           </div>
-          <span class="material-symbols-outlined text-outline-variant">chevron_right</span>
+          <AppIcon name="chevron_right" size="lg" tone="outlineVariant" />
         </router-link>
         <div class="mt-auto bg-primary-fixed-dim/10 rounded-3xl p-6 border border-primary-fixed-dim/20 flex flex-col items-center justify-center text-center">
           <AppIcon name="workspace_premium" size="2xl" tone="primary" class="mb-2" />

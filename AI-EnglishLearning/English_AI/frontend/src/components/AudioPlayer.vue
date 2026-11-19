@@ -15,7 +15,7 @@
 
     <div class="bg-tertiary-container/10 rounded-[20px] p-5">
       <div class="flex items-center gap-2 mb-3">
-        <span class="material-symbols-outlined text-tertiary text-icon-lg">article</span>
+        <AppIcon name="article" size="lg" tone="tertiary" />
         <span class="font-label-lg text-label-lg text-tertiary">{{ $t('listening.articleAudio') }}</span>
         <span class="ml-auto font-label-md text-label-md text-on-surface-variant">
           {{ range === 'article' ? formatTime(currentTime) : '0:00' }} / {{ formatTime(articleDuration) }}
@@ -29,7 +29,7 @@
           :aria-label="range === 'article' && isPlaying ? $t('listening.pause') : $t('listening.play')"
           @click="playRange('article')"
         >
-          <span class="material-symbols-outlined text-icon-lg fill">{{ range === 'article' && isPlaying ? 'pause' : 'play_arrow' }}</span>
+          <AppIcon :name="range === 'article' && isPlaying ? 'pause' : 'play_arrow'" size="lg" filled />
         </button>
         <div
           class="flex-1 flex items-center gap-[3px] h-10 cursor-pointer"
@@ -56,14 +56,14 @@
           :aria-label="$t('listening.replay')"
           @click="replayRange('article')"
         >
-          <span class="material-symbols-outlined text-icon-lg">replay</span>
+          <AppIcon name="replay" size="lg" />
         </button>
       </div>
     </div>
 
     <div v-if="hasQuestionTrack" class="bg-secondary-container/10 rounded-[20px] p-5">
       <div class="flex items-center gap-2 mb-3">
-        <span class="material-symbols-outlined text-secondary text-icon-lg">record_voice_over</span>
+        <AppIcon name="record_voice_over" size="lg" tone="secondary" />
         <span class="font-label-lg text-label-lg text-secondary">{{ $t('listening.questionAudio') }}</span>
         <span class="ml-auto font-label-md text-label-md text-on-surface-variant">
           {{ range === 'question' ? formatTime(currentTime) : '0:00' }} / {{ formatTime(questionDuration) }}
@@ -77,7 +77,7 @@
           :aria-label="range === 'question' && isPlaying ? $t('listening.pause') : $t('listening.play')"
           @click="playRange('question')"
         >
-          <span class="material-symbols-outlined text-icon-lg fill">{{ range === 'question' && isPlaying ? 'pause' : 'play_arrow' }}</span>
+          <AppIcon :name="range === 'question' && isPlaying ? 'pause' : 'play_arrow'" size="lg" filled />
         </button>
         <div
           class="flex-1 flex items-center gap-[3px] h-10 cursor-pointer"
@@ -104,7 +104,7 @@
           :aria-label="$t('listening.replay')"
           @click="replayRange('question')"
         >
-          <span class="material-symbols-outlined text-icon-lg">replay</span>
+          <AppIcon name="replay" size="lg" />
         </button>
       </div>
     </div>
@@ -117,6 +117,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
+import AppIcon from './ui/AppIcon.vue'
 
 type RangeMode = 'article' | 'question'
 

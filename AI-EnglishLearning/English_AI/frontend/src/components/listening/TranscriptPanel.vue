@@ -2,7 +2,7 @@
   <div class="bg-surface-container-lowest rounded-[20px] p-5 shadow-soft-glow border border-outline-variant/20">
     <div class="flex items-center justify-between mb-3">
       <div class="flex items-center gap-2">
-        <span class="material-symbols-outlined text-secondary text-icon-lg">description</span>
+        <AppIcon name="description" size="lg" tone="secondary" />
         <span class="font-label-lg text-label-lg text-on-surface">{{ $t('listening.transcriptTitle') }}</span>
       </div>
       <button
@@ -13,14 +13,12 @@
         :aria-pressed="favorited"
         @click="$emit('favorite')"
       >
-        <span class="material-symbols-outlined text-icon-lg" :class="{ fill: favorited }">
-          {{ favorited ? 'favorite' : 'favorite_border' }}
-        </span>{{ $t('listening.favorite') }}
+        <AppIcon :name="favorited ? 'favorite' : 'favorite_border'" size="lg" :filled="favorited" />{{ $t('listening.favorite') }}
       </button>
     </div>
 
     <div v-if="locked" class="flex items-center gap-2 py-4 text-on-surface-variant">
-      <span class="material-symbols-outlined">lock</span>
+      <AppIcon name="lock" size="md" />
       <span class="font-body-md text-body-md">{{ $t('listening.transcriptLocked') }}</span>
     </div>
 
@@ -66,6 +64,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
+import AppIcon from '../ui/AppIcon.vue'
 import { findCueIndex, parseLrc } from '../../utils/lrc'
 
 const props = withDefaults(defineProps<{

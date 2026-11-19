@@ -2,7 +2,7 @@
   <div class="border rounded-[20px] p-6 flex items-start gap-4" :class="cardClass">
     <div class="flex flex-col items-center gap-1 flex-shrink-0">
       <div class="w-10 h-10 rounded-full flex items-center justify-center" :class="iconCircleClass">
-        <span class="material-symbols-outlined fill" :class="iconClass">{{ icon }}</span>
+        <AppIcon :name="icon" :tone="iconTone" filled />
       </div>
       <span class="font-label-md text-label-md font-bold" :class="labelClass">{{ label }}</span>
     </div>
@@ -29,15 +29,14 @@
       :aria-pressed="favorited"
       @click="$emit('favorite')"
     >
-      <span class="material-symbols-outlined" :class="{ fill: favorited }">
-        {{ favorited ? 'favorite' : 'favorite_border' }}
-      </span>
+      <AppIcon :name="favorited ? 'favorite' : 'favorite_border'" size="md" :filled="favorited" />
     </button>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import AppIcon from '../ui/AppIcon.vue'
 import { useI18n } from 'vue-i18n'
 
 const props = withDefaults(defineProps<{
@@ -82,10 +81,9 @@ const iconCircleClass = computed(() => {
   return 'bg-tertiary/15'
 })
 
-const iconClass = computed(() => {
-  if (props.status === 'correct') return 'text-tertiary'
-  if (props.status === 'incorrect') return 'text-error'
-  return 'text-tertiary'
+const iconTone = computed<'tertiary' | 'error'>(() => {
+  if (props.status === 'incorrect') return 'error'
+  return 'tertiary'
 })
 
 const labelClass = computed(() => {

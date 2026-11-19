@@ -10,7 +10,7 @@
     <div class="bg-surface-container-lowest/15 border-2 border-surface-container-lowest/30 peer-checked:border-surface-container-lowest peer-checked:bg-surface-container-lowest/25 rounded-2xl p-4 transition-all">
       <div class="flex items-center gap-3">
         <span class="w-9 h-9 rounded-full bg-surface-container-lowest/20 flex items-center justify-center flex-shrink-0">
-          <span class="material-symbols-outlined text-on-tertiary text-icon-lg">{{ icon }}</span>
+          <AppIcon :name="icon" size="lg" tone="onTertiary" />
         </span>
         <div>
           <div class="font-label-lg text-label-lg text-on-tertiary">{{ label }}</div>
@@ -22,6 +22,8 @@
 </template>
 
 <script setup lang="ts">
+import AppIcon from '../ui/AppIcon.vue'
+
 defineProps<{
   modelValue: string
   value: string

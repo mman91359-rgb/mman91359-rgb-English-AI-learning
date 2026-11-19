@@ -7,7 +7,7 @@
       >
         <div class="relative flex flex-col items-center">
           <div class="coin-reward-text flex items-center gap-2 text-tertiary">
-            <span class="material-symbols-outlined text-icon-2xl fill">paid</span>
+            <AppIcon name="paid" size="2xl" filled />
             <span class="font-headline-md text-headline-md font-bold">+{{ amount }}</span>
           </div>
           <span
@@ -16,7 +16,7 @@
             class="coin-particle"
             :class="`coin-particle-${i}`"
           >
-            <span class="material-symbols-outlined text-2xl fill">paid</span>
+            <AppIcon name="paid" size="md" filled />
           </span>
         </div>
       </div>
@@ -25,6 +25,8 @@
 </template>
 
 <script setup lang="ts">
+import AppIcon from './ui/AppIcon.vue'
+
 defineProps<{
   visible: boolean
   amount: number

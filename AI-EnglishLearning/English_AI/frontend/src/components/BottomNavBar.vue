@@ -9,7 +9,7 @@
         isActive(item.path) ? 'text-primary' : 'text-on-surface-variant'
       ]"
     >
-      <span class="material-symbols-outlined" :class="{ 'fill': isActive(item.path) }">{{ item.icon }}</span>
+      <AppIcon :name="item.icon" size="md" :filled="isActive(item.path)" />
       <span :class="['font-label-md text-[10px]', isActive(item.path) ? 'font-bold' : '']">{{ item.label }}</span>
     </router-link>
   </nav>
@@ -19,6 +19,7 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
+import AppIcon from './ui/AppIcon.vue'
 
 const { t } = useI18n()
 const route = useRoute()

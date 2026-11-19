@@ -1,7 +1,7 @@
 <template>
   <div class="flex-1 max-w-md mx-auto relative flex items-center">
     <div class="absolute left-0 top-1/2 -translate-y-1/2 -ml-2 bg-white dark:bg-surface shadow-lg rounded-full w-14 h-14 flex items-center justify-center z-10 border-4 border-background dark:border-surface">
-      <span class="material-symbols-outlined text-secondary text-2xl" style="font-variation-settings: 'FILL' 1;">emoji_events</span>
+      <AppIcon name="emoji_events" size="md" tone="secondary" filled />
     </div>
     <div
       class="w-full h-12 bg-surface-container-high rounded-full overflow-hidden ml-4 relative"
@@ -33,6 +33,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import AppIcon from '../ui/AppIcon.vue'
 
 const props = defineProps<{
   answered: number

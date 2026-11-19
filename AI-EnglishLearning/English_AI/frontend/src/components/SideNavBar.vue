@@ -26,10 +26,12 @@
           class="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 rounded-full bg-primary origin-center transition-all duration-300"
           :class="isActive(item.path) ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-0'"
         ></span>
-        <span
-          class="material-symbols-outlined transition-transform duration-300 group-hover:scale-110"
-          :class="{ 'fill': isActive(item.path) }"
-        >{{ item.icon }}</span>
+        <AppIcon
+          :name="item.icon"
+          size="md"
+          :filled="isActive(item.path)"
+          class="transition-transform duration-300 group-hover:scale-110"
+        />
         <span class="font-label-lg text-label-lg transition-all duration-300 group-hover:tracking-wide">{{ item.label }}</span>
       </router-link>
     </nav>
@@ -39,7 +41,7 @@
         to="/admin/overview"
         class="group relative flex items-center gap-4 px-4 py-3 rounded-xl overflow-hidden transition-all duration-300 ease-out hover:translate-x-1 hover:bg-primary-container/15 hover:shadow-sm active:scale-[0.98] text-primary"
       >
-        <span class="material-symbols-outlined transition-transform duration-300 group-hover:scale-110">admin_panel_settings</span>
+        <AppIcon name="admin_panel_settings" size="md" class="transition-transform duration-300 group-hover:scale-110" />
         <span class="font-label-lg text-label-lg transition-all duration-300 group-hover:tracking-wide">{{ $t('admin.title') }}</span>
       </router-link>
       <router-link
@@ -57,10 +59,12 @@
           class="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 rounded-full bg-primary origin-center transition-all duration-300"
           :class="isActive(item.path) ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-0'"
         ></span>
-        <span
-          class="material-symbols-outlined transition-transform duration-300 group-hover:scale-110"
-          :class="{ 'fill': isActive(item.path) }"
-        >{{ item.icon }}</span>
+        <AppIcon
+          :name="item.icon"
+          size="md"
+          :filled="isActive(item.path)"
+          class="transition-transform duration-300 group-hover:scale-110"
+        />
         <span class="font-label-lg text-label-lg transition-all duration-300 group-hover:tracking-wide">{{ item.label }}</span>
       </router-link>
     </div>
@@ -74,6 +78,7 @@ import { useI18n } from 'vue-i18n'
 import { useUserStore } from '@/stores/user'
 import AppLogo from '@/components/ui/AppLogo.vue'
 import StreakDisplay from '@/components/ui/StreakDisplay.vue'
+import AppIcon from './ui/AppIcon.vue'
 
 const { t } = useI18n()
 const route = useRoute()

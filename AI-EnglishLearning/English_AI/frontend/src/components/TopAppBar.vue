@@ -2,7 +2,7 @@
   <header class="h-20 sticky top-0 z-40 bg-background/80 backdrop-blur-md flex items-center justify-between px-gutter w-full max-w-container-max mx-auto">
     <div class="flex items-center gap-3 sm:gap-4">
       <div class="md:hidden">
-        <span class="material-symbols-outlined text-on-surface text-2xl cursor-pointer">menu</span>
+        <AppIcon name="menu" size="md" tone="onSurface" class="cursor-pointer" />
       </div>
       <CoinBadge v-if="!hideCoinBadge" />
       <slot name="left" />
@@ -15,7 +15,7 @@
           aria-label="通知"
           @click="showNotificationPopup = !showNotificationPopup"
         >
-          <span class="material-symbols-outlined">notifications</span>
+          <AppIcon name="notifications" size="md" />
           <!-- 红点：有未读通知时显示 -->
           <span
             v-if="unreadCount > 0"
@@ -53,7 +53,7 @@
               <div class="font-body-sm text-body-sm text-on-surface-variant mt-1 opacity-60">{{ n.time }}</div>
             </div>
             <div v-if="notifications.length === 0" class="text-center py-6 text-on-surface-variant">
-              <span class="material-symbols-outlined text-3xl mb-2 block">notifications_off</span>
+              <AppIcon name="notifications_off" size="md" class="mb-2 block" />
               {{ $t('topbar.noNotifications') }}
             </div>
           </div>
@@ -70,9 +70,7 @@
           :aria-label="appStore.isDark ? $t('topbar.switchToLight') : $t('topbar.switchToDark')"
           @click="appStore.toggleTheme"
         >
-          <span class="material-symbols-outlined">
-            {{ appStore.isDark ? 'light_mode' : 'dark_mode' }}
-          </span>
+          <AppIcon :name="appStore.isDark ? 'light_mode' : 'dark_mode'" size="md" />
         </button>
 
         <!-- 语言切换按钮：地球网格图标 -->
@@ -81,7 +79,7 @@
           :aria-label="$t('topbar.currentLanguage') + ': ' + currentLanguageLabel"
           @click="cycleLanguage"
         >
-          <span class="material-symbols-outlined">language</span>
+          <AppIcon name="language" size="md" />
         </button>
 
         <!-- 用户头像：有头像显示图片，无头像显示首字母 -->
@@ -116,6 +114,7 @@ import { useUserStore } from '@/stores/user'
 import { useNotifications } from '@/composables/useNotifications'
 import CoinBadge from '@/components/CoinBadge.vue'
 import { btnIcon } from '@/components/ui/buttonStyles'
+import AppIcon from './ui/AppIcon.vue'
 
 defineEmits(['userClick'])
 

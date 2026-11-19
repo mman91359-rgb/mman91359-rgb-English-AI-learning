@@ -16,7 +16,7 @@
           @focusin="onPause(t)"
           @focusout="onResume(t)"
         >
-          <span class="material-symbols-outlined shrink-0 text-icon-md" aria-hidden="true">{{ iconName(t.type) }}</span>
+          <AppIcon :name="iconName(t.type)" size="md" class="shrink-0" />
           <p class="min-w-0 flex-1 break-words font-body-sm text-body-sm">{{ t.message }}</p>
           <button
             type="button"
@@ -24,7 +24,7 @@
             :aria-label="$t('common.close')"
             @click="remove(t.id)"
           >
-            <span class="material-symbols-outlined text-icon-sm" aria-hidden="true">close</span>
+            <AppIcon name="close" size="sm" />
           </button>
           <!-- 倒计时进度条：与计时器同步暂停，让用户看见还剩多少时间 -->
           <span
@@ -45,6 +45,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useToast, type Toast } from '@/composables/useToast'
+import AppIcon from './ui/AppIcon.vue'
 
 const { toasts, remove, pause, resume } = useToast()
 

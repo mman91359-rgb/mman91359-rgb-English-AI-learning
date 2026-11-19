@@ -5,10 +5,12 @@
     :aria-label="`${$t('wallet.title')} · ${$t('coin.rateHint', { coins: userStore.coinsPerYuan })}`"
     :title="`${$t('wallet.title')} · ${$t('coin.rateHint', { coins: userStore.coinsPerYuan })}`"
   >
-    <span
-      class="material-symbols-outlined text-xl transition-transform duration-300 group-hover:scale-110"
+    <AppIcon
+      name="paid"
+      size="md"
+      class="transition-transform duration-300 group-hover:scale-110"
       :class="{ 'coin-bump': bumping }"
-    >paid</span>
+    />
     <span class="font-label-md text-label-md font-bold tabular-nums">
       {{ userStore.coinLoaded ? formattedBalance : '—' }}
     </span>
@@ -19,6 +21,7 @@
 import { computed, onUnmounted, ref, watch } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { formatNumber } from '@/utils/format'
+import AppIcon from './ui/AppIcon.vue'
 
 const userStore = useUserStore()
 const bumping = ref(false)

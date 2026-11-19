@@ -35,9 +35,9 @@ const props = withDefaults(defineProps<{
   /** 是否使用实心字形（输出 .fill 类） */
   filled?: boolean
   /** 颜色语义；current 表示不设色、继承父级；variant 等价 text-on-surface-variant（历史命名，不更名）；
-   *  onPrimary 用于 primary 实底上的前景图标（与 onSurface 同一族） */
+   *  onPrimary / onTertiary 用于对应实底上的前景图标（与 onSurface 同一族） */
   tone?: 'current' | 'primary' | 'secondary' | 'tertiary' | 'error' | 'warning' | 'variant'
-    | 'outline' | 'outlineVariant' | 'onSurface' | 'onPrimary'
+    | 'outline' | 'outlineVariant' | 'onSurface' | 'onPrimary' | 'onTertiary'
   /** 有值时取消 aria-hidden 并加 role="img"，供读屏识别 */
   ariaLabel?: string
 }>(), {
@@ -71,6 +71,7 @@ const TONE_CLASS: Record<NonNullable<typeof props.tone>, string> = {
   outlineVariant: 'text-outline-variant',
   onSurface: 'text-on-surface',
   onPrimary: 'text-on-primary',
+  onTertiary: 'text-on-tertiary',
 }
 
 const toneClass = computed(() => TONE_CLASS[props.tone])

@@ -498,6 +498,8 @@ git grep -n "material-symbols-outlined" HEAD -- "src/views/*.vue" | wc -l
 > `2a50d43` / `116a578` 数值未变；`c4ef7d3` 的「已学词库页 + 标熟机制」把 L1a 31→28、
 > L1b 127→124、L5 107→103，属规则 ①）。
 > 当前八条：L1a 17 / L1b 124 / L2 0 / L3 0 / L4 0 / L5 6 / L6 10 / L8 8。
+>
+> **L5 = 6 为永久基线**：6 处均为 scoped CSS 耦合（见 §11.9），非能力缺口。门禁 L5 恒为 6。
 > **L8 = 8 为永久基线**（2026-11-18 裁定，段 D 收口）：剩余 8 处经判据「跨页面 ≥3 次 + M3 标准语义色」评估后永久锁定，不再追 0；详见 §11.8。
 > L8 于 `d7a2784` 起生效（达成值 170），此前历史快照锚点无此项；L5 历史锚点全部保留可比。
 > 答题族批次（`36e8e4f` 组件 / `1039ef9` 文档）对全部口径增量恒为 0。
@@ -970,4 +972,65 @@ document.querySelectorAll('.max-w-md').length   // 期望 1；若为 2 说明外
 2. **指令/布局类留外层，颜色走 tone**：v-if / v-else / :key / :class / @click 一律留在 AppIcon 或其外层 span 上；颜色只通过 tone 表达，禁止额外叠色彩类。D-6 `AdminOverview:19` 的 `:class="loading ? 'animate-spin' : ''"` 即透传 AppIcon 根。
 
 **待办（非阻塞）**：契约 §8.1 的 size 枚举行漏 `3xl`（AppIcon.vue 实际支持），以及 tone 三行 prop 列同名——下次整理文档时一并处理，不影响运行与门禁。
+
+## §11.9 段 L5 组件层图标迁移结项（2026-11-19）
+
+### 一、战绩
+
+L5 96 → 6，减少 90 处 = **2 处注释假阳性消除** + **88 处真实迁移**，跨 **10 个 commit**。
+88 处 = 27 处字号陷阱（可迁部分）+ 61 处正常 `text-icon-*`。
+
+### 二、commit 链（新 → 旧）
+
+| commit | 内容 | L5 |
+|---|---|---|
+| `764e9e2` | L5-7 导航/金币/Toast/进度条 15 处 | 21→6 |
+| `8ca2652` | L5-6 音频/听力四件 12 处 | 33→21 |
+| `354864f` | **扩 tone `onTertiary`** | 33 |
+| `0faabaa` | L5-5 词汇/签到/词卡 15 处 | 48→33 |
+| `483185f` | L5-4 AI 侧栏 13 处 | 61→48 |
+| `66e8708` | **扩 tone `onPrimary`** | 61 |
+| `b3e179a` | L5-3 ai 五件 15 处 | 76→61 |
+| `b4a283a` | L5-2 admin 九件 16 处 | 92→76 |
+| `80a40df` | L5-1 EmptyState/ErrorState 2 处 | 94→92 |
+| `c4c17e7` | L5-0 起点校准（2 注释 + 契约 §8.1 修 size/tone） | 96→94 |
+
+### 三、6 处永久锁定（全部为 scoped CSS 耦合，无色值类锁定）
+
+| # | 文件:行 | 原因 |
+|---|---|---|
+| 1-2 | `ui/AppLogo.vue:9` / `:12` | scoped `.logo-glyph { font-size:1em }` 自外层继承 |
+| 3 | `ui/FormHint.vue:7` | scoped `.form-hint-icon { font-size:16px; line-height:20px }`，AppIcon 无 16px 档 |
+| 4-6 | `ui/StreakDisplay.vue:56` / `:60` / `:66` | scoped `.flame-glyph` 系列 + 三层绝对定位叠层（`flame-inner` / `flame-heart`） |
+
+**判据**：L5 的锁定全部来自“共享组件自带 scoped 排版规则”，与段 D 的“色值/尺寸缺口”性质不同——组件层是设计系统自身的元件，它们的视觉规则本来就不该由通用 AppIcon 接管。
+
+### 四、两次扩档决策
+
+| commit | 新档 | 令牌 | 依据 |
+|---|---|---|---|
+| `66e8708` | `onPrimary` → `text-on-primary` | tailwind `on-primary` 已存在 | M3 core 色组成员 + 零新增色值 + 与已扩 `onSurface` 同族 |
+| `354864f` | `onTertiary` → `text-on-tertiary` | tailwind `on-tertiary` 已存在 | 同上；且全仓图标 `text-on-*` 仅 3 种，扩完即闭合 |
+
+**闭合结论**：全仓 `material-symbols-outlined` 行用到的 `text-on-*` 只有 `on-surface` / `on-primary` / `on-tertiary`，12 档已完全覆盖，**不会再为颜色开组件 commit**。
+
+### 五、五条硬规则（跨段 D / L5 通用）
+
+1. **字号陷阱**：无 `text-icon-*` 或写 `text-lg/xl/2xl/3xl` 的一律 `size="md"`——`main.css:274` 兜底与字面类同特异性且在后声明，图标恒 24px。
+2. **包裹规则**：外层有交互态颜色（`group-hover:text-*` / `focus-within`）时，内层必须 `tone="current"`（不传），否则阻断继承（`41ddae7`）。
+3. **双通道分离**：颜色只走 `tone`，布局/动效/交互类只走 `class`，**绝不混写**。
+4. **`fill` → `filled`**：不留 `class="fill"`；条件填充用 `:filled`，常驻用 `filled`；内联 `font-variation-settings` 一律改 `filled`。
+5. **动态颜色**：`computed` 返回枚举值给 `:tone`，不能返回 class 串（`FeedbackPanel` 的 `iconClass`→`iconTone`）。
+
+### 六、与段 D 对照
+
+| | 段 D（视图层 L8） | 段 L5（组件层） |
+|---|---|---|
+| 起点 / 终态 | 170 → 8 | 96 → 6 |
+| 真实迁移 | 162 | 88 |
+| commit | 13 执行 + 1 结项 | 10 执行 + 1 结项 |
+| 组件扩档 | tone 3 档（outline/outlineVariant/onSurface） | tone 2 档（onPrimary/onTertiary），累计 12 档 |
+| 锁定性质 | 4 特殊色 + 3 超档尺寸 + 1 透明度变体 | **6 处全为 scoped CSS 耦合** |
+
+**当前八条基线**：`L1a 17 / L1b 124 / L2 0 / L3 0 / L4 0 / L5 6 / L6 10 / L8 8`
 

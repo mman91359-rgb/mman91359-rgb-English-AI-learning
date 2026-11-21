@@ -13,6 +13,7 @@ public enum ErrorCode {
     NOT_FOUND(404, "资源不存在"),
     METHOD_NOT_ALLOWED(405, "请求方法不支持"),
     CONFLICT(409, "数据冲突"),
+    TOO_MANY_REQUESTS(429, "操作过于频繁，请稍后重试"),
     INTERNAL_ERROR(500, "系统异常，请稍后重试");
 
     private final int code;

@@ -26,7 +26,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<Result<Void>> handleBusiness(BusinessException e) {
         return ResponseEntity.status(e.getHttpStatus())
-                .body(Result.<Void>error(e.getCode(), e.getMessage()));
+                .body(Result.<Void>error(e.getCode(), e.getMessage(), e.getBizCodeValue()));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

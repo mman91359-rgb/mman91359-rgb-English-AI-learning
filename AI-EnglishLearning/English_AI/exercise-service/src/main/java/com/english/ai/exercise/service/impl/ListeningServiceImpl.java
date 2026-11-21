@@ -3,6 +3,7 @@ package com.english.ai.exercise.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.english.ai.common.BusinessException;
+import com.english.ai.common.BizCode;
 import com.english.ai.common.ErrorCode;
 import com.english.ai.common.ListeningType;
 import com.english.ai.common.ModuleType;
@@ -176,7 +177,7 @@ public class ListeningServiceImpl implements ListeningService {
                         .eq(UserExerciseLog::getQuestionId, questionId)
                         .eq(UserExerciseLog::getModuleType, ModuleType.LISTENING.getCode()));
         if (answered == null || answered == 0) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "请先作答后再查看原文");
+            throw new BusinessException(BizCode.ANSWER_REQUIRED_FIRST);
         }
     }
 

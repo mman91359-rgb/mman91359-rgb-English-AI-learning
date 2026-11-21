@@ -1,6 +1,7 @@
 package com.english.ai.user.controller;
 
 import com.english.ai.common.BusinessException;
+import com.english.ai.common.BizCode;
 import com.english.ai.common.ErrorCode;
 import com.english.ai.common.Result;
 import com.english.ai.common.UserIdentityUtil;
@@ -56,7 +57,7 @@ public class CoinController {
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
         UserIdentityUtil.requireOwnership(headerUserId, userId);
         if (!coinService.userExists(userId)) {
-            return Result.error(404, "用户不存在");
+            return Result.error(BizCode.USER_NOT_FOUND);
         }
         try {
             UserCoinAccount account = coinService.getOrCreateAccount(userId);
@@ -95,7 +96,7 @@ public class CoinController {
         Long userId = request.getUserId();
         UserIdentityUtil.requireOwnership(headerUserId, userId);
         if (!coinService.userExists(userId)) {
-            return Result.error(404, "用户不存在");
+            return Result.error(BizCode.USER_NOT_FOUND);
         }
         LocalDate date;
         try {
@@ -133,7 +134,7 @@ public class CoinController {
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
         UserIdentityUtil.requireOwnership(headerUserId, userId);
         if (!coinService.userExists(userId)) {
-            return Result.error(404, "用户不存在");
+            return Result.error(BizCode.USER_NOT_FOUND);
         }
         if (size == null || size < 1 || size > 50) {
             return Result.badRequest("size 取值范围为 1~50");
@@ -164,7 +165,7 @@ public class CoinController {
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
         UserIdentityUtil.requireOwnership(headerUserId, userId);
         if (!coinService.userExists(userId)) {
-            return Result.error(404, "用户不存在");
+            return Result.error(BizCode.USER_NOT_FOUND);
         }
 
         LocalDate start;

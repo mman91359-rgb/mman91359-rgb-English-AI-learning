@@ -1,6 +1,7 @@
 package com.english.ai.exercise.controller;
 
 import com.english.ai.common.BusinessException;
+import com.english.ai.common.BizCode;
 import com.english.ai.common.ErrorCode;
 import com.english.ai.common.Result;
 import com.english.ai.common.UserIdentityUtil;
@@ -68,7 +69,7 @@ public class ExerciseController {
     public Result<QuestionVO> getQuestion(@PathVariable Long id,
                                           @RequestParam(defaultValue = "false") boolean showAnswer) {
         QuestionVO vo = exerciseService.getQuestionById(id, showAnswer);
-        if (vo == null) return Result.error(404, "题目不存在");
+        if (vo == null) return Result.error(BizCode.QUESTION_NOT_FOUND);
         return Result.success(vo);
     }
 

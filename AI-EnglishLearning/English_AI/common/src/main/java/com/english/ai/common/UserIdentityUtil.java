@@ -29,7 +29,7 @@ public final class UserIdentityUtil {
      */
     public static void requireOwnership(Long headerUserId, Long requestUserId) {
         if (isForbidden(headerUserId, requestUserId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN);
+            throw new BusinessException(BizCode.OWNERSHIP_DENIED);
         }
     }
 }

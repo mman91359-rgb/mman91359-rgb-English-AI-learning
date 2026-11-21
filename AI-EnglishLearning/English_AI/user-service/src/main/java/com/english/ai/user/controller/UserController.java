@@ -1,5 +1,6 @@
 package com.english.ai.user.controller;
 
+import com.english.ai.common.BizCode;
 import com.english.ai.common.BusinessException;
 import com.english.ai.common.ErrorCode;
 import com.english.ai.common.PasswordUtil;
@@ -131,7 +132,7 @@ public class UserController {
         UserIdentityUtil.requireOwnership(headerUserId, userId);
         SysUser user = userService.getById(userId);
         if (user == null) {
-            return Result.error(404, "用户不存在");
+            return Result.error(BizCode.USER_NOT_FOUND);
         }
         user.setPassword(null);
         return Result.success(user);
@@ -141,7 +142,7 @@ public class UserController {
     public Result<SysUser> byUsername(@PathVariable String username) {
         SysUser user = userService.getByUsername(username);
         if (user == null) {
-            return Result.error(404, "用户不存在");
+            return Result.error(BizCode.USER_NOT_FOUND);
         }
         user.setPassword(null);
         return Result.success(user);
@@ -203,7 +204,7 @@ public class UserController {
 
         } catch (IOException e) {
             log.error("头像上传失败: userId={}", userId, e);
-            return Result.error(500, "头像上传失败，请稍后重试");
+            return Result.error(ErrorCode.INTERNAL_ERROR.getCode(), "头像上传失败，请稍后重试");
         }
     }
 
@@ -239,7 +240,7 @@ public class UserController {
             return Result.success(nickname);
         } catch (RuntimeException e) {
             log.warn("昵称修改失败: userId={}, reason={}", userId, e.getMessage());
-            return Result.error(404, e.getMessage());
+            return Result.error(ErrorCode.NOT_FOUND.getCode(), e.getMessage());
         }
     }
 
@@ -298,7 +299,7 @@ public class UserController {
             @Valid @RequestBody VerificationCodeSendRequest request,
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
         if (headerUserId == null) {
-            return Result.error(401, "请先登录");
+            return Result.error(BizCode.UNAUTHENTICATED);
         }
         try {
             return Result.success(verificationCodeService.send(

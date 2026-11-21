@@ -1,5 +1,6 @@
 package com.english.ai.user.controller;
 
+import com.english.ai.common.BizCode;
 import com.english.ai.common.JwtUtil;
 import com.english.ai.common.Result;
 import com.english.ai.common.Roles;
@@ -52,7 +53,7 @@ public class AuthController {
         String clientKey = "ip:" + resolveIp(request);
         if (!refreshTokenService.tryAcquire(clientKey)) {
             log.warn("刷新接口限流触发: key={}", clientKey);
-            return Result.error(429, "刷新过于频繁，请稍后重试");
+            return Result.error(BizCode.RATE_LIMITED, "刷新过于频繁，请稍后重试");
         }
 
         // 先反查 userId，做越权前置校验（Refresh Token 本身不含 userId）

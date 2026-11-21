@@ -2,7 +2,7 @@ package com.english.ai.user.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.english.ai.common.BusinessException;
-import com.english.ai.common.ErrorCode;
+import com.english.ai.common.BizCode;
 import com.english.ai.common.PasswordUtil;
 import com.english.ai.user.dto.ForgotPasswordRequest;
 import com.english.ai.user.entity.SysUser;
@@ -30,21 +30,21 @@ public class PasswordResetService {
     @Transactional
     public void resetByPhone(ForgotPasswordRequest request) {
         if (!PasswordUtil.isValidPassword(request.getNewPassword())) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "新密码至少10位，且需包含小写字母和数字");
+            throw new BusinessException(BizCode.PASSWORD_TOO_WEAK, "新密码至少10位，且需包含小写字母和数字");
         }
 
         List<SysUser> users = userMapper.selectList(new LambdaQueryWrapper<SysUser>()
                 .eq(SysUser::getPhone, request.getPhone()));
         if (users.isEmpty()) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "手机号未绑定账号");
+            throw new BusinessException(BizCode.PHONE_NOT_BOUND, "手机号未绑定账号");
         }
         if (users.size() > 1) {
-            throw new BusinessException(ErrorCode.CONFLICT, "该手机号关联多个账号，请联系管理员");
+            throw new BusinessException(BizCode.PHONE_MULTI_ACCOUNT, "该手机号关联多个账号，请联系管理员");
         }
 
         SysUser user = users.get(0);
         if (user.getStatus() == null || user.getStatus() == 0) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "账号已被禁用");
+            throw new BusinessException(BizCode.ACCOUNT_DISABLED, "账号已被禁用");
         }
         // 校验并消费验证码：独立事务提交，改密失败也不会让同一验证码被反复重试
         verificationCodeService.verifyAndConsume(

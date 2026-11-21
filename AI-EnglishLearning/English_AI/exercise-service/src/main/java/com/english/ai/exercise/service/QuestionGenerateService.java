@@ -3,7 +3,7 @@ package com.english.ai.exercise.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.english.ai.common.BusinessException;
-import com.english.ai.common.ErrorCode;
+import com.english.ai.common.BizCode;
 import com.english.ai.common.PageResult;
 import com.english.ai.common.Result;
 import com.english.ai.exercise.dto.AdminQuestionQuery;
@@ -177,10 +177,10 @@ public class QuestionGenerateService {
         // 1. 查询待审核题目
         QuestionPending pending = pendingMapper.selectById(pendingId);
         if (pending == null) {
-            throw new BusinessException(ErrorCode.NOT_FOUND, "待审核题目不存在");
+            throw new BusinessException(BizCode.QUESTION_NOT_FOUND, "待审核题目不存在");
         }
         if (!"PENDING".equals(pending.getStatus())) {
-            throw new BusinessException(ErrorCode.CONFLICT, "只有待审核题目可以通过");
+            throw new BusinessException(BizCode.REVIEW_STATE_CONFLICT, "只有待审核题目可以通过");
         }
 
         // 2. 条件更新，防止并发重复审核
@@ -190,7 +190,7 @@ public class QuestionGenerateService {
                 .set("status", "APPROVED")
                 .set("reviewer_id", reviewerId));
         if (updated == 0) {
-            throw new BusinessException(ErrorCode.CONFLICT, "题目已被其他管理员审核");
+            throw new BusinessException(BizCode.REVIEW_STATE_CONFLICT, "题目已被其他管理员审核");
         }
 
         // 3. 根据知识点名称查找或创建知识点
@@ -270,10 +270,10 @@ public class QuestionGenerateService {
     public boolean rejectQuestion(Long pendingId, Long reviewerId, String comment) {
         QuestionPending pending = pendingMapper.selectById(pendingId);
         if (pending == null) {
-            throw new BusinessException(ErrorCode.NOT_FOUND, "待审核题目不存在");
+            throw new BusinessException(BizCode.QUESTION_NOT_FOUND, "待审核题目不存在");
         }
         if (!"PENDING".equals(pending.getStatus())) {
-            throw new BusinessException(ErrorCode.CONFLICT, "只有待审核题目可以驳回");
+            throw new BusinessException(BizCode.REVIEW_STATE_CONFLICT, "只有待审核题目可以驳回");
         }
 
         int updated = pendingMapper.update(null, new UpdateWrapper<QuestionPending>()
@@ -283,7 +283,7 @@ public class QuestionGenerateService {
                 .set("reviewer_id", reviewerId)
                 .set("review_comment", comment));
         if (updated == 0) {
-            throw new BusinessException(ErrorCode.CONFLICT, "题目已被其他管理员审核");
+            throw new BusinessException(BizCode.REVIEW_STATE_CONFLICT, "题目已被其他管理员审核");
         }
 
         log.info("审核驳回: pendingId={}, reviewerId={}, comment={}", pendingId, reviewerId, comment);
@@ -299,7 +299,7 @@ public class QuestionGenerateService {
         String status = query.getStatus() == null || query.getStatus().isBlank()
                 ? "PENDING" : query.getStatus().trim();
         if (!List.of("PENDING", "APPROVED", "REJECTED").contains(status)) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "审核状态不合法");
+            throw new BusinessException(BizCode.PARAM_INVALID, "审核状态不合法");
         }
         LambdaQueryWrapper<QuestionPending> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(QuestionPending::getStatus, status);

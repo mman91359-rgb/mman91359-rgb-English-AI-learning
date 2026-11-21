@@ -1,7 +1,7 @@
 package com.english.ai.user.util;
 
 import com.english.ai.common.BusinessException;
-import com.english.ai.common.ErrorCode;
+import com.english.ai.common.BizCode;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -29,7 +29,7 @@ public final class AdminDateTimeUtil {
             try {
                 return LocalDateTime.parse(text);
             } catch (Exception e) {
-                throw new BusinessException(ErrorCode.BAD_REQUEST, "时间格式错误: " + value);
+                throw new BusinessException(BizCode.PARAM_INVALID, "时间格式错误: " + value);
             }
         }
     }
@@ -41,7 +41,7 @@ public final class AdminDateTimeUtil {
         try {
             return LocalDate.parse(value.trim(), DATE_FORMAT);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "日期格式错误: " + value);
+            throw new BusinessException(BizCode.PARAM_INVALID, "日期格式错误: " + value);
         }
     }
 }

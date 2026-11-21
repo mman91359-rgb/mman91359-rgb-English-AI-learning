@@ -2,7 +2,7 @@ package com.english.ai.user.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.english.ai.common.BusinessException;
-import com.english.ai.common.ErrorCode;
+import com.english.ai.common.BizCode;
 import com.english.ai.common.PageResult;
 import com.english.ai.user.config.AdminContext;
 import com.english.ai.user.dto.admin.ActivityQuery;
@@ -94,7 +94,7 @@ public class AdminActivityServiceImpl implements AdminActivityService {
     public ActivityVO update(Long id, ActivityRequest request) {
         SysActivity activity = requireActivity(id);
         if (!"DRAFT".equals(activity.getStatus())) {
-            throw new BusinessException(ErrorCode.CONFLICT, "只有草稿活动可以编辑");
+            throw new BusinessException(BizCode.ACTIVITY_STATE_INVALID, "只有草稿活动可以编辑");
         }
         validate(request);
         apply(activity, request);
@@ -109,14 +109,14 @@ public class AdminActivityServiceImpl implements AdminActivityService {
     public ActivityVO publish(Long id) {
         SysActivity activity = requireActivity(id);
         if (!"DRAFT".equals(activity.getStatus())) {
-            throw new BusinessException(ErrorCode.CONFLICT, "只有草稿活动可以发布");
+            throw new BusinessException(BizCode.ACTIVITY_STATE_INVALID, "只有草稿活动可以发布");
         }
         LocalDateTime now = LocalDateTime.now();
         if (activity.getEndAt() == null || !activity.getEndAt().isAfter(now)) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "结束时间必须晚于当前时间");
+            throw new BusinessException(BizCode.TIME_RANGE_INVALID, "结束时间必须晚于当前时间");
         }
         if (activity.getStartAt() == null || !activity.getStartAt().isBefore(activity.getEndAt())) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "开始时间必须早于结束时间");
+            throw new BusinessException(BizCode.TIME_RANGE_INVALID, "开始时间必须早于结束时间");
         }
         activity.setStatus("PUBLISHED");
         activity.setUpdatedBy(AdminContext.getOperatorId());
@@ -130,7 +130,7 @@ public class AdminActivityServiceImpl implements AdminActivityService {
     public ActivityVO end(Long id) {
         SysActivity activity = requireActivity(id);
         if (!"PUBLISHED".equals(activity.getStatus())) {
-            throw new BusinessException(ErrorCode.CONFLICT, "只有已发布活动可以结束");
+            throw new BusinessException(BizCode.ACTIVITY_STATE_INVALID, "只有已发布活动可以结束");
         }
         activity.setStatus("ENDED");
         activity.setUpdatedBy(AdminContext.getOperatorId());
@@ -144,7 +144,7 @@ public class AdminActivityServiceImpl implements AdminActivityService {
     public void delete(Long id) {
         SysActivity activity = requireActivity(id);
         if (!"DRAFT".equals(activity.getStatus())) {
-            throw new BusinessException(ErrorCode.CONFLICT, "只有草稿活动可以删除");
+            throw new BusinessException(BizCode.ACTIVITY_STATE_INVALID, "只有草稿活动可以删除");
         }
         activityMapper.deleteById(id);
         auditService.record("ACTIVITY_DELETE", "ACTIVITY", id, "title=" + activity.getTitle());
@@ -152,15 +152,15 @@ public class AdminActivityServiceImpl implements AdminActivityService {
 
     private void validate(ActivityRequest request) {
         if (!ACTIVITY_TYPES.contains(request.getActivityType())) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "活动类型不合法");
+            throw new BusinessException(BizCode.PARAM_INVALID, "活动类型不合法");
         }
         if (!AUDIENCES.contains(request.getTargetAudience())) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "目标人群不合法");
+            throw new BusinessException(BizCode.PARAM_INVALID, "目标人群不合法");
         }
         LocalDateTime start = AdminDateTimeUtil.parseDateTime(request.getStartAt());
         LocalDateTime end = AdminDateTimeUtil.parseDateTime(request.getEndAt());
         if (start == null || end == null || !start.isBefore(end)) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "开始时间必须早于结束时间");
+            throw new BusinessException(BizCode.TIME_RANGE_INVALID, "开始时间必须早于结束时间");
         }
     }
 
@@ -179,7 +179,7 @@ public class AdminActivityServiceImpl implements AdminActivityService {
     private SysActivity requireActivity(Long id) {
         SysActivity activity = activityMapper.selectById(id);
         if (activity == null) {
-            throw new BusinessException(ErrorCode.NOT_FOUND, "活动不存在");
+            throw new BusinessException(BizCode.RESOURCE_NOT_FOUND, "活动不存在");
         }
         return activity;
     }

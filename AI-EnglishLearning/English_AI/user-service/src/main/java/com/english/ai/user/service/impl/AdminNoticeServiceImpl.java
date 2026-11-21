@@ -2,7 +2,7 @@ package com.english.ai.user.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.english.ai.common.BusinessException;
-import com.english.ai.common.ErrorCode;
+import com.english.ai.common.BizCode;
 import com.english.ai.common.PageResult;
 import com.english.ai.user.config.AdminContext;
 import com.english.ai.user.dto.admin.NoticeQuery;
@@ -94,7 +94,7 @@ public class AdminNoticeServiceImpl implements AdminNoticeService {
     public NoticeVO update(Long id, NoticeRequest request) {
         SysNotice notice = requireNotice(id);
         if (!"DRAFT".equals(notice.getStatus())) {
-            throw new BusinessException(ErrorCode.CONFLICT, "只有草稿通知可以编辑");
+            throw new BusinessException(BizCode.NOTICE_STATE_INVALID, "只有草稿通知可以编辑");
         }
         validate(request);
         apply(notice, request);
@@ -109,11 +109,11 @@ public class AdminNoticeServiceImpl implements AdminNoticeService {
     public NoticeVO publish(Long id) {
         SysNotice notice = requireNotice(id);
         if (!"DRAFT".equals(notice.getStatus())) {
-            throw new BusinessException(ErrorCode.CONFLICT, "只有草稿通知可以发布");
+            throw new BusinessException(BizCode.NOTICE_STATE_INVALID, "只有草稿通知可以发布");
         }
         LocalDateTime now = LocalDateTime.now();
         if (notice.getExpireAt() != null && !notice.getExpireAt().isAfter(now)) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "过期时间必须晚于当前时间");
+            throw new BusinessException(BizCode.TIME_RANGE_INVALID, "过期时间必须晚于当前时间");
         }
         if (notice.getPublishAt() == null || notice.getPublishAt().isBefore(now)) {
             notice.setPublishAt(now);
@@ -130,7 +130,7 @@ public class AdminNoticeServiceImpl implements AdminNoticeService {
     public NoticeVO expire(Long id) {
         SysNotice notice = requireNotice(id);
         if (!"PUBLISHED".equals(notice.getStatus())) {
-            throw new BusinessException(ErrorCode.CONFLICT, "只有已发布通知可以下线");
+            throw new BusinessException(BizCode.NOTICE_STATE_INVALID, "只有已发布通知可以下线");
         }
         notice.setStatus("EXPIRED");
         notice.setUpdatedBy(AdminContext.getOperatorId());
@@ -144,7 +144,7 @@ public class AdminNoticeServiceImpl implements AdminNoticeService {
     public void delete(Long id) {
         SysNotice notice = requireNotice(id);
         if (!"DRAFT".equals(notice.getStatus())) {
-            throw new BusinessException(ErrorCode.CONFLICT, "只有草稿通知可以删除");
+            throw new BusinessException(BizCode.NOTICE_STATE_INVALID, "只有草稿通知可以删除");
         }
         noticeMapper.deleteById(id);
         auditService.record("NOTICE_DELETE", "NOTICE", id, "title=" + notice.getTitle());
@@ -152,15 +152,15 @@ public class AdminNoticeServiceImpl implements AdminNoticeService {
 
     private void validate(NoticeRequest request) {
         if (!NOTICE_TYPES.contains(request.getNoticeType())) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "通知类型不合法");
+            throw new BusinessException(BizCode.PARAM_INVALID, "通知类型不合法");
         }
         if (!AUDIENCES.contains(request.getTargetAudience())) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "目标人群不合法");
+            throw new BusinessException(BizCode.PARAM_INVALID, "目标人群不合法");
         }
         LocalDateTime publishAt = AdminDateTimeUtil.parseDateTime(request.getPublishAt());
         LocalDateTime expireAt = AdminDateTimeUtil.parseDateTime(request.getExpireAt());
         if (publishAt != null && expireAt != null && !expireAt.isAfter(publishAt)) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "过期时间必须晚于发布时间");
+            throw new BusinessException(BizCode.TIME_RANGE_INVALID, "过期时间必须晚于发布时间");
         }
     }
 
@@ -176,7 +176,7 @@ public class AdminNoticeServiceImpl implements AdminNoticeService {
     private SysNotice requireNotice(Long id) {
         SysNotice notice = noticeMapper.selectById(id);
         if (notice == null) {
-            throw new BusinessException(ErrorCode.NOT_FOUND, "通知不存在");
+            throw new BusinessException(BizCode.RESOURCE_NOT_FOUND, "通知不存在");
         }
         return notice;
     }

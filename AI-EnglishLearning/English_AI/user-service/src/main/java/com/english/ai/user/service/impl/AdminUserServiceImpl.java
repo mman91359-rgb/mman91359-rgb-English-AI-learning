@@ -2,6 +2,7 @@ package com.english.ai.user.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.english.ai.common.BusinessException;
+import com.english.ai.common.BizCode;
 import com.english.ai.common.ErrorCode;
 import com.english.ai.common.PageResult;
 import com.english.ai.common.PasswordUtil;
@@ -158,7 +159,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     public AdminUserListItem updateRole(Long userId, String role) {
         String normalized = role == null ? "" : role.trim().toUpperCase();
         if (!Roles.USER.equals(normalized) && !Roles.ADMIN.equals(normalized)) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "角色只能是 ROLE_USER 或 ROLE_ADMIN");
+            throw new BusinessException(BizCode.ROLE_INVALID, "角色只能是 ROLE_USER 或 ROLE_ADMIN");
         }
         if (userId.equals(AdminContext.getOperatorId())) {
             throw new BusinessException(ErrorCode.BAD_REQUEST, "不能修改自己的角色");
@@ -171,7 +172,7 @@ public class AdminUserServiceImpl implements AdminUserService {
                     .eq(SysUser::getStatus, 1)
                     .ne(SysUser::getId, userId));
             if (otherAdmins == null || otherAdmins == 0) {
-                throw new BusinessException(ErrorCode.CONFLICT, "至少保留一个启用状态的管理员");
+                throw new BusinessException(BizCode.LAST_ADMIN_REQUIRED, "至少保留一个启用状态的管理员");
             }
         }
         user.setRoles(normalized);
@@ -204,7 +205,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     private SysUser requireUser(Long userId) {
         SysUser user = userMapper.selectById(userId);
         if (user == null) {
-            throw new BusinessException(ErrorCode.NOT_FOUND, "用户不存在");
+            throw new BusinessException(BizCode.USER_NOT_FOUND, "用户不存在");
         }
         return user;
     }

@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.english.ai.common.BusinessException;
 import com.english.ai.common.BizCode;
-import com.english.ai.common.ErrorCode;
 import com.english.ai.common.ListeningType;
 import com.english.ai.common.ModuleType;
 import com.english.ai.exercise.dto.ListeningStats;
@@ -95,7 +94,7 @@ public class ListeningServiceImpl implements ListeningService {
     public QuestionVO getListeningQuestion(Long questionId, boolean showAnswer, Long userId) {
         QuestionVO question = exerciseService.getQuestionById(questionId, showAnswer);
         if (question == null || !Integer.valueOf(ModuleType.LISTENING.getCode()).equals(question.getModuleType())) {
-            throw new BusinessException(ErrorCode.NOT_FOUND, "听力题目不存在");
+            throw new BusinessException(BizCode.QUESTION_NOT_FOUND, "听力题目不存在");
         }
 
         ListeningAudio audio = loadAudio(questionId);
@@ -112,7 +111,7 @@ public class ListeningServiceImpl implements ListeningService {
         }
 
         if (userId == null) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "查看听力原文需要 userId");
+            throw new BusinessException(BizCode.PARAM_INVALID, "查看听力原文需要 userId");
         }
         ensureAnswered(userId, questionId);
         if (audio != null) {
@@ -126,7 +125,7 @@ public class ListeningServiceImpl implements ListeningService {
     public SubmitResponse submitListeningAnswer(SubmitRequest request) {
         QuestionVO question = exerciseService.getQuestionById(request.getQuestionId(), false);
         if (question == null || !Integer.valueOf(ModuleType.LISTENING.getCode()).equals(question.getModuleType())) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "题目不属于听力模块");
+            throw new BusinessException(BizCode.MODULE_MISMATCH, "题目不属于听力模块");
         }
 
         request.setModuleType(ModuleType.LISTENING.getCode());
@@ -164,7 +163,7 @@ public class ListeningServiceImpl implements ListeningService {
         }
         ListeningType type = ListeningType.of(listeningType);
         if (type == null) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "非法听力题型");
+            throw new BusinessException(BizCode.QUESTION_TYPE_INVALID, "非法听力题型");
         }
         return type.name();
     }

@@ -2,6 +2,7 @@ package com.english.ai.user.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.english.ai.common.BusinessException;
+import com.english.ai.common.BizCode;
 import com.english.ai.common.ErrorCode;
 import com.english.ai.user.dto.VerificationCodeSendResult;
 import com.english.ai.user.entity.SmsVerificationCode;
@@ -179,7 +180,7 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
 
     private void rejectProd() {
         if (environment.acceptsProfiles(Profiles.of("prod"))) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "模拟验证码仅本地开发可用");
+            throw new BusinessException(BizCode.MOCK_CODE_LOCAL_ONLY, "模拟验证码仅本地开发可用");
         }
     }
 

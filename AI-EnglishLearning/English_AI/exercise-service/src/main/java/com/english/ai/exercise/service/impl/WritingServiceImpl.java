@@ -2,7 +2,7 @@ package com.english.ai.exercise.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.english.ai.common.BusinessException;
-import com.english.ai.common.ErrorCode;
+import com.english.ai.common.BizCode;
 import com.english.ai.exercise.dto.WritingScoreDTO;
 import com.english.ai.exercise.dto.WritingSubmitRequest;
 import com.english.ai.exercise.dto.WritingSubmitResponse;
@@ -84,7 +84,7 @@ public class WritingServiceImpl implements WritingService {
     public WritingSubmitResponse rescore(Long userId, Long essayId) {
         WritingEssay essay = writingEssayMapper.selectById(essayId);
         if (essay == null || !essay.getUserId().equals(userId)) {
-            throw new BusinessException(ErrorCode.NOT_FOUND, "作文不存在");
+            throw new BusinessException(BizCode.ESSAY_NOT_FOUND, "作文不存在");
         }
         WritingScoreDTO score = tryScore(essay);
         if (score == null) {
@@ -116,7 +116,7 @@ public class WritingServiceImpl implements WritingService {
     public WritingSubmitResponse getSubmission(Long userId, Long essayId) {
         WritingEssay essay = writingEssayMapper.selectById(essayId);
         if (essay == null || !essay.getUserId().equals(userId)) {
-            throw new BusinessException(ErrorCode.NOT_FOUND, "作文不存在");
+            throw new BusinessException(BizCode.ESSAY_NOT_FOUND, "作文不存在");
         }
         return toResponse(essay, essay.getAiScored() != null && essay.getAiScored() == 1);
     }

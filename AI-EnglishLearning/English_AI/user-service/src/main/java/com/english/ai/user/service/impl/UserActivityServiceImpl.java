@@ -2,7 +2,7 @@ package com.english.ai.user.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.english.ai.common.BusinessException;
-import com.english.ai.common.ErrorCode;
+import com.english.ai.common.BizCode;
 import com.english.ai.common.PageResult;
 import com.english.ai.user.dto.admin.UserActivityVO;
 import com.english.ai.user.entity.SysActivity;
@@ -45,7 +45,7 @@ public class UserActivityServiceImpl implements UserActivityService {
         SysUser user = requireUser(userId);
         SysActivity activity = activityMapper.selectById(id);
         if (activity == null || !isVisible(activity, user)) {
-            throw new BusinessException(ErrorCode.NOT_FOUND, "活动不存在或不可见");
+            throw new BusinessException(BizCode.RESOURCE_NOT_FOUND, "活动不存在或不可见");
         }
         return toVO(activity);
     }
@@ -83,7 +83,7 @@ public class UserActivityServiceImpl implements UserActivityService {
     private SysUser requireUser(Long userId) {
         SysUser user = userMapper.selectById(userId);
         if (user == null) {
-            throw new BusinessException(ErrorCode.NOT_FOUND, "用户不存在");
+            throw new BusinessException(BizCode.USER_NOT_FOUND, "用户不存在");
         }
         return user;
     }

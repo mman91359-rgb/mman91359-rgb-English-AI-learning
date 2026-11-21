@@ -50,7 +50,7 @@ public enum BizCode {
     ACCOUNT_DISABLED(12, ErrorCode.FORBIDDEN, "账号已被禁用"),
     PASSWORD_TOO_WEAK(13, ErrorCode.BAD_REQUEST, "新密码至少10位，且需包含小写字母和数字"),
     PHONE_NOT_BOUND(14, ErrorCode.BAD_REQUEST, "手机号未绑定账号"),
-    PHONE_MULTI_ACCOUNT(15, ErrorCode.BAD_REQUEST, "该手机号关联多个账号，请联系管理员"),
+    PHONE_MULTI_ACCOUNT(15, ErrorCode.CONFLICT, "该手机号关联多个账号，请联系管理员"),
     VERIFY_CODE_INVALID(16, ErrorCode.BAD_REQUEST, "验证码错误"),
     MOCK_CODE_LOCAL_ONLY(17, ErrorCode.BAD_REQUEST, "模拟验证码仅本地开发可用"),
 

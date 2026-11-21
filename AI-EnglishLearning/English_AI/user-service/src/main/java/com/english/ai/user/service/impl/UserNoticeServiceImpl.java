@@ -2,7 +2,7 @@ package com.english.ai.user.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.english.ai.common.BusinessException;
-import com.english.ai.common.ErrorCode;
+import com.english.ai.common.BizCode;
 import com.english.ai.common.PageResult;
 import com.english.ai.user.dto.admin.UserNoticeVO;
 import com.english.ai.user.entity.SysNotice;
@@ -65,7 +65,7 @@ public class UserNoticeServiceImpl implements UserNoticeService {
         SysUser user = requireUser(userId);
         SysNotice notice = noticeMapper.selectById(noticeId);
         if (notice == null || !isVisible(notice, user)) {
-            throw new BusinessException(ErrorCode.NOT_FOUND, "通知不存在或不可见");
+            throw new BusinessException(BizCode.RESOURCE_NOT_FOUND, "通知不存在或不可见");
         }
         Long exists = readMapper.selectCount(new LambdaQueryWrapper<UserNoticeRead>()
                 .eq(UserNoticeRead::getNoticeId, noticeId)
@@ -151,7 +151,7 @@ public class UserNoticeServiceImpl implements UserNoticeService {
     private SysUser requireUser(Long userId) {
         SysUser user = userMapper.selectById(userId);
         if (user == null) {
-            throw new BusinessException(ErrorCode.NOT_FOUND, "用户不存在");
+            throw new BusinessException(BizCode.USER_NOT_FOUND, "用户不存在");
         }
         return user;
     }

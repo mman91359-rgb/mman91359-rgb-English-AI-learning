@@ -3,7 +3,7 @@ package com.english.ai.exercise.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.english.ai.common.BusinessException;
-import com.english.ai.common.ErrorCode;
+import com.english.ai.common.BizCode;
 import com.english.ai.common.JudgmentLevel;
 import com.english.ai.common.ModuleType;
 import com.english.ai.common.Result;
@@ -313,7 +313,7 @@ public class ExerciseServiceImpl implements ExerciseService {
         WordBook book = wordBookMapper.selectOne(
                 new LambdaQueryWrapper<WordBook>().eq(WordBook::getCode, bookCode));
         if (book == null) {
-            throw new BusinessException(ErrorCode.NOT_FOUND, "词书不存在");
+            throw new BusinessException(BizCode.WORD_BOOK_NOT_FOUND, "词书不存在");
         }
 
         Long total = wordBookItemMapper.selectCount(
@@ -556,7 +556,7 @@ public class ExerciseServiceImpl implements ExerciseService {
         WordBook book = wordBookMapper.selectOne(
                 new LambdaQueryWrapper<WordBook>().eq(WordBook::getCode, bookCode));
         if (book == null) {
-            throw new BusinessException(ErrorCode.NOT_FOUND, "词书不存在");
+            throw new BusinessException(BizCode.WORD_BOOK_NOT_FOUND, "词书不存在");
         }
     }
 
@@ -825,7 +825,7 @@ public class ExerciseServiceImpl implements ExerciseService {
         // 以数据库题目为准，避免客户端伪造 moduleType 污染日志/ELO/雷达维度
         int moduleType = info.getModuleType();
         if (request.getModuleType() != null && !request.getModuleType().equals(moduleType)) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "模块类型与题目不一致");
+            throw new BusinessException(BizCode.MODULE_MISMATCH, "模块类型与题目不一致");
         }
 
         String traceId = UUID.randomUUID().toString().substring(0, 8);

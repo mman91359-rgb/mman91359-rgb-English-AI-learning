@@ -85,14 +85,6 @@
                 <AppIcon name="help" size="lg" />
               </span>
             </div>
-            <!-- 右上：全新徽章 -->
-            <div class="absolute top-6 right-6">
-              <span class="bg-error text-on-error font-label-md text-label-md px-3 py-1 rounded-full relative shadow-sm">
-                {{ $t('learning.brandNew') }}
-                <span class="absolute -bottom-1 right-3 w-2 h-2 bg-error transform rotate-45"></span>
-              </span>
-            </div>
-
             <div class="mt-8 space-y-12">
               <!-- 中文题干（来自 analysis 字段，括号高亮；分段插值，杜绝 v-html 注入） -->
               <div
@@ -143,11 +135,6 @@
                     ><AppIcon name="error" size="lg" tone="error" /></span>
                   </div>
                 </template>
-              </div>
-
-              <!-- 来源标签 -->
-              <div class="text-center font-label-md text-label-md text-outline-variant pt-4">
-                {{ $t('learning.questionSource') }}
               </div>
 
               <!-- 答题反馈 -->

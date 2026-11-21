@@ -73,16 +73,11 @@
 
             <div class="p-8 z-10 flex flex-col flex-grow relative">
               <!-- 卡片头部：徽章 -->
-              <div class="flex justify-between items-center mb-8">
-                <!-- 左上：难度等级徽章 -->
+              <div class="flex items-center mb-8">
+                <!-- 难度等级徽章 -->
                 <div class="bg-info-container/80 text-on-info-container px-3.5 py-1.5 rounded-full flex items-center gap-1.5 text-sm font-medium">
                   {{ $t('learning.difficultyLevelGrammar', { level: currentDifficulty }) }}
                   <AppIcon name="help" size="lg" />
-                </div>
-                <!-- 右上：New 红色徽章 -->
-                <div class="bg-error text-on-error px-3.5 py-1.5 rounded-full text-sm font-medium shadow-sm flex items-center relative">
-                  {{ $t('learning.brandNew') }}
-                  <div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-t-[6px] border-t-error border-r-[6px] border-r-transparent"></div>
                 </div>
               </div>
 

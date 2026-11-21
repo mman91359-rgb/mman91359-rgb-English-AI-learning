@@ -10,9 +10,6 @@
       <span v-if="topic.source" class="font-label-md text-label-md text-on-surface-variant">
         {{ $t('writing.practice.source') }}：{{ topic.source }}
       </span>
-      <span class="rounded-full bg-primary-container/30 px-3 py-1 font-label-md text-label-md text-primary">
-        {{ $t('writing.practice.new') }}
-      </span>
     </div>
 
     <div class="rounded-3xl bg-surface-container p-4 shadow-soft-glow md:p-6">

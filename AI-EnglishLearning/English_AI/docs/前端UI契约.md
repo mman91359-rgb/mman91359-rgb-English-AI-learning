@@ -549,7 +549,12 @@ git grep -n "material-symbols-outlined" HEAD -- "src/views/*.vue" | wc -l
 > `ca365a1..c4ef7d3` 之间的用户并行提交（`176f81c` / `67e4a94` / `b3da9e9` / `1f48795` /
 > `2a50d43` / `116a578` 数值未变；`c4ef7d3` 的「已学词库页 + 标熟机制」把 L1a 31→28、
 > L1b 127→124、L5 107→103，属规则 ①）。
-> 当前八条：L1a 17 / L1b 124 / L2 0 / L3 0 / L4 0 / L5 6 / L6 10 / L8 8。
+> 当前八条：L1a 17 / L1b 121 / L2 0 / L3 0 / L4 0 / L5 6 / L6 10 / L8 8。
+>
+> **2026-11-21 复核（假数据清理）**：删除 `GrammarQuizView` / `VocabQuizView`(2) /
+> `ListeningQuizView` / `WritingAnswerSheet` 共 5 处静态「全新 / 词汇来源」节点；其中仅
+> `GrammarQuizView` 徽章含任意值 `border-l-[6px]` / `border-t-[6px]` / `border-r-[6px]`，
+> L1b 124→121，其余七条不变。
 >
 > **第九条 L9（按钮规则，独立脚本，不计入上列八条 git grep 口径）**：`node scripts/check-btn-rules.mjs`，
 > 基线 **72**（手写图标 12 / `bg-primary`+非圆底 8 / 非 `rounded-full` 底座 52；2026-11-21 `AdminUsersView` 4 处收口后实测），

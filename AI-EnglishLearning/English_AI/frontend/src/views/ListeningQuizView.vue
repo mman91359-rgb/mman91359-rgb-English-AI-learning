@@ -92,7 +92,6 @@
                   {{ typeLabel(currentQuestion.listeningType) }}
                 </span>
               </div>
-              <span class="bg-error text-on-error font-label-md text-label-md px-3 py-1 rounded-full shadow-sm">{{ $t('listening.newBadge') }}</span>
             </div>
 
             <StepIndicator :current="stepCurrent" />

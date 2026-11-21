@@ -59,7 +59,6 @@ const extra = {
     restore: 'Restore draft',
     discard: 'Discard draft',
     questionIndex: 'Question {index}',
-    new: 'New',
     source: 'Source',
     outline: 'Outline / hints',
     usefulExpressions: 'Useful expressions',

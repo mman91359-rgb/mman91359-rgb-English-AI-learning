@@ -59,7 +59,6 @@ const extra = {
     restore: '恢复草稿',
     discard: '放弃草稿',
     questionIndex: '第 {index} 题',
-    new: '全新',
     source: '来源',
     outline: '提纲 / 提示',
     usefulExpressions: '可用的高级表达',

@@ -53,6 +53,7 @@ public enum BizCode {
     PHONE_MULTI_ACCOUNT(15, ErrorCode.CONFLICT, "该手机号关联多个账号，请联系管理员"),
     VERIFY_CODE_INVALID(16, ErrorCode.BAD_REQUEST, "验证码错误"),
     MOCK_CODE_LOCAL_ONLY(17, ErrorCode.BAD_REQUEST, "模拟验证码仅本地开发可用"),
+    NOTIFICATION_NOT_FOUND(18, ErrorCode.NOT_FOUND, "通知不存在"),
 
     // ===== admin 域 021-029 =====
 
@@ -71,7 +72,9 @@ public enum BizCode {
     ANSWER_REQUIRED_FIRST(34, ErrorCode.BAD_REQUEST, "请先作答后再查看原文"),
     REVIEW_STATE_CONFLICT(35, ErrorCode.CONFLICT, "该题已被其他管理员审核"),
     WORD_BOOK_NOT_FOUND(36, ErrorCode.NOT_FOUND, "词书不存在"),
-    ESSAY_NOT_FOUND(37, ErrorCode.NOT_FOUND, "作文不存在");
+    ESSAY_NOT_FOUND(37, ErrorCode.NOT_FOUND, "作文不存在"),
+    TOPIC_NOT_FOUND(38, ErrorCode.NOT_FOUND, "写作题目不存在"),
+    DRAFT_SAVE_FAILED(39, ErrorCode.INTERNAL_ERROR, "草稿保存失败");
 
     private final int code;
     private final ErrorCode errorCode;

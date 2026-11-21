@@ -64,32 +64,36 @@
             </div>
 
             <form class="space-y-5" novalidate @submit.prevent="handleRegister">
-              <div class="relative group">
-                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <span class="text-secondary group-focus-within:text-primary transition-colors"><AppIcon name="badge" size="lg" /></span>
+              <div>
+                <div class="relative group">
+                  <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <span class="text-secondary group-focus-within:text-primary transition-colors"><AppIcon name="badge" size="lg" /></span>
+                  </div>
+                  <input
+                    v-model="form.nickname"
+                    :class="[inputClassLg, 'pl-12 pr-4', validationErrors.nickname && inputErrorClass]"
+                    :placeholder="$t('auth.nicknamePlaceholder')"
+                    type="text"
+                    @input="validationErrors.nickname = ''"
+                  />
                 </div>
-                <input
-                  v-model="form.nickname"
-                  :class="[inputClassLg, 'pl-12 pr-4', validationErrors.nickname && inputErrorClass]"
-                  :placeholder="$t('auth.nicknamePlaceholder')"
-                  type="text"
-                  @input="validationErrors.nickname = ''"
-                />
                 <FormHint v-if="validationErrors.nickname" :message="validationErrors.nickname" />
               </div>
 
-              <div class="relative group">
-                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <span class="text-secondary group-focus-within:text-primary transition-colors"><AppIcon name="alternate_email" size="lg" /></span>
+              <div>
+                <div class="relative group">
+                  <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <span class="text-secondary group-focus-within:text-primary transition-colors"><AppIcon name="alternate_email" size="lg" /></span>
+                  </div>
+                  <input
+                    v-model="form.account"
+                    :class="[inputClassLg, 'pl-12 pr-4', validationErrors.account && inputErrorClass]"
+                    :placeholder="$t('auth.accountPlaceholderRegister')"
+                    type="text"
+                    autocomplete="off"
+                    @input="validationErrors.account = ''"
+                  />
                 </div>
-                <input
-                  v-model="form.account"
-                  :class="[inputClassLg, 'pl-12 pr-4', validationErrors.account && inputErrorClass]"
-                  :placeholder="$t('auth.accountPlaceholderRegister')"
-                  type="text"
-                  autocomplete="off"
-                  @input="validationErrors.account = ''"
-                />
                 <FormHint v-if="validationErrors.account" :message="validationErrors.account" />
               </div>
 
@@ -121,66 +125,72 @@
                 <FormHint v-if="validationErrors.code" :message="validationErrors.code" />
               </div>
 
-              <div class="relative group">
-                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <span class="text-secondary group-focus-within:text-primary transition-colors"><AppIcon name="lock" size="lg" /></span>
+              <div>
+                <div class="relative group">
+                  <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <span class="text-secondary group-focus-within:text-primary transition-colors"><AppIcon name="lock" size="lg" /></span>
+                  </div>
+                  <input
+                    v-model="form.password"
+                    :type="showPassword ? 'text' : 'password'"
+                    :class="[inputClassLg, 'pl-12 pr-12', validationErrors.password && inputErrorClass]"
+                    :placeholder="$t('auth.password')"
+                    required
+                    @input="validationErrors.password = ''"
+                  />
+                  <button
+                    class="absolute inset-y-0 right-0 pr-4 flex items-center text-secondary hover:text-on-surface transition-colors"
+                    type="button"
+                    @click="togglePassword"
+                  >
+                    <Transition name="icon-fade" mode="out-in">
+                      <span :key="showPassword ? 'visible' : 'hidden'"><AppIcon :name="showPassword ? 'visibility' : 'visibility_off'" size="lg" /></span>
+                    </Transition>
+                  </button>
                 </div>
-                <input
-                  v-model="form.password"
-                  :type="showPassword ? 'text' : 'password'"
-                  :class="[inputClassLg, 'pl-12 pr-12', validationErrors.password && inputErrorClass]"
-                  :placeholder="$t('auth.password')"
-                  required
-                  @input="validationErrors.password = ''"
-                />
-                <button
-                  class="absolute inset-y-0 right-0 pr-4 flex items-center text-secondary hover:text-on-surface transition-colors"
-                  type="button"
-                  @click="togglePassword"
-                >
-                  <Transition name="icon-fade" mode="out-in">
-                    <span :key="showPassword ? 'visible' : 'hidden'"><AppIcon :name="showPassword ? 'visibility' : 'visibility_off'" size="lg" /></span>
-                  </Transition>
-                </button>
                 <FormHint v-if="validationErrors.password" :message="validationErrors.password" />
               </div>
 
-              <div class="relative group">
-                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <span class="text-secondary group-focus-within:text-primary transition-colors"><AppIcon name="lock_reset" size="lg" /></span>
+              <div>
+                <div class="relative group">
+                  <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <span class="text-secondary group-focus-within:text-primary transition-colors"><AppIcon name="lock_reset" size="lg" /></span>
+                  </div>
+                  <input
+                    v-model="form.confirmPassword"
+                    :type="showConfirmPassword ? 'text' : 'password'"
+                    :class="[inputClassLg, 'pl-12 pr-12', validationErrors.confirmPassword && inputErrorClass]"
+                    :placeholder="$t('auth.confirmPassword')"
+                    required
+                    @input="validationErrors.confirmPassword = ''"
+                  />
+                  <button
+                    class="absolute inset-y-0 right-0 pr-4 flex items-center text-secondary hover:text-on-surface transition-colors"
+                    type="button"
+                    @click="toggleConfirmPassword"
+                  >
+                    <AppIcon :name="showConfirmPassword ? 'visibility' : 'visibility_off'" size="lg" />
+                  </button>
                 </div>
-                <input
-                  v-model="form.confirmPassword"
-                  :type="showConfirmPassword ? 'text' : 'password'"
-                  :class="[inputClassLg, 'pl-12 pr-12', validationErrors.confirmPassword && inputErrorClass]"
-                  :placeholder="$t('auth.confirmPassword')"
-                  required
-                  @input="validationErrors.confirmPassword = ''"
-                />
-                <button
-                  class="absolute inset-y-0 right-0 pr-4 flex items-center text-secondary hover:text-on-surface transition-colors"
-                  type="button"
-                  @click="toggleConfirmPassword"
-                >
-                  <AppIcon :name="showConfirmPassword ? 'visibility' : 'visibility_off'" size="lg" />
-                </button>
                 <FormHint v-if="validationErrors.confirmPassword" :message="validationErrors.confirmPassword" />
               </div>
 
-              <div class="relative group">
-                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <span class="text-secondary group-focus-within:text-primary transition-colors"><AppIcon name="school" size="lg" /></span>
+              <div>
+                <div class="relative group">
+                  <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <span class="text-secondary group-focus-within:text-primary transition-colors"><AppIcon name="school" size="lg" /></span>
+                  </div>
+                  <select
+                    v-model="form.cetLevel"
+                    :class="[inputClassLg, 'pl-12 pr-4 appearance-none cursor-pointer', validationErrors.cetLevel && inputErrorClass]"
+                    required
+                    @change="validationErrors.cetLevel = ''"
+                  >
+                    <option value="" disabled>{{ $t('auth.cefLevel') }}</option>
+                    <option value="CET4">{{ $t('auth.cet4') }}</option>
+                    <option value="CET6">{{ $t('auth.cet6') }}</option>
+                  </select>
                 </div>
-                <select
-                  v-model="form.cetLevel"
-                  :class="[inputClassLg, 'pl-12 pr-4 appearance-none cursor-pointer', validationErrors.cetLevel && inputErrorClass]"
-                  required
-                  @change="validationErrors.cetLevel = ''"
-                >
-                  <option value="" disabled>{{ $t('auth.cefLevel') }}</option>
-                  <option value="CET4">{{ $t('auth.cet4') }}</option>
-                  <option value="CET6">{{ $t('auth.cet6') }}</option>
-                </select>
                 <FormHint v-if="validationErrors.cetLevel" :message="validationErrors.cetLevel" />
               </div>
 

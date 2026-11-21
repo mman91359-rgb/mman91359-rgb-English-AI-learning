@@ -41,9 +41,7 @@ public class PracticeSettleController {
         if (userId == null || batchKey == null || batchKey.isBlank()) {
             return Result.badRequest("userId和batchKey不能为空");
         }
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         try {
             return Result.success(practiceSettleService.settle(userId, batchKey));
         } catch (IllegalArgumentException e) {

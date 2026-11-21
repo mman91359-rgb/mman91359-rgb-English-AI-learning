@@ -128,9 +128,7 @@ public class UserController {
     @GetMapping("/info/{userId}")
     public Result<SysUser> info(@PathVariable Long userId,
                                 @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         SysUser user = userService.getById(userId);
         if (user == null) {
             return Result.error(404, "用户不存在");
@@ -163,9 +161,7 @@ public class UserController {
             @RequestParam("file") MultipartFile file,
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
 
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         // 校验文件
         if (file == null || file.isEmpty()) {
             return Result.badRequest("请选择头像文件");
@@ -227,9 +223,7 @@ public class UserController {
         if (userIdObj == null) {
             return Result.badRequest("userId不能为空");
         }
-        if (UserIdentityUtil.isForbidden(headerUserId, Long.valueOf(String.valueOf(userIdObj)))) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, Long.valueOf(String.valueOf(userIdObj)));
         if (nicknameObj == null || String.valueOf(nicknameObj).isBlank()) {
             return Result.badRequest("昵称不能为空");
         }
@@ -266,9 +260,7 @@ public class UserController {
         if (userIdObj == null) {
             return Result.badRequest("userId不能为空");
         }
-        if (UserIdentityUtil.isForbidden(headerUserId, Long.valueOf(String.valueOf(userIdObj)))) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, Long.valueOf(String.valueOf(userIdObj)));
         if (oldPwdObj == null || String.valueOf(oldPwdObj).isBlank()) {
             return Result.badRequest("原密码不能为空");
         }
@@ -332,9 +324,7 @@ public class UserController {
         if (userIdObj == null) {
             return Result.badRequest("userId不能为空");
         }
-        if (UserIdentityUtil.isForbidden(headerUserId, Long.valueOf(String.valueOf(userIdObj)))) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, Long.valueOf(String.valueOf(userIdObj)));
         if (phoneObj == null || String.valueOf(phoneObj).isBlank()) {
             return Result.badRequest("手机号不能为空");
         }
@@ -363,9 +353,7 @@ public class UserController {
     @GetMapping("/radar/{userId}")
     public Result<Map<String, Object>> radar(@PathVariable Long userId,
                                              @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         Map<String, Object> data = radarService.getRadarData(userId);
         return Result.success(data);
     }

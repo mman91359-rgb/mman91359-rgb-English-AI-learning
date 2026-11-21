@@ -38,9 +38,7 @@ public class StudySessionController {
         if (request == null || request.getUserId() == null) {
             return Result.badRequest("userId不能为空");
         }
-        if (UserIdentityUtil.isForbidden(headerUserId, request.getUserId())) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, request.getUserId());
         try {
             return Result.success(studySessionService.report(request));
         } catch (IllegalArgumentException e) {

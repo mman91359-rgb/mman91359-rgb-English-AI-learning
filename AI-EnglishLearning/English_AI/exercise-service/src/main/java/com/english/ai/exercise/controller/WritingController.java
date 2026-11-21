@@ -43,9 +43,7 @@ public class WritingController {
         if (request.getUserId() == null) {
             return Result.badRequest("userId不能为空");
         }
-        if (UserIdentityUtil.isForbidden(headerUserId, request.getUserId())) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, request.getUserId());
         WritingSubmitResponse resp = writingService.submit(request);
         log.info("写作提交: userId={}, essayId={}, aiScored={}", request.getUserId(), resp.getEssayId(), resp.getAiScored());
         return Result.success(resp);
@@ -63,9 +61,7 @@ public class WritingController {
         if (userId == null || essayId == null) {
             return Result.badRequest("userId和essayId不能为空");
         }
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         return Result.success(writingService.rescore(userId, essayId));
     }
 
@@ -76,9 +72,7 @@ public class WritingController {
     @GetMapping("/submissions")
     public Result<List<WritingSubmitResponse>> submissions(@RequestParam Long userId,
                                                            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         return Result.success(writingService.listSubmissions(userId));
     }
 
@@ -90,9 +84,7 @@ public class WritingController {
     public Result<WritingSubmitResponse> submission(@PathVariable Long id,
                                                     @RequestParam Long userId,
                                                     @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         return Result.success(writingService.getSubmission(userId, id));
     }
 }

@@ -42,9 +42,7 @@ public class ExerciseController {
             @RequestParam(defaultValue = "1") Integer moduleType,
             @RequestParam(defaultValue = "10") Integer count,
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         if (count > 50) count = 50;
         List<QuestionVO> questions = exerciseService.selectQuestions(userId, moduleType, count);
         log.info("智能选题: userId={}, moduleType={}, count={}, 实际返回{}题", userId, moduleType, count, questions.size());
@@ -100,9 +98,7 @@ public class ExerciseController {
         if (request.getUserId() == null || request.getQuestionId() == null) {
             return Result.badRequest("userId和questionId不能为空");
         }
-        if (UserIdentityUtil.isForbidden(headerUserId, request.getUserId())) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, request.getUserId());
         try {
             SubmitResponse response = exerciseService.submitAnswer(request);
             return Result.success(response);
@@ -119,9 +115,7 @@ public class ExerciseController {
     @GetMapping("/error-book/{userId}")
     public Result<List<QuestionVO>> errorBook(@PathVariable Long userId,
                                               @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         List<QuestionVO> errors = exerciseService.getErrorBook(userId);
         return Result.success(errors);
     }
@@ -154,9 +148,7 @@ public class ExerciseController {
     @GetMapping("/stats/{userId}")
     public Result<UserExerciseStats> getUserStats(@PathVariable Long userId,
                                                   @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         UserExerciseStats stats = exerciseService.getUserStats(userId);
         log.info("用户答题统计: userId={}, 总答题={}, 正确={}, 活跃天数={}",
                 userId, stats.getTotalAnswered(), stats.getCorrectCount(), stats.getActiveDays());
@@ -173,9 +165,7 @@ public class ExerciseController {
         if (request.getUserId() == null || request.getSentenceText() == null || request.getSentenceText().isBlank()) {
             return Result.badRequest("userId和sentenceText不能为空");
         }
-        if (UserIdentityUtil.isForbidden(headerUserId, request.getUserId())) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, request.getUserId());
         FavoriteVO vo = exerciseService.addFavorite(request.getUserId(), request.getSentenceText(), request.getQuestionId());
         return Result.success(vo);
     }
@@ -184,9 +174,7 @@ public class ExerciseController {
     @GetMapping("/favorites/{userId}")
     public Result<List<FavoriteVO>> getFavorites(@PathVariable Long userId,
                                                  @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         return Result.success(exerciseService.getFavorites(userId));
     }
 
@@ -196,9 +184,7 @@ public class ExerciseController {
             @PathVariable Long id,
             @RequestParam Long userId,
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         exerciseService.removeFavorite(id, userId);
         return Result.success("已删除");
     }
@@ -217,9 +203,7 @@ public class ExerciseController {
             @PathVariable String bookCode,
             @RequestParam Long userId,
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         try {
             return Result.success(exerciseService.getWordBookStats(userId, bookCode));
         } catch (BusinessException e) {
@@ -245,9 +229,7 @@ public class ExerciseController {
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String status,
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         try {
             List<WordBookWordVO> records = exerciseService.getWordBookWords(
                     userId, bookCode, page, size, keyword, status);
@@ -277,9 +259,7 @@ public class ExerciseController {
         if (request.getUserId() == null || request.getWord() == null || request.getWord().isBlank()) {
             return Result.badRequest("userId和word不能为空");
         }
-        if (UserIdentityUtil.isForbidden(headerUserId, request.getUserId())) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, request.getUserId());
         try {
             return Result.success(exerciseService.addWordFavorite(request.getUserId(), request.getWord()));
         } catch (RuntimeException e) {
@@ -293,9 +273,7 @@ public class ExerciseController {
             @RequestParam Long userId,
             @RequestParam String word,
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         exerciseService.removeWordFavorite(userId, word);
         return Result.success("已取消收藏");
     }
@@ -305,9 +283,7 @@ public class ExerciseController {
     public Result<List<UserWordFavoriteVO>> getWordFavorites(
             @PathVariable Long userId,
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         return Result.success(exerciseService.getWordFavorites(userId));
     }
 
@@ -321,9 +297,7 @@ public class ExerciseController {
         if (request.getUserId() == null || request.getWord() == null || request.getWord().isBlank()) {
             return Result.badRequest("userId和word不能为空");
         }
-        if (UserIdentityUtil.isForbidden(headerUserId, request.getUserId())) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, request.getUserId());
         VocabularyVO vo = exerciseService.addVocabulary(
                 request.getUserId(), request.getWord(), request.getTranslation(), request.getSource());
         return Result.success(vo);
@@ -341,9 +315,7 @@ public class ExerciseController {
         if (request.getUserId() == null || request.getWord() == null || request.getWord().isBlank()) {
             return Result.badRequest("userId和word不能为空");
         }
-        if (UserIdentityUtil.isForbidden(headerUserId, request.getUserId())) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, request.getUserId());
         try {
             VocabularyVO vo = exerciseService.addVocabularySmart(
                     request.getUserId(), request.getWord(), request.getSource());
@@ -362,9 +334,7 @@ public class ExerciseController {
                                                      @RequestParam(required = false) String bookCode,
                                                      @RequestParam(required = false) String status,
                                                      @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         List<VocabularyVO> list = exerciseService.getVocabulary(userId, page, size, bookCode, status);
         long total = exerciseService.getVocabularyCount(userId, bookCode, status);
         Map<String, Object> result = new java.util.HashMap<>();
@@ -384,9 +354,7 @@ public class ExerciseController {
             @RequestParam Long userId,
             @RequestParam(defaultValue = "10") Integer count,
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         int safeCount = Math.max(1, Math.min(50, count));
         List<QuestionVO> questions = exerciseService.selectNewVocabularyQuestions(userId, safeCount);
         log.info("新词选题: userId={}, 需求{}题, 返回{}题", userId, safeCount, questions.size());
@@ -402,9 +370,7 @@ public class ExerciseController {
             @RequestParam Long userId,
             @RequestParam(defaultValue = "10") Integer count,
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         int safeCount = Math.max(1, Math.min(50, count));
         List<NewWordItemVO> items = exerciseService.selectNewWordItems(userId, safeCount);
         log.info("新词条目: userId={}, 需求{}条, 返回{}条", userId, safeCount, items.size());
@@ -424,9 +390,7 @@ public class ExerciseController {
             @PathVariable Long id,
             @RequestParam Long userId,
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         try {
             return Result.success(exerciseService.ignoreWord(id, userId));
         } catch (RuntimeException e) {
@@ -448,9 +412,7 @@ public class ExerciseController {
             @RequestParam Long userId,
             @RequestParam(required = false) String status,
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         try {
             return Result.success(learnedVocabularyService.getDateGroups(userId, status));
         } catch (RuntimeException e) {
@@ -473,9 +435,7 @@ public class ExerciseController {
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "50") Integer size,
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         try {
             int safePage = page == null || page < 1 ? 1 : page;
             int safeSize = size == null ? 50 : Math.max(1, Math.min(200, size));
@@ -499,9 +459,7 @@ public class ExerciseController {
             @RequestParam Long userId,
             @RequestParam(defaultValue = "true") Boolean familiar,
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         try {
             UserVocabulary v = learnedVocabularyService.markFamiliar(id, userId, familiar);
             Map<String, Object> result = new java.util.LinkedHashMap<>();
@@ -527,9 +485,7 @@ public class ExerciseController {
             @RequestParam Long userId,
             @RequestParam String ids,
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         try {
             List<Long> idList = Arrays.stream(ids.split(","))
                     .map(String::trim)
@@ -551,9 +507,7 @@ public class ExerciseController {
     public Result<VocabularySummaryVO> getVocabularySummary(
             @RequestParam Long userId,
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         try {
             return Result.success(learnedVocabularyService.getSummary(userId));
         } catch (RuntimeException e) {
@@ -567,9 +521,7 @@ public class ExerciseController {
             @PathVariable Long id,
             @RequestParam Long userId,
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         exerciseService.removeVocabulary(id, userId);
         return Result.success("已删除");
     }
@@ -580,9 +532,7 @@ public class ExerciseController {
             @PathVariable Long id,
             @RequestParam Long userId,
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         VocabularyVO vo = exerciseService.toggleMastered(id, userId);
         return Result.success(vo);
     }
@@ -594,9 +544,7 @@ public class ExerciseController {
     @GetMapping("/vocabulary/review/{userId}")
     public Result<List<VocabularyVO>> getReviewList(@PathVariable Long userId,
                                                     @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         List<VocabularyVO> list = exerciseService.getReviewList(userId);
         log.info("今日待复习: userId={}, 数量={}", userId, list.size());
         return Result.success(list);
@@ -614,9 +562,7 @@ public class ExerciseController {
         if (request.getUserId() == null || request.getIsCorrect() == null) {
             return Result.badRequest("userId和isCorrect不能为空");
         }
-        if (UserIdentityUtil.isForbidden(headerUserId, request.getUserId())) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, request.getUserId());
         try {
             VocabularyVO vo = exerciseService.reviewWord(id, request.getUserId(), request.getIsCorrect());
             return Result.success(vo);
@@ -638,9 +584,7 @@ public class ExerciseController {
         if (request.getUserId() == null || (request.getQuestionId() == null && noWord)) {
             return Result.badRequest("userId必填，questionId 与 word 至少传一个");
         }
-        if (UserIdentityUtil.isForbidden(headerUserId, request.getUserId())) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, request.getUserId());
         try {
             return Result.success(exerciseService.recordWordAttempt(
                     request.getUserId(), request.getQuestionId(), request.getWord(), request.getIsCorrect()));
@@ -662,9 +606,7 @@ public class ExerciseController {
             @RequestParam(required = false) String startTime,
             @RequestParam(required = false) String endTime,
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         List<WritingHistoryVO> list = exerciseService.getWritingHistory(userId, page, size, startTime, endTime);
         long total = exerciseService.getWritingHistoryCount(userId, startTime, endTime);
         Map<String, Object> result = new java.util.HashMap<>();
@@ -687,9 +629,7 @@ public class ExerciseController {
             @RequestParam(required = false) String startTime,
             @RequestParam(required = false) String endTime,
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         List<TimelineItemVO> list = exerciseService.getTimeline(userId, page, size, startTime, endTime);
         long total = exerciseService.getTimelineCount(userId, startTime, endTime);
         Map<String, Object> result = new java.util.HashMap<>();
@@ -713,9 +653,7 @@ public class ExerciseController {
             @RequestParam(required = false) String startTime,
             @RequestParam(required = false) String endTime,
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         List<ExerciseHistoryVO> list = exerciseService.getExerciseHistory(userId, page, size, moduleType, isCorrect, startTime, endTime);
         long total = exerciseService.getExerciseHistoryCount(userId, moduleType, isCorrect, startTime, endTime);
         Map<String, Object> result = new java.util.HashMap<>();
@@ -740,9 +678,7 @@ public class ExerciseController {
             @RequestParam(required = false) String startTime,
             @RequestParam(required = false) String endTime,
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         List<UserWordLearnLogVO> list = exerciseService.getWordLearnHistory(userId, page, size, eventType, bookCode, startTime, endTime);
         long total = exerciseService.getWordLearnHistoryCount(userId, eventType, bookCode, startTime, endTime);
         Map<String, Object> result = new java.util.HashMap<>();
@@ -765,9 +701,7 @@ public class ExerciseController {
             @PathVariable Long logId,
             @RequestParam Long userId,
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         ExerciseHistoryVO detail = exerciseService.getExerciseLogDetail(logId, userId);
         if (detail == null) {
             return Result.error("答题记录不存在");
@@ -784,9 +718,7 @@ public class ExerciseController {
     @GetMapping("/weak-points/{userId}")
     public Result<List<WeakKnowledgePoint>> getWeakPoints(@PathVariable Long userId,
                                                           @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         log.info("获取薄弱知识点: userId={}", userId);
         List<WeakKnowledgePoint> points = exerciseService.getWeakKnowledgePoints(userId);
         return Result.success(points);
@@ -814,9 +746,7 @@ public class ExerciseController {
         if (userId == null || questionId == null) {
             return Result.badRequest("userId和questionId不能为空");
         }
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         if (count > 20) count = 20;
 
         log.info("生成同类题: userId={}, questionId={}, count={}", userId, questionId, count);

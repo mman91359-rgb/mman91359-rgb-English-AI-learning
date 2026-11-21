@@ -18,4 +18,18 @@ public final class UserIdentityUtil {
     public static boolean isForbidden(Long headerUserId, Long requestUserId) {
         return headerUserId != null && requestUserId != null && !headerUserId.equals(requestUserId);
     }
+
+    /**
+     * 校验请求中的 userId 与网关透传身份一致，不一致直接抛出越权异常。
+     * <p>
+     * 这是「校验并拒绝」的统一入口：调用方只需一行 {@code UserIdentityUtil.requireOwnership(a, b);}，
+     * 不要再自己写 {@code if (isForbidden(...)) throw ...}。
+     * <p>
+     * 统一入口的意义在于：文案只有一份、错误码只有一份，新增接口不会因为漏写而开出一个越权口子。
+     */
+    public static void requireOwnership(Long headerUserId, Long requestUserId) {
+        if (isForbidden(headerUserId, requestUserId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN);
+        }
+    }
 }

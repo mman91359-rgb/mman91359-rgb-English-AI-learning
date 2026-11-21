@@ -54,9 +54,7 @@ public class CoinController {
     public Result<CoinInfoResponse> getCoinInfo(
             @PathVariable Long userId,
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         if (!coinService.userExists(userId)) {
             return Result.error(404, "用户不存在");
         }
@@ -95,9 +93,7 @@ public class CoinController {
             @Valid @RequestBody MakeupCheckInRequest request,
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
         Long userId = request.getUserId();
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         if (!coinService.userExists(userId)) {
             return Result.error(404, "用户不存在");
         }
@@ -135,9 +131,7 @@ public class CoinController {
             @RequestParam(value = "size", required = false, defaultValue = "20") Integer size,
             @RequestParam(value = "bizType", required = false) String bizType,
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         if (!coinService.userExists(userId)) {
             return Result.error(404, "用户不存在");
         }
@@ -168,9 +162,7 @@ public class CoinController {
             @RequestParam("from") String from,
             @RequestParam("to") String to,
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         if (!coinService.userExists(userId)) {
             return Result.error(404, "用户不存在");
         }
@@ -209,9 +201,7 @@ public class CoinController {
         if (request == null || request.getUserId() == null) {
             return Result.badRequest("userId不能为空");
         }
-        if (UserIdentityUtil.isForbidden(headerUserId, request.getUserId())) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, request.getUserId());
         try {
             return Result.success(checkInService.checkIn(request.getUserId()));
         } catch (DuplicateKeyException e) {

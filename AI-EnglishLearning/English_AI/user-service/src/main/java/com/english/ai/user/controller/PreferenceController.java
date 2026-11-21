@@ -40,9 +40,7 @@ public class PreferenceController {
     public Result<PreferenceResponse> get(
             @PathVariable Long userId,
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
-        if (UserIdentityUtil.isForbidden(headerUserId, userId)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, userId);
         return Result.success(preferenceService.get(userId));
     }
 
@@ -57,9 +55,7 @@ public class PreferenceController {
         if (request == null || request.getUserId() == null) {
             return Result.badRequest("userId不能为空");
         }
-        if (UserIdentityUtil.isForbidden(headerUserId, request.getUserId())) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, request.getUserId());
         try {
             return Result.success(preferenceService.updateVocabGroupSize(
                     request.getUserId(), request.getVocabGroupSize()));
@@ -82,9 +78,7 @@ public class PreferenceController {
         if (request == null || request.getUserId() == null) {
             return Result.badRequest("userId不能为空");
         }
-        if (UserIdentityUtil.isForbidden(headerUserId, request.getUserId())) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, request.getUserId());
         try {
             return Result.success(preferenceService.updateVocabularyGoals(
                     request.getUserId(), request.getDailyNewWords(), request.getDailyReviewWords()));
@@ -107,9 +101,7 @@ public class PreferenceController {
         if (request == null || request.getUserId() == null) {
             return Result.badRequest("userId不能为空");
         }
-        if (UserIdentityUtil.isForbidden(headerUserId, request.getUserId())) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, request.getUserId());
         try {
             return Result.success(preferenceService.updateActiveWordBook(
                     request.getUserId(), request.getActiveWordBookId()));
@@ -132,9 +124,7 @@ public class PreferenceController {
         if (request == null || request.getUserId() == null) {
             return Result.badRequest("userId不能为空");
         }
-        if (UserIdentityUtil.isForbidden(headerUserId, request.getUserId())) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "无权操作其他用户数据");
-        }
+        UserIdentityUtil.requireOwnership(headerUserId, request.getUserId());
         try {
             return Result.success(preferenceService.updateIncludeFavoriteWords(
                     request.getUserId(), request.getIncludeFavoriteWords()));

@@ -50,7 +50,7 @@
             >
               <div class="font-label-md text-label-md text-on-surface mb-1">{{ $t(n.titleKey, n.titleParams || {}) }}</div>
               <div class="font-body-sm text-body-sm text-on-surface-variant">{{ $t(n.contentKey, n.contentParams || {}) }}</div>
-              <div class="font-body-sm text-body-sm text-on-surface-variant mt-1 opacity-60">{{ n.time }}</div>
+              <div class="font-body-sm text-body-sm text-on-surface-variant mt-1 opacity-60">{{ relativeTime(n.createdAt) }}</div>
             </div>
             <div v-if="notifications.length === 0" class="text-center py-6 text-on-surface-variant">
               <AppIcon name="notifications_off" size="md" class="mb-2 block" />
@@ -129,7 +129,7 @@ withDefaults(defineProps<{
 const { t } = useI18n()
 const appStore = useAppStore()
 const userStore = useUserStore()
-const { notifications, unreadCount, markAsRead, markAllRead, clearAll } = useNotifications()
+const { notifications, unreadCount, markAsRead, markAllRead, clearAll, relativeTime } = useNotifications()
 
 // 头像首字母
 const avatarText = computed(() => {

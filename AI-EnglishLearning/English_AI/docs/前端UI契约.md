@@ -1073,4 +1073,45 @@ L5 96 → 6，减少 90 处 = **2 处注释假阳性消除** + **88 处真实迁
 | 锁定性质 | 4 特殊色 + 3 超档尺寸 + 1 透明度变体 | **6 处全为 scoped CSS 耦合** |
 
 **当前八条基线**：`L1a 17 / L1b 124 / L2 0 / L3 0 / L4 0 / L5 6 / L6 10 / L8 8`
+**第九条（独立脚本口径）**：`L9 76`（手写图标 16 / `bg-primary`+非圆底 8 / 非圆底 52，见 §5「门禁」）
+
+## §11.10 三处既知缺陷的处置裁定（2026-11-21）
+
+本节登记三处「已知但不在扩基线范围内」的问题，避免后来者重复发现，或把已裁定项误判为漏网。
+
+### 一、通知种子虚构消息与时间冻结（已修）
+
+`composables/useNotifications.ts` 原在 `loadFromStorage()` 中首次植入两条 `read: false` 的虚构种子
+（`notification.welcomeTitle` 与 `notification.dailyReminderTitle`），导致顶栏红点从首次进入就常亮，
+点开全是假消息；同时 `time` 存的是**渲染好的相对时间字符串**（「刚刚」「2小时前」），
+落进 localStorage 后被永久冻住，第二天打开仍显示「刚刚」。
+
+处置：删除种子（后端 `/notification/list` 就绪前通知列表本应为空，由 `TopAppBar:55` 的空状态承接）；
+`time: string` 改为 `createdAt: number`，相对时间改为渲染时现算（暴露 `relativeTime()`）。
+旧数据按「N分钟/小时/天前」反解成时间戳迁移，不成片丢弃历史记录。
+
+### 二、`AiFeedbackPanel` 的 writing / listening 分支不可达（登记，不删）
+
+`AiFeedbackPanel.vue` 声明 `PanelType = 'writing' | 'translation' | 'listening'` 并实现了三个分支，
+但全仓唯一调用点是 `TranslationPracticeView.vue:139`，且固定 `type="translation"`，
+故另两个分支当前不可达。
+
+**裁定：保留，不删除。** 依据：
+
+- 写作侧已由 `FeedbackCardBody.vue:32`（`kind === 'writing'`）承接，本组件并非写作入口，
+  这两个分支属「冗余但无害」；
+- 听力侧 `ListeningFeedback.vue` 全仓仅被本组件引用，一旦删掉分支即成完全孤儿文件，
+  而听力模块的 AI 批改属**未完成接线**，不是废弃功能；
+- 删除后接线时需重写，成本高于保留。
+
+代码内已在分支处写入可达性注释（`AiFeedbackPanel.vue:24-33`），接线之前请勿按「不可达即删除」处理。
+
+### 三、`WritingFeedback` 在 `compact=true` 时不渲染 issues（已裁定接受）
+
+`WritingFeedback.vue` 中优点、问题、批改、范文四个区块均带 `!compact` 条件，
+`compact` 只渲染总分与五个维度条。这是 `:66-69` 注释写明的设计意图：
+compact 用于对话流速览，深度内容留在报告页，避免同一份报告在对话里铺开上千像素。
+
+**裁定：接受现状，不改。** 记录于此仅为防止后续审计把它当成「issues 丢失」的 bug。
+
 

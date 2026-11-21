@@ -26,6 +26,12 @@
         三个模板的 props 名不同（writing 是 score，另两个是 data），
         统一塞 :score="data" 会让翻译/听力模板把对象透传到根元素上，
         DOM 里留下 score="[object Object]"，且 vue-tsc 完全校验不到。
+
+        可达性现状（2026-11-21 核准，登记于契约 §11.10）：
+        本组件全仓只有 TranslationPracticeView.vue:139 一个调用点，且该处固定
+        type="translation"，故 writing / listening 两个分支当前不可达。
+        二者是「已建未接线」而非死代码——写作侧由 FeedbackCardBody.vue:32 承接
+        （不走本组件），听力侧等听力模块接入 AI 批改。接线之前请勿按「不可达即删除」处理。
       -->
       <WritingFeedback
         v-else-if="type === 'writing' && data"

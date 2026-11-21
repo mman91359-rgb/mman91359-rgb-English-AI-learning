@@ -91,11 +91,11 @@
           </template>
           <template #cell-actions="{ row }">
             <div v-if="row.status === 'PENDING'" class="flex justify-end gap-2">
-              <button type="button" class="flex items-center gap-1 rounded-full px-3 py-1.5 font-label-lg text-label-lg text-tertiary hover:bg-tertiary-container/20" @click="approveTarget = row">
+              <button type="button" :class="btnRowTertiary" @click="approveTarget = row">
                 <AppIcon name="check" size="sm" />
                 {{ $t('adminConsole.question.approve') }}
               </button>
-              <button type="button" class="flex items-center gap-1 rounded-full px-3 py-1.5 font-label-lg text-label-lg text-error hover:bg-error-container/40" @click="rejectTarget = row">
+              <button type="button" :class="btnRowDangerText" @click="rejectTarget = row">
                 <AppIcon name="close" size="sm" />
                 {{ $t('adminConsole.question.reject') }}
               </button>
@@ -180,7 +180,7 @@ import RejectQuestionDialog from '../../components/admin/RejectQuestionDialog.vu
 import StatusBadge from '../../components/admin/StatusBadge.vue'
 import ErrorState from '../../components/ui/ErrorState.vue'
 import { inputClass } from '@/components/ui/formStyles'
-import { btnPrimary } from '@/components/ui/buttonStyles'
+import { btnPrimary, btnRowDangerText, btnRowTertiary } from '@/components/ui/buttonStyles'
 import type { TableColumn } from '../../components/admin/tableTypes'
 import { useAsyncData } from '../../composables/useAsyncData'
 import { useToast } from '../../composables/useToast'

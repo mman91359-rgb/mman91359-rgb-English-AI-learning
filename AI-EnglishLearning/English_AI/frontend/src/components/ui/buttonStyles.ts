@@ -130,3 +130,38 @@ export const btnQuizPrimary = `${quizBase} bg-primary text-on-primary hover:bg-p
 /** 答题页矩形档 · 次：卡片底色描边，与主按钮并排各占一半 */
 export const btnQuizSecondary = `${quizBase} bg-surface text-on-surface border border-outline-variant hover:bg-surface-variant`
 
+/** ——— 行内档 32px：后台表格操作列「图标 + 文字」小按钮 ——— */
+
+/**
+ * 行内档底座：admin 表格 `#cell-actions` 列的专用形态，32px 高、胶囊形、图标配 `size="sm"`。
+ *
+ * 与 `base` 的差别在密度：更矮（`py-1.5` 而非 `py-2.5`）、更紧（`gap-1` 而非 `gap-2`）。
+ * 六个音调共用同一底座，统一补齐 hover / active / focus-visible / disabled ——
+ * 原手写串里 `bg-primary`、`bg-error`、`border` 三档全部没有悬停反馈，
+ * 表格里鼠标划过时按钮毫无变化，这是本次收敛顺带修掉的缺陷。
+ *
+ * 注意：本档不做「一个视图只留一个主动作」的限制。后台表格每行都要有
+ * 发布 / 删除等动作，实心色仅用于标示该行的主操作，多行之间不构成视觉竞争。
+ */
+const rowBtnBase =
+  'flex items-center gap-1 rounded-full px-3 py-1.5 font-label-lg text-label-lg transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:pointer-events-none disabled:opacity-60'
+
+/** 行内档 · 中性：编辑等不改变数据的动作 */
+export const btnRowNeutral = `${rowBtnBase} text-on-surface-variant hover:bg-surface-container-high active:bg-surface-container`
+
+/** 行内档 · 主色：该行的主操作（发布、上架） */
+export const btnRowPrimary = `${rowBtnBase} bg-primary text-on-primary hover:bg-primary/90 active:bg-primary/80`
+
+/** 行内档 · 危险实心：该行的不可逆动作（删除） */
+export const btnRowDanger = `${rowBtnBase} bg-error text-on-error hover:bg-error/90 active:bg-error/80`
+
+/** 行内档 · 描边：状态切换（结束、下架），需要与实心动作区分权重时用 */
+export const btnRowOutline = `${rowBtnBase} border border-outline-variant text-on-surface-variant hover:bg-surface-container active:bg-surface-container-high`
+
+/** 行内档 · 第三色文字：审核通过这类正向判定，不抢主色 */
+export const btnRowTertiary = `${rowBtnBase} text-tertiary hover:bg-tertiary-container/20 active:bg-tertiary-container/30`
+
+/** 行内档 · 错误文字：审核驳回这类负向判定，与通过按钮并排时两色平级 */
+export const btnRowDangerText = `${rowBtnBase} text-error hover:bg-error-container/40 active:bg-error-container/60`
+
+

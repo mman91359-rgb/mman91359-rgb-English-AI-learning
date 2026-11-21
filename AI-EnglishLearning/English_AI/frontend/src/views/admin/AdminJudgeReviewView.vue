@@ -93,11 +93,11 @@
           </template>
           <template #cell-actions="{ row }">
             <div v-if="row.status === 'PENDING'" class="flex justify-end gap-2">
-              <button type="button" class="flex items-center gap-1 rounded-full px-3 py-1.5 font-label-lg text-label-lg text-tertiary hover:bg-tertiary-container/20" @click="resolveTarget = { row, verdict: 'PASS' }">
+              <button type="button" :class="btnRowTertiary" @click="resolveTarget = { row, verdict: 'PASS' }">
                 <AppIcon name="check" size="sm" />
                 {{ $t('adminConsole.judgeReview.pass') }}
               </button>
-              <button type="button" class="flex items-center gap-1 rounded-full px-3 py-1.5 font-label-lg text-label-lg text-error hover:bg-error-container/40" @click="resolveTarget = { row, verdict: 'FAIL' }">
+              <button type="button" :class="btnRowDangerText" @click="resolveTarget = { row, verdict: 'FAIL' }">
                 <AppIcon name="close" size="sm" />
                 {{ $t('adminConsole.judgeReview.fail') }}
               </button>
@@ -172,6 +172,7 @@ import ConfirmDialog from '../../components/admin/ConfirmDialog.vue'
 import StatusBadge from '../../components/admin/StatusBadge.vue'
 import ErrorState from '../../components/ui/ErrorState.vue'
 import { inputClass } from '@/components/ui/formStyles'
+import { btnRowDangerText, btnRowTertiary } from '@/components/ui/buttonStyles'
 import type { TableColumn } from '../../components/admin/tableTypes'
 import type { BadgeTone } from '../../components/admin/tableTypes'
 import { useAsyncData } from '../../composables/useAsyncData'

@@ -83,20 +83,20 @@
           <template #cell-actions="{ row }">
             <div class="flex items-center justify-end gap-2">
               <template v-if="row.status === 'DRAFT'">
-                <button type="button" class="flex items-center gap-1 rounded-full px-3 py-1.5 font-label-lg text-label-lg text-on-surface-variant hover:bg-surface-container-high" @click="editing = row">
+                <button type="button" :class="btnRowNeutral" @click="editing = row">
                   <AppIcon name="edit" size="sm" />
                   {{ $t('adminConsole.common.edit') }}
                 </button>
-                <button type="button" class="flex items-center gap-1 rounded-full bg-primary px-3 py-1.5 font-label-lg text-label-lg text-on-primary" @click="operation = { kind: 'publish', activity: row }">
+                <button type="button" :class="btnRowPrimary" @click="operation = { kind: 'publish', activity: row }">
                   <AppIcon name="rocket_launch" size="sm" />
                   {{ $t('adminConsole.activity.publish') }}
                 </button>
-                <button type="button" class="flex items-center gap-1 rounded-full bg-error px-3 py-1.5 font-label-lg text-label-lg text-on-error" @click="operation = { kind: 'delete', activity: row }">
+                <button type="button" :class="btnRowDanger" @click="operation = { kind: 'delete', activity: row }">
                   <AppIcon name="delete" size="sm" />
                   {{ $t('adminConsole.common.delete') }}
                 </button>
               </template>
-              <button v-else-if="row.status === 'PUBLISHED'" type="button" class="flex items-center gap-1 rounded-full border border-outline-variant px-3 py-1.5 font-label-lg text-label-lg text-on-surface-variant" @click="operation = { kind: 'end', activity: row }">
+              <button v-else-if="row.status === 'PUBLISHED'" type="button" :class="btnRowOutline" @click="operation = { kind: 'end', activity: row }">
                 <AppIcon name="stop_circle" size="sm" />
                 {{ $t('adminConsole.activity.end') }}
               </button>
@@ -145,7 +145,7 @@ import AdminFilterBar from '../../components/admin/AdminFilterBar.vue'
 import AdminFilterField from '../../components/admin/AdminFilterField.vue'
 import AdminFilterSearch from '../../components/admin/AdminFilterSearch.vue'
 import AdminFilterSelect from '../../components/admin/AdminFilterSelect.vue'
-import { btnPrimary } from '@/components/ui/buttonStyles'
+import { btnPrimary, btnRowDanger, btnRowNeutral, btnRowOutline, btnRowPrimary } from '@/components/ui/buttonStyles'
 import AdminPagination from '../../components/admin/AdminPagination.vue'
 import ConfirmDialog from '../../components/admin/ConfirmDialog.vue'
 import ActivityEditorDrawer from '../../components/admin/ActivityEditorDrawer.vue'

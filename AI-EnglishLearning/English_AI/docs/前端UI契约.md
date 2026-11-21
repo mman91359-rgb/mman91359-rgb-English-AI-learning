@@ -178,11 +178,22 @@ HomeView 复习块与状态行、StatsView 三格 —— 同一值已 ≥10 处�
 | 图标 | `btnIcon` (40px) / `btnIconMd` (36px) / `btnIconSm` (32px) / `btnIconDanger` | — | — |
 | 反色 | `btnPrimaryInverse` / `btnSecondaryInverse` | — | — |
 | 答题页矩形 (56px) | — | — | `btnQuizPrimary` / `btnQuizSecondary`（并排各占一半） |
+| 行内 (32px) | — | — | `btnRowNeutral` / `btnRowPrimary` / `btnRowDanger` / `btnRowOutline` / `btnRowTertiary` / `btnRowDangerText` |
 
 > 反色档不复用 `base`：焦点环用 `focus-visible:outline-on-primary`，避免在 `bg-primary` 容器上与底色同色而不可见。
 > 2026-11-15（`2a50d43`）新增 2 个反色常量（`btnPrimaryInverse` / `btnSecondaryInverse`），
-> 2026-11-21 新增 2 个答题页矩形档常量（`btnQuizPrimary` / `btnQuizSecondary`），
-> `buttonStyles.ts` 当前共 **21 个** `export const`（按已提交状态计，口径同 §10「基线只认 HEAD」）。
+> 2026-11-21 新增 2 个答题页矩形档常量（`btnQuizPrimary` / `btnQuizSecondary`）与
+> 6 个行内档常量（`btnRow*`），`buttonStyles.ts` 当前共 **27 个** `export const`
+> （按已提交状态计，口径同 §10「基线只认 HEAD」）。
+
+**行内档（`btnRow*`，2026-11-21 增补）** 专用于 admin 表格 `#cell-actions` 列，32px 高、胶囊形，图标配 `size="sm"`。
+六个音调覆盖后台全部行内动作：中性（编辑）/ 主色实心（发布）/ 危险实心（删除）/
+描边（结束、下架）/ 第三色文字（审核通过）/ 错误文字（审核驳回）。
+
+本档**不适用**本节开头「一个视图只保留一个主动作」的限制 —— 表格每行都有各自的主操作，
+多行之间不构成视觉竞争，实心色只用于标示该行内的主动作。
+六音调共用同一底座并统一补齐 hover / active / focus-visible / disabled；
+原手写串中主色实心、危险实心、描边三档**均无悬停反馈**，鼠标划过时按钮毫无变化，本次收敛顺带修掉。
 
 **禁止**
 

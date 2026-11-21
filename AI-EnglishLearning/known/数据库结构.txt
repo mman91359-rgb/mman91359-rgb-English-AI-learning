@@ -1,0 +1,584 @@
+=====================================================================================
+ Recall·睿考 数据库结构（实测快照）
+ 生成：2026-11-21    数据源：运行中 MySQL 8.0 的 information_schema
+ 排除：flyway_schema_history（Flyway 自身的迁移记录表，非业务表）
+ 用法：本文件由数据库导出生成，手工修改会在下次重生成时丢失。
+       结构变更唯一入口是各服务 src/main/resources/db/migration/ 下的 Flyway 文件。
+ 图例：PK 主键 / UK 唯一键 / IDX 普通索引 / AI 自增 / NN NOT NULL / DEF 默认值 / DG 由库自动生成
+=====================================================================================
+
+
+一、user_db（用户与画像库）  共 14 张表
+=========================================================================================================
+
+1. admin_operation_log — 管理员操作审计日志
+
+   字段                    | 类型                        | 约束                               | 注释
+   ----------------------+ --------------------------+ ---------------------------------+ ----------------------------------------
+   id                    | bigint                    | PK AI NN                         | 主键
+   operator_id           | bigint                    | IDX NN                           | 操作管理员ID
+   operator_name         | varchar(50)               |                                  | 操作时用户名快照
+   action                | varchar(50)               | IDX NN                           | 动作: USER_STATUS_UPDATE/NOTICE_PUBLISH/QUESTION_APPROVE 等
+   target_type           | varchar(32)               | IDX                              | 目标类型: USER/NOTICE/ACTIVITY/QUESTION
+   target_id             | varchar(64)               |                                  | 目标ID（字符串兼容多种主键）
+   detail                | varchar(1000)             |                                  | 变更摘要，禁止存放密码/完整手机号
+   ip                    | varchar(64)               |                                  | 操作IP
+   user_agent            | varchar(255)              |                                  | User-Agent
+   result                | varchar(16)               | NN DEF=SUCCESS                   | 结果: SUCCESS/FAIL
+   trace_id              | varchar(64)               |                                  | 链路追踪ID
+   created_at            | datetime                  | IDX DG NN DEF=CURRENT_TIMESTAMP  | 操作时间
+
+2. sms_verification_code — 统一验证码记录（本地模拟下发）
+
+   字段                    | 类型                        | 约束                               | 注释
+   ----------------------+ --------------------------+ ---------------------------------+ ----------------------------------------
+   id                    | bigint                    | PK AI NN                         | 主键
+   recipient             | varchar(100)              | IDX NN                           | 接收地址：手机号或邮箱
+   scene                 | varchar(32)               | NN                               | 业务场景：REGISTER/FORGOT_PASSWORD/PHONE_BIND
+   user_id               | bigint                    |                                  | 换绑场景绑定的用户ID，其余场景为 NULL
+   code_hash             | char(64)                  | NN                               | SHA-256(salt|接收地址|场景|验证码)，不存明文
+   salt                  | char(32)                  | NN                               | 每条记录独立的随机盐（16 字节十六进制）
+   expire_at             | datetime                  | IDX NN                           | 过期时间（签发后 5 分钟）
+   used                  | tinyint                   | NN DEF=0                         | 是否已消费：0 未使用，1 已使用
+   try_count             | tinyint                   | NN DEF=0                         | 校验失败次数，达到 5 次作废
+   created_at            | datetime                  | DG NN DEF=CURRENT_TIMESTAMP      | 签发时间
+
+3. sys_activity — 运营活动/横幅
+
+   字段                    | 类型                        | 约束                               | 注释
+   ----------------------+ --------------------------+ ---------------------------------+ ----------------------------------------
+   id                    | bigint                    | PK AI NN                         | 主键
+   title                 | varchar(200)              | NN                               | 活动标题
+   summary               | varchar(500)              |                                  | 摘要
+   content               | text                      |                                  | 详情内容
+   banner_url            | varchar(500)              |                                  | 横幅图片URL
+   activity_type         | varchar(20)               | NN DEF=BANNER                    | 类型: BANNER/CONTENT
+   target_audience       | varchar(20)               | IDX NN DEF=ALL                   | 目标人群: ALL/CET4/CET6
+   status                | varchar(20)               | IDX NN DEF=DRAFT                 | 状态: DRAFT/PUBLISHED/ENDED
+   start_at              | datetime                  | NN                               | 开始时间
+   end_at                | datetime                  | NN                               | 结束时间
+   sort_order            | int                       | IDX NN DEF=0                     | 展示排序，越大越靠前
+   created_by            | bigint                    |                                  | 创建管理员ID
+   updated_by            | bigint                    |                                  | 最后修改管理员ID
+   created_at            | datetime                  | DG NN DEF=CURRENT_TIMESTAMP      | 创建时间
+   updated_at            | datetime                  | DEFAULT_GENERATED ON UPDATE CURRENT_TIMESTAMP ONUPDATE NN DEF=CURRENT_TIMESTAMP| 更新时间
+
+4. sys_notice — 站内公告
+
+   字段                    | 类型                        | 约束                               | 注释
+   ----------------------+ --------------------------+ ---------------------------------+ ----------------------------------------
+   id                    | bigint                    | PK AI NN                         | 主键
+   title                 | varchar(200)              | NN                               | 标题
+   content               | text                      | NN                               | 正文
+   notice_type           | varchar(20)               | NN DEF=SYSTEM                    | 类型: SYSTEM/REMINDER/ACTIVITY
+   target_audience       | varchar(20)               | IDX NN DEF=ALL                   | 目标人群: ALL/CET4/CET6
+   status                | varchar(20)               | IDX NN DEF=DRAFT                 | 状态: DRAFT/PUBLISHED/EXPIRED
+   publish_at            | datetime                  |                                  | 发布时间；PUBLISHED 且未来时间为定时发布
+   expire_at             | datetime                  |                                  | 过期时间；NULL 表示不过期
+   created_by            | bigint                    |                                  | 创建管理员ID；系统种子为 NULL
+   updated_by            | bigint                    |                                  | 最后修改管理员ID
+   created_at            | datetime                  | IDX DG NN DEF=CURRENT_TIMESTAMP  | 创建时间
+   updated_at            | datetime                  | DEFAULT_GENERATED ON UPDATE CURRENT_TIMESTAMP ONUPDATE NN DEF=CURRENT_TIMESTAMP| 更新时间
+
+5. sys_user — 用户账户表
+
+   字段                    | 类型                        | 约束                               | 注释
+   ----------------------+ --------------------------+ ---------------------------------+ ----------------------------------------
+   id                    | bigint                    | PK AI NN                         | 用户ID
+   username              | varchar(50)               |                                  | 昵称(展示用，可空可重复)
+   password              | varchar(255)              | NN                               | 密码(BCrypt加密)
+   nickname              | varchar(50)               |                                  | 昵称
+   avatar_url            | varchar(255)              |                                  | 头像URL
+   cet_level             | varchar(10)               |                                  | 考试级别: CET4/CET6
+   phone                 | varchar(20)               | UK                               | 
+   email                 | varchar(255)              | UK                               | 邮箱(登录标识)
+   roles                 | varchar(100)              | DEF=ROLE_USER                    | 角色: ROLE_USER/ROLE_ADMIN
+   status                | tinyint                   | DEF=1                            | 状态: 1=正常, 0=禁用
+   last_login_at         | datetime                  |                                  | 最后登录时间
+   created_at            | datetime                  | DG DEF=CURRENT_TIMESTAMP         | 创建时间
+   updated_at            | datetime                  | DEFAULT_GENERATED ON UPDATE CURRENT_TIMESTAMP ONUPDATE DEF=CURRENT_TIMESTAMP| 更新时间
+
+6. user_ability_radar — 用户能力雷达图表
+
+   字段                    | 类型                        | 约束                               | 注释
+   ----------------------+ --------------------------+ ---------------------------------+ ----------------------------------------
+   id                    | bigint                    | PK AI NN                         | 记录ID
+   user_id               | bigint                    | UK NN                            | 用户ID
+   vocabulary_score      | decimal(5,2)              | DEF=0.00                         | 词汇能力分
+   grammar_score         | decimal(5,2)              | DEF=0.00                         | 语法能力分
+   listening_score       | decimal(5,2)              | DEF=0.00                         | 听力能力分
+   reading_score         | decimal(5,2)              | DEF=0.00                         | 阅读能力分
+   translation_score     | decimal(5,2)              | NN DEF=0.00                      | 翻译能力分
+   writing_score         | decimal(5,2)              | NN DEF=0.00                      | 写作能力分
+   elo_score             | int                       | IDX DEF=1000                     | ELO能力总分
+   target_level          | varchar(20)               |                                  | 目标等级/能力评级
+   practice_points       | int                       | NN DEF=0                         | 累计练习积分（只增不减）
+   created_at            | datetime                  | DG DEF=CURRENT_TIMESTAMP         | 创建时间
+   updated_at            | datetime                  | DEFAULT_GENERATED ON UPDATE CURRENT_TIMESTAMP ONUPDATE DEF=CURRENT_TIMESTAMP| 更新时间
+
+7. user_check_in — 每日签到记录
+
+   字段                    | 类型                        | 约束                               | 注释
+   ----------------------+ --------------------------+ ---------------------------------+ ----------------------------------------
+   id                    | bigint                    | PK AI NN                         | 主键ID
+   user_id               | bigint                    | IDX NN                           | 用户ID
+   check_in_date         | date                      | NN                               | 签到日期
+   reward_coins          | int                       | NN DEF=0                         | 本次签到获得金币（含连续奖励与里程碑）
+   streak_days           | int                       | NN DEF=1                         | 签到时的连续天数
+   is_makeup             | tinyint                   | NN DEF=0                         | 是否补签：0 正常签到 1 金币补签
+   created_at            | datetime                  | DG DEF=CURRENT_TIMESTAMP         | 创建时间
+
+8. user_coin_account — 用户金币账户
+
+   字段                    | 类型                        | 约束                               | 注释
+   ----------------------+ --------------------------+ ---------------------------------+ ----------------------------------------
+   id                    | bigint                    | PK AI NN                         | 主键ID
+   user_id               | bigint                    | UK NN                            | 用户ID
+   balance               | int                       | NN DEF=0                         | 当前金币余额
+   total_earned          | int                       | NN DEF=0                         | 累计获得金币
+   created_at            | datetime                  | DG DEF=CURRENT_TIMESTAMP         | 创建时间
+   updated_at            | datetime                  | DEFAULT_GENERATED ON UPDATE CURRENT_TIMESTAMP ONUPDATE DEF=CURRENT_TIMESTAMP| 更新时间
+
+9. user_coin_transaction — 金币流水
+
+   字段                    | 类型                        | 约束                               | 注释
+   ----------------------+ --------------------------+ ---------------------------------+ ----------------------------------------
+   id                    | bigint                    | PK AI NN                         | 主键ID
+   user_id               | bigint                    | IDX NN                           | 用户ID
+   amount                | int                       | NN                               | 金币变动值（正数为获得）
+   biz_type              | varchar(32)               | NN                               | 业务类型: CHECK_IN/CHECK_IN_MILESTONE/VOCAB_GROUP
+   biz_key               | varchar(128)              | UK NN                            | 业务幂等键
+   description           | varchar(255)              |                                  | 流水描述
+   balance_after         | int                       |                                  | 变动后余额
+   created_at            | datetime                  | DG DEF=CURRENT_TIMESTAMP         | 创建时间
+
+10. user_module_stats — 用户模块答题统计（正确率口径）
+
+   字段                    | 类型                        | 约束                               | 注释
+   ----------------------+ --------------------------+ ---------------------------------+ ----------------------------------------
+   id                    | bigint                    | PK AI NN                         | 主键ID
+   user_id               | bigint                    | IDX NN                           | 用户ID
+   module_type           | tinyint                   | NN                               | 模块类型: 1词汇 2语法 3翻译 4听力 5造句 6写作 7阅读
+   total_count           | int                       | NN DEF=0                         | 累计作答总题数
+   correct_count         | int                       | NN DEF=0                         | 累计答对题数
+   created_at            | datetime                  | DG DEF=CURRENT_TIMESTAMP         | 创建时间
+   updated_at            | datetime                  | DEFAULT_GENERATED ON UPDATE CURRENT_TIMESTAMP ONUPDATE DEF=CURRENT_TIMESTAMP| 更新时间
+
+11. user_notice_read — 用户通知已读记录
+
+   字段                    | 类型                        | 约束                               | 注释
+   ----------------------+ --------------------------+ ---------------------------------+ ----------------------------------------
+   id                    | bigint                    | PK AI NN                         | 主键
+   notice_id             | bigint                    | IDX NN                           | 通知ID
+   user_id               | bigint                    | IDX NN                           | 用户ID
+   read_at               | datetime                  | DG NN DEF=CURRENT_TIMESTAMP      | 已读时间
+
+12. user_practice_settlement — 练习积分结算记录
+
+   字段                    | 类型                        | 约束                               | 注释
+   ----------------------+ --------------------------+ ---------------------------------+ ----------------------------------------
+   id                    | bigint                    | PK AI NN                         | 主键ID
+   user_id               | bigint                    | IDX NN                           | 用户ID
+   batch_key             | varchar(64)               | NN                               | 练习组唯一键（幂等）
+   module_type           | tinyint                   | NN                               | 模块类型: 1词汇 2语法 3翻译 4听力 5造句 6写作 7阅读
+   total_count           | int                       | NN DEF=0                         | 本组总题数
+   correct_count         | int                       | NN DEF=0                         | 本组答对题数
+   accuracy              | decimal(5,2)              | NN DEF=0.00                      | 本组正确率(0~100)
+   points                | int                       | NN DEF=0                         | 本次实发积分（已扣每日上限）
+   stat_date             | date                      | NN                               | 结算日期（Asia/Shanghai）
+   created_at            | datetime                  | DG DEF=CURRENT_TIMESTAMP         | 创建时间
+
+13. user_preference — 用户学习偏好
+
+   字段                    | 类型                        | 约束                               | 注释
+   ----------------------+ --------------------------+ ---------------------------------+ ----------------------------------------
+   id                    | bigint                    | PK AI NN                         | 主键ID
+   user_id               | bigint                    | UK NN                            | 用户ID
+   vocab_group_size      | int                       |                                  | 每组单词数量（5-50）
+   daily_new_words       | int                       |                                  | 每日新背单词数（1-50）
+   daily_review_words    | int                       |                                  | 每日复习单词数（0-50）
+   active_word_book_id   | bigint                    |                                  | 当前选中的词书ID（关联 exercise_db.word_book.id）
+   include_favorite_words| tinyint(1)                | NN DEF=0                         | 新词队列是否并行收藏词：1=收藏词优先于词书词，0=仅按当前词书取词
+   created_at            | datetime                  | DG DEF=CURRENT_TIMESTAMP         | 创建时间
+   updated_at            | datetime                  | DEFAULT_GENERATED ON UPDATE CURRENT_TIMESTAMP ONUPDATE DEF=CURRENT_TIMESTAMP| 更新时间
+
+14. user_refresh_token — 记住我 Refresh Token
+
+   字段                    | 类型                        | 约束                               | 注释
+   ----------------------+ --------------------------+ ---------------------------------+ ----------------------------------------
+   id                    | bigint                    | PK AI NN                         | 主键
+   user_id               | bigint                    | IDX NN                           | 用户ID
+   token_hash            | char(64)                  | UK NN                            | Refresh Token 的 SHA-256 哈希（不存明文）
+   series                | char(36)                  | IDX NN                           | 令牌系列（UUID），同系列轮换；复用检测用
+   expires_at            | datetime                  | NN                               | 过期时间
+   status                | tinyint                   | NN DEF=1                         | 1有效 0已吊销
+   revoked_at            | datetime                  |                                  | 吊销时间
+   last_used_at          | datetime                  |                                  | 最近使用时间
+   created_at            | datetime                  | DG NN DEF=CURRENT_TIMESTAMP      | 创建时间
+   updated_at            | datetime                  | DEFAULT_GENERATED ON UPDATE CURRENT_TIMESTAMP ONUPDATE NN DEF=CURRENT_TIMESTAMP| 更新时间
+
+二、exercise_db（题库与作答库）  共 22 张表
+=========================================================================================================
+
+1. daily_word — 姣忔棩鍗曡瘝
+
+   字段                    | 类型                        | 约束                               | 注释
+   ----------------------+ --------------------------+ ---------------------------------+ ----------------------------------------
+   id                    | bigint                    | PK AI NN                         | 
+   word_id               | bigint                    | NN                               | FK to word_dictionary.id
+   date                  | date                      | UK NN                            | 鏃ユ湡
+   created_at            | datetime                  | DG DEF=CURRENT_TIMESTAMP         | 
+
+2. judge_review_queue — 判题审核队列：段落翻译灰区由判题引擎入队，人工复核后回写
+
+   字段                    | 类型                        | 约束                               | 注释
+   ----------------------+ --------------------------+ ---------------------------------+ ----------------------------------------
+   id                    | bigint                    | PK AI NN                         | 主键ID
+   question_id           | bigint                    | IDX NN                           | 题目ID
+   user_id               | bigint                    | NN                               | 提交用户ID
+   log_id                | bigint                    | UK                               | user_exercise_log.id：精确绑定本次作答
+   difficulty_level      | int                       |                                  | 题目难度：复核后补记 ELO 用
+   module_type           | int                       |                                  | 模块类型：复核后补记遗忘曲线用
+   user_answer           | varchar(2000)             | NN                               | 用户作答原文
+   answer_hash           | char(64)                  | STORED GENERATED                 | 作答哈希，用于唯一键（避免长文本索引超限）
+   correct_answer        | varchar(2000)             |                                  | 参考答案
+   matched_level         | int                       |                                  | 判题命中层级（见 JudgmentLevel）
+   ai_confidence         | decimal(4,3)              |                                  | AI 评分归一化 0.000~1.000（rawScore / maxScore）
+   ai_result             | varchar(20)               |                                  | AI 结论: CORRECT/PARTIAL/INCORRECT
+   judge_context         | varchar(1000)             |                                  | 判题上下文快照（模式/分数档位/耗时等）
+   reason                | varchar(50)               | NN DEF=MANUAL                    | 入队原因: MANUAL/MISMATCH/AI_LOW_CONFIDENCE/TRANSLATION_LOW_SCORE
+   status                | varchar(20)               | IDX NN DEF=PENDING               | 状态: PENDING/REVIEWED/DISMISSED
+   reviewer_id           | bigint                    |                                  | 审核人ID
+   review_comment        | varchar(500)              |                                  | 审核意见
+   curve_scored_at       | datetime                  |                                  | 遗忘曲线补记成功时间
+   curve_lease_until     | datetime                  |                                  | 遗忘曲线补记租约到期时间
+   elo_scored_at         | datetime                  |                                  | ELO 补记成功时间
+   elo_lease_until       | datetime                  |                                  | ELO 补记租约到期时间
+   created_at            | datetime                  | DG DEF=CURRENT_TIMESTAMP         | 创建时间
+   updated_at            | datetime                  | DEFAULT_GENERATED ON UPDATE CURRENT_TIMESTAMP ONUPDATE DEF=CURRENT_TIMESTAMP| 更新时间
+
+3. judgment_cache — 判题结果缓存表
+
+   字段                    | 类型                        | 约束                               | 注释
+   ----------------------+ --------------------------+ ---------------------------------+ ----------------------------------------
+   id                    | bigint                    | PK AI NN                         | 主键ID
+   question_id           | bigint                    | IDX NN                           | 题目ID
+   user_answer           | varchar(500)              | NN                               | 用户答案
+   correct_answer        | varchar(500)              | NN                               | 正确答案
+   heuristic_hint        | varchar(1000)             | NN                               | 启发式提示
+   error_type            | varchar(50)               |                                  | 错误类型
+   matched_level         | int                       |                                  | 匹配层级
+   hit_count             | int                       | DEF=1                            | 命中次数
+   created_at            | datetime                  | IDX DG DEF=CURRENT_TIMESTAMP     | 创建时间
+   updated_at            | datetime                  | DEFAULT_GENERATED ON UPDATE CURRENT_TIMESTAMP ONUPDATE DEF=CURRENT_TIMESTAMP| 更新时间
+
+4. knowledge_mapping — 题目-知识点映射表
+
+   字段                    | 类型                        | 约束                               | 注释
+   ----------------------+ --------------------------+ ---------------------------------+ ----------------------------------------
+   id                    | bigint                    | PK AI NN                         | 映射ID
+   question_id           | bigint                    | IDX NN                           | 题目ID
+   knowledge_point_id    | bigint                    | IDX NN                           | 知识点ID
+
+5. listening_audio — 听力音频元数据表
+
+   字段                    | 类型                        | 约束                               | 注释
+   ----------------------+ --------------------------+ ---------------------------------+ ----------------------------------------
+   id                    | bigint                    | PK AI NN                         | 音频ID
+   question_id           | bigint                    | UK NN                            | 关联 question_info.id
+   audio_url             | varchar(255)              | IDX                              | 音频地址；NULL=纯文字听力（只提供 transcript）
+   transcript            | text                      |                                  | 听力原文
+   duration_seconds      | int                       |                                  | 片段时长（秒）；旧数据/整段等于音频总时长
+   audio_total_seconds   | int                       |                                  | 完整音频总时长（秒）
+   audio_start_seconds   | decimal(8,2)              | NN DEF=0.00                      | 文章段起点（秒，包含）
+   audio_end_seconds     | decimal(8,2)              |                                  | 文章段终点（秒，不包含）；NULL=到音频末尾
+   question_start_seconds| decimal(8,2)              |                                  | 题目段起点（秒，包含）
+   question_end_seconds  | decimal(8,2)              |                                  | 题目段终点（秒，不包含）
+   answer_start_seconds  | decimal(8,2)              |                                  | 答案关键句起点（秒，包含）；复听定位用
+   answer_end_seconds    | decimal(8,2)              |                                  | 答案关键句终点（秒，不包含）
+   group_key             | varchar(64)               | IDX                              | 题组/音频段落标识
+   listening_type        | varchar(32)               | IDX                              | 听力题型：SHORT_DIALOGUE/LONG_DIALOGUE/PASSAGE/LECTURE/NEWS/OTHER
+   lrc_content           | mediumtext                |                                  | 片段LRC字幕（完整音频绝对时间轴）
+   created_at            | datetime                  | DG DEF=CURRENT_TIMESTAMP         | 创建时间
+   updated_at            | datetime                  | DEFAULT_GENERATED ON UPDATE CURRENT_TIMESTAMP ONUPDATE DEF=CURRENT_TIMESTAMP| 更新时间
+
+6. question_buggy_path — 题目常见错误路径表(Buggy Paths)
+
+   字段                    | 类型                        | 约束                               | 注释
+   ----------------------+ --------------------------+ ---------------------------------+ ----------------------------------------
+   id                    | bigint                    | PK AI NN                         | 主键ID
+   question_id           | bigint                    | IDX NN                           | 关联题目ID
+   wrong_answer          | varchar(500)              | IDX NN                           | 错误答案
+   heuristic_hint        | varchar(1000)             | NN                               | 启发式提示（引导思考，不直接给答案）
+   error_type            | varchar(50)               | IDX                              | 错误类型：SPELLING/GRAMMAR/PREPOSITION/ARTICLE/TENSE/VOCABULARY/UNKNOWN
+   knowledge_point_id    | varchar(100)              |                                  | 关联知识点ID（多个用逗号分隔）
+   occurrence_count      | int                       | DEF=1                            | 出现次数
+   is_ai_generated       | tinyint                   | DEF=0                            | 是否AI生成：0=人工预设，1=AI生成
+   created_at            | datetime                  | DG DEF=CURRENT_TIMESTAMP         | 创建时间
+   updated_at            | datetime                  | DEFAULT_GENERATED ON UPDATE CURRENT_TIMESTAMP ONUPDATE DEF=CURRENT_TIMESTAMP| 更新时间
+
+7. question_content — 题目内容表(前后端分离,防泄漏)
+
+   字段                    | 类型                        | 约束                               | 注释
+   ----------------------+ --------------------------+ ---------------------------------+ ----------------------------------------
+   id                    | bigint                    | PK AI NN                         | 内容ID
+   question_id           | bigint                    | IDX NN                           | 题目ID(关联question_info)
+   stem                  | text                      |                                  | 题干；听力/选词填空无题干为 NULL
+   options               | json                      |                                  | 选项(JSON格式)
+   correct_answer        | text                      | NN                               | 正确答案
+   analysis              | text                      |                                  | 题目解析
+   created_at            | datetime                  | DG DEF=CURRENT_TIMESTAMP         | 创建时间
+   updated_at            | datetime                  | DEFAULT_GENERATED ON UPDATE CURRENT_TIMESTAMP ONUPDATE DEF=CURRENT_TIMESTAMP| 更新时间
+
+8. question_info — 题目元数据表(高频查询)
+
+   字段                    | 类型                        | 约束                               | 注释
+   ----------------------+ --------------------------+ ---------------------------------+ ----------------------------------------
+   id                    | bigint                    | PK AI NN                         | 题目ID
+   module_type           | tinyint                   | NN                               | 模块类型: 1=词汇, 2=语法, 3=翻译, 4=听力, 5=造句, 6=写作, 7=阅读
+   target_level          | varchar(10)               | IDX NN                           | 目标等级: CET4/CET6
+   difficulty_level      | int                       | NN                               | 难度等级: 1~8
+   question_type         | varchar(30)               | IDX NN                           | 题型: CHOICE/FILL_BLANK/TRANSLATION/WRITING
+   knowledge_point_id    | bigint                    | IDX                              | 关联知识点ID
+   passage_id            | bigint                    | IDX                              | 阅读文章ID，仅 module_type=7 使用
+   source                | varchar(20)               | DEF=MANUAL                       | 来源: MANUAL/AI/IMPORT
+   external_key          | varchar(120)              | UK                               | 外部导入唯一键，如 cet6-2022-12-1-q01
+   exam_key              | varchar(64)               | IDX                              | 来源考次，如 cet4-2022-06-1；残卷/借用套次沿用本套 examId
+   accepted_answers      | json                      |                                  | accepted_answers
+   answer_word           | varchar(100)              |                                  | 词条原形，仅用于新词去重，不下发前端
+   ai_generated          | tinyint                   | DEF=0                            | ai_generated
+   usage_count           | int                       | DEF=0                            | 被使用次数
+   is_deleted            | tinyint                   | DEF=0                            | 逻辑删除: 0=正常, 1=已删除
+   created_at            | datetime                  | DG DEF=CURRENT_TIMESTAMP         | 创建时间
+   updated_at            | datetime                  | DEFAULT_GENERATED ON UPDATE CURRENT_TIMESTAMP ONUPDATE DEF=CURRENT_TIMESTAMP| 更新时间
+
+9. question_pending — AI生成待审核题目表
+
+   字段                    | 类型                        | 约束                               | 注释
+   ----------------------+ --------------------------+ ---------------------------------+ ----------------------------------------
+   id                    | bigint                    | PK AI NN                         | 主键ID
+   module_type           | int                       | IDX NN                           | 模块类型: 1=词汇, 2=语法
+   target_level          | varchar(10)               | IDX NN                           | 目标等级: CET4/CET6
+   difficulty_level      | int                       | DEF=3                            | 难度等级: 1~8
+   question_type         | varchar(20)               | NN                               | 题型: FILL_BLANK/SENTENCE_MAKING
+   stem                  | text                      | NN                               | 题干
+   options               | varchar(2000)             |                                  | 选项(JSON数组)
+   correct_answer        | varchar(500)              | NN                               | 正确答案
+   analysis              | text                      |                                  | 题目解析
+   knowledge_point_name  | varchar(200)              |                                  | 关联知识点名称
+   status                | varchar(20)               | IDX DEF=PENDING                  | 状态: PENDING=待审核, APPROVED=已通过, REJECTED=已驳回
+   reviewer_id           | bigint                    |                                  | 审核人ID
+   review_comment        | varchar(500)              |                                  | 审核意见
+   created_at            | datetime                  | DG DEF=CURRENT_TIMESTAMP         | 创建时间
+   updated_at            | datetime                  | DEFAULT_GENERATED ON UPDATE CURRENT_TIMESTAMP ONUPDATE DEF=CURRENT_TIMESTAMP| 更新时间
+
+10. reading_passage — 阅读理解文章表
+
+   字段                    | 类型                        | 约束                               | 注释
+   ----------------------+ --------------------------+ ---------------------------------+ ----------------------------------------
+   id                    | bigint                    | PK AI NN                         | 阅读文章ID
+   external_key          | varchar(120)              | UK NN                            | 导入唯一键，如 cet4-2019-12-reading-1
+   passage_type          | varchar(32)               | NN                               | BANKED_CLOZE=选词填空 / CAREFUL_READING=仔细阅读 / MATCHING=长篇信息匹配
+   target_level          | varchar(10)               | IDX NN                           | 目标等级: CET4/CET6
+   title                 | varchar(255)              |                                  | 文章标题，无标题为 NULL
+   content               | mediumtext                | NN                               | 正文；MATCHING 用 [A]/[B] 标注段落
+   content_translation   | mediumtext                |                                  | 参考译文（可选）
+   word_bank             | json                      |                                  | 选词填空备选词库，如 ["A. absorb","B. ..."]；其他题型为 NULL
+   word_count            | int                       |                                  | 正文词数
+   source                | varchar(50)               | NN DEF=IMPORT                    | 来源: MANUAL/AI/IMPORT
+   exam_key              | varchar(64)               | IDX                              | 来源考次，如 cet4-2019-12
+   is_deleted            | tinyint                   | NN DEF=0                         | 逻辑删除: 0=正常, 1=已删除
+   created_at            | datetime                  | DG DEF=CURRENT_TIMESTAMP         | 创建时间
+   updated_at            | datetime                  | DEFAULT_GENERATED ON UPDATE CURRENT_TIMESTAMP ONUPDATE DEF=CURRENT_TIMESTAMP| 更新时间
+
+11. sys_knowledge_point — 知识点树表
+
+   字段                    | 类型                        | 约束                               | 注释
+   ----------------------+ --------------------------+ ---------------------------------+ ----------------------------------------
+   id                    | bigint                    | PK AI NN                         | 知识点ID
+   name                  | varchar(100)              | NN                               | 知识点名称
+   parent_id             | bigint                    | IDX DEF=0                        | 父知识点ID(0=根节点)
+   cet_level             | varchar(10)               | IDX                              | 考试级别: CET4/CET6
+   sort_order            | int                       | DEF=0                            | 排序序号
+   created_at            | datetime                  | DG DEF=CURRENT_TIMESTAMP         | 创建时间
+
+12. user_error_book — 错题本表
+
+   字段                    | 类型                        | 约束                               | 注释
+   ----------------------+ --------------------------+ ---------------------------------+ ----------------------------------------
+   id                    | bigint                    | PK AI NN                         | 记录ID
+   user_id               | bigint                    | IDX NN                           | 用户ID
+   question_id           | bigint                    | NN                               | 题目ID
+   wrong_count           | int                       | DEF=1                            | 错误次数
+   last_wrong_at         | datetime                  | DG DEF=CURRENT_TIMESTAMP         | 最后错误时间
+   is_resolved           | tinyint                   | DEF=0                            | 是否已掌握: 0=未解决, 1=已解决
+   created_at            | datetime                  | DG DEF=CURRENT_TIMESTAMP         | 创建时间
+   updated_at            | datetime                  | DEFAULT_GENERATED ON UPDATE CURRENT_TIMESTAMP ONUPDATE DEF=CURRENT_TIMESTAMP| 更新时间
+
+13. user_exercise_log — 答题记录表
+
+   字段                    | 类型                        | 约束                               | 注释
+   ----------------------+ --------------------------+ ---------------------------------+ ----------------------------------------
+   id                    | bigint                    | PK AI NN                         | 记录ID
+   user_id               | bigint                    | IDX NN                           | 用户ID
+   question_id           | bigint                    | NN                               | 题目ID
+   user_answer           | varchar(500)              |                                  | 用户答案
+   is_correct            | tinyint                   |                                  | 是否正确: 1=正确, 0=错误
+   duration_seconds      | int                       |                                  | 答题用时(秒)
+   module_type           | tinyint                   |                                  | 模块类型: 1=词汇, 2=语法
+   trace_id              | varchar(50)               | IDX                              | 全链路追踪ID
+   batch_key             | varchar(64)               |                                  | 练习组唯一键，用于单次练习结算
+   created_at            | datetime                  | DG DEF=CURRENT_TIMESTAMP         | 创建时间
+
+14. user_favorite — ?????
+
+   字段                    | 类型                        | 约束                               | 注释
+   ----------------------+ --------------------------+ ---------------------------------+ ----------------------------------------
+   id                    | bigint                    | PK AI NN                         | 
+   user_id               | bigint                    | IDX NN                           | ??ID
+   sentence_text         | text                      | NN                               | ?????/??
+   question_id           | bigint                    |                                  | ????ID????
+   source_type           | varchar(32)               | DEF=SENTENCE                     | ??: SENTENCE/EXERCISE
+   created_at            | datetime                  | DG DEF=CURRENT_TIMESTAMP         | 
+
+15. user_study_session — 学习会话活跃时长
+
+   字段                    | 类型                        | 约束                               | 注释
+   ----------------------+ --------------------------+ ---------------------------------+ ----------------------------------------
+   id                    | bigint                    | PK AI NN                         | 主键ID
+   user_id               | bigint                    | IDX NN                           | 用户ID
+   session_key           | varchar(64)               | NN                               | 客户端会话唯一键
+   stat_date             | date                      | NN                               | 会话开始日期（Asia/Shanghai）
+   active_seconds        | int                       | NN DEF=0                         | 有效活跃秒数
+   started_at            | datetime                  | NN                               | 会话开始时间
+   last_reported_at      | datetime                  | NN                               | 最后上报时间
+   created_at            | datetime                  | DG DEF=CURRENT_TIMESTAMP         | 创建时间
+   updated_at            | datetime                  | DEFAULT_GENERATED ON UPDATE CURRENT_TIMESTAMP ONUPDATE DEF=CURRENT_TIMESTAMP| 更新时间
+
+16. user_vocabulary — ?????
+
+   字段                    | 类型                        | 约束                               | 注释
+   ----------------------+ --------------------------+ ---------------------------------+ ----------------------------------------
+   id                    | bigint                    | PK AI NN                         | 
+   user_id               | bigint                    | IDX NN                           | ??ID
+   word                  | varchar(255)              | NN                               | ??
+   translation           | text                      |                                  | ??/??
+   phonetic              | varchar(255)              |                                  | 音标
+   pos                   | varchar(50)               |                                  | 词性
+   example               | text                      |                                  | 英文例句
+   example_translation   | text                      |                                  | 例句中文翻译
+   collocation           | varchar(500)              |                                  | 常见搭配
+   source                | varchar(100)              | DEF=manual                       | 来源: manual / ai
+   status                | varchar(16)               | DEF=LEARNING                     | 学习状态: LEARNING/REVIEWING/MASTERED/FAMILIAR
+   word_id               | bigint                    |                                  | 关联 word_dictionary.id
+   book_id               | bigint                    |                                  | 词书归属（word_book.id），手工/每日词可空
+   first_learned_at      | datetime                  |                                  | 首次学习时间
+   familiar_at           | datetime                  |                                  | 标熟时间（状态达成日）
+   mastered_at           | datetime                  |                                  | 达成已掌握时间（状态达成日）
+   correct_count         | int                       | DEF=0                            | 累计答对次数
+   wrong_count           | int                       | DEF=0                            | 累计答错次数
+   last_result           | varchar(16)               |                                  | 最近一次复习结果: CORRECT/WRONG
+   review_count          | int                       | DEF=0                            | 复习次数
+   mastery_level         | int                       | DEF=0                            | 掌握度等级
+   last_reviewed_at      | datetime                  |                                  | 上次复习时间
+   next_review_at        | datetime                  |                                  | 下次复习时间
+   is_mastered           | tinyint                   | DEF=0                            | ?????: 0=???, 1=???
+   created_at            | datetime                  | DG DEF=CURRENT_TIMESTAMP         | 
+   updated_at            | datetime                  | DEFAULT_GENERATED ON UPDATE CURRENT_TIMESTAMP ONUPDATE DEF=CURRENT_TIMESTAMP| 
+
+17. user_word_favorite — 用户收藏单词
+
+   字段                    | 类型                        | 约束                               | 注释
+   ----------------------+ --------------------------+ ---------------------------------+ ----------------------------------------
+   id                    | bigint                    | PK AI NN                         | 主键ID
+   user_id               | bigint                    | IDX NN                           | 用户ID
+   word_id               | bigint                    |                                  | 关联 word_dictionary.id（可空）
+   word                  | varchar(255)              | NN                               | 单词（小写）
+   created_at            | datetime                  | DG DEF=CURRENT_TIMESTAMP         | 创建时间
+
+18. user_word_learn_log — 单词学习事件日志
+
+   字段                    | 类型                        | 约束                               | 注释
+   ----------------------+ --------------------------+ ---------------------------------+ ----------------------------------------
+   id                    | bigint                    | PK AI NN                         | 主键ID
+   user_id               | bigint                    | IDX NN                           | 用户ID
+   word_id               | bigint                    |                                  | 关联 word_dictionary.id（可空）
+   word                  | varchar(255)              | NN                               | 单词（小写）
+   event_type            | varchar(16)               | NN                               | 事件类型: LEARN/REVIEW/MASTER/FAVORITE/UNFAVORITE/FAMILIAR/UNFAMILIAR
+   result                | varchar(16)               |                                  | 作答结果: CORRECT/WRONG（仅 LEARN/REVIEW/MASTER 有值）
+   book_code             | varchar(64)               |                                  | 当时词书编码（可空）
+   created_at            | datetime                  | DG DEF=CURRENT_TIMESTAMP         | 创建时间
+
+19. word_book — 词书主表
+
+   字段                    | 类型                        | 约束                               | 注释
+   ----------------------+ --------------------------+ ---------------------------------+ ----------------------------------------
+   id                    | bigint                    | PK AI NN                         | 主键ID
+   code                  | varchar(64)               | UK NN                            | 词书编码，如 basic_500
+   name                  | varchar(128)              | NN                               | 词书名称
+   level                 | varchar(16)               | NN                               | 目标等级：CET4/CET6
+   description           | varchar(255)              |                                  | 词书说明
+   sort_order            | int                       | DEF=0                            | 展示排序
+   created_at            | datetime                  | DG DEF=CURRENT_TIMESTAMP         | 创建时间
+   updated_at            | datetime                  | DEFAULT_GENERATED ON UPDATE CURRENT_TIMESTAMP ONUPDATE DEF=CURRENT_TIMESTAMP| 更新时间
+
+20. word_book_item — 词书明细（词→词书多对多）
+
+   字段                    | 类型                        | 约束                               | 注释
+   ----------------------+ --------------------------+ ---------------------------------+ ----------------------------------------
+   id                    | bigint                    | PK AI NN                         | 主键ID
+   book_code             | varchar(64)               | IDX NN                           | 词书编码
+   word                  | varchar(255)              | IDX NN                           | 单词（小写）
+   rank_no               | int                       | NN DEF=0                         | 词书内名次，1 为词频最高
+   created_at            | datetime                  | DG DEF=CURRENT_TIMESTAMP         | 创建时间
+
+21. word_dictionary — 绯荤粺鍗曡瘝璇嶅吀
+
+   字段                    | 类型                        | 约束                               | 注释
+   ----------------------+ --------------------------+ ---------------------------------+ ----------------------------------------
+   id                    | bigint                    | PK AI NN                         | 
+   word                  | varchar(255)              | UK NN                            | 鍗曡瘝
+   phonetic              | varchar(255)              |                                  | 闊虫爣
+   translation           | text                      |                                  | 涓?枃閲婁箟
+   pos                   | varchar(64)               |                                  | 璇嶆?
+   example               | text                      |                                  | 渚嬪彞(鑻辨枃)
+   example_translation   | text                      |                                  | 渚嬪彞缈昏瘧
+   level                 | varchar(16)               | DEF=CET4                         | 绛夌骇: CET4/CET6
+   difficulty_hint       | tinyint                   |                                  | 难度提示 2~7，由词书序位百分位映射
+   usage_count           | int                       | DEF=0                            | 琚??涓烘瘡鏃ュ崟璇嶇殑娆℃暟
+   created_at            | datetime                  | DG DEF=CURRENT_TIMESTAMP         | 
+   updated_at            | datetime                  | DEFAULT_GENERATED ON UPDATE CURRENT_TIMESTAMP ONUPDATE DEF=CURRENT_TIMESTAMP| 
+
+22. writing_essay — 写作作文记录表
+
+   字段                    | 类型                        | 约束                               | 注释
+   ----------------------+ --------------------------+ ---------------------------------+ ----------------------------------------
+   id                    | bigint                    | PK AI NN                         | 作文记录ID
+   user_id               | bigint                    | IDX NN                           | 用户ID
+   topic_key             | varchar(64)               | NN                               | 题目key（对应前端静态题库 id）
+   topic_title           | varchar(255)              |                                  | 题目标题快照
+   content               | text                      | NN                               | 作文原文
+   word_count            | int                       |                                  | 词数
+   duration_seconds      | int                       |                                  | 答题用时(秒)
+   ai_scored             | tinyint                   | NN DEF=0                         | AI是否已评分: 1=已评分, 0=未评分(降级待重评)
+   score_json            | text                      |                                  | 评分结果快照(JSON)
+   raw_score             | decimal(4,1)              |                                  | 原始分(满分15)
+   weighted_score        | decimal(5,1)              |                                  | 百分制折算分
+   created_at            | datetime                  | DG DEF=CURRENT_TIMESTAMP         | 创建时间
+
+三、learning_db（学习引擎库）  共 1 张表
+=========================================================================================================
+
+1. user_memory_curve — 艾宾浩斯遗忘曲线表(系统核心表)
+
+   字段                    | 类型                        | 约束                               | 注释
+   ----------------------+ --------------------------+ ---------------------------------+ ----------------------------------------
+   id                    | bigint                    | PK AI NN                         | 记录ID
+   user_id               | bigint                    | IDX NN                           | 用户ID
+   question_id           | bigint                    | NN                               | 题目ID
+   mastery_level         | int                       | DEF=1                            | 掌握等级: 1=陌生, 2=模糊, 3=熟悉, 4=熟练, 5=精通
+   next_review_time      | datetime                  | NN                               | 下次复习时间
+   review_count          | int                       | DEF=0                            | 已复习次数
+   last_review_at        | datetime                  |                                  | 最后复习时间
+   created_at            | datetime                  | DG DEF=CURRENT_TIMESTAMP         | 创建时间
+   updated_at            | datetime                  | DEFAULT_GENERATED ON UPDATE CURRENT_TIMESTAMP ONUPDATE DEF=CURRENT_TIMESTAMP| 更新时间

@@ -85,7 +85,7 @@ Recall·睿考 —— 四六级英语学习系统，前后端分离架构。
 | `pending-migrations/` | 导入脚本生成的待审迁移 SQL（README 说明流程） |
 | `review/translation-review-handover.md` | **翻译 AI 评分上线门禁交接文档**（自包含，新会话可只看它接手）：「未完成 MQ 实机验证 / shadow 标定 / 端到端回归 前，禁止把 `judgment.translation.ai-mode` 切到 `enforce`」 |
 | `Workbuddy/` | 外部协作产物（角色提示词、验收标准库、问题清单等）。**其中多份是 11-06 前后的历史快照，技术栈描述可能仍是旧口径，不作为现行规则** |
-| `frontend-handoff/` | 外部协作产物：Bolt.new 生成的 **React + Vite** 脚手架（技术栈与本项目无关，仅作视觉参考，禁止迁入 `frontend/`）。83 个文件已入库，`project/.env` 由 `project/.gitignore` 排除未跟踪 |
+| `frontend-handoff/` | 外部协作产物：Bolt.new 生成的 **React + Vite** 脚手架（技术栈与本项目无关，仅作视觉参考，禁止迁入 `frontend/`）。磁盘 84 个文件，**83 个已入库**（2026-11-08 起），仅 `project/.env` 由 `project/.gitignore` 排除未跟踪 |
 | `history/` | 开发变更日志与历史报告归档（原 `CLAUDE.md` 的 13 轮日志、11-01~11-15 各批次交付报告、两份前端问题清单），**仅供追溯，不是规则** |
 
 ### `scripts/`

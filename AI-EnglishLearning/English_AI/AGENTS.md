@@ -74,6 +74,7 @@ Recall·睿考 —— 四六级英语学习系统，前后端分离架构。
 | 文件 | 内容 |
 |---|---|
 | `前端UI契约.md` | **现行 UI 规则 + 八条基线 + 门禁口径**（改任何前端 UI 前必读） |
+| `后端接口契约.md` | **后端响应体 + `ErrorCode`/`BizCode` 码表 + 豁免清单 + 两个门禁口径**（改任何 Controller 或错误码前必读） |
 | `写作与通知接口需求.md` | **C-1 三项缺失接口的前端需求规格**（写作题库/草稿/收藏、通知、题目来源）。后端起未实现，未确认前不得当既有接口调用 |
 | `数据库迁移规范.md` | Flyway 命名/执行/回滚规范 + 历次迁移记录（改库前必读） |
 | `2026-11-07-数据库结构与真题导入基线.md` | 三库实际结构、题库/词库现状、导入方案、登录性能诊断 |
@@ -104,6 +105,8 @@ Recall·睿考 —— 四六级英语学习系统，前后端分离架构。
 | `clean-buggy-paths.mjs` | 错因表**只读**扫描 + 生成清洗迁移（只处理首尾标点/全角/多余空白等结构性脏数据） |
 | `mvn.sh` / `mvn.cmd` | 自动挑选 JDK 17+ 后调用 Maven（bash / Windows 批处理两版） |
 | `check-docs.mjs` | **文档治理门禁**（只读，不自动修）：`node scripts/check-docs.mjs` —— 校验 front-matter/status 合法、顶层无 deprecated、顶层文件名不带日期、`.md` 交叉引用可解析、`CLAUDE.md` 保持指针版、无平行指令文件。**退出码 0 才算通过**，改动文档后必须跑 |
+| `check-backend-contract.mjs` | **响应体门禁**（只读）：`node scripts/check-backend-contract.mjs` —— 扫所有 `@RestController`，接口方法返回类型必须是 `Result<...>`；`SseEmitter` ×2 与裸 `Map` ×3 按方法名白名单放行。**退出码 0 才算通过**，改 Controller 后必须跑 |
+| `check-migrations.mjs` | **迁移门禁**（只读）：`node scripts/check-migrations.mjs` —— 校验 Flyway 文件名格式、版本号不重复且从 `1.0.0` 连续递增，并列出 `sql/` 根目录的手工脚本作为第二变更渠道提示。**退出码 0 才算通过**，加迁移后必须跑 |
 
 ### 前端关键目录
 
@@ -145,7 +148,9 @@ scripts/with-env.sh scripts/mvn.sh -pl user-service spring-boot:run
 ```
 
 > **JAVA_HOME 必须指向 JDK 17+**：本机默认 `JAVA_HOME` 是 JRE 8（`C:\Program Files\Java\jre1.8.0_152`），
-> 直接跑 `mvn` 会报 `class file version 61.0 … up to 52.0`。
+> 直接跑 `mvn` 会报 `class file version 61.0 … up to 52.0`。若 `JAVA_HOME` 指向的是 JRE 而非 JDK（本机即如此），
+> 报的是 `No compiler is provided in this environment`；若指向 `jdk1.8.0_152`，报 `无效的标记: --release`，
+> 因为 `pom.xml` 声明 `<java.version>17</java.version>`。本机可直接用 `C:\Program Files\Java\jdk-21`。
 > `scripts/mvn.sh` 会自动挑选可用的 JDK（优先当前 `JAVA_HOME`，其次 jdk-21 / jdk-17），
 > 新开终端统一使用它。IDE 的 Run/Debug 配置需自行把 Project SDK 与 Maven Runner JRE 设为 JDK 17+。
 
@@ -194,7 +199,7 @@ npm run build
 ### 后端通用编码规范
 
 1. 模块职责严格边界：用户逻辑 → user-service；题库答题 → exercise-service；记忆复习 → learning-engine；大模型调用 → ai-service；鉴权路由 → 网关
-2. 接口统一返回 `Result<T>` 包装，格式：`{code, message, data}`
+2. 接口统一返回 `Result<T>` 包装，格式：`{code, message, data, traceId, bizCode}`。`code` 是 HTTP 语义，`bizCode` 是前端可编程区分的业务错误码；抛出异常用 `BusinessException(BizCode.X)` 而非手写 `ErrorCode` + 数字。完整码表、豁免清单与门禁见 `docs/后端接口契约.md`
 3. 实体类、数据库字段遵循下划线转驼峰，MyBatis-Plus 全局配置生效
 4. 新增接口默认需要鉴权，白名单仅 `/user/login`、`/user/register`
 5. 服务间调用通过 RestTemplate，地址从配置文件读取，支持环境变量覆盖

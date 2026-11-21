@@ -179,11 +179,13 @@ HomeView 复习块与状态行、StatsView 三格 —— 同一值已 ≥10 处�
 | 反色 | `btnPrimaryInverse` / `btnSecondaryInverse` | — | — |
 | 答题页矩形 (56px) | — | — | `btnQuizPrimary` / `btnQuizSecondary`（并排各占一半） |
 | 行内 (32px) | — | — | `btnRowNeutral` / `btnRowPrimary` / `btnRowDanger` / `btnRowOutline` / `btnRowTertiary` / `btnRowDangerText` |
+| 行内图标 (32px) | — | — | `btnIconAction`（表格行内只有图标的主色强调操作） |
 
 > 反色档不复用 `base`：焦点环用 `focus-visible:outline-on-primary`，避免在 `bg-primary` 容器上与底色同色而不可见。
 > 2026-11-15（`2a50d43`）新增 2 个反色常量（`btnPrimaryInverse` / `btnSecondaryInverse`），
 > 2026-11-21 新增 2 个答题页矩形档常量（`btnQuizPrimary` / `btnQuizSecondary`）与
-> 6 个行内档常量（`btnRow*`），`buttonStyles.ts` 当前共 **27 个** `export const`
+> 6 个行内档常量（`btnRow*`）与 1 个行内图标档常量（`btnIconAction`），
+> `buttonStyles.ts` 当前共 **28 个** `export const`
 > （按已提交状态计，口径同 §10「基线只认 HEAD」）。
 
 **行内档（`btnRow*`，2026-11-21 增补）** 专用于 admin 表格 `#cell-actions` 列，32px 高、胶囊形，图标配 `size="sm"`。
@@ -195,22 +197,37 @@ HomeView 复习块与状态行、StatsView 三格 —— 同一值已 ≥10 处�
 六音调共用同一底座并统一补齐 hover / active / focus-visible / disabled；
 原手写串中主色实心、危险实心、描边三档**均无悬停反馈**，鼠标划过时按钮毫无变化，本次收敛顺带修掉。
 
+**行内图标档（`btnIconAction`，2026-11-21 增补）** 用于表格行内**只有图标**的操作按钮。
+它与 `btnIconSm` 是两套语义、**不可互换**：
+
+| 维度 | `btnIconSm`（中性工具件） | `btnIconAction`（行内主操作） |
+|---|---|---|
+| 过渡 | `transition-colors` | `transition-all duration-200` |
+| 悬停底色 | `hover:bg-surface-container-high` | `hover:bg-primary-container/30` |
+| 悬停文字 | `hover:text-on-surface` | `hover:text-primary` |
+| 位移反馈 | 无 | `hover:scale-110` / `active:scale-95` |
+
+把它并入 `btnIconSm` 会同时丢掉主色强调与缩放反馈，属改视觉而非整理代码（2026-11-21 裁定）。
+颜色随行状态切换者（如用户列表的禁用/启用）仍用 `class` + `:class` 双写，不入本档。
+
 **禁止**
 
 - 禁止手写 `bg-primary px-* py-* rounded-*` 组合按钮。审计记录 20 处方角主按钮（`rounded-xl` + `py-4`）与令牌的 `rounded-full` 直接冲突。
 - 禁止在 `bg-primary` 按钮上叠加 `rounded-xl`：所有按钮底座固定 `rounded-full`，形状不可由调用方覆盖。
   答题页矩形档的 `btnQuizPrimary` 已内置该组合，调用方引用常量即可，不得复制其类名。
-- 禁止绕过 `btnIcon*` 手写 `h-8 w-8 rounded-full` 图标按钮（`AdminUsersView` 同一文件重复 5 次）。
+- 禁止绕过 `btnIcon*` 手写 `h-8 w-8 rounded-full` 图标按钮。行内主色强调形态用 `btnIconAction`；
+  `AdminUsersView` 原有 5 处手写串，其中 4 处（查看 / 重置密码 / 改角色 等）已于 2026-11-21 收口至该常量，
+  剩余 1 处（禁用/启用）因颜色随行状态切换仍保留 `class` + `:class` 双写。
 - 禁止给按钮叠加 `text-[13px]` 等任意字号；按钮字号由 `font-label-lg` 底座锁定。
 
 **门禁（L9，2026-11-21 增补）**
 
 `node scripts/check-btn-rules.mjs` 只读校验上述三条禁止条款，按文件冻结历史存量：
 
-- 冻结表登记 **35 个文件、76 处**（实测于 `52720a1` 的下一批，答题页矩形档收口后）：
-  手写图标按钮 16 / `bg-primary`+非圆底 8 / 非 `rounded-full` 底座 52。
+- 冻结表登记 **34 个文件、72 处**（2026-11-21 `AdminUsersView` 4 处收口至 `btnIconAction` 后实测）：
+  手写图标按钮 12 / `bg-primary`+非圆底 8 / 非 `rounded-full` 底座 52。
 - 判定按**文件 × 类别**：任何文件任一类超出即 exit 1；文件不在冻结表内却出现违规同样 fail。删旧增新不会因总数相等而漏网。
-- 这 76 处属历史存量，本契约**不要求清零**，只要求不再新增。
+- 这 72 处属历史存量，本契约**不要求清零**，只要求不再新增。
 - 已知局限：口径只统计 `class` 字面量，对 `:class` 动态绑定不计数。接入常量属合规用法，但若把违规串先赋给变量再绑定，本脚本看不见，需靠评审兜底。
 - 脚本只读 `<ref>`（默认 `HEAD`）、不读工作区，避免在途改动污染基线，口径同 §10「基线只认 HEAD」。
 
@@ -535,7 +552,7 @@ git grep -n "material-symbols-outlined" HEAD -- "src/views/*.vue" | wc -l
 > 当前八条：L1a 17 / L1b 124 / L2 0 / L3 0 / L4 0 / L5 6 / L6 10 / L8 8。
 >
 > **第九条 L9（按钮规则，独立脚本，不计入上列八条 git grep 口径）**：`node scripts/check-btn-rules.mjs`，
-> 基线 **76**（手写图标 16 / `bg-primary`+非圆底 8 / 非 `rounded-full` 底座 52，答题页矩形档收口后实测），
+> 基线 **72**（手写图标 12 / `bg-primary`+非圆底 8 / 非 `rounded-full` 底座 52；2026-11-21 `AdminUsersView` 4 处收口后实测），
 > 判定按文件×类别冻结、不要求清零，规则与冻结表说明见 §5「门禁」。此条为结构解析口径（按钮开标签可跨行、需区分 `:class`），
 > 故不并入上方八条的 `git grep` 行，以免破坏既有脚本的登记行解析。
 >

@@ -164,4 +164,25 @@ export const btnRowTertiary = `${rowBtnBase} text-tertiary hover:bg-tertiary-con
 /** 行内档 · 错误文字：审核驳回这类负向判定，与通过按钮并排时两色平级 */
 export const btnRowDangerText = `${rowBtnBase} text-error hover:bg-error-container/40 active:bg-error-container/60`
 
+/** ——— 行内图标档 32px：表格操作列里「只有图标」的主色强调按钮 ——— */
+
+/**
+ * 行内图标档：admin 表格 `#cell-actions` 列内只有图标、没有文字的操作按钮
+ * （用户列表的查看 / 重置密码 / 改角色等）。
+ *
+ * 与 `btnIconSm` 是**两套语义，不可互换**：
+ *   - `btnIconSm` 是中性工具件：hover 只提亮到 `surface-container-high`，无位移反馈；
+ *   - 本档是行内主操作：hover 强调到主色（`primary-container/30` + `text-primary`），
+ *     并用 `scale-110` / `scale-95` 给出悬停与按下的位移反馈，
+ *     使鼠标在密集表格中能定位到当前行。
+ *
+ * 因此收口时没有把这几处塞进 `btnIconSm` —— 那会同时丢掉主色强调和缩放反馈，
+ * 属于改视觉而非整理代码（2026-11-21 裁定，见契约 §5 行内档说明）。
+ *
+ * 注意：`AdminUsersView` 的禁用 / 启用按钮颜色随行状态切换（`text-error` ↔
+ * `text-on-surface-variant`），仍保留 `class` + `:class` 双写，不并入本档。
+ */
+export const btnIconAction =
+  'flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-on-surface-variant transition-all duration-200 hover:scale-110 hover:bg-primary-container/30 hover:text-primary active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:pointer-events-none disabled:opacity-50'
+
 

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="flex flex-col gap-6">
     <p class="font-body-md text-body-md text-on-surface-variant">{{ $t('adminConsole.users.subtitle') }}</p>
 
@@ -99,19 +99,19 @@
           <template #cell-createdAt="{ row }">{{ formatAdminDateTime(row.createdAt) }}</template>
           <template #cell-actions="{ row }">
             <div class="flex items-center justify-end gap-1">
-              <button type="button" class="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant transition-all duration-200 hover:scale-110 hover:bg-primary-container/30 hover:text-primary active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:pointer-events-none disabled:opacity-50" :aria-label="$t('adminConsole.users.actionView')" :title="$t('adminConsole.users.actionView')" @click="router.push(`/admin/users/${row.id}`)">
+              <button type="button" :class="btnIconAction" :aria-label="$t('adminConsole.users.actionView')" :title="$t('adminConsole.users.actionView')" @click="router.push(`/admin/users/${row.id}`)">
                 <AppIcon name="visibility" size="md" />
               </button>
               <button v-if="row.id !== currentUserId" type="button" class="flex h-8 w-8 items-center justify-center rounded-full transition-all duration-200 hover:scale-110 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:pointer-events-none disabled:opacity-50" :class="row.status === 1 ? 'text-error hover:bg-error-container' : 'text-on-surface-variant hover:bg-primary-container/30 hover:text-primary'" :aria-label="row.status === 1 ? $t('adminConsole.users.actionDisable') : $t('adminConsole.users.actionEnable')" :title="row.status === 1 ? $t('adminConsole.users.actionDisable') : $t('adminConsole.users.actionEnable')" @click="action = { kind: 'status', user: row }">
                 <AppIcon :name="row.status === 1 ? 'block' : 'check_circle'" size="md" />
               </button>
-              <button type="button" class="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant transition-all duration-200 hover:scale-110 hover:bg-primary-container/30 hover:text-primary active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:pointer-events-none disabled:opacity-50" :aria-label="$t('adminConsole.users.actionReset')" :title="$t('adminConsole.users.actionReset')" @click="action = { kind: 'reset', user: row }">
+              <button type="button" :class="btnIconAction" :aria-label="$t('adminConsole.users.actionReset')" :title="$t('adminConsole.users.actionReset')" @click="action = { kind: 'reset', user: row }">
                 <AppIcon name="lock_reset" size="md" />
               </button>
-              <button type="button" class="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant transition-all duration-200 hover:scale-110 hover:bg-primary-container/30 hover:text-primary active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:pointer-events-none disabled:opacity-50" :aria-label="$t('adminConsole.users.actionSetPassword')" :title="$t('adminConsole.users.actionSetPassword')" @click="action = { kind: 'setPassword', user: row }">
+              <button type="button" :class="btnIconAction" :aria-label="$t('adminConsole.users.actionSetPassword')" :title="$t('adminConsole.users.actionSetPassword')" @click="action = { kind: 'setPassword', user: row }">
                 <AppIcon name="key" size="md" />
               </button>
-              <button v-if="row.id !== currentUserId" type="button" class="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant transition-all duration-200 hover:scale-110 hover:bg-primary-container/30 hover:text-primary active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:pointer-events-none disabled:opacity-50" :aria-label="$t('adminConsole.users.actionRole')" :title="$t('adminConsole.users.actionRole')" @click="action = { kind: 'role', user: row }">
+              <button v-if="row.id !== currentUserId" type="button" :class="btnIconAction" :aria-label="$t('adminConsole.users.actionRole')" :title="$t('adminConsole.users.actionRole')" @click="action = { kind: 'role', user: row }">
                 <AppIcon name="manage_accounts" size="md" />
               </button>
             </div>
@@ -153,6 +153,7 @@ import UserAvatar from '../../components/admin/UserAvatar.vue'
 import UserActionDialog from '../../components/admin/UserActionDialog.vue'
 import ErrorState from '../../components/ui/ErrorState.vue'
 import { inputClass } from '@/components/ui/formStyles'
+import { btnIconAction } from '@/components/ui/buttonStyles'
 import type { TableColumn } from '../../components/admin/tableTypes'
 import type { UserAction } from '../../components/admin/userActionTypes'
 import { useAsyncData } from '../../composables/useAsyncData'

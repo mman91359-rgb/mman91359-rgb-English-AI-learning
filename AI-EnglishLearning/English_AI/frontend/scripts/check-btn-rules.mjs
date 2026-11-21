@@ -66,7 +66,7 @@ const BASELINE = {
   'views/TranslationPracticeView.vue': [0, 0, 4],
   'views/VocabQuizView.vue': [1, 1, 6],
   'views/VocabularyView.vue': [1, 0, 2],
-  'views/admin/AdminUsersView.vue': [4, 0, 0],
+  'views/admin/AdminUsersView.vue': [0, 0, 0],
   'views/writing/WritingHistoryView.vue': [0, 0, 1],
 }
 

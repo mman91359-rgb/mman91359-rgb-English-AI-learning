@@ -108,3 +108,25 @@ export const btnIconSm = `${iconBase} h-8 w-8`
 /** 图标按钮 · 危险 40px：删除、移除收藏等负向操作 */
 export const btnIconDanger =
   'inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-error-container/40 hover:text-error focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-error disabled:pointer-events-none disabled:opacity-50'
+
+/** ——— 答题页矩形档 56px：全宽并排双按钮，方角 ——— */
+
+/**
+ * 答题页矩形档底座：用于答题结果页底部「返回 / 再来一次」并排按钮。
+ *
+ * 与 base 的差别只在形状与内距：rounded-xl（非 full）、py-4（56px 高，超出上列三档）；
+ * 布局、过渡、焦点环、禁用态与 base 同源，键盘可达性由此补齐
+ * （此前这三处页面手写串无 focus-visible，键盘 Tab 到按钮时没有焦点反馈）。
+ *
+ * 本档为 §5「按钮底座统一 rounded-full」的既定例外（2026-11-21 裁定）：
+ * 56px 全宽长条按钮若用 rounded-full 会呈胶囊形，与 py-4 的高度比例不协调。
+ */
+const quizBase =
+  'flex-1 inline-flex items-center justify-center rounded-xl py-4 font-label-lg text-label-lg transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:pointer-events-none disabled:opacity-60'
+
+/** 答题页矩形档 · 主：实心品牌色，答题结果页的「再来一次 / 再练一次」 */
+export const btnQuizPrimary = `${quizBase} bg-primary text-on-primary hover:bg-primary/90`
+
+/** 答题页矩形档 · 次：卡片底色描边，与主按钮并排各占一半 */
+export const btnQuizSecondary = `${quizBase} bg-surface text-on-surface border border-outline-variant hover:bg-surface-variant`
+

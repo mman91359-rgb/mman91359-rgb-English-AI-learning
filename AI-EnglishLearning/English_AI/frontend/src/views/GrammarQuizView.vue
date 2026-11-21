@@ -271,13 +271,13 @@
 
             <div class="flex gap-4">
               <button
-                class="flex-1 bg-surface text-on-surface border border-outline-variant py-4 rounded-xl font-label-lg text-label-lg hover:bg-surface-variant transition-colors"
+                :class="btnQuizSecondary"
                 @click="goBack"
               >
                 {{ $t('learning.backToLearning') }}
               </button>
               <button
-                class="flex-1 bg-primary text-on-primary py-4 rounded-xl font-label-lg text-label-lg hover:bg-primary/90 transition-colors"
+                :class="btnQuizPrimary"
                 @click="restartQuiz"
               >
                 {{ $t('learning.practiceAgainGrammar') }}
@@ -332,7 +332,7 @@ import { usePracticeSettlement } from '@/composables/usePracticeSettlement'
 import { shuffle } from '@/utils/array'
 import type { QuestionVO, SubmitResponse } from '@/api/exercise'
 import PracticeSettleCard from '@/components/PracticeSettleCard.vue'
-import { btnIcon } from '@/components/ui/buttonStyles'
+import { btnIcon, btnQuizPrimary, btnQuizSecondary } from '@/components/ui/buttonStyles'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 

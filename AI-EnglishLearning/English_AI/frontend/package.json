@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
-    "check-ui-consistency": "node scripts/check-ui-consistency.mjs"
+    "check-ui-consistency": "node scripts/check-ui-consistency.mjs",
+    "check-btn-rules": "node scripts/check-btn-rules.mjs"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.2",

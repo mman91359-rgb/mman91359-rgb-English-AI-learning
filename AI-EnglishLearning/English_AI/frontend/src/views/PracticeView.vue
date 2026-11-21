@@ -210,13 +210,13 @@
         <!-- 返回按钮 -->
         <div class="mt-8 flex gap-4">
           <button
-            class="flex-1 bg-surface text-on-surface border border-outline-variant py-4 rounded-xl font-label-lg text-label-lg hover:bg-surface-variant transition-colors"
+            :class="btnQuizSecondary"
             @click="$router.back()"
           >
             {{ $t('learning.backToHub') }}
           </button>
           <button
-            class="flex-1 bg-primary text-on-primary py-4 rounded-xl font-label-lg text-label-lg hover:bg-primary/90 transition-colors"
+            :class="btnQuizPrimary"
             @click="restartPractice"
           >
             {{ $t('learning.practiceAgain') }}
@@ -240,7 +240,7 @@ import { useSentenceFavorite } from '@/composables/useSentenceFavorite'
 import { usePracticeSettlement } from '@/composables/usePracticeSettlement'
 import type { QuestionVO, SubmitResponse } from '@/api/exercise'
 import PracticeSettleCard from '@/components/PracticeSettleCard.vue'
-import { btnIcon } from '@/components/ui/buttonStyles'
+import { btnIcon, btnQuizPrimary, btnQuizSecondary } from '@/components/ui/buttonStyles'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 

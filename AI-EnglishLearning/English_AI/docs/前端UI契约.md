@@ -163,6 +163,11 @@ HomeView 复习块与状态行、StatsView 三格 —— 同一值已 ≥10 处�
 **按钮的形状与尺寸统一归本节，§1 圆角四档不适用于按钮。** 所有按钮底座固定 `rounded-full`，
 调用方不得覆盖。
 
+**唯一例外：答题页矩形档（2026-11-21 裁定）** —— `btnQuizPrimary` / `btnQuizSecondary`，56px 高、`rounded-xl` 方角。
+仅用于答题结果页底部的并排双按钮（`GrammarQuizView` / `PracticeView` / `VocabQuizView` 三处同构）。
+56px 全宽长条若用 `rounded-full` 会呈胶囊形、与高度比例不协调，故单设此档；
+除形状与内距外，布局、过渡、焦点环、禁用态与 `base` 同源。该档同样**只许从常量引入**，不得在页面手写 `py-4 rounded-xl` 组合。
+
 | 层级 | 默认档 (42px) | 小档 (36px) | 占位/全宽档 |
 |---|---|---|---|
 | 主 | `btnPrimary` | `btnPrimarySm` | `btnPrimaryBlock` |
@@ -172,15 +177,18 @@ HomeView 复习块与状态行、StatsView 三格 —— 同一值已 ≥10 处�
 | 弹窗 | `btnDialogPrimary` / `btnDialogSecondary` | — | — |
 | 图标 | `btnIcon` (40px) / `btnIconMd` (36px) / `btnIconSm` (32px) / `btnIconDanger` | — | — |
 | 反色 | `btnPrimaryInverse` / `btnSecondaryInverse` | — | — |
+| 答题页矩形 (56px) | — | — | `btnQuizPrimary` / `btnQuizSecondary`（并排各占一半） |
 
 > 反色档不复用 `base`：焦点环用 `focus-visible:outline-on-primary`，避免在 `bg-primary` 容器上与底色同色而不可见。
-> 2026-11-15（`2a50d43`）新增 2 个反色常量（`btnPrimaryInverse` / `btnSecondaryInverse`），`buttonStyles.ts` 当前共 **19 个** `export const`
-> （按已提交状态计，口径同 §10「基线只认 HEAD」）。
+> 2026-11-15（`2a50d43`）新增 2 个反色常量（`btnPrimaryInverse` / `btnSecondaryInverse`），
+> 2026-11-21 新增 2 个答题页矩形档常量（`btnQuizPrimary` / `btnQuizSecondary`），
+> `buttonStyles.ts` 当前共 **21 个** `export const`（按已提交状态计，口径同 §10「基线只认 HEAD」）。
 
 **禁止**
 
 - 禁止手写 `bg-primary px-* py-* rounded-*` 组合按钮。审计记录 20 处方角主按钮（`rounded-xl` + `py-4`）与令牌的 `rounded-full` 直接冲突。
 - 禁止在 `bg-primary` 按钮上叠加 `rounded-xl`：所有按钮底座固定 `rounded-full`，形状不可由调用方覆盖。
+  答题页矩形档的 `btnQuizPrimary` 已内置该组合，调用方引用常量即可，不得复制其类名。
 - 禁止绕过 `btnIcon*` 手写 `h-8 w-8 rounded-full` 图标按钮（`AdminUsersView` 同一文件重复 5 次）。
 - 禁止给按钮叠加 `text-[13px]` 等任意字号；按钮字号由 `font-label-lg` 底座锁定。
 
@@ -188,9 +196,11 @@ HomeView 复习块与状态行、StatsView 三格 —— 同一值已 ≥10 处�
 
 `node scripts/check-btn-rules.mjs` 只读校验上述三条禁止条款，按文件冻结历史存量：
 
-- 冻结表登记 **35 个文件、82 处**（实测于 `b5b4fc0`）：手写图标按钮 16 / `bg-primary`+非圆底 11 / 非 `rounded-full` 底座 55。
+- 冻结表登记 **35 个文件、76 处**（实测于 `52720a1` 的下一批，答题页矩形档收口后）：
+  手写图标按钮 16 / `bg-primary`+非圆底 8 / 非 `rounded-full` 底座 52。
 - 判定按**文件 × 类别**：任何文件任一类超出即 exit 1；文件不在冻结表内却出现违规同样 fail。删旧增新不会因总数相等而漏网。
-- 这 82 处属历史存量，本契约**不要求清零**，只要求不再新增。
+- 这 76 处属历史存量，本契约**不要求清零**，只要求不再新增。
+- 已知局限：口径只统计 `class` 字面量，对 `:class` 动态绑定不计数。接入常量属合规用法，但若把违规串先赋给变量再绑定，本脚本看不见，需靠评审兜底。
 - 脚本只读 `<ref>`（默认 `HEAD`）、不读工作区，避免在途改动污染基线，口径同 §10「基线只认 HEAD」。
 
 ---
@@ -514,7 +524,7 @@ git grep -n "material-symbols-outlined" HEAD -- "src/views/*.vue" | wc -l
 > 当前八条：L1a 17 / L1b 124 / L2 0 / L3 0 / L4 0 / L5 6 / L6 10 / L8 8。
 >
 > **第九条 L9（按钮规则，独立脚本，不计入上列八条 git grep 口径）**：`node scripts/check-btn-rules.mjs`，
-> 基线 **82**（手写图标 16 / `bg-primary`+非圆底 11 / 非 `rounded-full` 底座 55，实测于 `b5b4fc0`），
+> 基线 **76**（手写图标 16 / `bg-primary`+非圆底 8 / 非 `rounded-full` 底座 52，答题页矩形档收口后实测），
 > 判定按文件×类别冻结、不要求清零，规则与冻结表说明见 §5「门禁」。此条为结构解析口径（按钮开标签可跨行、需区分 `:class`），
 > 故不并入上方八条的 `git grep` 行，以免破坏既有脚本的登记行解析。
 >

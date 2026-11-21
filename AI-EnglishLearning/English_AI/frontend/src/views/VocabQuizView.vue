@@ -337,13 +337,13 @@
             <!-- 操作按钮 -->
             <div class="flex gap-4">
               <button
-                class="flex-1 bg-surface text-on-surface border border-outline-variant py-4 rounded-xl font-label-lg text-label-lg hover:bg-surface-variant transition-colors"
+                :class="btnQuizSecondary"
                 @click="goBack"
               >
                 {{ $t('learning.backToHub') }}
               </button>
               <button
-                class="flex-1 bg-primary text-on-primary py-4 rounded-xl font-label-lg text-label-lg hover:bg-primary/90 transition-colors"
+                :class="btnQuizPrimary"
                 @click="restartQuiz"
               >
                 {{ $t('learning.practiceAgain') }}
@@ -490,7 +490,7 @@ import { useSpeechRecognition } from '@/composables/useSpeechRecognition'
 import { useAiStore } from '@/stores/ai'
 import { shuffle } from '@/utils/array'
 import type { QuestionVO, SubmitResponse, VocabularyVO, WordCardVO } from '@/api/exercise'
-import { btnIcon } from '@/components/ui/buttonStyles'
+import { btnIcon, btnQuizPrimary, btnQuizSecondary } from '@/components/ui/buttonStyles'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'

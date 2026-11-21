@@ -1,3 +1,8 @@
+---
+status: active
+updated: 2026-11-21
+---
+
 # Recall·睿考 前端项目开发文档（V3）
 
 **版本**：V3.2（2026-11-07 按代码事实二次校准）　|　**基线**：`refactor/reuse-baseline` 分支 `AI-EnglishLearning/English_AI/frontend/` 最新提交代码事实　|　**适用阶段**：听力/翻译/写作模块均已完成，管理员端 7 页已实装

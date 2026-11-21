@@ -1,8 +1,15 @@
+---
+status: active
+updated: 2026-11-21
+---
+
 # Recall·睿考 后续开发任务书（Backlog / 喂给 AI 的编程任务单）
 
 **版本**：V1.0　|　**基线**：`mman91359-rgb-English-AI-learning` 最新提交　|　**用途**：把"还没做 + 待优化"的目标拆成**可直接执行的开发任务**，按优先级排期，可直接投喂给 AI 编程工具（或人工作为检查单）
 
-> **最近校准（2026-11-07）**：P0 安全债「读接口 IDOR」已完成修复（14 个接口统一加 `X-User-Id` 越权校验）。**P1 翻译模块闭环已完成**：Flyway V1.0.5（correct_answer→TEXT）+ V1.0.6（10 条翻译题种子：短句 6 + 段落 4），`JudgmentEngine.judgeTranslation` 实现「本地归一化精确比对 + 短句 AI 语义兜底、段落仅本地比对」，前端 `TranslationPracticeView` 替换 Mock 接真实接口，`LearningView` 修复翻译入口跳转。**P2 写作模块闭环 + AI 复用组件已完成**：Flyway V1.0.7 新增 `writing_essay` 表（作文先落库后评分，失败降级可重评）；ai-service 新增 `/ai/score-writing` 同步结构化评分接口（5 维度/满分 15，Mock 兜底）；exercise-service 新增写作提交/重评/历史/详情接口；前端原子层 `WordToken`+`WordDetailCard`+`api/word.ts`+`useSpeech`（英美发音）、容器层 `AiFeedbackPanel`+`AiActionBar`+`templates/`，`api/writing.ts` 从 localStorage 换真实 HTTP。后续方向：P3 复习/统计口径合并。词条数据源采用「C1 现在 AI 实时查词（复用 `/ai/word-detail`）→ C3 终态本地词典优先 + AI 回退 + 缓存写回」，为后续大量导入单词数据预留统一查词入口 `api/word.ts`。
+> **最近校准（2026-11-21）**：复核了状态标记，修掉三处「已完成却仍标未做」——T-302 路由懒加载（实测 `() => import()` 34 处，已完成）、T-410 管理员 UI（8 个功能页 + 1 布局，已完成）；T-304 图表组件确认未做（`components/` 下无 `Chart*.vue`），补上显式状态。
+>
+> **上一次校准（2026-11-07）**：P0 安全债「读接口 IDOR」已完成修复（14 个接口统一加 `X-User-Id` 越权校验）。**P1 翻译模块闭环已完成**：Flyway V1.0.5（correct_answer→TEXT）+ V1.0.6（10 条翻译题种子：短句 6 + 段落 4），`JudgmentEngine.judgeTranslation` 实现「本地归一化精确比对 + 短句 AI 语义兜底、段落仅本地比对」，前端 `TranslationPracticeView` 替换 Mock 接真实接口，`LearningView` 修复翻译入口跳转。**P2 写作模块闭环 + AI 复用组件已完成**：Flyway V1.0.7 新增 `writing_essay` 表（作文先落库后评分，失败降级可重评）；ai-service 新增 `/ai/score-writing` 同步结构化评分接口（5 维度/满分 15，Mock 兜底）；exercise-service 新增写作提交/重评/历史/详情接口；前端原子层 `WordToken`+`WordDetailCard`+`api/word.ts`+`useSpeech`（英美发音）、容器层 `AiFeedbackPanel`+`AiActionBar`+`templates/`，`api/writing.ts` 从 localStorage 换真实 HTTP。后续方向：P3 复习/统计口径合并。词条数据源采用「C1 现在 AI 实时查词（复用 `/ai/word-detail`）→ C3 终态本地词典优先 + AI 回退 + 缓存写回」，为后续大量导入单词数据预留统一查词入口 `api/word.ts`。
 
 > **上一校准（2026-10-31）**：按当前代码事实回写执行状态。T-001/T-002/T-005 已完成，T-003 部分完成，T-004 暂缓，T-006 待做；听力模块已按"复用题库 + 音频表"落地。module_type 契约统一为：1词汇 2语法 3翻译 4听力 5造句（保留）6写作。**写作不再使用 5，改为 6。**
 
@@ -27,7 +34,7 @@
 | Sprint 2（翻译 + 写作 MVP） | 翻译模块、写作模块 | 完整"四模块学习"闭环 |
 | Sprint 3（体验 + 工程化） | 暗色主题、SSE 重连、测试、Docker | 可展示、可部署 |
 
-> 每个任务标注了**真实代码位置**与**真实接口**，AI 可直接定位修改；任务描述严格基于现状代码与已预留的设计（`kown/数据库结构.txt`、`页面/*.html` 原型、`recall-frontend-prompt.md` 愿景），**不允许新增未规划的表结构/接口方向**。
+> 每个任务标注了**真实代码位置**与**真实接口**，AI 可直接定位修改；任务描述严格基于现状代码与已预留的设计（`known/数据库结构.txt`、`页面/*.html` 原型、`known/recall-frontend-prompt.md` 愿景），**不允许新增未规划的表结构/接口方向**。
 
 ---
 
@@ -102,7 +109,7 @@
 
 ## Sprint 2 —— 翻译 + 写作模块 MVP
 
-> **依据**：`question_info.question_type` 已含 `TRANSLATION/WRITING`；`/ai/score` 已支持 `scoreType=writing`（SSE 流式）；`recall-frontend-prompt.md` 设计了 `/writing` 与作文评分 UI。
+> **依据**：`question_info.question_type` 已含 `TRANSLATION/WRITING`；`/ai/score` 已支持 `scoreType=writing`（SSE 流式）；`known/recall-frontend-prompt.md` 设计了 `/writing` 与作文评分 UI。
 
 ### T-201　翻译模块（中英互译练习）　✅ 已完成（2026-11-07）
 - **做什么**：
@@ -137,8 +144,8 @@
 - **做什么**：按 `页面/黑夜版/` 原型补全 `tailwind.config` dark 令牌（`dark:bg-inverse-surface` 等），`TopAppBar` 主题切换持久化到 localStorage。
 - **验收**：切换主题全站生效，无写死亮色。
 
-### T-302　路由懒加载 + 组件级错误边界　⬜ 未完成
-- **状态**：`router/index.ts` 目前仍是全静态 import（含新增的 ListeningView）；构建产物主包 2.7MB，需后续分包。
+### T-302　路由懒加载 + 组件级错误边界　✅ 已完成（2026-11-07）
+- **状态**：`router/index.ts` 已改为 `() => import()` 懒加载（实测 34 处），首屏 chunk 从约 2,997 kB 降到约 218 kB。**原文「仍是全静态 import、主包 2.7MB」的描述已失效。**
 - **做什么**：17 个视图改 `() => import()`；大视图（VocabQuiz/GrammarQuiz 40KB+）单独分包。
 - **验收**：`npm run build` 产物分块；首屏白屏无。
 
@@ -146,7 +153,7 @@
 - **做什么**：AiSidebarContent 增加断线重试、加载态、字数节流；对话上下文长度裁剪。
 - **验收**：断网重连不丢已渲染内容；长对话响应流畅。
 
-### T-304　图表组件沉淀
+### T-304　图表组件沉淀　⬜ 未完成（2026-11-21 复核：`components/` 下无任何 `Chart*.vue`）
 - **做什么**：将雷达图/柱状图/热力图封装为 `ChartRadar.vue / ChartBar.vue / ChartHeatmap.vue`，替换 StatsView 内联 ECharts。
 - **验收**：三个图表组件可参数化复用。
 
@@ -206,7 +213,8 @@
 - **状态**：新增 `RolesTest`、`AdminAuthInterceptorTest`、`AdminUserServiceImplTest`、`AdminNoticeServiceImplTest`、`QuestionGenerateServiceTest`；当前 user-service 51、exercise-service 40，共 91 个用例通过。文档已新增 UI/API 契约。
 - **待办**：活动状态机测试、看板降级测试、Controller MockMvc 测试、真实 MySQL/浏览器联调。
 
-### T-410　管理员 UI 实现　⬜ 未开始
+### T-410　管理员 UI 实现　✅ 已完成（2026-11-01）
+- **状态**：已交付 **8 个功能页 + 1 个布局**（看板、用户列表、用户详情、题目审核、通知、活动、操作日志、判题复核）。原「⬜ 未开始」为 2026-10-31 的旧状态，**已失效**。
 - **做什么**：按 `docs/管理员端UI设计契约.md` 实现 `AdminLayout`、六页、表格/分页/筛选/抽屉/确认框、角色守卫、通知铃铛改造。
 - **验收**：契约第 10 节清单全部通过。
 
@@ -238,4 +246,4 @@
 
 ---
 
-*本任务书所有"依据"均来自最新仓库源码核验：`sql/*.sql`、各 Controller/Service 接口、`frontend/src/api/exercise.ts`、`kown/数据库结构.txt`、`页面/*.html` 原型、`参考图片/*.jpg` 设计稿。听力/翻译/写作为当前未实现、但**数据库与设计文档已明确预留**的方向，任务拆解满足"目标清晰、可验收、可实现"。*
+*本任务书所有"依据"均来自最新仓库源码核验：`sql/*.sql`、各 Controller/Service 接口、`frontend/src/api/exercise.ts`、`known/数据库结构.txt`、`页面/*.html` 原型、`参考图片/*.jpg` 设计稿。听力/翻译/写作为当前未实现、但**数据库与设计文档已明确预留**的方向，任务拆解满足"目标清晰、可验收、可实现"。*

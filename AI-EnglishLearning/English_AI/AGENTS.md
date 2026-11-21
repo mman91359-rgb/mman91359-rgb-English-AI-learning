@@ -1,0 +1,289 @@
+# AGENTS.md
+
+> 本文件是整个仓库的 **唯一指令基线**。所有 AI 平台（Claude Code / Cursor / Codex / Windsurf / Copilot）
+> 操作本仓库时都以本文件为准，禁止自行脑补未提及的架构与依赖。
+
+- **唯一路径**：`AI-EnglishLearning/English_AI/AGENTS.md`（git 根为 `D:\AI-EnglishLearning`，主项目在 `AI-EnglishLearning/English_AI`）
+- 其他平台的专属文件（`CLAUDE.md`、`.cursor/rules/`、`.windsurfrules`、`.github/copilot-instructions.md`）
+  只能是**指向本文件的指针**，不得复制规则正文
+- 禁止在仓库根、子模块、`docs/`、`frontend/` 下再新建任何平行指令文件
+- 需要补充说明时：长期规则写进本文件对应章节；长文档写入 `docs/`，并在下方「仓库文件地图」登记
+- 发现重复或冲突的平行指令文件，视为噪声，直接删除并在此记录
+- 从 git 根（`D:\AI-EnglishLearning`）启动的工具，启动参数里指定 `AI-EnglishLearning/English_AI` 为项目目录，不要为此在根目录再生成一份指令文件
+
+**本文件只放长期有效的规则，不放变更日志。** 新的变更记录写到 `docs/` 下按日期命名的报告，或追加到 `docs/history/2026-开发变更记录.md`。
+
+---
+
+## 项目概述
+Recall·睿考 —— 四六级英语学习系统，前后端分离架构。
+- 后端：Maven 多模块 Spring Boot 微服务，Spring Cloud Gateway 做静态路由
+- 前端：Vue 3 + Vite SPA，电脑端优先，Material Design 3 设计语言
+- 交互语言、代码注释、业务文案统一使用中文
+- 当前阶段：基础功能已跑通，正在开发听力/翻译/写作模块
+
+## 技术栈与版本锁定（禁止擅自新增）
+### 后端
+- JDK 17
+- Spring Boot 3.2.0
+- Spring Cloud 2023.0.3
+- Spring Cloud Gateway（WebFlux）
+- MyBatis-Plus 3.5.5
+- JJWT 0.12.3（HS256）
+- Spring Security Crypto（BCrypt，work factor 10；存量 `$2b$12$` 在登录成功后自动重编码）
+- 服务间调用：RestTemplate 直连（无 OpenFeign）
+- 消息队列：RabbitMQ（默认关闭，`spring.rabbitmq.enabled=false`）
+- AI 接入：阿里云百炼 DashScope，原生 HTTP 调用（无官方SDK），兼容 OpenAI 格式
+- ❗ 明确未启用：Nacos 服务发现（仅 yml 有配置，无依赖，未生效）、Redis、Sentinel、Seata、Spring AI
+
+### 前端
+- Vue 3.5 + TypeScript（`<script setup>` 组合式）
+- Vite 8
+- Vue Router 5
+- Pinia 3
+- Tailwind CSS 3.4 + Material Design 3 设计令牌
+- Material Symbols Outlined 图标
+- ECharts 6
+- Axios
+- vue-i18n 10
+- ❗ 明确约定：Element Plus 仅保留依赖，禁止在页面中直接使用 `el-*` 组件，全站 UI 统一用 Tailwind + M3 自研组件
+
+### 数据库
+- MySQL 8.0
+- 三库拆分：`user_db` / `exercise_db` / `learning_db`
+
+## 仓库文件地图（给 AI 的快速索引）
+
+> 按"要改什么 → 先读什么"排序。找不到入口时先看本表，不要靠猜或重新生成文档。
+
+### 后端模块与关键类
+
+| 模块 | 职责 | 改之前先看 |
+|---|---|---|
+| `common/` | 公共契约 | `ModuleType.java`（module_type/question_type/雷达维度唯一事实来源）、`RadarDimension.java`、`PasswordUtil.java`、`JwtUtil.java`、`Result.java`、`ErrorCode.java` |
+| `user-service/` | 账户、金币、签到、偏好、ELO、雷达 | `service/impl/UserServiceImpl.java`（注册/登录）、`UserAbilityRadarServiceImpl.java`（ELO 与维度更新）、`config/AdminAuthInterceptor.java`、`config/InternalAuthInterceptor.java` |
+| `exercise-service/` | 题库、选题、判题、错题本、词库 | `service/impl/ExerciseServiceImpl.java`（`selectQuestions` 选题 / `submitAnswer` 判题 / `getDailyWord` 每日一词）、`judgment/`（三级判题）、`util/ChoiceAnswerUtil.java` |
+| `learning-engine-service/` | 遗忘曲线、每日复习 | `service/`（`update-curve` 消费）、`db/migration/V1.0.0__init_learning_db.sql` |
+| `ai-service/` | 大模型调用（唯一出口） | `service/AiService.java`、`controller/AiController.java`；业务模块禁止直连大模型 |
+| `api-gateway/` | 统一入口、JWT 校验、路由 | `filter/JwtAuthFilter.java`（白名单与 `X-User-Id` 透传）、`application.yml`（路由与 CORS） |
+
+### `docs/` 文档清单
+
+> **改前端 UI 的第一入口是 `前端UI契约.md`**；`history/前端UI审计与组件契约.md` 只是 2026-11-14 的只读审计快照，不是现行规则。
+
+| 文件 | 内容 |
+|---|---|
+| `前端UI契约.md` | **现行 UI 规则 + 八条基线 + 门禁口径**（改任何前端 UI 前必读） |
+| `数据库迁移规范.md` | Flyway 命名/执行/回滚规范 + 历次迁移记录（改库前必读） |
+| `2026-11-07-数据库结构与真题导入基线.md` | 三库实际结构、题库/词库现状、导入方案、登录性能诊断 |
+| `听力资源导入规范.md` | `scripts/import-listening.mjs` 的 manifest 与目录约定 |
+| `作文模块UI设计契约.md` / `作文模块UI生成提示词.md` | 写作模块页面契约 |
+| `管理员端API契约.md` / `管理员端UI设计契约.md` / `管理员端UI设计契约V2.md` | 管理端接口与视觉契约 |
+| `history/前端UI审计与组件契约.md` | **历史快照（2026-11-14，已归档）**：当时的 UI 一致性审计结论，仅作偏差来源追溯；现状数字一律以 `前端UI契约.md` §10 为准 |
+| `Recall睿考_后端项目开发文档V3.md` / `Recall睿考_前端项目开发文档V3.md` | 整体架构与模块说明 |
+| `后续开发任务书（Backlog）.md` | 待办优先级 |
+| `pending-migrations/` | 导入脚本生成的待审迁移 SQL（README 说明流程） |
+| `review/translation-review-handover.md` | **翻译 AI 评分上线门禁交接文档**（自包含，新会话可只看它接手）：「未完成 MQ 实机验证 / shadow 标定 / 端到端回归 前，禁止把 `judgment.translation.ai-mode` 切到 `enforce`」 |
+| `Workbuddy/` | 外部协作产物（角色提示词、验收标准库、问题清单等）。**其中多份是 11-06 前后的历史快照，技术栈描述可能仍是旧口径，不作为现行规则** |
+| `history/` | 开发变更日志与历史报告归档（原 `CLAUDE.md` 的 13 轮日志、11-01~11-15 各批次交付报告、两份前端问题清单），**仅供追溯，不是规则** |
+
+### `scripts/`
+
+| 脚本 | 用途 |
+|---|---|
+| `flyway.sh` | **唯一迁移入口**：`<module> <baseline\|migrate\|info\|validate\|repair>`；空库会拒绝 baseline |
+| `backup-schema.sh` | 迁移前结构备份（输出到 `sql/backup/`，已 gitignore） |
+| `with-env.sh` | 注入 `.env` 后启动服务；**user-service 与 api-gateway 必须用它启动**，否则 JWT_SECRET 不一致会全站 401 |
+| `import-listening.mjs` | 听力导入范式：`check` / `build` → 生成 Flyway SQL 到 `docs/pending-migrations/` |
+| `import-words.mjs` | 词库导入：读 `6.26.sql` 的 `book_word`（只认 CET4=7 / CET6=8）→ 生成 `word_dictionary` 迁移 |
+| `generate-vocab-questions.mjs` | 词汇填空题生成器：导出 `buildForms` / `categoryOf` / `inflect`；含不可数名词、CVC 双写、敏感过滤规则 |
+| `patch-accepted-top200.mjs` | accepted 定点/批量补丁：`--top` / `--only-keys` / `--keys-file` / `--dry-run` → 生成纯 UPDATE 迁移 |
+| `audit-accepted-coverage.mjs` | accepted 覆盖度**只读**巡检：`--out` 出报告、`--json-out` 出机器可读缺口清单、`--db` 指定库 |
+| `clean-buggy-paths.mjs` | 错因表**只读**扫描 + 生成清洗迁移（只处理首尾标点/全角/多余空白等结构性脏数据） |
+| `mvn.sh` / `mvn.cmd` | 自动挑选 JDK 17+ 后调用 Maven（bash / Windows 批处理两版） |
+| `check-docs.mjs` | **文档治理门禁**（只读，不自动修）：`node scripts/check-docs.mjs` —— 校验 front-matter/status 合法、顶层无 deprecated、顶层文件名不带日期、`.md` 交叉引用可解析、`CLAUDE.md` 保持指针版、无平行指令文件。**退出码 0 才算通过**，改动文档后必须跑 |
+
+### 前端关键目录
+
+`api/`（唯一数据出口）→ `stores/`（Pinia）→ `views/`（页面）→ `components/`（公共组件）；`config/modules.ts` 是 module_type 的前端映射，必须与 `common/ModuleType.java` 同步；`i18n/locales/` 管文案。
+
+### 数据库入口
+
+三库归属见"数据库约定"；**结构变更唯一入口是各模块 `src/main/resources/db/migration/`**。`sql/` 下历史脚本仅参考，`sql/init/` 已废弃。
+
+### `known/` 参考目录（git 根下 `AI-EnglishLearning/known/`，与 `English_AI/` 平级，不在主工程内）
+
+> 目录名 2026-11-21 由 `kown`（`known` 的拼写笔误）更正为 `known`。以下文件均已在 git 内。
+
+| 文件 | 内容 | 状态 |
+|---|---|---|
+| `known/数据库结构.txt` | 三库 37 张表的字段级快照（2026-11-21 由真实库导出，含 PK/UK/IDX/AI/NN/DEF/DG 标记） | ✅ 现行 |
+| `known/服务清单.txt` | 2026-07-04 版服务清单 | ⚠️ 已过时（服务名与模型口径与现状不符），仅作历史参考 |
+| `known/recall-frontend-prompt.md` | Element Plus 时代的旧前端提示词 | ❌ 已废弃，禁止参照 |
+| `known/数据库结构_2026-06-16_旧版归档.txt` | 旧版结构备份（仅 9/37 张表） | 仅追溯 |
+
+### 仓库外素材（已 gitignore，不入库）
+
+`英语资源/`（词库 dump、真题 PDF、听力音频）、`日志/`（开发日志 docx）、`设计方案/`、`页面/`（静态原型）、`参考图片/`、`init/`、`wordtml-main/`、`.workbuddy/`。
+
+## 启动与构建命令
+### 后端（仓库根目录执行）
+```bash
+# 安装公共依赖并全量构建（跳过测试）
+scripts/mvn.sh -DskipTests install
+
+# 构建单个模块及其依赖
+scripts/mvn.sh -pl exercise-service -am clean package -DskipTests
+
+# 跑单测
+scripts/mvn.sh -pl exercise-service -am test
+
+# 启动单个服务（必须通过 with-env 注入 .env）
+scripts/with-env.sh scripts/mvn.sh -pl user-service spring-boot:run
+```
+
+> **JAVA_HOME 必须指向 JDK 17+**：本机默认 `JAVA_HOME` 是 JRE 8（`C:\Program Files\Java\jre1.8.0_152`），
+> 直接跑 `mvn` 会报 `class file version 61.0 … up to 52.0`。
+> `scripts/mvn.sh` 会自动挑选可用的 JDK（优先当前 `JAVA_HOME`，其次 jdk-21 / jdk-17），
+> 新开终端统一使用它。IDE 的 Run/Debug 配置需自行把 Project SDK 与 Maven Runner JRE 设为 JDK 17+。
+
+- 本地开发启动顺序：`user-service(8081)` → `exercise-service(8082)` → `learning-engine-service(8083)` → `ai-service(8084)` → `api-gateway(8086)`
+- **user-service 与 api-gateway 必须都通过 `scripts/with-env.sh` 启动**：前者签发 JWT，后者校验 JWT。两者 `JWT_SECRET` 不一致时，登录接口会成功，但所有受保护接口返回 401，前端会立即清登录态跳回 `/login`。不要混用 IDEA 直接 Run 与脚本启动。
+- 当前无单元测试，`src/test` 目录为空
+- 本地开发默认无需启动 RabbitMQ
+
+### 记住我（Refresh Token）本地联调
+
+`user-service` 的"记住我"功能用 Refresh Token + HttpOnly Cookie 实现（不引 Spring Security/Redis）。本地 HTTP 联调前**必须先关掉 Cookie 的 Secure 标志**，否则 Firefox/Safari 拒收 Cookie、刷新接口永远读不到凭证。
+
+**设置方式（三选一，推荐 1）：**
+
+1. 用 `application-dev.yml`（已内置 `cookie-secure: false`）：
+   ```bash
+   scripts/with-env.sh scripts/mvn.sh -pl user-service spring-boot:run -Dspring-boot.run.profiles=dev
+   ```
+2. 环境变量：
+   ```bash
+   export AUTH_REFRESH_COOKIE_SECURE=false
+   scripts/with-env.sh scripts/mvn.sh -pl user-service spring-boot:run
+   ```
+3. 直接在 `application.yml` 把 `auth.refresh.cookie-secure` 改为 `false`（**测完记得改回 true**，不推荐）。
+
+**联调自检**：登录接口响应头 `Set-Cookie` 应含 `refresh_token=...; HttpOnly; SameSite=Lax; Path=/api/auth` 且**不带 `Secure`**；`curl` 直连网关路径不带 `/api` 前缀（`/user/login`、`/auth/refresh`、`/auth/logout`，`/api` 是 Vite 代理加的）。
+
+### 前端（`frontend/` 目录执行）
+
+```
+# 安装依赖
+npm install
+
+# 本地开发启动（端口 5173，代理 /api 到 8086）
+npm run dev
+
+# 类型检查
+npm run type-check
+
+# 生产构建
+npm run build
+```
+
+## 编码与命名规范
+
+### 后端通用编码规范
+
+1. 模块职责严格边界：用户逻辑 → user-service；题库答题 → exercise-service；记忆复习 → learning-engine；大模型调用 → ai-service；鉴权路由 → 网关
+2. 接口统一返回 `Result<T>` 包装，格式：`{code, message, data}`
+3. 实体类、数据库字段遵循下划线转驼峰，MyBatis-Plus 全局配置生效
+4. 新增接口默认需要鉴权，白名单仅 `/user/login`、`/user/register`
+5. 服务间调用通过 RestTemplate，地址从配置文件读取，支持环境变量覆盖
+6. AI 调用统一走 ai-service，禁止业务模块直接调用大模型
+7. 密码一律 BCrypt 加密存储，永不明文
+
+### 前端通用编码规范
+
+> 样式与图标的完整规格见 `docs/前端UI契约.md`（含八条基线）。以下 6 条为长期约束，不因契约更新而失效。
+
+1. 页面放 `views/`，公共组件放 `components/`，API 调用收敛在 `api/*.ts`，禁止页面内裸写 axios
+2. 样式统一使用 Tailwind M3 语义类名，禁止写死 hex 色值、硬编码字号
+3. 图标统一使用 Material Symbols Outlined，禁止引入 Element Plus 图标
+4. 所有接口出入参定义 TS 类型，与后端 DTO 对齐，禁止使用 `any`
+5. AI 流式交互统一复用 `AiSidebar` 组件的 SSE 渲染逻辑，不重复造轮子
+6. 用户 ID 从 Pinia userStore 获取，禁止页面手动传 userId
+
+### 命名风格约定
+
+| 场景 | 规则 | 示例 |
+| --- | --- | --- |
+| Java 类名 | 大驼峰（PascalCase） | `UserController`、`EssayScoreService` |
+| Java 方法 / 变量 | 小驼峰（camelCase） | `getUserById`、`eloScore` |
+| Java 常量 | 全大写下划线分隔 | `DEFAULT_K_FACTOR` |
+| 数据库表 / 字段 | 小写下划线分隔 | `user_ability_radar`、`next_review_time` |
+| 前端组件 | 大驼峰 | `AiSidebar.vue`、`QuestionCard.vue` |
+| 前端变量 / 方法 | 小驼峰 | `handleSubmit`、`userInfo` |
+| 前端普通文件 | 短横线分隔 | `user-api.ts`、`stats-view.vue` |
+
+## 核心业务约定（禁止擅自修改核心逻辑）
+
+1. **判题引擎（六层顺序，前置命中即短路）**：accepted_answers/正确答案精确匹配 → `question_buggy_path` 错因拦截 → L1 规则（拼写/语法）→ L2 相似度模糊 → L2.5 AI 语义判对 → L3 AI 启发反馈；`accepted_answers` 非空时 L2 未命中直接返回 `MISMATCH`，**禁止调用 AI**；填空类用户答案与 `correct_answer` 均经 `AnswerNormalizer` 归一化。策略模式扩展新题型，不改原有 Handler
+2. **ELO 定级算法**：初始分 1000，定级 K=40，常规答题按难度分档；ELO 仅用于智能选题的难度匹配，不再作为个人能力画像的主分数展示
+3. **艾宾浩斯记忆曲线**：掌握度 1-5 级，间隔 1/3/7/15/30 天，答对升级答错降级
+4. **智能选题**：按用户 ELO 匹配难度区间，去重近 7 天已做题，优先低使用量题目
+5. **鉴权链路**：网关校验 JWT → 透传 `X-User-Id` 头 → 下游服务信任该头
+6. **AI 出题闭环**：生成 → 待审核表 → 管理员审核通过 → 入正式题库
+7. **能力画像口径（V1.0.6 起）**：六维分数 = 该维度累计正确率（答对题数 ÷ 总题数），写作维度按 AI 评分得分率；累计正确率 ≥60% 才计入综合能力分；**答错不扣分**。练习积分只增不减，按「Σ(5 × (1 + (难度-1) × 0.15)) × 本组正确率」结算，本组正确率 <60% 记 0，每日上限 200，总上限 10000，五段称号为初心者/筑基者/贯通者/精熟者/登峰者
+
+> 详细迁移流程、回滚规范与历次迁移记录见 `docs/数据库迁移规范.md`。以下是硬约束：
+
+## 数据库约定
+
+1. 数据库结构以各服务 `src/main/resources/db/migration/` 下的 Flyway 迁移为准；`sql/` 下历史脚本仅作参考，`sql/init/` 已废弃，禁止执行和修改
+2. 禁止修改已应用的 Flyway 迁移文件；表结构变更必须新增 `V1.0.x__描述.sql` 迁移
+3. 逻辑删除全局使用 `is_deleted` 字段，MyBatis-Plus 自动处理
+4. 题目分表设计：`question_info` 存元数据，`question_content` 存正文重字段，列表查询只查轻量表
+
+## 数据库迁移（Flyway）
+
+> 本节与上方「数据库约定」第 2 条内容重叠（原文即如此）。口径：**「数据库约定」是原则陈述，「本节」是可执行的操作与禁止清单**，两者冲突时以本节为准。
+
+1. 数据库结构变更唯一入口是 Flyway：在对应模块 `src/main/resources/db/migration/` 新增 `V1.0.x__描述.sql`
+2. 每次迁移必须先向用户展示：迁移文件、目标库、完整 SQL、风险等级、回滚方式；获得明确批准后才能执行
+3. 执行顺序：`scripts/backup-schema.sh` → `scripts/flyway.sh <module> migrate` → `scripts/flyway.sh <module> validate` → 报告 `flyway_schema_history`
+4. 禁止：`flyway clean`、`DROP TABLE`、清空数据、修改已应用迁移、用 Navicat 直接改共享库结构
+5. 详细流程与回滚规范见 `docs/数据库迁移规范.md`
+
+## 🔴 严格禁止行为（优先级最高）
+
+1. 禁止自动新增任何 Maven 依赖或 npm 包，如需引入必须先向用户确认
+2. 禁止修改 `sql/` 目录下已发布的数据库建表 / 迁移脚本，结构变更只能新增增量脚本
+3. 禁止自行启用 Nacos、Redis、OpenFeign、Sentinel 等未在技术栈内的中间件
+4. 禁止在前端页面中直接使用 Element Plus 的 `el-*` 组件
+5. 禁止擅自修改 ELO 算法、遗忘曲线、判题引擎等核心业务逻辑
+6. 禁止在配置文件中硬编码 API Key、密钥等敏感信息，必须使用环境变量
+7. 禁止绕过 Flyway 用 Navicat/手工 SQL 改共享库结构；禁止 `flyway clean`、`DROP TABLE`、清空数据；每次迁移必须先预览并获批准
+8. 除 `AGENTS.md` 本身及指向它的指针文件外，禁止在仓库任何位置生成其他平行指令文件（详见文首）
+
+## AI 输出与协作约定
+
+1. 所有代码注释、说明文字统一使用中文
+2. 修改代码时优先遵循现有代码风格，不擅自重构无关代码
+3. **多文件修改前，必须先列出修改计划与涉及文件，确认后再执行**
+4. **执行代码修改前，自动执行 git commit 保存快照，提交信息清晰描述改动内容**
+5. 涉及核心逻辑变更时，主动说明影响范围和风险点
+6. 遇到不确定的设计决策，优先向用户确认，不自行拍板
+
+## AI 协作工作流（默认遵守）
+### 1. 问题推演规则
+遇到以下场景时，禁止直接给出最终代码/答案，必须先完成推演再输出结论：
+- 不明原因的报错、偶发 Bug、性能问题排查
+- 技术方案选型、架构设计、模块拆分
+- 涉及事务、并发、核心算法的逻辑设计
+- 开发优先级、复用能力梳理等决策类问题
+
+推演要求：至少列出 3 种可行思路，对比各自优劣、风险、适配性，说明放弃其他方案的原因，最后给出推荐结论。
+
+### 2. 功能开发流程
+新增功能、模块级重构、涉及表结构变更的开发任务，严格按以下顺序执行：
+1. 先向我提问澄清需求，覆盖业务边界、输入输出、异常场景、约束条件，确认理解度达到 95% 再输出方案
+2. 输出设计方案（文件列表、接口定义、数据结构）
+3. 切换为资深技术顾问身份，自我复审方案，指出隐患、边界遗漏、性能风险并修正
+4. 方案确认无误后，再开始编写代码

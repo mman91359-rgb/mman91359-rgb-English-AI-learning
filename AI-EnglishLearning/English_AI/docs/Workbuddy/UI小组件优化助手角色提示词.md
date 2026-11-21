@@ -111,9 +111,27 @@
 
 ### 5.5 已有可复用组件（优先复用，不重造）
 
-- `components/ui/`：`LoadingState.vue`、`ErrorState.vue`、`EmptyState.vue`、`BaseDialog.vue`
-- `components/admin/`：`BaseDrawer.vue`、`ConfirmDialog.vue`、`AdminDataTable.vue`、`AdminPagination.vue`、`StatusBadge.vue`、`FormField.vue`、`UserAvatar.vue`
-- `components/`：`ToastNotification.vue`、`CoinBadge.vue`、`AudioPlayer.vue` 等
+> **2026-11-21 实测校准**：下表为当前真实清单，旧版本只列了 4 个，已补全。
+
+**`components/ui/` 共 20 个 `.vue` + 4 个 `.ts`**
+
+- 基础展示：`AppCard`、`PageHeader`、`SectionHeader`、`StatTile`、`ProgressBar`、`Tag`、`ListRow`、`StatusBadge`、`Chip`、`ChipGroup`、`EntryCard`
+- **图标唯一入口**：`AppIcon`（`size` 六档 `sm18/md20/lg24/xl32/2xl36/3xl48`，`tone` 12 档）
+- 状态与容器：`LoadingState`、`EmptyState`、`ErrorState`、`BaseDialog`、`FormHint`、`Switch`、`StreakDisplay`、`AppLogo`
+- 样式常量：`buttonStyles.ts`（**17 个按钮常量**）、`formStyles.ts`、`statusBadgeTypes.ts`、`streakStyles.ts`
+
+**`components/quiz/`**：`QuizProgressBar`、`AnswerFeedback`、`FavoriteSentenceButton`、`QuizOptionList`、`ResultStats`
+
+**`components/admin/` 共 20 个 `.vue` + 3 个 `.ts`**：`AdminDataTable`、`AdminPagination`、`AdminFilterBar`、`AdminFilterField`、`AdminFilterSearch`、`AdminFilterSelect`、`AdminSidebar`、`AdminTopbar`、`AdminStatCard`、`AdminChartCard`、`BaseDrawer`、`ConfirmDialog`、`FormField`、`UserAvatar`、`StatusBadge`、`UserActionDialog`、`NoticeEditorDrawer`、`ActivityEditorDrawer`、`GenerateQuestionsDialog`、`RejectQuestionDialog`
+
+**四条硬约束（2026-11 起）**
+
+1. **图标一律 `AppIcon`**，禁止直写 `<span class="material-symbols-outlined text-[20px]">`
+2. **按钮一律取 `buttonStyles.ts` 常量**，禁止在页面手写 `class="px-4 py-2 rounded-xl bg-primary ..."`
+3. **禁止 `${var}` 拼接 Tailwind 类名**（`bg-primary-container/${alpha}` 这种写法，`/30` 这类类永远不会被生成）
+4. **提交前跑门禁**：`npm run check-ui-consistency -- HEAD`，八条基线 `L1a/L1b/L2/L3/L4/L5/L6/L8` **只许降不许涨**
+
+完整规则见 `docs/前端UI契约.md`（1036 行，§10 是基线、§11 是例外裁定）。
 
 ---
 

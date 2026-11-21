@@ -142,5 +142,8 @@ npm run build
 
 - `docs/Recall睿考_后端项目开发文档V3.md`
 - `docs/Recall睿考_前端项目开发文档V3.md`
+- `docs/前端UI契约.md`（**现行前端 UI 规则 + 八条基线**，改任何前端页面前必读）
 - `docs/后续开发任务书（Backlog）.md`
-- `CLAUDE.md`（项目协作约定）
+- `AGENTS.md`（**仓库唯一指令基线**：技术栈、目录地图、启动命令、业务约定、禁止行为、协作流程）
+- `CLAUDE.md`（Claude Code 专用指针；只放联网成本约束与本机环境，规则正文在 `AGENTS.md`）
+- `docs/工程结构.md`（目录树与 Git 提交规范）

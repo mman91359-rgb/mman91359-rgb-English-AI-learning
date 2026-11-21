@@ -1,3 +1,8 @@
+---
+status: active
+updated: 2026-11-21
+---
+
 # 答案槽位离线校验（docs/review/tools/check-answer-slots.mjs）
 
 > 📦 **脚本已归档到 `docs/review/tools/check-answer-slots.mjs`**（2026-11-09）。

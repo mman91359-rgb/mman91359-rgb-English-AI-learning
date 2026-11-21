@@ -1,3 +1,8 @@
+---
+status: active
+updated: 2026-11-21
+---
+
 # Recall·睿考 管理员端 API 契约（V1）
 
 **基座**：`/admin/**`（前端请求 `/api/admin/**`，Vite/Nginx 会剥掉 `/api`）

@@ -1,3 +1,8 @@
+---
+status: active
+updated: 2026-11-21
+---
+
 # Recall·睿考 后端项目开发文档（V3）
 
 **版本**：V3.1（2026-10-31 按代码事实校准）　|　**基线**：`mman91359-rgb-English-AI-learning` 仓库 `AI-EnglishLearning/English_AI/` 最新提交代码事实　|　**适用阶段**：听力 MVP 已完成，翻译/写作未开始

@@ -1,5 +1,7 @@
 <template>
-  <header class="h-20 sticky top-0 z-40 bg-background/80 backdrop-blur-md flex items-center justify-between px-gutter w-full max-w-container-max mx-auto">
+  <!-- 通栏：顶栏铺满视口宽（左右各留 px-gutter），与主体 max-w-container-max 居中布局解耦；
+       备考目标条据此贴最左，右侧通知/主题/语言/头像贴最右 -->
+  <header class="h-20 sticky top-0 z-40 bg-background/80 backdrop-blur-md flex items-center justify-between px-gutter w-full">
     <div class="flex items-center gap-3 sm:gap-4">
       <div class="md:hidden">
         <AppIcon name="menu" size="md" tone="onSurface" class="cursor-pointer" />

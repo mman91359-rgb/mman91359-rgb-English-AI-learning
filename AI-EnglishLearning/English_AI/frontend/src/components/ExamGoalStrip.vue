@@ -8,27 +8,27 @@
   >
     <template v-if="configured">
       <template v-if="expired">
-        <AppIcon name="event_repeat" size="md" tone="onPrimary" />
-        <span class="font-label-md text-label-md text-on-primary">{{ $t('examGoal.expired') }}</span>
-        <span class="hidden sm:inline font-label-md text-label-md text-on-primary underline decoration-on-primary/50">{{ $t('examGoal.updateNext') }}</span>
+        <AppIcon name="event_repeat" size="md" tone="current" />
+        <span class="font-label-md text-label-md text-on-warning-container">{{ $t('examGoal.expired') }}</span>
+        <span class="hidden sm:inline font-label-md text-label-md text-on-warning-container underline decoration-on-warning-container/50">{{ $t('examGoal.updateNext') }}</span>
       </template>
       <template v-else>
-        <span class="rounded-full bg-on-primary/15 px-2.5 py-0.5 font-label-sm text-label-sm text-on-primary">
+        <span class="rounded-full bg-warning/15 px-2.5 py-0.5 font-label-sm text-label-sm text-on-warning-container">
           {{ cetLevelLabel }}
         </span>
-        <span class="font-label-md text-label-md text-on-primary/90">
-          <span class="font-headline-md text-headline-md text-on-primary tabular-nums">{{ daysLeft }}</span>
+        <span class="font-label-md text-label-md text-on-warning-container/90">
+          <span class="font-headline-md text-headline-md text-on-warning-container tabular-nums">{{ daysLeft }}</span>
           {{ $t('examGoal.daysLeft') }}
         </span>
-        <span class="hidden sm:inline-block h-4 w-px bg-on-primary/30" aria-hidden="true"></span>
-        <span class="hidden sm:inline font-label-md text-label-md text-on-primary/90">
-          {{ $t('examGoal.target') }}<span class="font-headline-md text-headline-md text-on-primary tabular-nums">{{ userStore.targetScore }}</span>{{ $t('examGoal.scoreUnit') }}
+        <span class="hidden sm:inline-block h-4 w-px bg-on-warning-container/30" aria-hidden="true"></span>
+        <span class="hidden sm:inline font-label-md text-label-md text-on-warning-container/90">
+          {{ $t('examGoal.target') }}<span class="font-headline-md text-headline-md text-on-warning-container tabular-nums">{{ userStore.targetScore }}</span>{{ $t('examGoal.scoreUnit') }}
         </span>
       </template>
     </template>
     <template v-else>
-      <AppIcon name="flag" size="md" tone="onPrimary" />
-      <span class="font-label-md text-label-md text-on-primary">{{ $t('examGoal.setGoal') }}</span>
+      <AppIcon name="flag" size="md" tone="current" />
+      <span class="font-label-md text-label-md text-on-warning-container">{{ $t('examGoal.setGoal') }}</span>
     </template>
   </button>
 </template>
@@ -86,10 +86,11 @@ const ariaLabel = computed(() => {
   return `${cetLevelLabel.value} · ${daysLeft.value}${t('examGoal.daysLeft')} · ${t('examGoal.target')}${userStore.targetScore}`
 })
 
-// 款式 A：品牌实色胶囊，与学习中心主练习入口同一套语言（bg-primary + on-primary 反色）。
-// 焦点环必须走 on-primary：常规 outline-primary 在紫底上同色不可见。
+// 款式 D：琥珀浅底胶囊（warning-container + on-warning-container），暖色更抓眼。
+// 焦点环走 on-warning-container：与文字同语义色，在浅琥珀底上清晰可见；
+// 图标 tone 用 current 继承父级深棕（AppIcon 的 12 档 tone 无 onWarningContainer）。
 const stripClass =
-  'inline-flex shrink-0 items-center gap-2 rounded-full bg-primary px-3.5 py-1.5 transition-colors hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-primary'
+  'inline-flex shrink-0 items-center gap-2 rounded-full bg-warning-container px-3.5 py-1.5 transition hover:brightness-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-warning-container'
 
 const goSettings = () => router.push('/settings')
 </script>

@@ -9,60 +9,18 @@
     </div>
     <div class="flex items-center gap-2 sm:gap-4">
       <slot name="right">
-        <!-- 通知按钮：铃铛 -->
+        <!-- 通知按钮：铃铛，点击进入通知中心页；红点读服务端 unread-count 合计 -->
         <button
-          :class="['relative', btnIcon]"
-          aria-label="通知"
-          @click="showNotificationPopup = !showNotificationPopup"
+          :class="btnIcon"
+          :aria-label="$t('topbar.notifications')"
+          @click="goNotifications"
         >
           <AppIcon name="notifications" size="md" />
-          <!-- 红点：有未读通知时显示 -->
           <span
-            v-if="unreadCount > 0"
+            v-if="unreadTotal > 0"
             class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full"
           ></span>
         </button>
-
-        <!-- 通知弹出框 -->
-        <div
-          v-if="showNotificationPopup"
-          class="absolute right-4 top-20 bg-surface-container-lowest rounded-2xl p-4 soft-shadow w-80 z-50 border border-outline-variant/20"
-        >
-          <div class="flex justify-between items-center mb-3">
-            <div class="font-label-lg text-label-lg text-on-surface">{{ $t('topbar.notifications') }}</div>
-            <button
-              v-if="unreadCount > 0"
-              class="text-xs text-primary hover:underline"
-              @click="markAllRead"
-            >{{ $t('topbar.markAllRead') }}</button>
-          </div>
-          <div class="space-y-2 max-h-80 overflow-y-auto">
-            <div
-              v-for="n in notifications"
-              :key="n.id"
-              :class="[
-                'p-3 rounded-xl border cursor-pointer transition-colors',
-                n.read
-                  ? 'bg-surface border-outline-variant/10'
-                  : 'bg-primary-container/10 border-primary/20'
-              ]"
-              @click="markAsRead(n.id)"
-            >
-              <div class="font-label-md text-label-md text-on-surface mb-1">{{ $t(n.titleKey, n.titleParams || {}) }}</div>
-              <div class="font-body-sm text-body-sm text-on-surface-variant">{{ $t(n.contentKey, n.contentParams || {}) }}</div>
-              <div class="font-body-sm text-body-sm text-on-surface-variant mt-1 opacity-60">{{ relativeTime(n.createdAt) }}</div>
-            </div>
-            <div v-if="notifications.length === 0" class="text-center py-6 text-on-surface-variant">
-              <AppIcon name="notifications_off" size="md" class="mb-2 block" />
-              {{ $t('topbar.noNotifications') }}
-            </div>
-          </div>
-          <button
-            v-if="notifications.length > 0"
-            class="mt-3 w-full text-center text-xs text-on-surface-variant hover:text-error transition-colors py-1"
-            @click="clearAll"
-          >{{ $t('topbar.clearAll') }}</button>
-        </div>
 
         <!-- 主题切换按钮：太阳/月亮 -->
         <button
@@ -107,11 +65,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
+import { computed, ref, onMounted, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAppStore } from '@/stores/app'
 import { useUserStore } from '@/stores/user'
 import { useNotifications } from '@/composables/useNotifications'
+import { fetchUnreadCount } from '@/api/notification'
 import CoinBadge from '@/components/CoinBadge.vue'
 import { btnIcon } from '@/components/ui/buttonStyles'
 import AppIcon from './ui/AppIcon.vue'
@@ -129,7 +89,8 @@ withDefaults(defineProps<{
 const { t } = useI18n()
 const appStore = useAppStore()
 const userStore = useUserStore()
-const { notifications, unreadCount, markAsRead, markAllRead, clearAll, relativeTime } = useNotifications()
+// 保留调用以注册答题成就监听（用户要求暂不删除产生逻辑）；列表与红点已改走服务端
+useNotifications()
 
 // 头像首字母
 const avatarText = computed(() => {
@@ -160,16 +121,28 @@ const cycleLanguage = () => {
   appStore.setLanguage(next)
 }
 
-// 通知弹出框
-const showNotificationPopup = ref(false)
+// 红点来源：服务端公告 + 个人通知合计；登录态变化与挂载时刷新
+const unreadTotal = ref(0)
+const router = useRouter()
+const route = useRoute()
+const goNotifications = () => void router.push('/notifications')
 
-// 点击其他地方关闭通知弹窗
-const closePopupOnOutsideClick = (e: MouseEvent) => {
-  const target = e.target as HTMLElement
-  if (!target.closest('.top-20') && !target.closest('[aria-label="通知"]')) {
-    showNotificationPopup.value = false
+const refreshUnread = async () => {
+  // 未登录时不发请求，避免 401 触发刷新链路
+  if (!userStore.userId) {
+    unreadTotal.value = 0
+    return
+  }
+  try {
+    const res = await fetchUnreadCount()
+    unreadTotal.value = res.total
+  } catch {
+    unreadTotal.value = 0
   }
 }
-onMounted(() => document.addEventListener('click', closePopupOnOutsideClick))
-onBeforeUnmount(() => document.removeEventListener('click', closePopupOnOutsideClick))
+
+onMounted(refreshUnread)
+// 路由切换（从通知页返回）与登录用户变化时重新取红点
+watch(() => route.fullPath, refreshUnread)
+watch(() => userStore.userId, refreshUnread)
 </script>

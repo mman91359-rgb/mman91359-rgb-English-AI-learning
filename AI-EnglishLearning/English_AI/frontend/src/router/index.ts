@@ -36,6 +36,7 @@ const WritingPracticeView = () => import('../views/writing/WritingPracticeView.v
 const WritingReportView = () => import('../views/writing/WritingReportView.vue')
 const WritingHistoryView = () => import('../views/writing/WritingHistoryView.vue')
 const CoinLedgerView = () => import('../views/CoinLedgerView.vue')
+const NotificationsView = () => import('../views/NotificationsView.vue')
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -165,6 +166,12 @@ const router = createRouter({
       path: '/settings/notifications',
       name: 'settings-notifications',
       component: SettingsView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/notifications',
+      name: 'notifications',
+      component: NotificationsView,
       meta: { requiresAuth: true },
     },
     {

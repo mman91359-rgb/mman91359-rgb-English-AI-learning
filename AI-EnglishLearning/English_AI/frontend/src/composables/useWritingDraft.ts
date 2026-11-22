@@ -46,7 +46,7 @@ export function useWritingDraft(
     status.value = 'idle'
   }
 
-  /** 提交成功后停止自动保存，避免把已提交的草稿重新写回 localStorage */
+  /** 提交成功后停止自动保存，避免把已提交的草稿重新写回服务端 */
   const stopAutoSave = () => {
     stopped = true
     clearInterval(timer)

@@ -1,119 +1,140 @@
-import { get, post } from './request'
-import { WRITING_TOPICS } from '../mocks/writing'
+import { del, get, post, put } from './request'
 import { useUserStore } from '../stores/user'
-import type { WritingDraft, WritingScore, WritingSubmission, WritingTopic } from '../types/writing'
+import { LEVEL_WORD_RANGE } from '../utils/writing'
+import type {
+  WritingDraft,
+  WritingLevel,
+  WritingScore,
+  WritingSubmission,
+  WritingTopic,
+  WritingTopicType,
+} from '../types/writing'
 
-interface DraftRecord {
-  content: string
-  updatedAt: string
-  /** 已写作秒数，随草稿一起持久化 */
-  elapsedSeconds?: number
+/** 后端 PageResult 包装；写作题库一次取全，取 records 后拍平返回 */
+interface PageResult<T> {
+  records: T[]
+  total: number
+  page: number
+  size: number
 }
 
-type DraftStore = Record<string, DraftRecord>
+/** 后端 WritingTopicVO */
+interface WritingTopicVO {
+  id: string
+  type: string
+  level: string
+  title: string | null
+  directions: string | null
+  topic: string
+  requirements: string[] | null
+  wordRange: number[] | null
+  timeLimitSeconds: number | null
+  source: string | null
+  outlineHints: string[] | null
+  usefulExpressions: string[] | null
+}
 
-const TOPIC_CACHE: WritingTopic[] = WRITING_TOPICS
+/** 后端 WritingDraftVO（不下发 wordCount，由前端现算） */
+interface WritingDraftVO {
+  topicId: string
+  content: string | null
+  updatedAt: string
+  elapsedSeconds: number | null
+}
+
+const WRITING_BASE = '/exercise/writing'
+/** 后端 MAX_SIZE=100，题库 63 题一次取全；保持 fetchWritingTopics 返回数组的既有签名 */
+const TOPICS_PAGE_SIZE = 100
 
 export function countWords(text: string): number {
   const trimmed = text.trim()
   return trimmed ? trimmed.split(/\s+/).length : 0
 }
 
-function userScope(): string {
-  const userStore = useUserStore()
-  return String(userStore.userId ?? 'anonymous')
-}
-
-function keyOf(kind: 'drafts' | 'favorites'): string {
-  return `recall:writing:${userScope()}:${kind}`
-}
-
-function readJson<T>(key: string, fallback: T): T {
-  try {
-    const raw = localStorage.getItem(key)
-    return raw ? (JSON.parse(raw) as T) : fallback
-  } catch {
-    return fallback
+/** VO → 前端类型：wordRange 为空时按等级兜底，避免 type-check 的非空元组被击穿 */
+function toTopic(vo: WritingTopicVO): WritingTopic {
+  const level: WritingLevel = vo.level === 'CET6' ? 'CET6' : 'CET4'
+  const range = vo.wordRange
+  const validRange = Array.isArray(range) && range.length === 2 && range[0] != null && range[1] != null
+  return {
+    id: vo.id,
+    type: (vo.type as WritingTopicType) ?? 'SHORT_ESSAY',
+    level,
+    title: vo.title ?? '',
+    directions: vo.directions ?? '',
+    topic: vo.topic ?? '',
+    requirements: vo.requirements ?? [],
+    wordRange: validRange ? [range[0], range[1]] : LEVEL_WORD_RANGE[level],
+    timeLimitSeconds: vo.timeLimitSeconds ?? 1800,
+    source: vo.source ?? undefined,
+    outlineHints: vo.outlineHints ?? [],
+    usefulExpressions: vo.usefulExpressions ?? [],
   }
 }
 
-function writeJson(key: string, value: unknown): void {
-  localStorage.setItem(key, JSON.stringify(value))
+function toDraft(vo: WritingDraftVO): WritingDraft {
+  const content = vo.content ?? ''
+  return {
+    topicId: vo.topicId,
+    content,
+    wordCount: countWords(content),
+    updatedAt: vo.updatedAt,
+    elapsedSeconds: vo.elapsedSeconds ?? 0,
+  }
 }
 
-function readDrafts(): DraftStore {
-  return readJson<DraftStore>(keyOf('drafts'), {})
-}
-
-/** 题库为静态数据，暂不入库（Q1 决策） */
-export function fetchWritingTopics(): Promise<WritingTopic[]> {
-  return Promise.resolve(TOPIC_CACHE)
-}
-
-export function fetchDraft(topicId: string): Promise<WritingDraft | null> {
-  const record = readDrafts()[topicId]
-  if (!record) return Promise.resolve(null)
-  return Promise.resolve({
-    topicId,
-    content: record.content,
-    wordCount: countWords(record.content),
-    updatedAt: record.updatedAt,
-    elapsedSeconds: record.elapsedSeconds ?? 0,
+/** 题库：一次取全并拍平为数组，页面调用方签名不变 */
+export async function fetchWritingTopics(): Promise<WritingTopic[]> {
+  const resp = await get<PageResult<WritingTopicVO>>(`${WRITING_BASE}/topics`, {
+    page: 1,
+    size: TOPICS_PAGE_SIZE,
   })
+  return (resp?.records ?? []).map(toTopic)
 }
 
-export function saveDraft(topicId: string, content: string, elapsedSeconds = 0): Promise<WritingDraft> {
-  const drafts = readDrafts()
-  const updatedAt = new Date().toISOString()
-  drafts[topicId] = { content, updatedAt, elapsedSeconds: Math.max(0, Math.floor(elapsedSeconds)) }
-  try {
-    writeJson(keyOf('drafts'), drafts)
-  } catch {
-    // 存储配额异常向上抛，由调用方区分“保存失败”与“评分失败”
-    return Promise.reject(new Error('draft storage failed'))
-  }
-  return Promise.resolve({ topicId, content, wordCount: countWords(content), updatedAt, elapsedSeconds })
+export async function fetchDraft(topicId: string): Promise<WritingDraft | null> {
+  const vo = await get<WritingDraftVO | null>(`${WRITING_BASE}/draft/${encodeURIComponent(topicId)}`)
+  return vo ? toDraft(vo) : null
 }
 
-export function clearDraft(topicId: string): void {
-  const drafts = readDrafts()
-  if (!(topicId in drafts)) return
-  delete drafts[topicId]
-  writeJson(keyOf('drafts'), drafts)
-}
-
-export function fetchDrafts(): Promise<WritingDraft[]> {
-  const drafts = readDrafts()
-  return Promise.resolve(
-    Object.entries(drafts).map(([topicId, record]) => ({
-      topicId,
-      content: record.content,
-      wordCount: countWords(record.content),
-      updatedAt: record.updatedAt,
-      elapsedSeconds: record.elapsedSeconds ?? 0,
-    })),
+export async function saveDraft(topicId: string, content: string, elapsedSeconds = 0): Promise<WritingDraft> {
+  const vo = await put<WritingDraftVO>(
+    `${WRITING_BASE}/draft/${encodeURIComponent(topicId)}`,
+    { content, elapsedSeconds: Math.max(0, Math.floor(elapsedSeconds)) },
   )
+  return toDraft(vo)
 }
 
-export function fetchDraftTopicIds(): Promise<string[]> {
-  return Promise.resolve(Object.keys(readDrafts()))
+/** 删草稿：后端幂等，不存在也返回成功 */
+export async function clearDraft(topicId: string): Promise<void> {
+  await del<void>(`${WRITING_BASE}/draft/${encodeURIComponent(topicId)}`)
 }
 
-export function fetchFavoriteIds(): Promise<string[]> {
-  return Promise.resolve(readJson<string[]>(keyOf('favorites'), []))
+export async function fetchDrafts(): Promise<WritingDraft[]> {
+  const list = await get<WritingDraftVO[]>(`${WRITING_BASE}/drafts`)
+  return (list ?? []).map(toDraft)
 }
 
-export function setFavorite(topicId: string, favorite: boolean): Promise<void> {
-  const ids = readJson<string[]>(keyOf('favorites'), [])
-  const next = favorite ? Array.from(new Set([...ids, topicId])) : ids.filter((id) => id !== topicId)
-  writeJson(keyOf('favorites'), next)
-  return Promise.resolve()
+export async function fetchDraftTopicIds(): Promise<string[]> {
+  const drafts = await fetchDrafts()
+  return drafts.map((item) => item.topicId)
+}
+
+export async function fetchFavoriteIds(): Promise<string[]> {
+  const list = await get<string[]>(`${WRITING_BASE}/favorites`)
+  return list ?? []
+}
+
+export async function setFavorite(topicId: string, favorite: boolean): Promise<void> {
+  await post<void>(`${WRITING_BASE}/favorites`, { topicKey: topicId, favorite })
 }
 
 export interface SubmitEssayInput {
   topicId: string
   content: string
   durationSeconds: number
+  /** 题目标题快照，可选；仅用于后端留档 */
+  topicTitle?: string
 }
 
 /** 后端提交响应 */
@@ -169,16 +190,14 @@ function toSubmission(resp: WritingSubmitResponseDTO, durationSeconds: number): 
  * 返回与前端契约对齐的 WritingSubmission。
  */
 export async function submitWritingEssay(input: SubmitEssayInput): Promise<WritingSubmission> {
-  const topic = TOPIC_CACHE.find((item) => item.id === input.topicId)
-  if (!topic) throw new Error('writing topic not found')
-
   const userStore = useUserStore()
   if (!userStore.userId) throw new Error('请先登录')
 
-  const resp = await post<WritingSubmitResponseDTO>('/exercise/writing/submit', {
+  // 题目标题非后端必填项；改为由调用方按当前题目透传，不再依赖静态题库反查
+  const resp = await post<WritingSubmitResponseDTO>(`${WRITING_BASE}/submit`, {
     userId: userStore.userId,
     topicKey: input.topicId,
-    topicTitle: topic.title,
+    topicTitle: input.topicTitle ?? '',
     content: input.content,
     wordCount: countWords(input.content),
     durationSeconds: input.durationSeconds,

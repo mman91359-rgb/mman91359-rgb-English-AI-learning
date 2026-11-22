@@ -219,13 +219,18 @@ const readQuery = () => ({
   level: typeof route.query.level === 'string' ? (route.query.level as WritingLevel) : '',
 })
 
+/** 从候选池随机取一题；空池返回 undefined，由调用方走空态 */
+const pickRandom = (pool: WritingTopic[]): WritingTopic | undefined =>
+  pool.length ? pool[Math.floor(Math.random() * pool.length)] : undefined
+
 const resolveTopic = (topics: WritingTopic[]) => {
   const { topicId, type, level } = readQuery()
   if (topicId) return topics.find((item) => item.id === topicId)
-  return topics.find((item) => item.type === type && item.level === level)
-    ?? topics.find((item) => item.type === type)
-    ?? topics.find((item) => item.level === level)
-    ?? topics[0]
+  // 按「题型 + 等级 → 题型 → 等级 → 全部」逐级降级，每一级内部随机，避免每次都是同一道
+  return pickRandom(topics.filter((item) => item.type === type && item.level === level))
+    ?? pickRandom(topics.filter((item) => item.type === type))
+    ?? pickRandom(topics.filter((item) => item.level === level))
+    ?? pickRandom(topics)
 }
 
 const startCountdown = (elapsedSeconds = 0) => {
@@ -279,8 +284,8 @@ const restoreDraft = () => {
   startCountdown(elapsed)
 }
 
-const discardDraft = () => {
-  if (topic.value) clearDraft(topic.value.id)
+const discardDraft = async () => {
+  if (topic.value) await clearDraft(topic.value.id)
   content.value = ''
   draftDialog.value = false
   startCountdown()
@@ -320,6 +325,7 @@ const submit = async (auto = false) => {
     const [submission] = await Promise.all([
       submitWritingEssay({
         topicId: topic.value.id,
+        topicTitle: topic.value.title,
         content: content.value,
         durationSeconds: Math.max(0, topic.value.timeLimitSeconds - remainingSeconds.value),
       }),

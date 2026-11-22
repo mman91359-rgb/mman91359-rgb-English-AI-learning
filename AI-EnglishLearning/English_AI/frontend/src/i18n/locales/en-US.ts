@@ -682,6 +682,8 @@ export default {
     clearFailed: 'Failed to clear notifications',
     clearConfirmTitle: 'Clear all notifications',
     clearConfirmMessage: 'Cleared notifications will no longer be shown. Continue?',
+    detailImagePreview: 'Image preview',
+    detailImageAlt: 'Notification image',
     typeSystem: 'System',
     typeReminder: 'Reminder',
     typeAchievement: 'Achievement',

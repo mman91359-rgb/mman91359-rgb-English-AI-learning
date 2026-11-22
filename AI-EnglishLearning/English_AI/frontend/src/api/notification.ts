@@ -11,6 +11,18 @@ interface PageResult<T> {
 /** 个人通知类型（后端下发小写四值） */
 export type NotificationType = 'system' | 'reminder' | 'achievement' | 'level'
 
+/**
+ * 详情图片（前端预留的可选字段，后端尚未下发）。
+ * - url  : 图片地址，仅放行 http/https（含以 / 开头的站内相对路径），其余协议渲染时丢弃
+ * - link : 点击跳转目标；缺失时点击行为降级为放大预览
+ * - alt  : 无障碍替代文本
+ */
+export interface NotificationImage {
+  url: string
+  link?: string
+  alt?: string
+}
+
 /** 后端 NotificationVO — 字段已在 VO 层转换，前端直接用 */
 export interface NotificationVO {
   id: string
@@ -21,6 +33,8 @@ export interface NotificationVO {
   contentParams: Record<string, unknown> | null
   createdAt: number
   read: boolean
+  /** 详情图片；后端未下发时详情退化为纯文本 */
+  images?: NotificationImage[]
 }
 
 /** 红点未读汇总：公告线 + 个人通知线合计 */
@@ -75,6 +89,8 @@ export interface NoticeVO {
   /** 发布时间（ISO-8601） */
   publishAt: string
   read: boolean
+  /** 详情图片；后端未下发时详情退化为纯文本 */
+  images?: NotificationImage[]
 }
 
 /** 公告列表，按发布时间倒序；公告量小，一次取全 */

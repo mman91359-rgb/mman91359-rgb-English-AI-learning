@@ -682,6 +682,8 @@ export default {
     clearFailed: '清空失败',
     clearConfirmTitle: '清空全部通知',
     clearConfirmMessage: '清空后这些通知将不再显示，确定继续吗？',
+    detailImagePreview: '图片预览',
+    detailImageAlt: '通知图片',
     typeSystem: '系统',
     typeReminder: '提醒',
     typeAchievement: '成就',

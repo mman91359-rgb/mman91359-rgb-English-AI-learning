@@ -54,7 +54,11 @@
           class="bg-surface-container-lowest rounded-2xl shadow-soft-glow transition-colors"
           :class="item.read ? '' : 'bg-primary-container/5'"
         >
-          <ListRow :title="resolveText(item.titleKey, item.titleParams, fallbackTitle(item.type))" @click="handleOpen(item)">
+          <ListRow
+            :title="resolveText(item.titleKey, item.titleParams, fallbackTitle(item.type))"
+            clickable
+            @click="handleOpen(item)"
+          >
             <template #leading>
               <span
                 class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
@@ -113,6 +117,51 @@
         </button>
       </template>
     </BaseDialog>
+
+    <!-- 通知详情：全文 + 图片。图片点击跳转（有 link）或放大预览（无 link）。 -->
+    <BaseDialog
+      :visible="detailItem !== null"
+      :title="detailTitle"
+      @close="closeDetail"
+    >
+      <div class="flex flex-col gap-4">
+        <p class="whitespace-pre-line font-body-md text-body-md text-on-surface">
+          {{ detailContent }}
+        </p>
+        <div v-if="detailImages.length > 0" class="flex flex-col gap-3">
+          <a
+            v-for="(image, index) in detailImages"
+            :key="index"
+            :href="image.href"
+            :target="image.target"
+            :rel="image.rel"
+            class="block overflow-hidden rounded-2xl"
+            @click="onImageClick($event, image)"
+          >
+            <img
+              :src="image.src"
+              :alt="image.alt"
+              class="w-full object-cover"
+              loading="lazy"
+            />
+          </a>
+        </div>
+      </div>
+    </BaseDialog>
+
+    <!-- 图片放大预览：无跳转链接的图片点开此处 -->
+    <BaseDialog
+      :visible="previewImage !== null"
+      :title="$t('notifications.detailImagePreview')"
+      @close="previewImage = null"
+    >
+      <img
+        v-if="previewImage"
+        :src="previewImageSrc"
+        :alt="previewImage.alt || $t('notifications.detailImageAlt')"
+        class="mx-auto w-full object-contain"
+      />
+    </BaseDialog>
   </AppLayout>
 </template>
 
@@ -147,7 +196,7 @@ import {
   markNotificationRead,
 } from '../api/notification'
 import type { ChipOption } from '../components/ui/ChipGroup.vue'
-import type { NoticeVO, NotificationType, NotificationVO } from '../api/notification'
+import type { NoticeVO, NotificationImage, NotificationType, NotificationVO } from '../api/notification'
 import { useToast } from '../composables/useToast'
 
 const { t, te } = useI18n()
@@ -168,6 +217,10 @@ const currentPage = ref(1)
 const total = ref(0)
 const unreadTotal = ref(0)
 const confirmClear = ref(false)
+/** 详情弹窗当前条目；null 表示关闭 */
+const detailItem = ref<NotificationVO | null>(null)
+/** 图片放大预览；null 表示关闭 */
+const previewImage = ref<NotificationImage | null>(null)
 
 const filterOptions = computed<ChipOption[]>(() => [
   { value: 'all', label: t('notifications.filterAll') },
@@ -190,6 +243,7 @@ function toNotificationItem(notice: NoticeVO): NotificationVO {
     contentParams: null,
     createdAt: notice.publishAt ? new Date(notice.publishAt).getTime() : Date.now(),
     read: notice.read,
+    images: notice.images,
   }
 }
 
@@ -221,6 +275,73 @@ function resolveText(key: string, params: Record<string, unknown> | null, fallba
 
 const fallbackTitle = (type: NotificationType) => t(`notifications.fallbackTitle.${type}`)
 const fallbackContent = (type: NotificationType) => t(`notifications.fallbackContent.${type}`)
+
+/** 详情标题：与个人通知列表同源（公告标题是整句文本，resolveText 原样返回） */
+const detailTitle = computed(() =>
+  detailItem.value ? resolveText(detailItem.value.titleKey, detailItem.value.titleParams, fallbackTitle(detailItem.value.type)) : '',
+)
+/** 详情正文：显示原文，whitespace-pre-line 保留换行 */
+const detailContent = computed(() =>
+  detailItem.value ? resolveText(detailItem.value.contentKey, detailItem.value.contentParams, fallbackContent(detailItem.value.type)) : '',
+)
+
+/**
+ * 安全 URL：只放行 http/https，挡掉 javascript:/data: 等可执行协议（XSS）。
+ * 返回空串表示不安全，调用方据此跳过渲染。
+ */
+function safeHttpUrl(raw: string | undefined): string {
+  if (!raw || !raw.trim()) return ''
+  try {
+    const parsed = new URL(raw, window.location.origin)
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:' ? parsed.href : ''
+  } catch {
+    return ''
+  }
+}
+
+/** 详情图片视图模型：预解析安全 href，避免模板内重复计算 */
+interface DetailImageVM {
+  src: string
+  href: string
+  target: string | undefined
+  rel: string | undefined
+  alt: string
+  /** 是否仅放大预览（无有效跳转链接） */
+  previewOnly: boolean
+}
+const detailImages = computed<DetailImageVM[]>(() =>
+  (detailItem.value?.images ?? [])
+    .map((image) => {
+      const src = safeHttpUrl(image.url)
+      const link = safeHttpUrl(image.link)
+      return {
+        src,
+        href: link,
+        target: link ? '_blank' : undefined,
+        rel: link ? 'noopener noreferrer' : undefined,
+        alt: image.alt || t('notifications.detailImageAlt'),
+        previewOnly: !link,
+      }
+    })
+    // 图片地址不安全时直接不渲染，避免 broken image 与潜在注入
+    .filter((image) => image.src !== ''),
+)
+
+/** 图片点击：有跳转链接交给 <a> 默认行为；无链接则拦截并放大预览 */
+function onImageClick(event: MouseEvent, image: DetailImageVM): void {
+  if (!image.previewOnly) return
+  event.preventDefault()
+  const source = detailItem.value?.images?.find((img) => safeHttpUrl(img.url) === image.src)
+  if (source) previewImage.value = source
+}
+
+/** 放大预览图源：复用同一套安全校验，挡掉可执行协议 */
+const previewImageSrc = computed(() => (previewImage.value ? safeHttpUrl(previewImage.value.url) : ''))
+
+function closeDetail(): void {
+  detailItem.value = null
+  previewImage.value = null
+}
 
 /** 刷新红点汇总，供顶栏与页面共用 */
 async function refreshUnread(): Promise<void> {
@@ -275,8 +396,9 @@ function handleFilterChange(value: string | number | Array<string | number>): vo
   void load()
 }
 
-/** 点开即标已读：先本地乐观更新，失败回滚。公告与个人通知各走各的接口。 */
+/** 点开详情：打开详情弹窗 + 标已读（乐观更新，失败回滚）。公告与个人通知各走各的接口。 */
 async function handleOpen(item: NotificationVO): Promise<void> {
+  detailItem.value = item
   if (item.read) return
   const previous = item.read
   item.read = true

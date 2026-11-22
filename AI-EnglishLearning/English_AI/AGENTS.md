@@ -107,7 +107,7 @@ Recall·睿考 —— 四六级英语学习系统，前后端分离架构。
 | `check-docs.mjs` | **文档治理门禁**（只读，不自动修）：`node scripts/check-docs.mjs` —— 校验 front-matter/status 合法、顶层无 deprecated、顶层文件名不带日期、`.md` 交叉引用可解析、`CLAUDE.md` 保持指针版、无平行指令文件。**退出码 0 才算通过**，改动文档后必须跑 |
 | `check-backend-contract.mjs` | **响应体门禁**（只读）：`node scripts/check-backend-contract.mjs` —— 扫所有 `@RestController`，接口方法返回类型必须是 `Result<...>`；`SseEmitter` ×2 与裸 `Map` ×3 按方法名白名单放行。**退出码 0 才算通过**，改 Controller 后必须跑 |
 | `check-migrations.mjs` | **迁移门禁**（只读）：`node scripts/check-migrations.mjs` —— 校验 Flyway 文件名格式、版本号不重复且从 `1.0.0` 连续递增，并列出 `sql/` 根目录的手工脚本作为第二变更渠道提示。**退出码 0 才算通过**，加迁移后必须跑 |
-| `check-backend-rules.mjs` | **代码规约门禁**（只读）：`node scripts/check-backend-rules.mjs` —— R1 带 query `userId` 的 Controller 方法必须调 `requireOwnership`（防越权）；R2 Controller 方法体不许出现 SQL 字符串；R3 全仓不许 `new RestTemplate()`。**退出码 0 才算通过**，改 Controller 后必须跑 |
+| `check-backend-rules.mjs` | **代码规约门禁**（只读）：`node scripts/check-backend-rules.mjs` —— R1 带 query `userId` 的 Controller 方法必须调 `requireOwnership`（防越权）；R2 Controller 方法体不许出现 SQL 字符串；R3 全仓不许 `new RestTemplate()`；R4 同名 `GlobalExceptionHandler` 主体必须一致（只允许包名/类注释/日志服务名不同）。**退出码 0 才算通过**，改 Controller 或异常处理器后必须跑 |
 
 ### 前端关键目录
 

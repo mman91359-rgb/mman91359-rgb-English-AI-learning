@@ -1,7 +1,8 @@
-// 后端门禁 3：代码规约三条
+// 后端门禁 3：代码规约四条
 // R1 带 query userId 的 Controller 方法必须调用 requireOwnership（防越权回归）
 // R2 Controller 方法体不许出现 SQL 字符串（防越界查询）
 // R3 全仓不许 new RestTemplate()（必须注入，便于统一配置超时/替换实现）
+// R4 同名异常出口类（GlobalExceptionHandler）主体必须一致（防两份漂移；不合并是为了不往 common 加 spring-web 依赖）
 // 用法：node scripts/check-backend-rules.mjs [--verbose]
 // 退出码：0 通过 / 1 违规 / 2 环境错误
 import fs from 'fs';
@@ -42,7 +43,7 @@ function methodBody(src, openBrace) {
 }
 
 const violations = [];
-const stats = { files: 0, controllers: 0, methods: 0, userIdMethods: 0, guarded: 0, sqlHits: 0, restTemplateHits: 0 };
+const stats = { files: 0, controllers: 0, methods: 0, userIdMethods: 0, guarded: 0, sqlHits: 0, restTemplateHits: 0, handlers: 0, r4Drift: 0 };
 
 for (const file of files) {
   const rel = path.relative(ROOT, file).replace(/\\/g, '/');
@@ -98,13 +99,46 @@ for (const file of files) {
   }
 }
 
+// R4：同名异常出口类主体一致（两份 GlobalExceptionHandler 只允许 package / 类注释 / 日志服务名不同）
+// 选择「不合并 + 门禁」而不是抽公共基类：抽基类要往 common 加 spring-web 依赖，属 AGENTS.md 禁止的擅自新增依赖
+const handlerFiles = files.filter((f) => /GlobalExceptionHandler\.java$/.test(f));
+stats.handlers = handlerFiles.length;
+if (handlerFiles.length >= 2) {
+  const canon = (src) =>
+    src
+      .replace(/^\s*package\s+[\w.]+\s*;\s*$/gm, '')            // 包名
+      .replace(/\/\*\*[\s\S]*?\*\//g, '')                     // javadoc（类注释里带服务名）
+      .replace(/"[^"]*服务未处理异常"/g, '"*服务未处理异常"')   // 日志文案里的服务名
+      .replace(/\s+/g, '')
+      .trim();
+  const refs = handlerFiles.map((f) => ({
+    rel: path.relative(ROOT, f).replace(/\\/g, '/'),
+    text: canon(fs.readFileSync(f, 'utf8')),
+  }));
+  const base = refs[0];
+  for (let i = 1; i < refs.length; i++) {
+    if (refs[i].text === base.text) continue;
+    stats.r4Drift++;
+    let k = 0;
+    const min = Math.min(base.text.length, refs[i].text.length);
+    while (k < min && base.text[k] === refs[i].text[k]) k++;
+    violations.push({
+      rule: 'R4',
+      rel: refs[i].rel,
+      line: 0,
+      msg: `与 ${base.rel} 主体不一致，第 ${k} 个规范化字符起分叉：本份 ...${refs[i].text.slice(k, k + 30)} ｜ 对照 ...${base.text.slice(k, k + 30)}`,
+    });
+  }
+}
+
 console.log(`扫描 ${stats.files} 个 java，其中 @RestController ${stats.controllers} 个，接口方法 ${stats.methods} 个`);
 console.log(`  R1 带 query userId 的方法 ${stats.userIdMethods} 个，其中已调 requireOwnership ${stats.userIdMethods - violations.filter(v => v.rule === 'R1').length} 个`);
 console.log(`  R2 Controller 方法体 SQL 命中 ${stats.sqlHits} 处`);
 console.log(`  R3 new RestTemplate() 命中 ${stats.restTemplateHits} 处`);
+console.log(`  R4 同名异常出口类 ${stats.handlers} 份，主体${stats.r4Drift ? '不一致' : '一致'}`);
 
 if (violations.length === 0) {
-  console.log('\n结论：代码规约 3 条 0 违规');
+  console.log('\n结论：代码规约 4 条 0 违规');
   process.exit(0);
 }
 

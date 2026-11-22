@@ -385,7 +385,7 @@ const isReferenceFavorited = computed(() => sentenceFavorite.isFavorited(favorit
 const addReferenceToFavorites = async () => {
   if (!favoriteText.value || !userStore.userId) return
   try {
-    const state = await sentenceFavorite.toggle(favoriteText.value, currentQuestion.value?.id)
+    const state = await sentenceFavorite.toggle(favoriteText.value, currentQuestion.value?.id, 3)
     if (state === true) toast(t('translation.favoriteAdded'), 'success')
   } catch (e) {
     toast(e instanceof Error ? e.message : t('translation.favoriteFailed'), 'error')

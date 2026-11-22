@@ -358,10 +358,17 @@ export interface FavoriteVO {
     sentenceText: string
     questionId?: number
     sourceType: string
+    /** 模块类型: 1词汇 2语法 3翻译 4听力 5造句 6写作；存量数据可能为空，缺省时用 sourceType 兜底 */
+    moduleType?: number
     createdAt: string
 }
 
-export const addFavorite = (data: { userId: number; sentenceText: string; questionId?: number }): Promise<FavoriteVO> => {
+export const addFavorite = (data: {
+    userId: number
+    sentenceText: string
+    questionId?: number
+    moduleType?: number
+}): Promise<FavoriteVO> => {
     return post('/exercise/favorites', data)
 }
 

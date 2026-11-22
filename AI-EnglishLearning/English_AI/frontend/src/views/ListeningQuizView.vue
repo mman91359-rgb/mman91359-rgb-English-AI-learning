@@ -479,7 +479,7 @@ const favoriteCurrent = async () => {
   const question = currentQuestion.value
   if (!question) return
   try {
-    const state = await sentenceFavorite.toggle(favoriteText.value, question.id)
+    const state = await sentenceFavorite.toggle(favoriteText.value, question.id, 4)
     if (state === true) toast(t('listening.favorited'), 'success')
   } catch {
     toast(t('listening.favoriteFailed'), 'error')

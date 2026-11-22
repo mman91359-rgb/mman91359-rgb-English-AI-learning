@@ -45,10 +45,11 @@ export function useSentenceFavorite() {
 
   /**
    * 切换收藏状态。
+   * @param moduleType 模块类型（1词汇 2语法 3翻译 4听力…），写入收藏记录供收藏页按模块筛选；由调用练习页传入
    * @returns 切换后的状态（true=已收藏）；未登录、文本为空或正在提交时返回 null
    * @throws 请求失败时抛出，由调用方 toast；索引保持原状
    */
-  const toggle = async (text: string, questionId?: number): Promise<boolean | null> => {
+  const toggle = async (text: string, questionId?: number, moduleType?: number): Promise<boolean | null> => {
     const userId = userStore.userId
     const key = keyOf(text)
     if (!userId || !key || pending.value.has(key)) return null
@@ -63,7 +64,7 @@ export function useSentenceFavorite() {
         index.value = next
         return false
       }
-      const created = await addFavorite({ userId, sentenceText: key, questionId })
+      const created = await addFavorite({ userId, sentenceText: key, questionId, moduleType })
       const next = new Map(index.value)
       next.set(key, created.id)
       index.value = next

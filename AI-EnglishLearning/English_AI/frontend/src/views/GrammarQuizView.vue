@@ -337,6 +337,8 @@ const route = useRoute()
 const userStore = useUserStore()
 const sentenceFavorite = useSentenceFavorite()
 const appStore = useAppStore()
+/** 收藏重做入口：指定题目ID时只加载该题，不走整组抽题与进度恢复 */
+const questionId = computed(() => Number(route.query.questionId) || 0)
 const aiStore = useAiStore()
 
 const askAi = () => {
@@ -748,14 +750,17 @@ interface SavedGrammarProgress {
 
 const saveProgress = () => {
   const userId = userStore.userId
-  if (!userId || questions.value.length === 0) return
+  // 单题重做不写进度缓存，避免污染用户原有的整组练习进度
+  if (!userId || questionId.value || questions.value.length === 0) return
   sessionStorage.setItem(SAVE_KEY, JSON.stringify({
     userId, questions: questions.value, currentIndex: currentIndex.value,
     results: results.value, batchKey: batchKey.value,
   }))
 }
 
-const clearProgress = () => sessionStorage.removeItem(SAVE_KEY)
+const clearProgress = () => {
+  if (!questionId.value) sessionStorage.removeItem(SAVE_KEY)
+}
 
 const restoreProgress = (): SavedGrammarProgress | null => {
   try {
@@ -772,6 +777,28 @@ const restoreProgress = (): SavedGrammarProgress | null => {
 const loadQuestions = async () => {
   const userId = userStore.userId
   if (!userId) { router.push('/login'); return }
+
+  // 收藏重做：按 questionId 加载单题（含答案以拆句），跳过进度恢复、不写进度缓存
+  if (questionId.value) {
+    loading.value = true
+    questions.value = []
+    currentIndex.value = 0
+    showFeedback.value = false
+    showResults.value = false
+    results.value = { correct: 0, total: 0, items: [] }
+    startBatch(2)
+    try {
+      const one = await getQuestionById(questionId.value, true)
+      const list = one ? [one] : []
+      questions.value = list
+      if (list[0]) parseQuestionIntoSentence(list[0])
+    } catch (e) {
+      console.warn('加载收藏语法题失败', e)
+    } finally {
+      loading.value = false
+    }
+    return
+  }
 
   const dailyTarget = Number(localStorage.getItem('dailyTarget_grammar')) || 10
   const saved = restoreProgress()
@@ -956,7 +983,7 @@ const handleFavorite = async () => {
   const q = currentQuestion.value
   if (!q) return
   try {
-    await sentenceFavorite.toggle(favoriteText.value, q.id)
+    await sentenceFavorite.toggle(favoriteText.value, q.id, 2)
   } catch (e) {
     console.warn('收藏失败', e)
   }

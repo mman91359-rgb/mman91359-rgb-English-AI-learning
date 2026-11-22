@@ -235,7 +235,7 @@ import AppLayout from '../components/AppLayout.vue'
 import AppIcon from '../components/ui/AppIcon.vue'
 import { useUserStore } from '@/stores/user'
 import { moduleName as moduleLabel } from '@/config/modules'
-import { selectQuestions, submitAnswer } from '@/api/exercise'
+import { selectQuestions, submitAnswer, getQuestionById } from '@/api/exercise'
 import { useSentenceFavorite } from '@/composables/useSentenceFavorite'
 import { usePracticeSettlement } from '@/composables/usePracticeSettlement'
 import type { QuestionVO, SubmitResponse } from '@/api/exercise'
@@ -252,6 +252,8 @@ const sentenceFavorite = useSentenceFavorite()
 
 const moduleType = computed(() => Number(route.query.moduleType) || 1)
 const count = computed(() => Number(route.query.count) || 10)
+/** 收藏重做入口：指定题目ID时只加载该题，不走随机抽题与进度恢复 */
+const questionId = computed(() => Number(route.query.questionId) || 0)
 
 const moduleName = computed(() => moduleLabel(moduleType.value, t, 1))
 
@@ -338,7 +340,8 @@ interface PracticeSavedProgress {
 
 const saveProgress = () => {
   const userId = userStore.userId
-  if (!userId || questions.value.length === 0) return
+  // 单题重做不写进度缓存，避免污染下一组普通练习的续做状态
+  if (!userId || questionId.value || questions.value.length === 0) return
   const data: PracticeSavedProgress = {
     userId,
     questions: questions.value,
@@ -349,7 +352,9 @@ const saveProgress = () => {
   sessionStorage.setItem(saveKey.value, JSON.stringify(data))
 }
 
-const clearProgress = () => sessionStorage.removeItem(saveKey.value)
+const clearProgress = () => {
+  if (!questionId.value) sessionStorage.removeItem(saveKey.value)
+}
 
 const restoreProgress = (): PracticeSavedProgress | null => {
   try {
@@ -371,6 +376,28 @@ const restoreProgress = (): PracticeSavedProgress | null => {
 const loadQuestions = async () => {
   const userId = userStore.userId
   if (!userId) return
+
+  // 收藏重做：按 questionId 加载单题，跳过进度恢复、不写进度缓存
+  if (questionId.value) {
+    loading.value = true
+    questions.value = []
+    currentQuestionIndex.value = 0
+    selectedAnswer.value = ''
+    showResult.value = false
+    submitResult.value = null
+    questionResults.value = []
+    showResults.value = false
+    try {
+      const one = await getQuestionById(questionId.value)
+      questions.value = one ? [one] : []
+      startBatch(moduleType.value)
+    } catch (e) {
+      console.warn('加载收藏题目失败', e)
+    } finally {
+      loading.value = false
+    }
+    return
+  }
 
   // 尝试恢复上次进度
   const saved = restoreProgress()
@@ -482,7 +509,7 @@ const handleFavorite = async () => {
   const q = currentQuestion.value
   if (!q) return
   try {
-    await sentenceFavorite.toggle(favoriteText.value, q.id)
+    await sentenceFavorite.toggle(favoriteText.value, q.id, q.moduleType || moduleType.value)
   } catch (e) {
     console.warn('收藏失败', e)
   }

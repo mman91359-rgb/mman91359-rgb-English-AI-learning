@@ -1178,7 +1178,7 @@ const handleFavorite = async () => {
   const q = currentQuestion.value
   if (!q) return
   try {
-    const state = await sentenceFavorite.toggle(favoriteText.value, q.id)
+    const state = await sentenceFavorite.toggle(favoriteText.value, q.id, 1)
     if (state === true) toast(t('learning.favorited'), 'success')
   } catch (e) {
     toast(e instanceof Error ? e.message : t('learning.favoriteFailed'), 'error')

@@ -48,7 +48,7 @@
             <p
               :class="[
                 'font-body-md text-body-md break-words',
-                fav.questionId && getModuleInfo(fav.sourceType)
+                fav.questionId && getModuleInfo(fav)
                   ? 'text-primary hover:underline cursor-pointer'
                   : 'text-on-surface'
               ]"
@@ -61,18 +61,18 @@
                 {{ formatDate(fav.createdAt, locale) }}
               </span>
               <Tag
-                v-if="fav.questionId && getModuleInfo(fav.sourceType)"
+                v-if="getModuleInfo(fav)"
                 tone="primary"
                 size="sm"
               >
-                {{ getModuleInfo(fav.sourceType)?.name }}
+                {{ getModuleInfo(fav)?.name }}
               </Tag>
             </div>
           </div>
         </div>
         <div class="flex items-center gap-2 shrink-0">
           <button
-            v-if="fav.questionId && getModuleInfo(fav.sourceType)"
+            v-if="fav.questionId && getModuleInfo(fav)"
             :class="btnPrimarySm"
             @click="handleReanswer(fav)"
           >
@@ -117,16 +117,18 @@ const loading = ref(true)
 const loadError = ref('')
 const searchKeyword = ref('')
 
-const getModuleInfo = (sourceType: string): { type: number; name: string } | null => {
-  const type = moduleTypeFromSource(sourceType)
-  if (!type) return null
+/** 只展示词汇(1)/语法(2)两类收藏；moduleType 优先，存量数据用 sourceType 兜底 */
+const getModuleInfo = (fav: FavoriteVO): { type: number; name: string } | null => {
+  const type = fav.moduleType || moduleTypeFromSource(fav.sourceType)
+  if (type !== 1 && type !== 2) return null
   return { type, name: moduleName(type, t) }
 }
 
 const filteredFavorites = computed(() => {
+  const scoped = favorites.value.filter(fav => getModuleInfo(fav) !== null)
   const keyword = searchKeyword.value.trim().toLowerCase()
-  if (!keyword) return favorites.value
-  return favorites.value.filter(fav =>
+  if (!keyword) return scoped
+  return scoped.filter(fav =>
     fav.sentenceText.toLowerCase().includes(keyword)
   )
 })
@@ -146,14 +148,17 @@ const load = async () => {
   }
 }
 
+/** 重做：按模块跳到对应练习页并带上 questionId，由承接页拉取该题单题作答 */
 const handleReanswer = (fav: FavoriteVO) => {
   if (!fav.questionId) return
-  const info = getModuleInfo(fav.sourceType)
-  if (!info) {
-    router.back()
-    return
+  const info = getModuleInfo(fav)
+  if (!info) return
+  if (info.type === 2) {
+    // 语法拼接题只有 GrammarQuizView 能作答
+    router.push({ path: '/grammar-quiz', query: { questionId: fav.questionId } })
+  } else {
+    router.push({ path: '/learning/practice', query: { moduleType: info.type, questionId: fav.questionId } })
   }
-  router.push({ path: '/learning/practice', query: { moduleType: info.type, count: 1 } })
 }
 
 const handleRemove = async (fav: FavoriteVO) => {

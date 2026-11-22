@@ -314,8 +314,7 @@ const typeKeys: Record<string, string> = {
 const typeLabel = (type?: string) => (type && typeKeys[type] ? t(typeKeys[type]) : t('listening.typeOther'))
 
 const sourceLabel = computed(() => {
-  const group = currentQuestion.value?.groupKey || ''
-  const exam = group.startsWith('cet6-2022-12-1') ? '2022.12 CET6' : t('listening.practiceTitle')
+  const exam = currentQuestion.value?.source?.label ?? t('listening.practiceTitle')
   return `[${t('listening.source')}] ${exam} · ${typeLabel(currentQuestion.value?.listeningType)}`
 })
 

@@ -1,6 +1,6 @@
 ---
 status: active
-updated: 2026-11-21
+updated: 2026-11-22
 ---
 
 # 前端 UI 契约
@@ -562,9 +562,10 @@ git grep -n "material-symbols-outlined" HEAD -- "src/views/*.vue" | wc -l
 > 故不并入上方八条的 `git grep` 行，以免破坏既有脚本的登记行解析。
 >
 > **第十条 L10（i18n 键对齐，独立脚本）**：`node scripts/check-i18n-parity.mjs [--verbose]`，
-> 基线 **5 对语言包全部对齐、0 缺译 0 多余**。实测口径：直出包 1474 个叶子键
-> （主包 963 + handoff 482 + wallet 29）+ 派生包 2 组 extra 共 136 个（admin-console 41 / writing 95）；
-> 另含主包 2 个子树引用标记 `adminConsole/**` / `writing/**`，故主包显示 965。
+> 基线 **5 对语言包全部对齐、0 缺译 0 多余**。实测口径：直出包 1514 个叶子键
+> （主包 1003 + handoff 482 + wallet 29）+ 派生包 2 组 extra 共 135 个（admin-console 41 / writing 94）；
+> 另含主包 2 个子树引用标记 `adminConsole/**` / `writing/**`，故主包显示 1005。
+> 口径换算：脚本 `totalChecked` 把这 2 个子树标记也计入叶子数，报 1516；契约按叶子口径记 1514，两者恒差 2。
 > 检出规则与三种语言包形态见 §11.11。与 L9 同理，不并入上方八条的 `git grep` 行。
 >
 > **L5 = 6 为永久基线**：6 处均为 scoped CSS 耦合（见 §11.9），非能力缺口。门禁 L5 恒为 6。
@@ -1166,13 +1167,13 @@ base 必然对齐；真正可能各自漂移的只有文件自己的 `extra`。
 
 | 语言包 | 口径 | zh 键 | en 键 | 缺译 | 多余 |
 |---|---|---|---|---|---|
-| (主包) | 全量 | 965 | 965 | 0 | 0 |
+| (主包) | 全量 | 1005 | 1005 | 0 | 0 |
 | handoff | 全量 | 482 | 482 | 0 | 0 |
 | wallet | 全量 | 29 | 29 | 0 | 0 |
 | admin-console | extra | 41 | 41 | 0 | 0 |
-| writing | extra | 95 | 95 | 0 | 0 |
+| writing | extra | 94 | 94 | 0 | 0 |
 
-直出包合计 1474 个叶子键（不含 2 个子树标记），派生包 extra 合计 136 个。
+直出包合计 1514 个叶子键（不含 2 个子树标记），派生包 extra 合计 135 个。
 
 ### 四、双向验证记录
 

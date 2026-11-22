@@ -50,6 +50,14 @@ export interface QuestionVO {
     groupKey?: string
     /** 听力题型 */
     listeningType?: string
+    /** 结构化卷别来源（非真题为 null），由后端 QuestionSourceResolver 解析 groupKey 得到 */
+    source?: {
+        exam: 'CET4' | 'CET6'
+        year: number
+        month: number
+        paper: number
+        label: string
+    } | null
 }
 
 /**

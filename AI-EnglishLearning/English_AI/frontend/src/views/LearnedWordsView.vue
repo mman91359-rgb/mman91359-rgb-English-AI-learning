@@ -95,7 +95,6 @@
               v-for="w in g.words"
               :key="w.id"
               :title="w.word"
-              :subtitle="w.translation || ''"
               :clickable="false"
             >
               <template #leading>
@@ -113,7 +112,7 @@
               <template #default>
                 <p class="truncate font-headline-sm text-headline-sm text-on-surface">{{ w.word }}</p>
                 <p class="mt-0.5 truncate font-body-sm text-body-sm text-on-surface-variant">
-                  <span v-if="w.pos" class="italic">{{ w.pos }} · </span>{{ w.translation || '—' }}
+                  {{ w.translation || '—' }}
                 </p>
               </template>
 

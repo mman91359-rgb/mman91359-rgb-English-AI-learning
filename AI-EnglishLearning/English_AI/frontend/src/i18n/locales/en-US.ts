@@ -1080,6 +1080,7 @@ export default {
     dateRequired: 'Please choose an exam date',
     daysLeft: 'days to go',
     target: 'Target ',
+    scoreUnit: 'pts',
     setGoal: 'Set study goal',
     expired: 'Exam passed',
     updateNext: 'Update to next',

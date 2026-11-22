@@ -1080,6 +1080,7 @@ export default {
     dateRequired: '请选择考试日期',
     daysLeft: '天后开考',
     target: '目标 ',
+    scoreUnit: '分',
     setGoal: '设置备考目标',
     expired: '考试已过',
     updateNext: '更新到下一场',

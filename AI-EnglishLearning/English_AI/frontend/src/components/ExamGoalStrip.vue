@@ -8,28 +8,27 @@
   >
     <template v-if="configured">
       <template v-if="expired">
-        <AppIcon name="event_repeat" size="md" tone="primary" />
-        <span class="font-label-md text-label-md text-on-surface-variant">{{ $t('examGoal.expired') }}</span>
-        <span class="hidden sm:inline font-label-md text-label-md text-primary">{{ $t('examGoal.updateNext') }}</span>
+        <AppIcon name="event_repeat" size="md" tone="onPrimary" />
+        <span class="font-label-md text-label-md text-on-primary">{{ $t('examGoal.expired') }}</span>
+        <span class="hidden sm:inline font-label-md text-label-md text-on-primary underline decoration-on-primary/50">{{ $t('examGoal.updateNext') }}</span>
       </template>
       <template v-else>
-        <span class="rounded-full bg-primary/10 px-2.5 py-0.5 font-label-sm text-label-sm text-primary">
+        <span class="rounded-full bg-on-primary/15 px-2.5 py-0.5 font-label-sm text-label-sm text-on-primary">
           {{ cetLevelLabel }}
         </span>
-        <span class="font-label-md text-label-md text-on-surface-variant">
-          <span class="font-headline-md text-headline-md text-primary tabular-nums">{{ daysLeft }}</span>
+        <span class="font-label-md text-label-md text-on-primary/90">
+          <span class="font-headline-md text-headline-md text-on-primary tabular-nums">{{ daysLeft }}</span>
           {{ $t('examGoal.daysLeft') }}
         </span>
-        <span class="hidden sm:inline font-label-md text-label-md text-on-surface-variant">
-          <span class="mx-1.5 text-outline-variant">·</span>
-          {{ $t('examGoal.target') }}
-          <span class="font-headline-md text-headline-md text-on-surface tabular-nums">{{ userStore.targetScore }}</span>
+        <span class="hidden sm:inline-block h-4 w-px bg-on-primary/30" aria-hidden="true"></span>
+        <span class="hidden sm:inline font-label-md text-label-md text-on-primary/90">
+          {{ $t('examGoal.target') }}<span class="font-headline-md text-headline-md text-on-primary tabular-nums">{{ userStore.targetScore }}</span>{{ $t('examGoal.scoreUnit') }}
         </span>
       </template>
     </template>
     <template v-else>
-      <AppIcon name="flag" size="md" tone="primary" />
-      <span class="font-label-md text-label-md text-on-surface-variant">{{ $t('examGoal.setGoal') }}</span>
+      <AppIcon name="flag" size="md" tone="onPrimary" />
+      <span class="font-label-md text-label-md text-on-primary">{{ $t('examGoal.setGoal') }}</span>
     </template>
   </button>
 </template>
@@ -87,8 +86,10 @@ const ariaLabel = computed(() => {
   return `${cetLevelLabel.value} · ${daysLeft.value}${t('examGoal.daysLeft')} · ${t('examGoal.target')}${userStore.targetScore}`
 })
 
+// 款式 A：品牌实色胶囊，与学习中心主练习入口同一套语言（bg-primary + on-primary 反色）。
+// 焦点环必须走 on-primary：常规 outline-primary 在紫底上同色不可见。
 const stripClass =
-  'inline-flex shrink-0 items-center gap-2 rounded-full bg-surface-container-low px-3 py-1.5 transition-colors hover:bg-surface-container-high focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
+  'inline-flex shrink-0 items-center gap-2 rounded-full bg-primary px-3.5 py-1.5 transition-colors hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-primary'
 
 const goSettings = () => router.push('/settings')
 </script>

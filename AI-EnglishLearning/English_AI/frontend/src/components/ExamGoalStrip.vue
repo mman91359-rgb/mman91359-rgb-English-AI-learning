@@ -2,33 +2,33 @@
   <button
     v-if="isLoggedIn"
     type="button"
-    :class="stripClass"
+    :class="tier.strip"
     :aria-label="ariaLabel"
     @click="goSettings"
   >
     <template v-if="configured">
       <template v-if="expired">
         <AppIcon name="event_repeat" size="md" tone="current" />
-        <span class="font-label-md text-label-md text-on-warning-container">{{ $t('examGoal.expired') }}</span>
-        <span class="hidden sm:inline font-label-md text-label-md text-on-warning-container underline decoration-on-warning-container/50">{{ $t('examGoal.updateNext') }}</span>
+        <span class="font-label-md text-label-md" :class="tier.text">{{ $t('examGoal.expired') }}</span>
+        <span class="hidden sm:inline font-label-md text-label-md" :class="tier.link">{{ $t('examGoal.updateNext') }}</span>
       </template>
       <template v-else>
-        <span class="rounded-full bg-warning/15 px-2.5 py-0.5 font-label-sm text-label-sm text-on-warning-container">
+        <span class="rounded-full px-2.5 py-0.5 font-label-sm text-label-sm" :class="tier.chip">
           {{ cetLevelLabel }}
         </span>
-        <span class="font-label-md text-label-md text-on-warning-container/90">
-          <span class="font-headline-md text-headline-md text-on-warning-container tabular-nums">{{ daysLeft }}</span>
+        <span class="font-label-md text-label-md" :class="tier.muted">
+          <span class="font-headline-md text-headline-md tabular-nums" :class="tier.text">{{ daysLeft }}</span>
           {{ $t('examGoal.daysLeft') }}
         </span>
-        <span class="hidden sm:inline-block h-4 w-px bg-on-warning-container/30" aria-hidden="true"></span>
-        <span class="hidden sm:inline font-label-md text-label-md text-on-warning-container/90">
-          {{ $t('examGoal.target') }}<span class="font-headline-md text-headline-md text-on-warning-container tabular-nums">{{ userStore.targetScore }}</span>{{ $t('examGoal.scoreUnit') }}
+        <span class="hidden sm:inline-block h-4 w-px" :class="tier.divider" aria-hidden="true"></span>
+        <span class="hidden sm:inline font-label-md text-label-md" :class="tier.muted">
+          {{ $t('examGoal.target') }}<span class="font-headline-md text-headline-md tabular-nums" :class="tier.text">{{ userStore.targetScore }}</span>{{ $t('examGoal.scoreUnit') }}
         </span>
       </template>
     </template>
     <template v-else>
       <AppIcon name="flag" size="md" tone="current" />
-      <span class="font-label-md text-label-md text-on-warning-container">{{ $t('examGoal.setGoal') }}</span>
+      <span class="font-label-md text-label-md" :class="tier.text">{{ $t('examGoal.setGoal') }}</span>
     </template>
   </button>
 </template>
@@ -86,11 +86,60 @@ const ariaLabel = computed(() => {
   return `${cetLevelLabel.value} · ${daysLeft.value}${t('examGoal.daysLeft')} · ${t('examGoal.target')}${userStore.targetScore}`
 })
 
-// 款式 D：琥珀浅底胶囊（warning-container + on-warning-container），暖色更抓眼。
-// 焦点环走 on-warning-container：与文字同语义色，在浅琥珀底上清晰可见；
-// 图标 tone 用 current 继承父级深棕（AppIcon 的 12 档 tone 无 onWarningContainer）。
-const stripClass =
-  'inline-flex shrink-0 items-center gap-2 rounded-full bg-warning-container px-3.5 py-1.5 transition hover:brightness-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-warning-container'
+/**
+ * 按剩余天数分三档配色（样式同构、只换语义色）：
+ *   >30 天  充裕 · 蓝   info-container
+ *   8–30 天 适中 · 琥珀 warning-container（当前默认）
+ *   ≤7 天   紧迫 · 红   error-container
+ * 过期态与「未设置」引导态保持琥珀（失效/中性 ≠ 紧迫），走独立分支。
+ *
+ * 类名纪律：三档 class 全部写完整字面量、在表中穷举，禁止 `${tone}` 动态拼接
+ * —— Tailwind 扫不到拼接出的类。图标 tone 统一 current：继承各档文字色，
+ * AppIcon 的 12 档 tone 没有 onInfoContainer/onWarningContainer/onErrorContainer。
+ */
+type TierClasses = {
+  strip: string
+  chip: string
+  text: string
+  muted: string
+  divider: string
+  link: string
+}
+
+const TIER: Record<'calm' | 'moderate' | 'urgent', TierClasses> = {
+  calm: {
+    strip: 'inline-flex shrink-0 items-center gap-2 rounded-full px-3.5 py-1.5 bg-info-container transition hover:brightness-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-info-container',
+    chip: 'bg-info/15 text-on-info-container',
+    text: 'text-on-info-container',
+    muted: 'text-on-info-container/90',
+    divider: 'bg-on-info-container/30',
+    link: 'underline decoration-on-info-container/50',
+  },
+  moderate: {
+    strip: 'inline-flex shrink-0 items-center gap-2 rounded-full px-3.5 py-1.5 bg-warning-container transition hover:brightness-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-warning-container',
+    chip: 'bg-warning/15 text-on-warning-container',
+    text: 'text-on-warning-container',
+    muted: 'text-on-warning-container/90',
+    divider: 'bg-on-warning-container/30',
+    link: 'underline decoration-on-warning-container/50',
+  },
+  urgent: {
+    strip: 'inline-flex shrink-0 items-center gap-2 rounded-full px-3.5 py-1.5 bg-error-container transition hover:brightness-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-error-container',
+    chip: 'bg-error/15 text-on-error-container',
+    text: 'text-on-error-container',
+    muted: 'text-on-error-container/90',
+    divider: 'bg-on-error-container/30',
+    link: 'underline decoration-on-error-container/50',
+  },
+}
+
+/** 选档：未设置/过期 → 琥珀；否则按天数 7/30 分界 */
+const tier = computed<TierClasses>(() => {
+  if (!configured.value || expired.value) return TIER.moderate
+  if (daysLeft.value <= 7) return TIER.urgent
+  if (daysLeft.value <= 30) return TIER.moderate
+  return TIER.calm
+})
 
 const goSettings = () => router.push('/settings')
 </script>

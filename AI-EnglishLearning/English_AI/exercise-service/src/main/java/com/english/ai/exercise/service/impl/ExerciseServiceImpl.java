@@ -1672,11 +1672,14 @@ public class ExerciseServiceImpl implements ExerciseService {
     }
 
     @Override
-    public List<FavoriteVO> getFavorites(Long userId) {
-        List<UserFavorite> list = favoriteMapper.selectList(
-                new LambdaQueryWrapper<UserFavorite>()
-                        .eq(UserFavorite::getUserId, userId)
-                        .orderByDesc(UserFavorite::getCreatedAt));
+    public List<FavoriteVO> getFavorites(Long userId, List<Integer> moduleTypes) {
+        LambdaQueryWrapper<UserFavorite> query = new LambdaQueryWrapper<UserFavorite>()
+                .eq(UserFavorite::getUserId, userId);
+        if (moduleTypes != null && !moduleTypes.isEmpty()) {
+            query.in(UserFavorite::getModuleType, moduleTypes);
+        }
+        query.orderByDesc(UserFavorite::getCreatedAt);
+        List<UserFavorite> list = favoriteMapper.selectList(query);
         return list.stream().map(this::toFavoriteVO).collect(Collectors.toList());
     }
 

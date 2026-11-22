@@ -97,7 +97,7 @@ public interface ExerciseService {
     FavoriteVO addFavorite(Long userId, String sentenceText, Long questionId, Integer moduleType);
 
     /** 收藏列表 */
-    List<FavoriteVO> getFavorites(Long userId);
+    List<FavoriteVO> getFavorites(Long userId, List<Integer> moduleTypes);
 
     /** 删除收藏 */
     void removeFavorite(Long id, Long userId);

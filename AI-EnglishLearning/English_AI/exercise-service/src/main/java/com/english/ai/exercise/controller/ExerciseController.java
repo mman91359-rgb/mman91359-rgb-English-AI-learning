@@ -171,12 +171,13 @@ public class ExerciseController {
         return Result.success(vo);
     }
 
-    /** GET /exercise/favorites/{userId} */
+    /** GET /exercise/favorites/{userId}?moduleTypes=1,2（可选，逗号分隔，过滤模块） */
     @GetMapping("/favorites/{userId}")
     public Result<List<FavoriteVO>> getFavorites(@PathVariable Long userId,
+                                                 @RequestParam(required = false) List<Integer> moduleTypes,
                                                  @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
         UserIdentityUtil.requireOwnership(headerUserId, userId);
-        return Result.success(exerciseService.getFavorites(userId));
+        return Result.success(exerciseService.getFavorites(userId, moduleTypes));
     }
 
     /** DELETE /exercise/favorites/{id}?userId=1 */

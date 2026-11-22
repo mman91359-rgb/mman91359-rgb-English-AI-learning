@@ -13,7 +13,7 @@
         <span class="hidden sm:inline font-label-md text-label-md" :class="tier.link">{{ $t('examGoal.updateNext') }}</span>
       </template>
       <template v-else>
-        <span class="rounded-full px-2.5 py-0.5 font-label-sm text-label-sm" :class="tier.chip">
+        <span class="rounded-full px-2.5 py-0.5 font-label-md text-label-md" :class="tier.chip">
           {{ cetLevelLabel }}
         </span>
         <span class="font-label-md text-label-md" :class="tier.muted">

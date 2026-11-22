@@ -2,6 +2,8 @@ package com.english.ai.user.service;
 
 import com.english.ai.user.dto.PreferenceResponse;
 
+import java.time.LocalDate;
+
 /**
  * 用户学习偏好服务
  */
@@ -21,4 +23,7 @@ public interface UserPreferenceService {
 
     /** 更新「收藏词并行」开关：true = 收藏词优先进入新词队列 */
     PreferenceResponse updateIncludeFavoriteWords(Long userId, Boolean includeFavoriteWords);
+
+    /** 更新备考目标（考试日期 + 目标分），并把考试等级回写 sys_user.cet_level */
+    PreferenceResponse updateExamGoal(Long userId, LocalDate examDate, Integer targetScore, String cetLevel);
 }

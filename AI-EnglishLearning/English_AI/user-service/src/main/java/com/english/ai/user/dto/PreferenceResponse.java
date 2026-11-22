@@ -1,5 +1,7 @@
 package com.english.ai.user.dto;
 
+import java.time.LocalDate;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -48,4 +50,13 @@ public class PreferenceResponse {
     private Integer minDailyReviewWords;
 
     private Integer maxDailyReviewWords;
+
+    /** 考试日期（yyyy-MM-dd），null 表示尚未设置 */
+    private LocalDate examDate;
+
+    /** 目标分（425-710），null 表示尚未设置 */
+    private Integer targetScore;
+
+    /** 备考目标是否已设置（考试日期与目标分都非空） */
+    private Boolean examGoalConfigured;
 }

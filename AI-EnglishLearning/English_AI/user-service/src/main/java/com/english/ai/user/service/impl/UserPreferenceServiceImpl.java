@@ -2,6 +2,7 @@ package com.english.ai.user.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.english.ai.user.dto.PreferenceResponse;
+import com.english.ai.user.entity.SysUser;
 import com.english.ai.user.entity.UserPreference;
 import com.english.ai.user.mapper.UserMapper;
 import com.english.ai.user.mapper.UserPreferenceMapper;
@@ -10,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
 
 /**
  * 用户学习偏好实现
@@ -26,6 +29,9 @@ public class UserPreferenceServiceImpl implements UserPreferenceService {
     public static final int MAX_DAILY_NEW_WORDS = 50;
     public static final int MIN_DAILY_REVIEW_WORDS = 0;
     public static final int MAX_DAILY_REVIEW_WORDS = 50;
+
+    public static final int MIN_TARGET_SCORE = 425;
+    public static final int MAX_TARGET_SCORE = 710;
 
     private final UserPreferenceMapper preferenceMapper;
     private final UserMapper userMapper;
@@ -149,6 +155,49 @@ public class UserPreferenceServiceImpl implements UserPreferenceService {
         return buildResponse(userId, preference);
     }
 
+    @Override
+    @Transactional
+    public PreferenceResponse updateExamGoal(Long userId, LocalDate examDate, Integer targetScore, String cetLevel) {
+        SysUser user = userId == null ? null : userMapper.selectById(userId);
+        if (user == null) {
+            throw new IllegalArgumentException("用户不存在");
+        }
+        if (examDate == null) {
+            throw new IllegalArgumentException("考试日期不能为空");
+        }
+        if (targetScore == null || targetScore < MIN_TARGET_SCORE || targetScore > MAX_TARGET_SCORE) {
+            throw new IllegalArgumentException("目标分需在 " + MIN_TARGET_SCORE + "-" + MAX_TARGET_SCORE + " 之间");
+        }
+        if (!"CET4".equals(cetLevel) && !"CET6".equals(cetLevel)) {
+            throw new IllegalArgumentException("考试等级只能是 CET4 或 CET6");
+        }
+
+        UserPreference preference = selectByUserId(userId);
+        if (preference == null) {
+            preference = new UserPreference();
+            preference.setUserId(userId);
+            preference.setExamDate(examDate);
+            preference.setTargetScore(targetScore);
+            preferenceMapper.insert(preference);
+        } else {
+            preference.setExamDate(examDate);
+            preference.setTargetScore(targetScore);
+            preferenceMapper.updateById(preference);
+        }
+
+        // 考试等级回写 sys_user：只更新 cet_level 一个字段，避免整行覆盖丢数据。
+        if (!cetLevel.equals(user.getCetLevel())) {
+            SysUser patch = new SysUser();
+            patch.setId(userId);
+            patch.setCetLevel(cetLevel);
+            userMapper.updateById(patch);
+        }
+
+        log.info("更新备考目标: userId={}, examDate={}, targetScore={}, cetLevel={}",
+                userId, examDate, targetScore, cetLevel);
+        return buildResponse(userId, preference);
+    }
+
     private UserPreference selectByUserId(Long userId) {
         if (userId == null) {
             return null;
@@ -164,6 +213,8 @@ public class UserPreferenceServiceImpl implements UserPreferenceService {
         Long activeWordBookId = preference != null ? preference.getActiveWordBookId() : null;
         Boolean includeFavoriteWords = preference != null
                 && Boolean.TRUE.equals(preference.getIncludeFavoriteWords());
+        LocalDate examDate = preference != null ? preference.getExamDate() : null;
+        Integer targetScore = preference != null ? preference.getTargetScore() : null;
         return PreferenceResponse.builder()
                 .userId(userId)
                 .vocabGroupSize(groupSize)
@@ -179,6 +230,9 @@ public class UserPreferenceServiceImpl implements UserPreferenceService {
                 .maxDailyNewWords(MAX_DAILY_NEW_WORDS)
                 .minDailyReviewWords(MIN_DAILY_REVIEW_WORDS)
                 .maxDailyReviewWords(MAX_DAILY_REVIEW_WORDS)
+                .examDate(examDate)
+                .targetScore(targetScore)
+                .examGoalConfigured(examDate != null && targetScore != null)
                 .build();
     }
 }

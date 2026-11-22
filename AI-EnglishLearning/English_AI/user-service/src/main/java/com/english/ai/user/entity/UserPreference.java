@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -39,6 +40,12 @@ public class UserPreference {
      * 默认 false（关闭），与升级前行为一致。
      */
     private Boolean includeFavoriteWords;
+
+    /** 考试日期（yyyy-MM-dd），NULL 表示尚未设置 */
+    private LocalDate examDate;
+
+    /** 目标分（425-710），NULL 表示尚未设置 */
+    private Integer targetScore;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;

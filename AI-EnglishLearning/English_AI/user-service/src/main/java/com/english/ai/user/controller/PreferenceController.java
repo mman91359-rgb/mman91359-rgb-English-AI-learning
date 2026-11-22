@@ -6,6 +6,7 @@ import com.english.ai.common.Result;
 import com.english.ai.common.UserIdentityUtil;
 import com.english.ai.user.dto.PreferenceResponse;
 import com.english.ai.user.dto.UpdateActiveWordBookRequest;
+import com.english.ai.user.dto.UpdateExamGoalRequest;
 import com.english.ai.user.dto.UpdateIncludeFavoriteWordsRequest;
 import com.english.ai.user.dto.UpdateVocabGroupSizeRequest;
 import com.english.ai.user.dto.UpdateVocabularyGoalsRequest;
@@ -132,6 +133,29 @@ public class PreferenceController {
             return Result.badRequest(e.getMessage());
         } catch (RuntimeException e) {
             log.warn("更新收藏词并行开关失败: userId={}, reason={}", request.getUserId(), e.getMessage());
+            return Result.error("保存失败，请稍后重试");
+        }
+    }
+
+    /**
+     * 更新备考目标（考试日期 + 目标分 + 考试等级）
+     * PUT /user/preference/exam-goal
+     */
+    @PutMapping("/exam-goal")
+    public Result<PreferenceResponse> updateExamGoal(
+            @Valid @RequestBody UpdateExamGoalRequest request,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (request == null || request.getUserId() == null) {
+            return Result.badRequest("userId不能为空");
+        }
+        UserIdentityUtil.requireOwnership(headerUserId, request.getUserId());
+        try {
+            return Result.success(preferenceService.updateExamGoal(
+                    request.getUserId(), request.getExamDate(), request.getTargetScore(), request.getCetLevel()));
+        } catch (IllegalArgumentException e) {
+            return Result.badRequest(e.getMessage());
+        } catch (RuntimeException e) {
+            log.warn("更新备考目标失败: userId={}, reason={}", request.getUserId(), e.getMessage());
             return Result.error("保存失败，请稍后重试");
         }
     }

@@ -52,12 +52,16 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.client.RestTemplate;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -1552,14 +1556,119 @@ public class ExerciseServiceImpl implements ExerciseService {
     // ============= 收藏句 =============
 
     @Override
-    public FavoriteVO addFavorite(Long userId, String sentenceText, Long questionId) {
+    public FavoriteVO addFavorite(Long userId, String sentenceText, Long questionId, Integer moduleType) {
+        if (questionId != null) {
+            return addExerciseFavorite(userId, sentenceText, questionId);
+        }
+        return addSentenceFavorite(userId, sentenceText, moduleType);
+    }
+
+    /**
+     * 收藏"习题"（questionId 非空）：模块由后端按 question_info.module_type 派生，不信任前端；
+     * 幂等与并发去重都靠 (user_id, question_id) 唯一键兜底。
+     */
+    private FavoriteVO addExerciseFavorite(Long userId, String sentenceText, Long questionId) {
+        QuestionInfo question = questionInfoMapper.selectById(questionId);
+        if (question == null) {
+            throw new BusinessException(BizCode.QUESTION_NOT_FOUND);
+        }
+        UserFavorite existing = findFavoriteByQuestion(userId, questionId);
+        if (existing != null) {
+            return toFavoriteVO(existing);
+        }
+
         UserFavorite f = new UserFavorite();
         f.setUserId(userId);
         f.setSentenceText(sentenceText);
         f.setQuestionId(questionId);
-        f.setSourceType(questionId != null ? "EXERCISE" : "SENTENCE");
-        favoriteMapper.insert(f);
+        f.setModuleType(question.getModuleType());
+        f.setSourceType("EXERCISE");
+        // contentHash 保持 null，去重交给 (user_id, question_id) 唯一键
+        try {
+            favoriteMapper.insert(f);
+        } catch (DuplicateKeyException e) {
+            log.info("习题收藏并发插入命中唯一键，按已收藏处理: userId={}, questionId={}", userId, questionId);
+            UserFavorite concurrent = findFavoriteByQuestion(userId, questionId);
+            if (concurrent != null) {
+                return toFavoriteVO(concurrent);
+            }
+            throw new BusinessException(BizCode.STATE_CONFLICT);
+        }
         return toFavoriteVO(f);
+    }
+
+    /**
+     * 收藏"句子"（questionId 为空）：模块由前端传入（无题号可派生），
+     * 去重靠 (user_id, content_hash) 唯一键。
+     */
+    private FavoriteVO addSentenceFavorite(Long userId, String sentenceText, Integer moduleType) {
+        int mt = normalizeModuleType(moduleType);
+        String normalized = sentenceText.trim();
+        String hash = sha256(normalized);
+
+        UserFavorite existing = findFavoriteByHash(userId, hash);
+        if (existing != null) {
+            return toFavoriteVO(existing);
+        }
+
+        UserFavorite f = new UserFavorite();
+        f.setUserId(userId);
+        f.setSentenceText(normalized);
+        f.setQuestionId(null);
+        f.setModuleType(mt);
+        f.setContentHash(hash);
+        f.setSourceType("SENTENCE");
+        try {
+            favoriteMapper.insert(f);
+        } catch (DuplicateKeyException e) {
+            log.info("句子收藏并发插入命中唯一键，按已收藏处理: userId={}, hash={}", userId, hash);
+            UserFavorite concurrent = findFavoriteByHash(userId, hash);
+            if (concurrent != null) {
+                return toFavoriteVO(concurrent);
+            }
+            throw new BusinessException(BizCode.STATE_CONFLICT);
+        }
+        return toFavoriteVO(f);
+    }
+
+    private UserFavorite findFavoriteByQuestion(Long userId, Long questionId) {
+        return favoriteMapper.selectOne(new LambdaQueryWrapper<UserFavorite>()
+                .eq(UserFavorite::getUserId, userId)
+                .eq(UserFavorite::getQuestionId, questionId));
+    }
+
+    private UserFavorite findFavoriteByHash(Long userId, String contentHash) {
+        return favoriteMapper.selectOne(new LambdaQueryWrapper<UserFavorite>()
+                .eq(UserFavorite::getUserId, userId)
+                .eq(UserFavorite::getContentHash, contentHash));
+    }
+
+    /** 句子类模块校验：null 视为 0（未知）；非法值抛参数错误 */
+    private int normalizeModuleType(Integer moduleType) {
+        if (moduleType == null) {
+            return 0;
+        }
+        if (ModuleType.of(moduleType) == null) {
+            throw new BusinessException(BizCode.PARAM_INVALID);
+        }
+        return moduleType;
+    }
+
+    /** 句子内容哈希（JDK 自带 SHA-256，不新增依赖） */
+    private String sha256(String text) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] bytes = digest.digest(text.getBytes(StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder(bytes.length * 2);
+            for (byte b : bytes) {
+                sb.append(Character.forDigit((b >> 4) & 0xF, 16));
+                sb.append(Character.forDigit(b & 0xF, 16));
+            }
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+            // SHA-256 是 JDK 标准算法，理论不会触发
+            throw new IllegalStateException("SHA-256 不可用", e);
+        }
     }
 
     @Override
@@ -1586,6 +1695,7 @@ public class ExerciseServiceImpl implements ExerciseService {
                 .sentenceText(f.getSentenceText())
                 .questionId(f.getQuestionId())
                 .sourceType(f.getSourceType())
+                .moduleType(f.getModuleType())
                 .createdAt(f.getCreatedAt())
                 .build();
     }

@@ -94,7 +94,7 @@ public interface ExerciseService {
     // ========== 收藏句 ==========
 
     /** 添加收藏 */
-    FavoriteVO addFavorite(Long userId, String sentenceText, Long questionId);
+    FavoriteVO addFavorite(Long userId, String sentenceText, Long questionId, Integer moduleType);
 
     /** 收藏列表 */
     List<FavoriteVO> getFavorites(Long userId);

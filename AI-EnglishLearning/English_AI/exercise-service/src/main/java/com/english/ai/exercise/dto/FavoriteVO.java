@@ -13,5 +13,6 @@ public class FavoriteVO {
     private String sentenceText;
     private Long questionId;
     private String sourceType;
+    private Integer moduleType;
     private LocalDateTime createdAt;
 }

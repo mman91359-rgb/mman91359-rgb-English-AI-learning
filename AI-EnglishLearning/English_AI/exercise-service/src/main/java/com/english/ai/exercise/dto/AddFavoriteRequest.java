@@ -13,4 +13,7 @@ public class AddFavoriteRequest {
     private String sentenceText;
 
     private Long questionId;
+
+    /** 模块类型，仅收藏"纯句子"(questionId 为空)时使用；有 questionId 时由后端按题目派生 */
+    private Integer moduleType;
 }

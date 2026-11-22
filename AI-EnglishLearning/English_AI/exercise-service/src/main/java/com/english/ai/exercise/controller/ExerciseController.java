@@ -167,7 +167,7 @@ public class ExerciseController {
             return Result.badRequest("userId和sentenceText不能为空");
         }
         UserIdentityUtil.requireOwnership(headerUserId, request.getUserId());
-        FavoriteVO vo = exerciseService.addFavorite(request.getUserId(), request.getSentenceText(), request.getQuestionId());
+        FavoriteVO vo = exerciseService.addFavorite(request.getUserId(), request.getSentenceText(), request.getQuestionId(), request.getModuleType());
         return Result.success(vo);
     }
 

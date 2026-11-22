@@ -372,8 +372,13 @@ export const addFavorite = (data: {
     return post('/exercise/favorites', data)
 }
 
-export const getFavorites = (userId: number): Promise<FavoriteVO[]> => {
-    return get(`/exercise/favorites/${userId}`)
+/**
+ * 收藏列表。
+ * @param moduleTypes 可选的模块类型筛选（如 [1,2] 只取词汇+语法），不传返回全量。
+ *                    以逗号字符串发送，避免 axios 把数组序列化成 moduleTypes[]= 导致后端绑不上。
+ */
+export const getFavorites = (userId: number, moduleTypes?: number[]): Promise<FavoriteVO[]> => {
+    return get(`/exercise/favorites/${userId}`, moduleTypes?.length ? { moduleTypes: moduleTypes.join(',') } : {})
 }
 
 export const removeFavorite = (id: number, userId: number): Promise<string> => {

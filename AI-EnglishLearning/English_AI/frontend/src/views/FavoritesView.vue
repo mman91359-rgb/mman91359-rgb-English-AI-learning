@@ -139,7 +139,8 @@ const load = async () => {
   loading.value = true
   loadError.value = ''
   try {
-    favorites.value = await getFavorites(uid)
+    // 收藏页只展示词汇(1)/语法(2)，由后端按 moduleTypes 过滤，减少传输与前端过滤负担
+    favorites.value = await getFavorites(uid, [1, 2])
   } catch (e) {
     console.warn('加载收藏列表失败', e)
     loadError.value = e instanceof Error ? e.message : '加载收藏列表失败'

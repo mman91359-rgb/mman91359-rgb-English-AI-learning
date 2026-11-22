@@ -226,7 +226,7 @@ function buildBooks(c4, c6, core, gaokao, zhongkao, spelling) {
   const books = [
     {
       code: 'basic_foundation',
-      name: '四级精选',
+      name: '中考高考基础词',
       level: 'CET4',
       description: '中考与高考基础词汇，适合从零打基础',
       items: foundation,

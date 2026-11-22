@@ -115,11 +115,6 @@ export async function fetchDrafts(): Promise<WritingDraft[]> {
   return (list ?? []).map(toDraft)
 }
 
-export async function fetchDraftTopicIds(): Promise<string[]> {
-  const drafts = await fetchDrafts()
-  return drafts.map((item) => item.topicId)
-}
-
 export async function fetchFavoriteIds(): Promise<string[]> {
   const list = await get<string[]>(`${WRITING_BASE}/favorites`)
   return list ?? []

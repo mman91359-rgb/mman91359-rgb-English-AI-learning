@@ -1,4 +1,4 @@
-import { del, get, post } from './request'
+import { del, get, post, put } from './request'
 
 /** 后端 PageResult 包装 */
 interface PageResult<T> {
@@ -59,4 +59,35 @@ export function clearNotifications(): Promise<number> {
 /** 红点唯一来源：公告 + 个人通知合计 */
 export function fetchUnreadCount(): Promise<UnreadCountVO> {
   return get<UnreadCountVO>('/user/notices/unread-count')
+}
+
+// ========== 公告线（广播，来自 sys_notice） ==========
+// 与管理端 /admin/notices 不是一套：那条是发布入口，这里是用户侧阅读入口。
+// 红点按 §7.1 方案 3 合并了两条线，所以通知页必须能读到公告，
+// 否则会出现「红点亮着、点开却看不到任何东西」。
+
+/** 公告 VO（后端 UserNoticeVO） */
+export interface NoticeVO {
+  id: number
+  title: string
+  content: string
+  noticeType: string
+  /** 发布时间（ISO-8601） */
+  publishAt: string
+  read: boolean
+}
+
+/** 公告列表，按发布时间倒序；公告量小，一次取全 */
+export function fetchNotices(page = 1, size = 100): Promise<PageResult<NoticeVO>> {
+  return get<PageResult<NoticeVO>>('/user/notices', { page, size })
+}
+
+/** 单条公告已读 */
+export function markNoticeRead(id: number): Promise<boolean> {
+  return put<boolean>(`/user/notices/${id}/read`)
+}
+
+/** 全部公告已读，返回本次新标记条数 */
+export function markAllNoticesRead(): Promise<number> {
+  return put<number>('/user/notices/read-all')
 }

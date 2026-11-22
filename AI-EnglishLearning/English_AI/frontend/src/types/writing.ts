@@ -21,7 +21,6 @@ export interface WritingTopic {
   wordRange: [number, number]
   timeLimitSeconds: number
   source?: string
-  isPreview?: boolean
   outlineHints: string[]
   usefulExpressions: string[]
 }

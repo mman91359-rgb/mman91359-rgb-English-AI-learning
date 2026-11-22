@@ -11,6 +11,7 @@
       <slot name="right">
         <!-- 通知按钮：铃铛，点击进入通知中心页；红点读服务端 unread-count 合计 -->
         <button
+          class="relative"
           :class="btnIcon"
           :aria-label="$t('topbar.notifications')"
           @click="goNotifications"

@@ -139,18 +139,24 @@ import { relativeTime } from '../composables/useNotifications'
 import {
   clearNotifications,
   fetchNotifications,
+  fetchNotices,
   fetchUnreadCount,
+  markAllNoticesRead,
   markAllNotificationsRead,
+  markNoticeRead,
   markNotificationRead,
 } from '../api/notification'
 import type { ChipOption } from '../components/ui/ChipGroup.vue'
-import type { NotificationType, NotificationVO } from '../api/notification'
+import type { NoticeVO, NotificationType, NotificationVO } from '../api/notification'
 import { useToast } from '../composables/useToast'
 
 const { t, te } = useI18n()
 const { show: toast } = useToast()
 
 const PAGE_SIZE = 20
+const NOTICE_PAGE_SIZE = 100
+/** 公告 id 加前缀，与个人通知的字符串 id 区分，避免同号混淆 */
+const NOTICE_PREFIX = 'notice:'
 type Filter = 'all' | 'unread'
 
 const items = ref<NotificationVO[]>([])
@@ -168,7 +174,29 @@ const filterOptions = computed<ChipOption[]>(() => [
   { value: 'unread', label: t('notifications.filterUnread') },
 ])
 
-const hasMore = computed(() => items.value.length < total.value)
+const isNotice = (item: NotificationVO) => item.id.startsWith(NOTICE_PREFIX)
+/** 已加载的个人通知条数：公告不参与个人线的分页判断 */
+const personalCount = computed(() => items.value.filter((item) => !isNotice(item)).length)
+const hasMore = computed(() => personalCount.value < total.value)
+
+/** 公告 → 统一列表项。标题与正文是整句文本，resolveText 会原样显示而不查 i18n */
+function toNotificationItem(notice: NoticeVO): NotificationVO {
+  return {
+    id: `${NOTICE_PREFIX}${notice.id}`,
+    type: 'system',
+    titleKey: notice.title,
+    contentKey: notice.content,
+    titleParams: null,
+    contentParams: null,
+    createdAt: notice.publishAt ? new Date(notice.publishAt).getTime() : Date.now(),
+    read: notice.read,
+  }
+}
+
+/** 公告在前、个人通知在后，按时间倒序混排 */
+function buildItems(notices: NoticeVO[], personal: NotificationVO[]): NotificationVO[] {
+  return [...notices.map(toNotificationItem), ...personal].sort((a, b) => b.createdAt - a.createdAt)
+}
 
 /** 通知类型 → 图标与语义色档，全部使用 M3 语义令牌（error 仅用于错误，不作业务装饰） */
 const TYPE_META: Record<NotificationType, { icon: string; tone: 'primary' | 'tertiary' | 'warning' | 'variant'; containerClass: string; labelKey: string }> = {
@@ -180,10 +208,15 @@ const TYPE_META: Record<NotificationType, { icon: string; tone: 'primary' | 'ter
 
 const typeTone = (type: NotificationType) => TYPE_META[type] ?? TYPE_META.system
 
-/** 兜底口径：i18n 键查不到时按 type 显示默认文案，不显示英文键名 */
+/**
+ * 文本解析：
+ * - i18n 键（个人通知）→ 翻译
+ * - 整句文本（公告 title / content）→ 原样显示
+ * - 空键 → 按 type 的默认文案
+ */
 function resolveText(key: string, params: Record<string, unknown> | null, fallback: string): string {
-  if (key && te(key)) return t(key, (params ?? {}) as Record<string, unknown>)
-  return fallback
+  if (!key) return fallback
+  return te(key) ? t(key, (params ?? {}) as Record<string, unknown>) : key
 }
 
 const fallbackTitle = (type: NotificationType) => t(`notifications.fallbackTitle.${type}`)
@@ -204,9 +237,14 @@ async function load(): Promise<void> {
   loadError.value = ''
   currentPage.value = 1
   try {
-    const res = await fetchNotifications(1, PAGE_SIZE, filter.value === 'unread')
-    items.value = res.records ?? []
-    total.value = res.total
+    // 公告与个人通知并发拉取；公告只在首屏出现，不参与「加载更多」
+    const [personalRes, noticeRes] = await Promise.all([
+      fetchNotifications(1, PAGE_SIZE, filter.value === 'unread'),
+      fetchNotices(1, NOTICE_PAGE_SIZE),
+    ])
+    const notices = (noticeRes?.records ?? []).filter((n) => filter.value === 'all' || !n.read)
+    total.value = personalRes.total
+    items.value = buildItems(notices, personalRes.records ?? [])
   } catch (e) {
     loadError.value = e instanceof Error ? e.message : t('notifications.loadFailed')
     items.value = []
@@ -237,14 +275,18 @@ function handleFilterChange(value: string | number | Array<string | number>): vo
   void load()
 }
 
-/** 点开即标已读：先本地乐观更新，失败回滚 */
+/** 点开即标已读：先本地乐观更新，失败回滚。公告与个人通知各走各的接口。 */
 async function handleOpen(item: NotificationVO): Promise<void> {
   if (item.read) return
   const previous = item.read
   item.read = true
   unreadTotal.value = Math.max(0, unreadTotal.value - 1)
   try {
-    await markNotificationRead(item.id)
+    if (isNotice(item)) {
+      await markNoticeRead(Number(item.id.slice(NOTICE_PREFIX.length)))
+    } else {
+      await markNotificationRead(item.id)
+    }
   } catch (e) {
     item.read = previous
     await refreshUnread()
@@ -254,7 +296,8 @@ async function handleOpen(item: NotificationVO): Promise<void> {
 
 async function handleMarkAllRead(): Promise<void> {
   try {
-    await markAllNotificationsRead()
+    // 两条线都要标，否则公告永远未读、红点永远清不掉
+    await Promise.all([markAllNotificationsRead(), markAllNoticesRead()])
     items.value.forEach((item) => { item.read = true })
     await refreshUnread()
   } catch (e) {

@@ -28,11 +28,6 @@
               <p class="font-body-md text-body-md text-on-surface-variant">{{ $t('auth.forgotSubtitle') }}</p>
             </div>
 
-            <p class="mb-6 flex items-start gap-2 rounded-xl bg-warning-container px-4 py-3 font-body-sm text-body-sm text-on-warning-container">
-              <AppIcon name="info" size="md" />
-              <span>{{ $t('auth.mockSmsHint') }}</span>
-            </p>
-
             <form class="space-y-5" novalidate @submit.prevent="handleReset">
               <div>
                 <div class="relative group">

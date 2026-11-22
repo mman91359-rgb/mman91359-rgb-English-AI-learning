@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.english.ai.common.BusinessException;
 import com.english.ai.common.BizCode;
 import com.english.ai.common.PageResult;
+import com.english.ai.user.dto.UnreadCountVO;
 import com.english.ai.user.dto.admin.UserNoticeVO;
 import com.english.ai.user.entity.SysNotice;
 import com.english.ai.user.entity.SysUser;
@@ -11,6 +12,7 @@ import com.english.ai.user.entity.UserNoticeRead;
 import com.english.ai.user.mapper.SysNoticeMapper;
 import com.english.ai.user.mapper.UserMapper;
 import com.english.ai.user.mapper.UserNoticeReadMapper;
+import com.english.ai.user.service.NotificationService;
 import com.english.ai.user.service.UserNoticeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +33,7 @@ public class UserNoticeServiceImpl implements UserNoticeService {
     private final SysNoticeMapper noticeMapper;
     private final UserNoticeReadMapper readMapper;
     private final UserMapper userMapper;
+    private final NotificationService notificationService;
 
     @Override
     public PageResult<UserNoticeVO> page(Long userId, int page, int size) {
@@ -58,6 +61,17 @@ public class UserNoticeServiceImpl implements UserNoticeService {
         }
         Set<Long> readIds = readIds(userId);
         return visible.stream().filter(notice -> !readIds.contains(notice.getId())).count();
+    }
+
+    @Override
+    public UnreadCountVO unreadCountSummary(Long userId) {
+        long notice = unreadCount(userId);
+        long personal = notificationService.unreadCount(userId);
+        UnreadCountVO vo = new UnreadCountVO();
+        vo.setNotice(notice);
+        vo.setPersonal(personal);
+        vo.setTotal(notice + personal);
+        return vo;
     }
 
     @Override

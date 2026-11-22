@@ -2,6 +2,7 @@ package com.english.ai.user.controller;
 
 import com.english.ai.common.PageResult;
 import com.english.ai.common.Result;
+import com.english.ai.user.dto.UnreadCountVO;
 import com.english.ai.user.dto.admin.UserNoticeVO;
 import com.english.ai.user.service.UserNoticeService;
 import lombok.RequiredArgsConstructor;
@@ -29,8 +30,8 @@ public class UserNoticeController {
     }
 
     @GetMapping("/unread-count")
-    public Result<Long> unreadCount(@RequestHeader("X-User-Id") Long userId) {
-        return Result.success(noticeService.unreadCount(userId));
+    public Result<UnreadCountVO> unreadCount(@RequestHeader("X-User-Id") Long userId) {
+        return Result.success(noticeService.unreadCountSummary(userId));
     }
 
     @PutMapping("/{id}/read")

@@ -84,6 +84,7 @@ import ChipGroup from '@/components/ui/ChipGroup.vue'
 import type { ChipOption } from '@/components/ui/ChipGroup.vue'
 import { inputClassLg } from '@/components/ui/formStyles'
 import { btnDialogPrimary, btnDialogSecondary } from '@/components/ui/buttonStyles'
+import { getNextOfficialExamDate, toDateString } from '@/config/examCalendar'
 
 /**
  * ExamGoalDialog —— 设置备考目标（考试等级 / 日期 / 目标分）。
@@ -139,17 +140,15 @@ const presetClass = (value: number) =>
     ? 'rounded-full bg-primary px-4 py-1.5 font-label-md text-label-md text-on-primary'
     : 'rounded-full border border-outline-variant px-4 py-1.5 font-label-md text-label-md text-on-surface-variant hover:bg-surface-container'
 
-const todayIso = () => {
-  const now = new Date()
-  const y = now.getFullYear()
-  const m = String(now.getMonth() + 1).padStart(2, '0')
-  const d = String(now.getDate()).padStart(2, '0')
-  return `${y}-${m}-${d}`
-}
-
 const syncFromProps = () => {
   levelInput.value = props.cetLevel === 'CET6' ? 'CET6' : 'CET4'
-  dateInput.value = props.examDate ?? todayIso()
+  // 首次设置（无历史日期）或旧日期已过期时，自动预填官方下一场笔试日期；用户仍可手动改。
+  // 用 yyyy-MM-dd 定长串比较判断过期（等价于日期比较），考试当天不算过期。
+  const today = toDateString(new Date())
+  const hasValidDate = !!props.examDate && props.examDate >= today
+  dateInput.value = hasValidDate
+    ? (props.examDate as string)
+    : (getNextOfficialExamDate() ?? today)
   scoreInput.value = props.targetScore ?? 500
   localError.value = ''
 }

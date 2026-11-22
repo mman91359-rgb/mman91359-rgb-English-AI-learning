@@ -7,18 +7,23 @@ export interface ApiResponse<T = any> {
   message: string
   data: T
   traceId?: string
+  /** 业务错误码（对应后端 BizCode），成功时为 null */
+  bizCode?: number | null
 }
 
 /** 带 HTTP 状态码与业务码的请求异常，便于页面区分 409/403 等场景 */
 export class ApiError extends Error {
   readonly status: number
   readonly code: number
+  /** 业务错误码（对应后端 BizCode），无则为 null。页面应优先据此分支，而不是匹配 message 文案 */
+  readonly bizCode: number | null
 
-  constructor(message: string, status = 0, code = 0) {
+  constructor(message: string, status = 0, code = 0, bizCode: number | null = null) {
     super(message)
     this.name = 'ApiError'
     this.status = status
     this.code = code
+    this.bizCode = bizCode
   }
 }
 
@@ -75,10 +80,10 @@ instance.interceptors.response.use(
         // 登录、注册、刷新、登出接口的 401 是业务错误，不触发自动刷新，让调用方处理
         const url = response.config.url || ''
         if (!isAuthRequest(url)) {
-          return Promise.reject(new ApiError(res.message || '请求失败', response.status, res.code))
+          return Promise.reject(new ApiError(res.message || '请求失败', response.status, res.code, res.bizCode ?? null))
         }
       }
-      return Promise.reject(new ApiError(res.message || '请求失败', response.status, res.code))
+      return Promise.reject(new ApiError(res.message || '请求失败', response.status, res.code, res.bizCode ?? null))
     }
     return res.data
   },
@@ -103,14 +108,15 @@ instance.interceptors.response.use(
         return instance(error.config)
       }
       clearAuthAndRedirect()
-      return Promise.reject(new ApiError('登录已过期，请重新登录', status ?? 0, 401))
+      return Promise.reject(new ApiError('登录已过期，请重新登录', status ?? 0, 401, error.response?.data?.bizCode ?? null))
     }
     if (status === 401 && !isAuthRequest(url)) {
       clearAuthAndRedirect()
     }
     const message = error.response?.data?.message || error.message || '网络异常'
     const code = error.response?.data?.code ?? status ?? 0
-    return Promise.reject(new ApiError(message, status ?? 0, code))
+    const bizCode = error.response?.data?.bizCode ?? null
+    return Promise.reject(new ApiError(message, status ?? 0, code, bizCode))
   }
 )
 

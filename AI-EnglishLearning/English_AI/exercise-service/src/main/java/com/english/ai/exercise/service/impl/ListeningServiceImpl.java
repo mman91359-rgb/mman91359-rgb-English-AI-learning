@@ -16,6 +16,7 @@ import com.english.ai.exercise.mapper.ListeningAudioMapper;
 import com.english.ai.exercise.mapper.UserExerciseLogMapper;
 import com.english.ai.exercise.service.ExerciseService;
 import com.english.ai.exercise.service.ListeningService;
+import com.english.ai.exercise.util.QuestionSourceResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -191,6 +192,8 @@ public class ListeningServiceImpl implements ListeningService {
         question.setAnswerStartSeconds(audio.getAnswerStartSeconds());
         question.setAnswerEndSeconds(audio.getAnswerEndSeconds());
         question.setGroupKey(audio.getGroupKey());
+        // 结构化卷别：解析 group_key 前四段，前端不再对字符串做 startsWith 猜测；legacy-* 为 null
+        question.setSource(QuestionSourceResolver.resolve(audio.getGroupKey()));
         question.setListeningType(audio.getListeningType());
     }
 

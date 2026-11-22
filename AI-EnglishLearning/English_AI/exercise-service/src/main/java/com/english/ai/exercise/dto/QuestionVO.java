@@ -76,6 +76,12 @@ public class QuestionVO {
     /** 题组/音频段落标识 */
     private String groupKey;
 
+    /**
+     * 结构化卷别来源；null 表示非真题（AI 题、legacy 导入题）。
+     * 由 groupKey 解析，替代前端对 groupKey 做 startsWith 猜测。
+     */
+    private QuestionSourceVO source;
+
     /** 听力题型 */
     private String listeningType;
 

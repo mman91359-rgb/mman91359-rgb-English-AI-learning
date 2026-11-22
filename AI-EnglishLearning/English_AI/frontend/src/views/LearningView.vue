@@ -141,7 +141,15 @@
               <span class="rounded-full bg-on-primary/15 px-3 py-1 font-label-md text-label-md">
                 {{ $t('learning.reviewWordsGoal', { count: dailyReviewWordsDisplay }) }}
               </span>
-              <AppIcon name="tune" size="lg" class="opacity-70" />
+              <button
+                type="button"
+                :class="btnSecondaryInverse"
+                :title="$t('dashboard.setGoal')"
+                @click="openVocabularyGoalDialog"
+              >
+                <AppIcon name="tune" size="md" />
+                <span>{{ $t('dashboard.setGoal') }}</span>
+              </button>
             </div>
 
             <!-- 复习 / 新学 二选一滑动条 -->
@@ -289,6 +297,7 @@ import { getErrorBook, getFavorites, getVocabularyPage } from '@/api/exercise'
 import { getCurveStats } from '@/api/learning'
 import { useToast } from '@/composables/useToast'
 import { homeDailyDefaults, learningDailyTargets } from '@/config/learningDefaults'
+import { btnSecondaryInverse } from '@/components/ui/buttonStyles'
 
 const { t } = useI18n()
 const { show: toast } = useToast()
@@ -380,6 +389,22 @@ const dailyReviewWordsDisplay = computed(() => userStore.dailyReviewWords ?? hom
 
 // 本次练习模式：new（新学） / review（复习），二选一
 const vocabMode = ref<'new' | 'review'>('new')
+
+/**
+ * 点「设置每日目标」：无论是否首次，都直接打开词汇量设置弹窗。
+ * 与 startVocabPractice（首次判定 + 进入练习）分离，保证已设置过目标后仍可再次调整。
+ */
+const openVocabularyGoalDialog = async () => {
+  if (!userStore.userId) {
+    toast(t('learning.pleaseLogin'), 'warning')
+    return
+  }
+  if (!userStore.preferenceLoaded) {
+    await userStore.loadPreference()
+  }
+  goalError.value = ''
+  showVocabularyGoalDialog.value = true
+}
 
 /**
  * 点「开始练习」：先判断是否首次（未设置过词汇目标）。

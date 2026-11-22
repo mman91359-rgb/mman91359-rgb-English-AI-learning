@@ -4,8 +4,8 @@
       <div class="md:hidden">
         <AppIcon name="menu" size="md" tone="onSurface" class="cursor-pointer" />
       </div>
-      <CoinBadge v-if="!hideCoinBadge" />
       <slot name="left" />
+      <CoinBadge v-if="!hideCoinBadge" class="ml-1 sm:ml-2" />
     </div>
     <div class="flex items-center gap-2 sm:gap-4">
       <slot name="right">

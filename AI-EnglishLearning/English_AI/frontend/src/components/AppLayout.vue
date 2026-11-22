@@ -3,7 +3,11 @@
     <SideNavBar />
     <main class="flex-1 w-full md:ml-sidebar-width flex flex-col min-h-screen relative">
       <slot name="topbar">
-        <TopAppBar v-if="!hideTopBar" :hide-coin-badge="hideCoinBadge" @user-click="goProfile" />
+        <TopAppBar v-if="!hideTopBar" :hide-coin-badge="hideCoinBadge" @user-click="goProfile">
+          <template #left>
+            <ExamGoalStrip />
+          </template>
+        </TopAppBar>
       </slot>
       <div :class="flush ? 'flex-1 w-full max-w-container-max mx-auto px-gutter py-8 pb-24 md:pb-8' : 'flex-1 px-gutter py-8 w-full max-w-container-max mx-auto space-y-8 pb-24 md:pb-8'">
         <slot />
@@ -18,6 +22,7 @@ import { useRouter } from 'vue-router'
 import SideNavBar from './SideNavBar.vue'
 import TopAppBar from './TopAppBar.vue'
 import BottomNavBar from './BottomNavBar.vue'
+import ExamGoalStrip from './ExamGoalStrip.vue'
 
 withDefaults(defineProps<{
   /** 去掉默认的 space-y-8，由页面自己控制内容间距。

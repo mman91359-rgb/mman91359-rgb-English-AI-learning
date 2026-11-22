@@ -10,6 +10,7 @@ import {
   updateVocabularyGoals as updateVocabularyGoalsApi,
   updateActiveWordBook as updateActiveWordBookApi,
   updateIncludeFavoriteWords as updateIncludeFavoriteWordsApi,
+  updateExamGoal as updateExamGoalApi,
   type LoginRequest,
   type RegisterRequest,
   type LoginResponse,
@@ -92,6 +93,11 @@ export const useUserStore = defineStore('user', () => {
   // 新词队列是否并行收藏词：true = 收藏词优先于词书词
   const includeFavoriteWords = ref(false)
 
+  // 备考目标（考试日期 yyyy-MM-dd / 目标分），null 表示尚未设置
+  const examDate = ref<string | null>(null)
+  const targetScore = ref<number | null>(null)
+  const examGoalConfigured = ref(false)
+
   const isLoggedIn = computed(() => isTokenValid(token.value) && !!user.value)
   const userId = computed(() => user.value?.userId)
   const username = computed(() => user.value?.username || '')
@@ -153,6 +159,9 @@ export const useUserStore = defineStore('user', () => {
       maxDailyReviewWords.value = preference.maxDailyReviewWords || 50
       activeWordBookId.value = preference.activeWordBookId ?? null
       includeFavoriteWords.value = !!preference.includeFavoriteWords
+      examDate.value = preference.examDate ?? null
+      targetScore.value = preference.targetScore ?? null
+      examGoalConfigured.value = !!preference.examGoalConfigured
       preferenceLoaded.value = true
     } catch (e) {
       console.warn('获取学习偏好失败', e)
@@ -226,6 +235,28 @@ export const useUserStore = defineStore('user', () => {
     return preference
   }
 
+  /** 更新备考目标，并把考试等级同步到当前登录态 */
+  const setExamGoal = async (date: string, score: number, cetLevel: string): Promise<PreferenceResponse> => {
+    if (!userId.value) {
+      throw new Error('用户未登录')
+    }
+    const preference = await updateExamGoalApi({
+      userId: userId.value,
+      examDate: date,
+      targetScore: score,
+      cetLevel,
+    })
+    examDate.value = preference.examDate ?? null
+    targetScore.value = preference.targetScore ?? null
+    examGoalConfigured.value = !!preference.examGoalConfigured
+    // 等级回写 sys_user 后同步内存登录态，顶栏展示条立即读到新等级
+    if (user.value) {
+      user.value = { ...user.value, cetLevel }
+    }
+    preferenceLoaded.value = true
+    return preference
+  }
+
   const login = async (data: LoginRequest): Promise<void> => {
     isLoading.value = true
     try {
@@ -274,6 +305,9 @@ export const useUserStore = defineStore('user', () => {
     dailyReviewWords.value = null
     vocabularyGoalsConfigured.value = false
     activeWordBookId.value = null
+    examDate.value = null
+    targetScore.value = null
+    examGoalConfigured.value = false
     coinLoaded.value = false
     preferenceLoaded.value = false
     statsLoaded.value = false
@@ -371,7 +405,11 @@ export const useUserStore = defineStore('user', () => {
     maxDailyReviewWords,
     activeWordBookId,
     includeFavoriteWords,
+    examDate,
+    targetScore,
+    examGoalConfigured,
     setIncludeFavoriteWords,
+    setExamGoal,
     login,
     register,
     logout,

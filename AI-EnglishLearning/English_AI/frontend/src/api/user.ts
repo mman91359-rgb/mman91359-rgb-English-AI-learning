@@ -60,6 +60,12 @@ export interface PreferenceResponse {
   activeWordBookId: number | null
   /** 新词队列是否并行收藏词：true = 收藏词优先于词书词 */
   includeFavoriteWords: boolean
+  /** 备考目标：考试日期（yyyy-MM-dd），null 表示未设置 */
+  examDate: string | null
+  /** 备考目标：目标分（425-710），null 表示未设置 */
+  targetScore: number | null
+  /** 备考目标是否已完成设置 */
+  examGoalConfigured: boolean
 }
 
 export const login = (data: LoginRequest): Promise<LoginResponse> => {
@@ -119,6 +125,18 @@ export const updateIncludeFavoriteWords = (
   includeFavoriteWords: boolean,
 ): Promise<PreferenceResponse> => {
   return put('/user/preference/include-favorite-words', { userId, includeFavoriteWords })
+}
+
+/** 更新备考目标（考试日期 + 目标分 + 考试等级） */
+export interface UpdateExamGoalRequest {
+  userId: number
+  examDate: string
+  targetScore: number
+  cetLevel: string
+}
+
+export const updateExamGoal = (data: UpdateExamGoalRequest): Promise<PreferenceResponse> => {
+  return put('/user/preference/exam-goal', data)
 }
 
 export const submitAssessAnswer = (data: AssessSubmitRequest): Promise<any> => {

@@ -64,6 +64,18 @@
           </div>
         </div>
 
+        <!-- 备考目标 -->
+        <div class="flex items-center gap-4 p-5 cursor-pointer hover:bg-surface-container-low/50 transition-colors" @click="openExamGoalDialog">
+          <div class="w-10 h-10 rounded-full bg-primary-container/30 flex items-center justify-center text-primary flex-shrink-0">
+            <AppIcon name="flag" size="lg" />
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-body-lg text-body-lg text-on-surface">{{ $t('examGoal.title') }}</p>
+            <p class="font-label-md text-label-md text-on-surface-variant">{{ examGoalSummary }}</p>
+          </div>
+          <AppIcon name="chevron_right" size="lg" tone="outline" />
+        </div>
+
         <!-- 通知设置 -->
         <div class="flex items-center gap-4 p-5 cursor-pointer hover:bg-surface-container-low/50 transition-colors" @click="toastComingSoon">
           <div class="w-10 h-10 rounded-full bg-tertiary-container/30 flex items-center justify-center text-tertiary flex-shrink-0">
@@ -230,6 +242,19 @@
         </div>
       </template>
     </BaseDialog>
+
+    <!-- 备考目标弹窗 -->
+    <ExamGoalDialog
+      :visible="examGoalDialogVisible"
+      :cet-level="userStore.user?.cetLevel || 'CET4'"
+      :exam-date="userStore.examDate"
+      :target-score="userStore.targetScore"
+      :saving="examGoalSaving"
+      :error="examGoalError"
+      @update:visible="examGoalDialogVisible = $event"
+      @save="handleExamGoalSave"
+      @close="closeExamGoalDialog"
+    />
   </AppLayout>
 </template>
 
@@ -247,6 +272,7 @@ import { btnDialogPrimary, btnDialogSecondary, btnSecondarySm } from '@/componen
 import BaseDialog from '@/components/ui/BaseDialog.vue'
 import FormHint from '@/components/ui/FormHint.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import ExamGoalDialog from '@/components/ExamGoalDialog.vue'
 import { useCountdown } from '@/composables/useCountdown'
 
 const router = useRouter()
@@ -256,6 +282,46 @@ const userStore = useUserStore()
 const { show: toast } = useToast()
 
 const showLang = ref(false)
+
+// ========== 备考目标 ==========
+const examGoalDialogVisible = ref(false)
+const examGoalSaving = ref(false)
+const examGoalError = ref('')
+
+const examGoalSummary = computed(() => {
+  if (!userStore.examGoalConfigured) return t('examGoal.notSet')
+  const level = (userStore.user?.cetLevel || 'CET4') === 'CET6' ? 'CET-6' : 'CET-4'
+  return `${level} · ${t('examGoal.target')}${userStore.targetScore}`
+})
+
+const openExamGoalDialog = async () => {
+  if (!userStore.userId) return
+  if (!userStore.preferenceLoaded) {
+    await userStore.loadPreference()
+  }
+  examGoalError.value = ''
+  examGoalDialogVisible.value = true
+}
+
+const closeExamGoalDialog = () => {
+  examGoalDialogVisible.value = false
+  examGoalError.value = ''
+}
+
+const handleExamGoalSave = async (payload: { examDate: string; targetScore: number; cetLevel: string }) => {
+  examGoalSaving.value = true
+  examGoalError.value = ''
+  try {
+    await userStore.setExamGoal(payload.examDate, payload.targetScore, payload.cetLevel)
+    examGoalDialogVisible.value = false
+    toast(t('examGoal.saved'), 'success')
+  } catch (e) {
+    examGoalError.value = e instanceof Error ? e.message : t('examGoal.saveFailed')
+    toast(examGoalError.value, 'error')
+  } finally {
+    examGoalSaving.value = false
+  }
+}
 
 const themeOptions = computed(() => [
   { value: 'light', label: t('settings.themeLight') },

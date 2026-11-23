@@ -597,6 +597,55 @@ public class ExerciseController {
     }
 
     /**
+     * 新学词包（阶段 A 词义识别 + 阶段 B 句子填词）
+     * GET /exercise/vocabulary/new-words?count=20
+     */
+    @GetMapping("/vocabulary/new-words")
+    public Result<List<NewWordPackVO>> getNewWordPack(
+            @RequestParam(defaultValue = "20") int count,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (headerUserId == null) {
+            return Result.badRequest("未登录");
+        }
+        if (count > 50) count = 50;
+        return Result.success(exerciseService.getNewWordPack(headerUserId, count));
+    }
+
+    /**
+     * 新学判题（CHOICE 选择题 / FILL 句子填词），无状态不落库
+     * POST /exercise/vocabulary/new-words/attempt
+     */
+    @PostMapping("/vocabulary/new-words/attempt")
+    public Result<NewWordAttemptResponse> attemptNewWord(
+            @Valid @RequestBody NewWordAttemptRequest request,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (headerUserId == null) {
+            return Result.badRequest("未登录");
+        }
+        try {
+            return Result.success(exerciseService.attemptNewWord(
+                    request.getWordId(), request.getPhase(), request.getUserAnswer()));
+        } catch (RuntimeException e) {
+            log.warn("新学判题失败: {}", e.getMessage());
+            return Result.error(e.getMessage());
+        }
+    }
+
+    /**
+     * 新学整组完成，passed 的词落库并初始化 SM-2 排期
+     * POST /exercise/vocabulary/new-words/complete
+     */
+    @PostMapping("/vocabulary/new-words/complete")
+    public Result<Integer> completeNewWords(
+            @Valid @RequestBody NewWordCompleteRequest request,
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
+        if (headerUserId == null) {
+            return Result.badRequest("未登录");
+        }
+        return Result.success(exerciseService.completeNewWords(headerUserId, request.getItems()));
+    }
+
+    /**
      * 写作历史（数据源 writing_essay）
      * GET /exercise/writing-history/{userId}?page=1&size=20&startTime=...&endTime=...
      */

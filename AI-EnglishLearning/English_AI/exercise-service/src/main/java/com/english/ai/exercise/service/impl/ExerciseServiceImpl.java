@@ -28,7 +28,10 @@ import com.english.ai.exercise.dto.WordBookVO;
 import com.english.ai.exercise.constant.VocabularyStatus;
 import com.english.ai.exercise.dto.WordBookStatsVO;
 import com.english.ai.exercise.dto.WordBookWordVO;
+import com.english.ai.exercise.dto.NewWordAttemptResponse;
+import com.english.ai.exercise.dto.NewWordCompleteRequest;
 import com.english.ai.exercise.dto.NewWordItemVO;
+import com.english.ai.exercise.dto.NewWordPackVO;
 import com.english.ai.exercise.dto.WordCardVO;
 import com.english.ai.exercise.dto.UserWordFavoriteVO;
 import com.english.ai.exercise.dto.UserWordLearnLogVO;
@@ -47,6 +50,7 @@ import com.english.ai.exercise.util.EbbinghausUtil;
 import com.english.ai.exercise.util.Sm2Scheduler;
 import com.english.ai.exercise.util.StudyDurationAggregator;
 import com.english.ai.exercise.util.VocabularyLearningHelper;
+import com.english.ai.exercise.util.WordInflectionUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -2365,6 +2369,244 @@ public class ExerciseServiceImpl implements ExerciseService {
         log.info("单词复习: id={}, userId={}, quality={}, q={}, n={}, intervalDays={}, nextReviewAt={}",
                 id, userId, quality, q, v.getRepetition(), v.getIntervalDays(), v.getNextReviewAt());
         return toVocabularyVO(v);
+    }
+
+    // ========== 新学词包（阶段 A 词义识别 + 阶段 B 句子填词） ==========
+
+    @Override
+    public List<NewWordPackVO> getNewWordPack(Long userId, int count) {
+        int safeCount = Math.max(1, Math.min(50, count));
+        PreferenceResult preference = fetchPreference(userId);
+        WordBook book = resolveBookById(preference != null ? preference.getActiveWordBookId() : null);
+        List<String> candidateWords = collectNewWordCandidates(userId, preference, book);
+        if (candidateWords.isEmpty()) {
+            log.warn("新学词包: userId={} 无候选词", userId);
+            return Collections.emptyList();
+        }
+
+        String bookCode = book != null ? book.getCode() : null;
+        List<NewWordPackVO> result = new ArrayList<>();
+        int scanned = 0;
+        int maxScan = Math.min(candidateWords.size(), 200);
+        for (String word : candidateWords) {
+            if (result.size() >= safeCount || scanned >= maxScan) break;
+            scanned++;
+            WordDictionary wd = wordDictionaryMapper.selectOne(
+                    new LambdaQueryWrapper<WordDictionary>()
+                            .eq(WordDictionary::getWord, word.toLowerCase(Locale.ROOT)));
+            if (wd == null) continue;
+            result.add(buildNewWordPack(wd, bookCode));
+        }
+        log.info("新学词包: userId={}, 需求{}条, 返回{}条", userId, safeCount, result.size());
+        return result;
+    }
+
+    @Override
+    public NewWordAttemptResponse attemptNewWord(Long wordId, String phase, String userAnswer) {
+        WordDictionary wd = wordDictionaryMapper.selectById(wordId);
+        if (wd == null) throw new RuntimeException("单词不存在");
+
+        if ("CHOICE".equalsIgnoreCase(phase)) {
+            String correct = wd.getTranslation();
+            boolean ok = normalizeText(userAnswer).equals(normalizeText(correct));
+            return new NewWordAttemptResponse(ok, correct);
+        }
+        if ("FILL".equalsIgnoreCase(phase)) {
+            WordInflectionUtil.FillInfo info = WordInflectionUtil.buildFill(
+                    wd.getExample(), wd.getWord(), wd.getTranslation());
+            if (info == null) throw new RuntimeException("该词无挖空句");
+            String answer = normalizeText(userAnswer);
+            boolean ok = answer.equals(normalizeText(info.getTargetWord()))
+                    || answer.equals(normalizeText(info.getLemma()));
+            return new NewWordAttemptResponse(ok, info.getTargetWord());
+        }
+        throw new RuntimeException("未知判题阶段: " + phase);
+    }
+
+    @Override
+    public int completeNewWords(Long userId, List<NewWordCompleteRequest.Item> items) {
+        if (items == null || items.isEmpty()) return 0;
+        WordBook book = resolveActiveWordBook(userId);
+        Long bookId = book != null ? book.getId() : null;
+        String bookCode = book != null ? book.getCode() : null;
+        LocalDateTime now = LocalDateTime.now(clock);
+        int saved = 0;
+
+        for (NewWordCompleteRequest.Item item : items) {
+            if (item == null || item.getWordId() == null || !Boolean.TRUE.equals(item.getPassed())) {
+                continue;
+            }
+            WordDictionary wd = wordDictionaryMapper.selectById(item.getWordId());
+            if (wd == null) continue;
+            String lower = wd.getWord().toLowerCase(Locale.ROOT);
+
+            UserVocabulary v = vocabularyMapper.selectOne(
+                    new LambdaQueryWrapper<UserVocabulary>()
+                            .eq(UserVocabulary::getUserId, userId)
+                            .eq(UserVocabulary::getWord, lower));
+            if (v == null) {
+                v = new UserVocabulary();
+                v.setUserId(userId);
+                v.setWord(lower);
+                v.setTranslation(wd.getTranslation());
+                v.setPhonetic(wd.getPhonetic());
+                v.setPos(wd.getPos());
+                v.setExample(wd.getExample());
+                v.setExampleTranslation(wd.getExampleTranslation());
+                v.setSource("quiz");
+                v.setWordId(wd.getId());
+                v.setBookId(bookId);
+                v.setFirstLearnedAt(now);
+                v.setCorrectCount(0);
+                v.setWrongCount(0);
+                v.setReviewCount(0);
+                v.setMasteryLevel(0);
+                v.setIsMastered(0);
+                v.setStatus(VocabularyStatus.LEARNING);
+                v.setCreatedAt(now);
+                Sm2Scheduler.initNewLearned(v, now);
+                vocabularyMapper.insert(v);
+            } else {
+                Sm2Scheduler.initNewLearned(v, now);
+                v.setMasteryLevel(0);
+                v.setIsMastered(0);
+                if (!VocabularyStatus.FAMILIAR.equals(v.getStatus())) {
+                    v.setStatus(VocabularyStatus.LEARNING);
+                }
+                vocabularyMapper.updateById(v);
+            }
+            saved++;
+            logWordLearnEvent(userId, wd.getId(), lower, "LEARN", null, bookCode);
+        }
+        log.info("新学完成: userId={}, 提交{}词, 落库{}词", userId, items.size(), saved);
+        return saved;
+    }
+
+    /** 候选词：词书词 + 收藏词（开关开启时），去已学、去重 */
+    private List<String> collectNewWordCandidates(Long userId, PreferenceResult preference, WordBook book) {
+        if (book == null) return Collections.emptyList();
+        boolean includeFavorite = preference != null && Boolean.TRUE.equals(preference.getIncludeFavoriteWords());
+
+        Set<String> learned = vocabularyMapper.selectList(
+                        new LambdaQueryWrapper<UserVocabulary>().eq(UserVocabulary::getUserId, userId))
+                .stream()
+                .map(v -> VocabularyLearningHelper.normalizeWord(v.getWord()).toLowerCase(Locale.ROOT))
+                .filter(w -> !w.isEmpty())
+                .collect(Collectors.toSet());
+
+        List<String> candidates = new ArrayList<>();
+        Set<String> queued = new HashSet<>();
+        if (includeFavorite) {
+            for (UserWordFavorite fav : userWordFavoriteMapper.selectList(
+                    new LambdaQueryWrapper<UserWordFavorite>().eq(UserWordFavorite::getUserId, userId))) {
+                String w = VocabularyLearningHelper.normalizeWord(fav.getWord()).toLowerCase(Locale.ROOT);
+                if (w.isEmpty() || learned.contains(w) || !queued.add(w)) continue;
+                candidates.add(w);
+            }
+        }
+        for (WordBookItem item : wordBookItemMapper.selectList(
+                new LambdaQueryWrapper<WordBookItem>()
+                        .eq(WordBookItem::getBookCode, book.getCode())
+                        .orderByAsc(WordBookItem::getRankNo))) {
+            String w = item.getWord();
+            if (w == null) continue;
+            String key = w.toLowerCase(Locale.ROOT);
+            if (learned.contains(key) || !queued.add(key)) continue;
+            candidates.add(w);
+        }
+        return candidates;
+    }
+
+    private NewWordPackVO buildNewWordPack(WordDictionary wd, String bookCode) {
+        List<NewWordPackVO.Meaning> meanings = new ArrayList<>();
+        if (wd.getTranslation() != null && !wd.getTranslation().isBlank()) {
+            meanings.add(NewWordPackVO.Meaning.builder()
+                    .pos(wd.getPos()).meaning(wd.getTranslation()).build());
+        }
+
+        List<NewWordPackVO.Example> examples = new ArrayList<>();
+        if (wd.getExample() != null && !wd.getExample().isBlank()) {
+            examples.add(NewWordPackVO.Example.builder()
+                    .sentence(wd.getExample()).translation(wd.getExampleTranslation()).build());
+        }
+
+        return NewWordPackVO.builder()
+                .wordId(wd.getId())
+                .word(wd.getWord())
+                .phonetic(wd.getPhonetic())
+                .pos(wd.getPos())
+                .meanings(meanings)
+                .examples(examples)
+                .choice(NewWordPackVO.Choice.builder().options(buildChoiceOptions(wd, bookCode)).build())
+                .fill(buildFill(wd))
+                .build();
+    }
+
+    /** 选择题选项：正确项 + 同词书随机 3 个干扰项，不足从全词典补 */
+    private List<NewWordPackVO.Option> buildChoiceOptions(WordDictionary wd, String bookCode) {
+        List<NewWordPackVO.Option> options = new ArrayList<>();
+        String correct = wd.getTranslation();
+        options.add(NewWordPackVO.Option.builder().text(correct).correct(true).build());
+
+        Set<String> used = new HashSet<>();
+        if (correct != null && !correct.isBlank()) {
+            used.add(normalizeText(correct));
+        }
+        List<String> distractors = new ArrayList<>();
+
+        if (bookCode != null) {
+            List<WordBookItem> items = wordBookItemMapper.selectList(
+                    new LambdaQueryWrapper<WordBookItem>()
+                            .eq(WordBookItem::getBookCode, bookCode)
+                            .ne(WordBookItem::getWord, wd.getWord()));
+            List<String> words = items.stream().map(WordBookItem::getWord).collect(Collectors.toList());
+            Collections.shuffle(words);
+            for (String w : words) {
+                if (distractors.size() >= 3) break;
+                WordDictionary other = wordDictionaryMapper.selectOne(
+                        new LambdaQueryWrapper<WordDictionary>()
+                                .eq(WordDictionary::getWord, w.toLowerCase(Locale.ROOT)));
+                if (other == null || other.getTranslation() == null || other.getTranslation().isBlank()) continue;
+                if (used.add(normalizeText(other.getTranslation()))) {
+                    distractors.add(other.getTranslation());
+                }
+            }
+        }
+        if (distractors.size() < 3) {
+            for (WordDictionary other : wordDictionaryMapper.selectList(
+                    new LambdaQueryWrapper<WordDictionary>()
+                            .ne(WordDictionary::getWord, wd.getWord())
+                            .last("ORDER BY RAND() LIMIT 100"))) {
+                if (distractors.size() >= 3) break;
+                if (other.getTranslation() == null || other.getTranslation().isBlank()) continue;
+                if (used.add(normalizeText(other.getTranslation()))) {
+                    distractors.add(other.getTranslation());
+                }
+            }
+        }
+
+        for (String d : distractors) {
+            options.add(NewWordPackVO.Option.builder().text(d).correct(false).build());
+        }
+        return options;
+    }
+
+    private NewWordPackVO.Fill buildFill(WordDictionary wd) {
+        WordInflectionUtil.FillInfo info = WordInflectionUtil.buildFill(
+                wd.getExample(), wd.getWord(), wd.getTranslation());
+        if (info == null) return null;
+        return NewWordPackVO.Fill.builder()
+                .stem(info.getStem())
+                .targetWord(info.getTargetWord())
+                .lemma(info.getLemma())
+                .hint(info.getHint())
+                .build();
+    }
+
+    /** 判题归一化：去空白/标点并转小写，兼容中英文 */
+    private String normalizeText(String s) {
+        if (s == null) return "";
+        return s.trim().toLowerCase(Locale.ROOT).replaceAll("[\\s\\p{P}]+", "");
     }
 
     // ============= 学习历史 =============

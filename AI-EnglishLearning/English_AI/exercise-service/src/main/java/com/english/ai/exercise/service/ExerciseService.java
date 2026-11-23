@@ -1,7 +1,10 @@
 package com.english.ai.exercise.service;
 
 import com.english.ai.exercise.dto.QuestionVO;
+import com.english.ai.exercise.dto.NewWordAttemptResponse;
+import com.english.ai.exercise.dto.NewWordCompleteRequest;
 import com.english.ai.exercise.dto.NewWordItemVO;
+import com.english.ai.exercise.dto.NewWordPackVO;
 import com.english.ai.exercise.dto.UserWordLearnLogVO;
 import com.english.ai.exercise.dto.WordBookVO;
 import com.english.ai.exercise.dto.WordBookStatsVO;
@@ -210,6 +213,17 @@ public interface ExerciseService {
      * @return 更新后的单词记录
      */
     VocabularyVO reviewWord(Long id, Long userId, Boolean isCorrect, String quality);
+
+    // ========== 新学词包（阶段 A 词义识别 + 阶段 B 句子填词） ==========
+
+    /** 新学词包：按当前词书选题，返回词义/例句/选择题/挖空句 */
+    List<NewWordPackVO> getNewWordPack(Long userId, int count);
+
+    /** 新学判题：CHOICE 比对释义，FILL 比对 targetWord/lemma，无状态不落库 */
+    NewWordAttemptResponse attemptNewWord(Long wordId, String phase, String userAnswer);
+
+    /** 新学整组完成：passed 的词落库并初始化 SM-2 排期，返回落库数量 */
+    int completeNewWords(Long userId, List<NewWordCompleteRequest.Item> items);
 
     // ========== 学习历史 ==========
 

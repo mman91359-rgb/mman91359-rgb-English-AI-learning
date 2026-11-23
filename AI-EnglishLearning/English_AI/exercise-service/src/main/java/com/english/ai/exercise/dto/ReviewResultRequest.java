@@ -14,7 +14,9 @@ public class ReviewResultRequest {
     @NotNull(message = "userId不能为空")
     private Long userId;
 
-    /** 是否记住：true=记住（提升掌握度，延长下次复习间隔），false=没记住（重置掌握度） */
-    @NotNull(message = "isCorrect不能为空")
+    /** 是否记住：true=记住，false=没记住；兼容旧前端，quality 优先 */
     private Boolean isCorrect;
+
+    /** 复习质量：GOOD(认识)/HARD(模糊)/AGAIN(不认识)；不传时按 isCorrect 推导 */
+    private String quality;
 }

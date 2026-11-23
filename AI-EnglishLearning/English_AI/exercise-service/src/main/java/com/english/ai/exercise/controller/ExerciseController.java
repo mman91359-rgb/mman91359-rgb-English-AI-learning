@@ -561,12 +561,12 @@ public class ExerciseController {
             @PathVariable Long id,
             @Valid @RequestBody ReviewResultRequest request,
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId) {
-        if (request.getUserId() == null || request.getIsCorrect() == null) {
-            return Result.badRequest("userId和isCorrect不能为空");
+        if (request.getUserId() == null || (request.getIsCorrect() == null && (request.getQuality() == null || request.getQuality().isBlank()))) {
+            return Result.badRequest("userId必填，isCorrect与quality至少传一个");
         }
         UserIdentityUtil.requireOwnership(headerUserId, request.getUserId());
         try {
-            VocabularyVO vo = exerciseService.reviewWord(id, request.getUserId(), request.getIsCorrect());
+            VocabularyVO vo = exerciseService.reviewWord(id, request.getUserId(), request.getIsCorrect(), request.getQuality());
             return Result.success(vo);
         } catch (RuntimeException e) {
             log.warn("提交复习结果失败: {}", e.getMessage());

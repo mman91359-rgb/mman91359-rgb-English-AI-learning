@@ -3,6 +3,7 @@ package com.english.ai.exercise.dto;
 import lombok.Builder;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -42,6 +43,12 @@ public class VocabularyVO {
     private Integer reviewCount;
     /** 掌握度等级 0-5 */
     private Integer masteryLevel;
+    /** 连续成功复习次数（SM-2 n） */
+    private Integer repetition;
+    /** 难度因子（SM-2 EF，范围 1.30~3.00） */
+    private BigDecimal easeFactor;
+    /** 当前复习间隔天数（SM-2 I，上限 180） */
+    private Integer intervalDays;
     /** 上次复习时间 */
     private LocalDateTime lastReviewedAt;
     /** 下次复习时间 */

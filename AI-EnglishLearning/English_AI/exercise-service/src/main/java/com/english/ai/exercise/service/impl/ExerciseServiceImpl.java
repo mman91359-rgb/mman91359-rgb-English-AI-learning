@@ -44,6 +44,7 @@ import com.english.ai.exercise.service.StudySessionService;
 import com.english.ai.exercise.service.VocabGroupAwardPolicy;
 import com.english.ai.exercise.util.ChoiceAnswerUtil;
 import com.english.ai.exercise.util.EbbinghausUtil;
+import com.english.ai.exercise.util.Sm2Scheduler;
 import com.english.ai.exercise.util.StudyDurationAggregator;
 import com.english.ai.exercise.util.VocabularyLearningHelper;
 import lombok.RequiredArgsConstructor;
@@ -1940,30 +1941,23 @@ public class ExerciseServiceImpl implements ExerciseService {
         v.setReviewCount((v.getReviewCount() == null ? 0 : v.getReviewCount()) + 1);
         v.setLastReviewedAt(now);
 
-        if (isCorrect) {
-            int newMastery = EbbinghausUtil.nextMasteryOnCorrect(
-                    v.getMasteryLevel() == null ? 0 : v.getMasteryLevel());
-            v.setMasteryLevel(newMastery);
-            v.setNextReviewAt(EbbinghausUtil.nextReviewAt(newMastery, now));
-            // 标熟是用户的显式标记，优先于系统判定：状态为 FAMILIAR 时不改写
-            if (!VocabularyStatus.FAMILIAR.equals(v.getStatus())) {
-                if (EbbinghausUtil.isMastered(newMastery, true)) {
-                    v.setIsMastered(1);
-                    v.setStatus(VocabularyStatus.MASTERED);
-                    v.setMasteredAt(now);
-                } else if (!VocabularyStatus.MASTERED.equals(v.getStatus())) {
-                    v.setStatus(VocabularyStatus.REVIEWING);
-                }
-            }
+        // SM-2 排期：按 q 动态计算重复次数、难度因子与下次间隔
+        int q = Sm2Scheduler.qualityValue(isCorrect ? "GOOD" : "AGAIN");
+        Sm2Scheduler.schedule(v, q, now);
+        // mastery_level 仅作前端展示，映射为 min(5, 连续成功次数)
+        v.setMasteryLevel(Math.min(5, v.getRepetition() == null ? 0 : v.getRepetition()));
+
+        // 掌握判定：掌握度满级且本次答对；标熟是用户的显式标记，优先于系统判定
+        boolean mastered = v.getMasteryLevel() >= 5 && isCorrect;
+        if (VocabularyStatus.FAMILIAR.equals(v.getStatus())) {
+            v.setIsMastered(mastered ? 1 : 0);
+        } else if (mastered) {
+            v.setIsMastered(1);
+            v.setStatus(VocabularyStatus.MASTERED);
+            v.setMasteredAt(now);
         } else {
-            // 答错：掌握度归零 + 立即进复习队列（next_review_at = 现在）
-            v.setMasteryLevel(EbbinghausUtil.nextMasteryOnWrong());
-            v.setNextReviewAt(now);
             v.setIsMastered(0);
-            // 标熟不再复习，答错也不能把它打回学习中
-            if (!VocabularyStatus.FAMILIAR.equals(v.getStatus())) {
-                v.setStatus(VocabularyStatus.LEARNING);
-            }
+            v.setStatus(VocabularyStatus.REVIEWING);
         }
 
         if (isNew) {
@@ -2176,6 +2170,9 @@ public class ExerciseServiceImpl implements ExerciseService {
                 .lastResult(v.getLastResult())
                 .reviewCount(v.getReviewCount())
                 .masteryLevel(v.getMasteryLevel())
+                .repetition(v.getRepetition())
+                .easeFactor(v.getEaseFactor())
+                .intervalDays(v.getIntervalDays())
                 .lastReviewedAt(v.getLastReviewedAt())
                 .nextReviewAt(v.getNextReviewAt())
                 .isMastered(v.getIsMastered())
@@ -2225,7 +2222,7 @@ public class ExerciseServiceImpl implements ExerciseService {
         v.setWrongCount(0);
         v.setReviewCount(0);
         v.setMasteryLevel(0);
-        v.setNextReviewAt(EbbinghausUtil.nextReviewAt(0, LocalDateTime.now(clock)));
+        Sm2Scheduler.initNewLearned(v, LocalDateTime.now(clock));
         v.setCreatedAt(LocalDateTime.now(clock));
 
         if (detail != null) {
@@ -2312,30 +2309,29 @@ public class ExerciseServiceImpl implements ExerciseService {
      *  - 答错：掌握度重置为0，下次复习时间为明天
      */
     @Override
-    public VocabularyVO reviewWord(Long id, Long userId, Boolean isCorrect) {
-        if (isCorrect == null) throw new RuntimeException("复习结果不能为空");
+    public VocabularyVO reviewWord(Long id, Long userId, Boolean isCorrect, String quality) {
+        if (isCorrect == null && (quality == null || quality.isBlank())) {
+            throw new RuntimeException("复习结果不能为空");
+        }
         UserVocabulary v = vocabularyMapper.selectOne(
                 new LambdaQueryWrapper<UserVocabulary>()
                         .eq(UserVocabulary::getId, id)
                         .eq(UserVocabulary::getUserId, userId));
         if (v == null) throw new RuntimeException("单词不存在");
 
-        int currentMastery = v.getMasteryLevel() == null ? 0 : v.getMasteryLevel();
-        int newMastery;
-        if (isCorrect) {
-            newMastery = EbbinghausUtil.nextMasteryOnCorrect(currentMastery);
-        } else {
-            newMastery = EbbinghausUtil.nextMasteryOnWrong();
-        }
-
+        int q = Sm2Scheduler.resolveQuality(quality, isCorrect);
         LocalDateTime now = LocalDateTime.now(clock);
+
+        // SM-2 排期：更新 repetition/easeFactor/intervalDays/nextReviewAt
+        Sm2Scheduler.schedule(v, q, now);
+        // mastery_level 仅作前端展示，映射为 min(5, 连续成功次数)
+        int newMastery = Math.min(5, v.getRepetition() == null ? 0 : v.getRepetition());
         v.setMasteryLevel(newMastery);
+
+        boolean correct = q >= 3;
         v.setReviewCount((v.getReviewCount() == null ? 0 : v.getReviewCount()) + 1);
         v.setLastReviewedAt(now);
-        v.setNextReviewAt(EbbinghausUtil.nextReviewAt(newMastery, now));
-
-        // 更新答对/答错计数与最近结果
-        if (isCorrect) {
+        if (correct) {
             v.setCorrectCount((v.getCorrectCount() == null ? 0 : v.getCorrectCount()) + 1);
             v.setLastResult("CORRECT");
         } else {
@@ -2343,11 +2339,10 @@ public class ExerciseServiceImpl implements ExerciseService {
             v.setLastResult("WRONG");
         }
 
-        // 达到最高掌握度且本次答对 → 标记为已掌握
-        // 标熟是用户的显式标记，优先于系统判定：状态为 FAMILIAR 时不改写
-        boolean mastered = EbbinghausUtil.isMastered(newMastery, isCorrect);
+        // 掌握判定：掌握度满级且本次答对；标熟是用户的显式标记，优先于系统判定
+        boolean mastered = newMastery >= 5 && correct;
         if (VocabularyStatus.FAMILIAR.equals(v.getStatus())) {
-            // 保持标熟状态不动，仅更新计数与下次复习时间
+            v.setIsMastered(mastered ? 1 : 0);
         } else if (mastered) {
             v.setIsMastered(1);
             v.setStatus(VocabularyStatus.MASTERED);
@@ -2364,11 +2359,11 @@ public class ExerciseServiceImpl implements ExerciseService {
         String eventType = VocabularyStatus.FAMILIAR.equals(v.getStatus())
                 ? "REVIEW" : (mastered ? "MASTER" : "REVIEW");
         logWordLearnEvent(userId, v.getWordId(), v.getWord(),
-                eventType, isCorrect ? "CORRECT" : "WRONG",
+                eventType, correct ? "CORRECT" : "WRONG",
                 bookCodeOf(v.getBookId()));
 
-        log.info("单词复习: id={}, userId={}, isCorrect={}, newMastery={}, nextReviewAt={}",
-                id, userId, isCorrect, newMastery, v.getNextReviewAt());
+        log.info("单词复习: id={}, userId={}, quality={}, q={}, n={}, intervalDays={}, nextReviewAt={}",
+                id, userId, quality, q, v.getRepetition(), v.getIntervalDays(), v.getNextReviewAt());
         return toVocabularyVO(v);
     }
 

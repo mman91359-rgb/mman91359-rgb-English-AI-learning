@@ -209,7 +209,7 @@ public interface ExerciseService {
      * @param isCorrect 是否记住
      * @return 更新后的单词记录
      */
-    VocabularyVO reviewWord(Long id, Long userId, Boolean isCorrect);
+    VocabularyVO reviewWord(Long id, Long userId, Boolean isCorrect, String quality);
 
     // ========== 学习历史 ==========
 

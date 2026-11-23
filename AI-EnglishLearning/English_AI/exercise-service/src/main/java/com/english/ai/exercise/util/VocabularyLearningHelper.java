@@ -48,7 +48,7 @@ public final class VocabularyLearningHelper {
         vocabulary.setSource(source == null || source.isBlank() ? "manual" : source);
         vocabulary.setReviewCount(0);
         vocabulary.setMasteryLevel(0);
-        vocabulary.setNextReviewAt(EbbinghausUtil.nextReviewAt(0, now));
+        Sm2Scheduler.initNewLearned(vocabulary, now);
         vocabulary.setIsMastered(0);
         vocabulary.setCreatedAt(now);
         vocabulary.setUpdatedAt(now);

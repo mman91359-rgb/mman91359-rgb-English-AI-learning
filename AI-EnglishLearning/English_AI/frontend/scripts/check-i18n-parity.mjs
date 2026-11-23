@@ -25,7 +25,11 @@
  *   - AST 能在纯静态层面拿到键结构，且能识别 Identifier / deepMerge 这两种间接导出
  *
  * 用法：node scripts/check-i18n-parity.mjs [--verbose]
- * 退出码：0 = 全部对齐；1 = 存在差异；2 = 运行错误
+ * 退出码：0 = 全部对齐且与契约登记一致；1 = 存在差异或契约登记滞后；2 = 运行错误或契约登记行不可解析
+ *
+ * 除两语互比之外，本脚本还会反向解析 `docs/前端UI契约.md` §10 第十条的
+ * 「L10 基线：直出叶子 N / 派生 extra N / 主包叶子 N / 主包显示 N」登记行，
+ * 与实测比对。登记值滞后即 exit 1——这是为了防止「脚本报一致、契约数字却停在旧值」。
  */
 
 import fs from 'node:fs'
@@ -37,6 +41,41 @@ const SCRIPT_DIR = import.meta.dirname
 const LOCALES_DIR = process.env.I18N_LOCALES_DIR
   ? path.resolve(process.env.I18N_LOCALES_DIR)
   : path.resolve(SCRIPT_DIR, '..', 'src', 'i18n', 'locales')
+
+/**
+ * 契约里 L10 基线登记行是**固定格式**，本脚本反向解析它并与实测比对。
+ *
+ * 为什么必须这样做：L9 的期望值内嵌在脚本冻结表里，八条门禁的期望值从契约
+ * `当前八条：…` 行解析——两者都是「期望值可被机器读到」。只有 L10 早期是单向的：
+ * 脚本只报实测，从不知道契约写了什么，于是「契约登记 1516、实测 1518」可以静默通过。
+ *
+ * I18N_CONTRACT 仅用于校验脚本自身时指向副本，正常运行时一律用真实契约文件。
+ */
+const CONTRACT_PATH = process.env.I18N_CONTRACT
+  ? path.resolve(process.env.I18N_CONTRACT)
+  : path.resolve(SCRIPT_DIR, '..', '..', 'docs', '前端UI契约.md')
+
+/** 格式必须与契约 §10 第十条那行逐字一致；改了契约措辞就要同步改这里，否则 exit 2 */
+const BASELINE_RE = /L10 基线：直出叶子 (\d+) \/ 派生 extra (\d+) \/ 主包叶子 (\d+) \/ 主包显示 (\d+)/
+
+function readBaselineFromContract() {
+  if (!fs.existsSync(CONTRACT_PATH)) return { error: '契约文件不存在：' + CONTRACT_PATH }
+  const text = fs.readFileSync(CONTRACT_PATH, 'utf8')
+  const m = text.match(BASELINE_RE)
+  if (!m) {
+    return {
+      error:
+        '契约 §10 未找到固定格式的「L10 基线」登记行。' +
+        '格式应为：L10 基线：直出叶子 N / 派生 extra N / 主包叶子 N / 主包显示 N',
+    }
+  }
+  return {
+    directLeaf: Number(m[1]),
+    derivedExtra: Number(m[2]),
+    mainLeaf: Number(m[3]),
+    mainDisplay: Number(m[4]),
+  }
+}
 
 /** 把任意 AST 表达式静态求成叶子键数组；无法求值时返回 null 表示「派生，跳过」 */
 function keysOfExpression(node, ctx, prefix, seen) {
@@ -185,7 +224,7 @@ function main() {
     console.log('  1) 直出包（主包 / wallet / handoff）：全量账子键比对')
     console.log('  2) 派生包（writing / admin-console）：只比对 extra 补充文案')
     console.log('  --verbose 输出全部差异键；-h 显示本帮助')
-    console.log('  退出码：0 = 全部对齐；1 = 存在差异；2 = 运行错误')
+    console.log('  退出码：0 = 全部对齐且与契约登记一致；1 = 存在差异或契约登记滞后；2 = 运行错误或契约登记行不可解析')
     return 0
   }
 
@@ -195,6 +234,13 @@ function main() {
   let totalExtra = 0
   let totalChecked = 0
   let totalDerived = 0
+  /** 叶子口径与标记数分开累计：叶子是契约登记值，含标记的是脚本显示值，两者恒差标记数 */
+  let directLeafTotal = 0
+  let directMarkerTotal = 0
+  let derivedExtraTotal = 0
+  /** 主包单独记：契约里要登记它的叶子值与显示值 */
+  let mainLeaf = null
+  let mainDisplay = null
 
   for (const pair of discoverPairs()) {
     if (!pair.zh || !pair.en) {
@@ -216,6 +262,7 @@ function main() {
       const missingInEn = (zh.extra || []).filter((k) => !enSet.has(k))
       const extraInEn = (en.extra || []).filter((k) => !zhSet.has(k))
       totalDerived += 1
+      derivedExtraTotal += (zh.extra || []).length
       totalMissing += missingInEn.length
       totalExtra += extraInEn.length
       results.push({ group: pair.group, mode: 'derived', zhCount: (zh.extra || []).length, enCount: (en.extra || []).length, missingInEn, extraInEn })
@@ -235,6 +282,14 @@ function main() {
     const missingInEn = zhKeys.filter((k) => !enSet.has(k))
     const extraInEn = enKeys.filter((k) => !zhSet.has(k))
     totalChecked += zhKeys.length
+    const markerCount = zhKeys.filter((k) => k.endsWith('/**')).length
+    const leafCount = zhKeys.length - markerCount
+    directLeafTotal += leafCount
+    directMarkerTotal += markerCount
+    if (pair.group === '(主包)') {
+      mainLeaf = leafCount
+      mainDisplay = zhKeys.length
+    }
     totalMissing += missingInEn.length
     totalExtra += extraInEn.length
     results.push({ group: pair.group, mode: 'direct', zhCount: zhKeys.length, enCount: enKeys.length, missingInEn, extraInEn })
@@ -266,6 +321,43 @@ function main() {
   }
   console.log(bar)
 
+  // ── 契约反向校验：把 §10 登记的四个数字读出来，跟本次实测比 ──
+  const baseline = readBaselineFromContract()
+  const driftLabels = []
+  console.log(bar)
+  if (baseline.error) {
+    console.log('  契约登记校验：无法解析')
+    console.log('  ' + baseline.error)
+    console.log('  退出码：2（契约登记行缺失或格式不符，校验未能完成，不视为对齐）')
+    return 2
+  }
+  {
+    const actual = {
+      directLeaf: directLeafTotal,
+      derivedExtra: derivedExtraTotal,
+      mainLeaf: mainLeaf ?? 0,
+      mainDisplay: mainDisplay ?? 0,
+    }
+    const labels = {
+      directLeaf: '直出叶子',
+      derivedExtra: '派生 extra',
+      mainLeaf: '主包叶子',
+      mainDisplay: '主包显示',
+    }
+    console.log('  契约登记校验  ' + CONTRACT_PATH)
+    console.log('  ' + pad('项', 14) + pad('契约登记', 12) + '实测')
+    for (const k of Object.keys(labels)) {
+      const same = baseline[k] === actual[k]
+      if (!same) driftLabels.push(labels[k])
+      console.log('  ' + pad(labels[k], 14) + pad(String(baseline[k]), 12) + String(actual[k]) + (same ? '' : '   ← 不符'))
+    }
+    if (driftLabels.length) {
+      console.log('  判定：' + driftLabels.join('、') + ' 与契约登记不符')
+    } else {
+      console.log('  判定：与契约登记一致')
+    }
+  }
+
   const failed = results.filter((r) => r.broken || (r.missingInEn && r.missingInEn.length) || (r.extraInEn && r.extraInEn.length))
 
   if (failed.length) {
@@ -290,7 +382,12 @@ function main() {
     return 1
   }
 
-  console.log(`  结果：${results.length} 对语言包全部对齐（直出包 ${totalChecked} 个键，派生包 ${totalDerived} 组 extra）`)
+  console.log(`  结果：${results.length} 对语言包全部对齐（直出叶子 ${directLeafTotal} 个，含 ${directMarkerTotal} 个子树标记后脚本合计 ${totalChecked}；派生包 ${totalDerived} 组 extra 共 ${derivedExtraTotal} 个）`)
+  if (driftLabels.length) {
+    console.log('  契约登记校验：未通过（见上表，登记值滞后于实测）')
+    console.log('  退出码：1（请在同一次提交里更新 §10 第十条「L10 基线」行的四个数字）')
+    return 1
+  }
   console.log('  退出码：0（仅做只读校验，未修改任何语言包）')
   return 0
 }

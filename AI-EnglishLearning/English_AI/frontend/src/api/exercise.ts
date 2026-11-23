@@ -426,6 +426,12 @@ export interface VocabularyVO {
     lastReviewedAt?: string
     /** 下次复习时间 */
     nextReviewAt?: string
+    /** SM-2 连续成功复习次数 */
+    repetition?: number
+    /** SM-2 难度因子 */
+    easeFactor?: number
+    /** SM-2 当前间隔天数 */
+    intervalDays?: number
     isMastered: number
     createdAt: string
     updatedAt: string
@@ -439,10 +445,14 @@ export interface AddVocabularySmartRequest {
     source?: string
 }
 
-/** 复习结果请求参数 */
+/** 复习质量三档：GOOD=认识 / HARD=模糊 / AGAIN=不认识（对应后端 SM-2 q=5/3/1） */
+export type ReviewQuality = 'GOOD' | 'HARD' | 'AGAIN'
+
+/** 复习结果请求参数（quality 优先；isCorrect 仅兼容旧调用） */
 export interface ReviewResultRequest {
     userId: number
-    isCorrect: boolean
+    quality?: ReviewQuality
+    isCorrect?: boolean
 }
 
 export const addVocabulary = (data: {

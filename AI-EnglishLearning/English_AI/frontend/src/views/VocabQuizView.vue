@@ -25,8 +25,8 @@
             <AppIcon name="arrow_back_ios_new" size="lg" />
           </button>
 
-          <!-- 奖杯 + 进度条：进度 = 已掌握 / 总数（answeredCount 只是 masteredCount 的别名，不是答题数） -->
-          <QuizProgressBar :answered="answeredCount" :total="totalCount" />
+          <!-- 奖杯 + 进度条：进度 = 已掌握 / 总数（复习模式由组件内部展示进度，避免 0/0） -->
+          <QuizProgressBar v-if="vocabMode !== 'review'" :answered="answeredCount" :total="totalCount" />
         </div>
 
         <!-- 右侧操作按钮组 -->
@@ -72,7 +72,14 @@
         <!-- 加载态 -->
         <LoadingState v-if="loading" class="flex-1" :message="$t('common.loading')" />
 
-        <!-- 答题中 -->
+        <!-- 复习模式：沉浸式三档评分（真接口，单次评分即离队） -->
+        <VocabReviewSession
+          v-else-if="vocabMode === 'review'"
+          :words="reviewWords"
+          @complete="handleReviewComplete"
+        />
+
+        <!-- 答题中（新学模式） -->
         <template v-else-if="!showResults && currentQuestion">
           <!-- 题目卡片 -->
           <div
@@ -435,13 +442,6 @@
     @close="closeVocabularyGoalDialog"
   />
 
-  <WordReviewDialog
-    :visible="showReviewDialog"
-    :words="reviewWords"
-    :complete-label="vocabMode === 'review' ? $t('common.finish') : $t('wordReview.startNew')"
-    @update:visible="showReviewDialog = $event"
-    @complete="handleReviewComplete"
-  />
 </template>
 
 <script setup lang="ts">
@@ -459,7 +459,7 @@ import AnswerFeedback from '@/components/quiz/AnswerFeedback.vue'
 import ResultStats from '@/components/quiz/ResultStats.vue'
 import FavoriteSentenceButton from '@/components/quiz/FavoriteSentenceButton.vue'
 import VocabularyGoalDialog from '@/components/VocabularyGoalDialog.vue'
-import WordReviewDialog from '@/components/WordReviewDialog.vue'
+import VocabReviewSession from '@/components/vocab/VocabReviewSession.vue'
 import { useUserStore } from '@/stores/user'
 import { useAppStore } from '@/stores/app'
 import { useToast } from '@/composables/useToast'
@@ -511,7 +511,6 @@ const goalError = ref('')
 
 // 复习阶段
 const reviewWords = ref<VocabularyVO[]>([])
-const showReviewDialog = ref(false)
 const reviewCompleted = ref(false)
 
 // 新词循环：N 个词，连续答对 3 次才掌握
@@ -821,8 +820,7 @@ const vocabMode = computed<'review' | 'new'>(() => {
   return route.query.mode === 'review' ? 'review' : 'new'
 })
 
-const handleReviewComplete = async (payload: { reviewed: number; correct: number; skipped?: boolean }) => {
-  showReviewDialog.value = false
+const handleReviewComplete = async (payload: { reviewed: number; correct: number }) => {
   reviewCompleted.value = true
   if (payload.reviewed > 0) {
     toast(t('wordReview.summaryText', {
@@ -854,7 +852,7 @@ const startSession = async () => {
 }
 
 /**
- * 纯复习进程：只加载待复习单词并进入复习弹窗，不做新词。
+ * 纯复习进程：只加载待复习单词并进入三档评分，不做新词。
  */
 const startReviewOnly = async () => {
   const userId = userStore.userId
@@ -871,9 +869,7 @@ const startReviewOnly = async () => {
     loading.value = false
     if (reviewWords.value.length === 0) {
       toast(t('wordReview.empty'), 'info')
-      return
     }
-    showReviewDialog.value = true
   } catch (e) {
     console.warn('加载复习单词失败', e)
     loading.value = false

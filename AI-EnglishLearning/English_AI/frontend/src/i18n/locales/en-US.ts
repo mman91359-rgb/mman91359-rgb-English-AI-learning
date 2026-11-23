@@ -809,6 +809,10 @@ export default {
     saveFailed: 'Failed to save review result',
     loadFailed: 'Failed to load review words',
     empty: 'No words to review today',
+    qualityGood: 'Know',
+    qualityHard: 'Unsure',
+    qualityAgain: "Don't know",
+    nextInDays: 'Next review in {days} days',
   },
   listening: {
     title: 'Listening Practice',

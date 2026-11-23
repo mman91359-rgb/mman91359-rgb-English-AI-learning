@@ -809,6 +809,10 @@ export default {
     saveFailed: '复习结果保存失败',
     loadFailed: '加载复习单词失败',
     empty: '今天没有需要复习的单词',
+    qualityGood: '认识',
+    qualityHard: '模糊',
+    qualityAgain: '不认识',
+    nextInDays: '下次复习：{days} 天后',
   },
   listening: {
     title: '听力练习',

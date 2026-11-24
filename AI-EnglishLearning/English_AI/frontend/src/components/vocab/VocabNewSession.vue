@@ -15,7 +15,7 @@
             <AppIcon name="check" size="sm" />
             {{ $t('vocabNew.markFamiliar') }}
           </button>
-          <button :class="btnSecondarySm" @click="notifySpellComingSoon">
+          <button :class="btnSecondarySm" disabled :aria-label="$t('learning.comingSoon')" @click="notifySpellComingSoon">
             <AppIcon name="edit_note" size="sm" />
             {{ $t('vocabNew.fillShortcut') }}
           </button>

@@ -813,6 +813,10 @@ export default {
     qualityHard: 'Unsure',
     qualityAgain: "Don't know",
     nextInDays: 'Next review in {days} days',
+    phaseScreen: 'Stage 1 · Familiarity screening',
+    phaseRotate: 'Stage 2 · Recall rotation',
+    recalled: 'Recalled',
+    notRecalled: "Didn't recall",
   },
   vocabNew: {
     stageA: 'Stage 1 · Word Meaning',
@@ -842,6 +846,8 @@ export default {
     fillShortcut: 'Fill in',
     tapToSpeak: 'Tap the word to hear it',
     showAnswer: 'Show answer',
+    onlyWrong: 'Only misspelled',
+    skipAfterAnswer: 'Show answer and skip',
   },
   listening: {
     title: 'Listening Practice',

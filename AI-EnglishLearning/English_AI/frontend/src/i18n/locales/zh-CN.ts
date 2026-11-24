@@ -813,6 +813,10 @@ export default {
     qualityHard: '模糊',
     qualityAgain: '不认识',
     nextInDays: '下次复习：{days} 天后',
+    phaseScreen: '阶段一 · 熟悉度筛选',
+    phaseRotate: '阶段二 · 回想轮换',
+    recalled: '想起了',
+    notRecalled: '没想起',
   },
   vocabNew: {
     stageA: '阶段一 · 词义识别',
@@ -842,6 +846,8 @@ export default {
     fillShortcut: '填词',
     tapToSpeak: '点单词听发音',
     showAnswer: '看答案',
+    onlyWrong: '只拼错词',
+    skipAfterAnswer: '显示答案后跳过',
   },
   listening: {
     title: '听力练习',

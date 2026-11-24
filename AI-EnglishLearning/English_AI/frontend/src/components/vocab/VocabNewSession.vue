@@ -3,10 +3,14 @@
     <LoadingState v-if="loading" class="flex-1" :message="$t('common.loading')" />
 
     <template v-else-if="!finished && currentWord">
-      <!-- 顶栏：进度 + 收藏/标熟/填词F（发音与看答案已下移到各自位置） -->
+      <!-- 顶栏：进度 + 收藏/标熟/填词F + 只拼错词开关（A 阶段） -->
       <div class="w-full flex items-center gap-4 mb-6">
-        <QuizProgressBar :answered="stageProgress" :total="pack.length" class="flex-1 min-w-0" />
+        <QuizProgressBar :answered="stageAnswered" :total="pack.length" class="flex-1 min-w-0" />
         <div class="flex items-center gap-2 shrink-0">
+          <label v-if="stage === 'A'" class="flex items-center gap-2">
+            <span class="font-label-sm text-label-sm text-on-surface-variant">{{ $t('vocabNew.onlyWrong') }}</span>
+            <Switch v-model="onlyWrongWords" :aria-label="$t('vocabNew.onlyWrong')" />
+          </label>
           <button :class="btnSecondarySm" :disabled="favoriting" @click="toggleFavorite">
             <AppIcon :name="isFavorite ? 'bookmark' : 'bookmark_border'" size="sm" />
             {{ isFavorite ? $t('vocabNew.favorited') : $t('vocabNew.favorite') }}
@@ -22,116 +26,103 @@
         </div>
       </div>
 
-      <!-- 单词区：英文整体靠最左（原 P 发音方块的位置），点击单词发音 -->
-      <div class="w-full flex items-start gap-4 text-left py-6">
-        <template v-if="!isListen">
-          <div class="flex-1 min-w-0">
-            <button :class="wordButtonClass" @click="playAudio">{{ currentWord.word }}</button>
-            <p v-if="currentWord.phonetic" class="mt-2 font-body-lg text-body-lg text-on-surface-variant">
-              {{ currentWord.phonetic }}
-            </p>
-            <p v-if="currentWord.pos" class="mt-1 font-label-sm text-label-sm text-tertiary">{{ currentWord.pos }}</p>
-            <p class="mt-1 font-label-sm text-label-sm text-tertiary">{{ $t('vocabNew.tapToSpeak') }}</p>
-          </div>
-          <!-- 竖排四点：答对亮一颗，答错整组隐藏 -->
-          <div v-if="showDots" class="flex flex-col gap-1 shrink-0 pt-1">
-            <span
-              v-for="n in streakTarget"
-              :key="n"
-              class="w-2.5 h-2.5 rounded-full border-2"
-              :class="dotFilled(n) ? 'border-tertiary bg-tertiary' : 'border-outline'"
-            ></span>
-          </div>
-        </template>
-        <!-- 听音形式：单词隐藏，发音按钮 + 右侧四点 -->
-        <template v-else>
-          <button :class="[btnSecondary, 'shrink-0']" :disabled="checking" @click="playAudio">
-            <AppIcon name="volume_up" size="sm" />
-            {{ $t('vocabNew.play') }}
-          </button>
-          <div v-if="showDots" class="flex flex-col gap-1 shrink-0">
-            <span
-              v-for="n in streakTarget"
-              :key="n"
-              class="w-2.5 h-2.5 rounded-full border-2"
-              :class="dotFilled(n) ? 'border-tertiary bg-tertiary' : 'border-outline'"
-            ></span>
-          </div>
-        </template>
+      <!-- 阶段标签 -->
+      <p class="w-full text-left font-label-sm text-label-sm text-tertiary">
+        {{ stage === 'A' ? $t('vocabNew.stageA') : $t('vocabNew.stageB') }}
+      </p>
+
+      <!-- 单词区：英文靠左，点击发音 -->
+      <div class="w-full flex items-start gap-4 text-left py-4">
+        <div class="flex-1 min-w-0">
+          <button :class="wordButtonClass" @click="playAudio">{{ currentWord.word }}</button>
+          <p v-if="currentWord.phonetic" class="mt-2 font-body-lg text-body-lg text-on-surface-variant">
+            {{ currentWord.phonetic }}
+          </p>
+          <p v-if="currentWord.pos" class="mt-1 font-label-sm text-label-sm text-tertiary">{{ currentWord.pos }}</p>
+        </div>
+        <!-- A 阶段竖排四点：答对亮一颗，答错整组隐藏 -->
+        <div v-if="stage === 'A' && showDots" class="flex flex-col gap-1 shrink-0 pt-1">
+          <span
+            v-for="n in streakTarget"
+            :key="n"
+            class="w-2.5 h-2.5 rounded-full border-2"
+            :class="dotFilled(n) ? 'border-tertiary bg-tertiary' : 'border-outline'"
+          ></span>
+        </div>
       </div>
 
-      <!-- 例句：A 阶段非听音展示完整句；B 阶段展示挖空句 + 提示 -->
-      <div class="w-full text-left">
-        <template v-if="stage === 'A' && !isListen">
-          <p v-if="primaryExample" class="font-body-lg text-body-lg text-on-surface-variant">
-            {{ primaryExample.sentence }}
+      <!-- A 阶段：挖空例句 + 中文翻译（出题线索） -->
+      <template v-if="stage === 'A'">
+        <div v-if="currentStem" class="w-full text-left">
+          <p class="font-body-lg text-body-lg text-on-surface-variant">{{ currentStem }}</p>
+          <p v-if="currentTranslation" class="mt-2 font-body-md text-body-md text-on-surface-variant">
+            {{ currentTranslation }}
           </p>
-        </template>
-        <template v-else>
-          <p v-if="currentFill" class="font-body-lg text-body-lg text-on-surface-variant">
-            {{ currentFill.stem }}
-          </p>
-          <p v-if="currentFill?.hint" class="mt-2 font-body-md text-body-md text-on-surface-variant">
+        </div>
+
+        <!-- 竖排通栏横条选项（四选一，后端判） -->
+        <div class="w-full flex flex-col gap-2 mt-4">
+          <button
+            v-for="row in optionRows"
+            :key="row.index"
+            :class="[btnSecondaryBlock, 'justify-start']"
+            :disabled="checking || !!feedback"
+            @click="submitChoice(row.raw)"
+          >
+            <span class="w-6 shrink-0 text-left font-label-md text-label-md text-tertiary">{{ row.index }}</span>
+            <span v-if="row.posTag" class="shrink-0 font-label-sm text-label-sm text-tertiary">{{ row.posTag }}</span>
+            <span class="text-left">{{ row.meaning }}</span>
+          </button>
+        </div>
+      </template>
+
+      <!-- B 阶段：句子挖空填词（后端判），填错可显示答案跳过 -->
+      <template v-else>
+        <div v-if="currentFill" class="w-full text-left">
+          <p class="font-body-lg text-body-lg text-on-surface-variant">{{ currentFill.stem }}</p>
+          <p v-if="currentFill.hint" class="mt-2 font-body-md text-body-md text-on-surface-variant">
             {{ $t('vocabNew.hint') }}：{{ currentFill.hint }}
           </p>
-        </template>
-      </div>
+        </div>
+        <div class="w-full flex flex-col items-center mt-4">
+          <input
+            v-model="fillAnswer"
+            class="w-full h-14 bg-surface-container-low border-b-2 rounded-t-lg px-4 text-center font-headline-md text-headline-md text-on-surface outline-none focus:border-primary"
+            :disabled="checking || !!feedback"
+            :placeholder="$t('vocabNew.fillPlaceholder')"
+            @keyup.enter="submitFill"
+          />
+          <button
+            v-if="!feedback"
+            :class="[btnPrimaryBlock, 'mt-6']"
+            :disabled="checking || !fillAnswer.trim()"
+            @click="submitFill"
+          >
+            {{ $t('vocabNew.submit') }}
+          </button>
+        </div>
+      </template>
 
-      <!-- A 阶段：选中文（形式 ①③，后端判）—— 竖排通栏横条 -->
-      <div v-if="stage === 'A' && isChoice" class="w-full flex flex-col gap-2 mt-4">
-        <button
-          v-for="row in optionRows"
-          :key="row.index"
-          :class="[btnSecondaryBlock, 'justify-start']"
-          :disabled="checking || !!feedback"
-          @click="submitChoice(row.raw)"
-        >
-          <span class="w-6 shrink-0 text-left font-label-md text-label-md text-tertiary">{{ row.index }}</span>
-          <span v-if="row.posTag" class="shrink-0 font-label-sm text-label-sm text-tertiary">{{ row.posTag }}</span>
-          <span class="text-left">{{ row.meaning }}</span>
-        </button>
-      </div>
-
-      <!-- A 阶段：形式 ② 想中文（前端自评） -->
-      <div v-else-if="stage === 'A'" class="w-full grid grid-cols-2 gap-3 mt-4">
-        <button :class="btnPrimaryBlock" :disabled="checking" @click="selfRate(true)">
-          {{ $t('vocabNew.recalled') }}
-        </button>
-        <button :class="btnSecondaryBlock" :disabled="checking" @click="selfRate(false)">
-          {{ $t('vocabNew.notRecalled') }}
-        </button>
-      </div>
-
-      <!-- B 阶段：句子填词（后端判） -->
-      <div v-else class="w-full flex flex-col items-center mt-2">
-        <input
-          v-model="fillAnswer"
-          class="w-full h-14 bg-surface-container-low border-b-2 rounded-t-lg px-4 text-center font-headline-md text-headline-md text-on-surface outline-none focus:border-primary"
-          :disabled="checking || !!feedback"
-          :placeholder="$t('vocabNew.fillPlaceholder')"
-          @keyup.enter="submitFill"
-        />
-        <button
-          v-if="!feedback"
-          :class="[btnPrimaryBlock, 'mt-6']"
-          :disabled="checking || !fillAnswer.trim()"
-          @click="submitFill"
-        >
-          {{ $t('vocabNew.submit') }}
-        </button>
-      </div>
-
-      <!-- 反馈文字（按钮位置见底部统一操作区） -->
+      <!-- 反馈：A 答后还原完整句+翻译+正确释义；B 答后显示答案 -->
       <div v-if="feedback" class="w-full flex flex-col items-center mt-4">
         <p class="font-body-md text-body-md" :class="feedback.correct ? 'text-tertiary' : 'text-error'">
           {{ feedback.correct ? $t('vocabNew.correct') : $t('vocabNew.wrong') }}
         </p>
-        <p v-if="!feedback.correct && feedback.correctAnswer" class="mt-1 font-body-md text-body-md text-on-surface">
+        <template v-if="stage === 'A' && feedback.fullSentence">
+          <p class="mt-2 w-full text-left font-body-lg text-body-lg text-on-surface">{{ feedback.fullSentence }}</p>
+          <p v-if="feedback.fullTranslation" class="mt-1 w-full text-left font-body-md text-body-md text-on-surface-variant">
+            {{ feedback.fullTranslation }}
+          </p>
+        </template>
+        <p class="mt-1 font-body-md text-body-md text-on-surface">
           {{ $t('vocabNew.correctAnswer') }}：{{ feedback.correctAnswer }}
         </p>
+        <button v-if="stage === 'B' && !feedback.correct" :class="[btnSecondaryBlock, 'mt-4']" @click="skipFill">
+          {{ $t('vocabNew.skipAfterAnswer') }}
+        </button>
       </div>
 
-      <!-- 底部统一按钮位：答题前「看答案」→ 答题后同位置切换「下一题」 -->
+      <!-- 底部统一按钮位：答题前「看答案」→ 答题后「下一词」；B 阶段仅答后出「下一词」 -->
       <div class="w-full mt-6">
         <button
           v-if="stage === 'A'"
@@ -146,12 +137,12 @@
       </div>
     </template>
 
-    <!-- 完成总结：调 complete 后展示 -->
+    <!-- 完成总结 -->
     <template v-else-if="finished">
       <AppIcon name="celebration" size="3xl" tone="primary" />
       <p class="mt-4 font-headline-md text-headline-md text-on-surface">{{ $t('vocabNew.doneTitle') }}</p>
       <p class="mt-2 font-body-md text-body-md text-on-surface-variant">
-        {{ $t('vocabNew.doneSummary', { count: completedCount }) }}
+        {{ $t('vocabNew.doneSummary', { count: passedIds.length }) }}
       </p>
       <button :class="[btnPrimary, 'mt-8']" @click="emit('complete')">
         {{ $t('common.finish') }}
@@ -172,12 +163,12 @@
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppIcon from '../ui/AppIcon.vue'
+import Switch from '../ui/Switch.vue'
 import QuizProgressBar from '../quiz/QuizProgressBar.vue'
 import LoadingState from '../ui/LoadingState.vue'
 import {
   btnPrimary,
   btnPrimaryBlock,
-  btnSecondary,
   btnSecondaryBlock,
   btnSecondarySm,
 } from '../ui/buttonStyles'
@@ -216,19 +207,22 @@ const familiarizedIds = ref<number[]>([])
 
 type Stage = 'A' | 'B'
 const stage = ref<Stage>('A')
-/** A 阶段队列：未通过的词，答错回队尾 */
+/** A 阶段队列：未达标词，答错回队尾 */
 const queueA = ref<NewWordPackVO[]>([])
-/** B 阶段队列：A 通过且有 fill 的词，填错回队尾 */
+/** B 阶段队列：整组 A 达标后统一进入的填词队列 */
 const queueB = ref<NewWordPackVO[]>([])
 const streaks = ref<Record<number, number>>({})
-const formCount = ref<Record<number, number>>({})
 const passedIds = ref<number[]>([])
+/** A 阶段答错过的词（供「只拼错词」筛选 B 队列） */
+const wrongIds = ref<number[]>([])
+/** 只拼错词开关：开启后 B 只收 A 答错过的词 */
+const onlyWrongWords = ref(false)
 
 const fillAnswer = ref('')
-const feedback = ref<{ correct: boolean; correctAnswer: string } | null>(null)
+type Feedback = { correct: boolean; correctAnswer: string; fullSentence?: string; fullTranslation?: string }
+const feedback = ref<Feedback | null>(null)
 
 const streakTarget = NEW_WORD_MASTERY_STREAK
-/** 点击单词发音：去除默认按钮底色，保留单词字号 + 虚线下划线提示可点 */
 const wordButtonClass =
   'rounded-full font-display-lg text-display-lg text-on-surface underline decoration-dashed decoration-outline-variant underline-offset-8 hover:text-primary'
 
@@ -237,31 +231,23 @@ const currentWord = computed<NewWordPackVO | null>(() =>
 )
 const currentWordId = computed(() => currentWord.value?.wordId ?? 0)
 const currentFill = computed(() => currentWord.value?.fill ?? null)
-const primaryExample = computed(() => currentWord.value?.examples?.[0] ?? null)
-/** 形式轮换：0=选中文 1=想中文 2=听音选中文 3=听音想中文 */
-const form = computed<'CHOICE' | 'RECALL' | 'LISTEN_CHOICE' | 'LISTEN_RECALL'>(() => {
-  const n = formCount.value[currentWordId.value] ?? 0
-  return (['CHOICE', 'RECALL', 'LISTEN_CHOICE', 'LISTEN_RECALL'] as const)[n % 4]
-})
-const isListen = computed(() => form.value === 'LISTEN_CHOICE' || form.value === 'LISTEN_RECALL')
-const isChoice = computed(() => form.value === 'CHOICE' || form.value === 'LISTEN_CHOICE')
-/** 进度 = 已离开当前阶段队列的词数（A 通过离队 / B 填对离队） */
-const stageProgress = computed(() =>
+/** A 出题：后端权威挖空句（fill.stem）；fill=null 时退化为空（该词无挖空线索） */
+const currentStem = computed(() => currentWord.value?.fill?.stem ?? '')
+/** A 出题：例句中文翻译 */
+const currentTranslation = computed(() => currentWord.value?.examples?.[0]?.translation ?? '')
+
+/** 进度：A=已达标离队数；B=已填对/跳过离队数 */
+const stageAnswered = computed(() =>
   stage.value === 'A'
     ? pack.value.length - queueA.value.length
-    : pack.value.length - queueB.value.length
+    : totalB.value - queueB.value.length
 )
-/** 完成计数 = 真正通过 + 标熟（标熟=直接完成入库，后端 complete 跳过它们） */
-const completedCount = computed(() =>
-  pack.value.filter(w => passedIds.value.includes(w.wordId) || familiarizedIds.value.includes(w.wordId)).length
-)
+const totalB = ref(0)
 
 const streakOf = (id: number) => streaks.value[id] ?? 0
-/** 答错反馈时整组隐藏；下一次回答（streak 已清零）回到 4 个空心 */
 const showDots = computed(() => stage.value === 'A' && !(feedback.value && !feedback.value.correct))
 const dotFilled = (n: number) => streakOf(currentWordId.value) >= n
 
-/** 选项全文拆出词性前缀（后端 translation 自带 "n. "/ "adj. " 前缀），不做脑补 */
 const splitOption = (text: string) => {
   const m = text.match(/^([a-z]+\.)\s*(.*)$/)
   return m ? { posTag: m[1], meaning: m[2] } : { posTag: '', meaning: text }
@@ -296,12 +282,10 @@ onMounted(async () => {
   }
 })
 
-/** 播放单词发音（点击单词 / 听音形式按钮）；有例句时连同例句一起朗读 */
 const playAudio = () => {
   const word = currentWord.value
   if (!word) return
-  const example = word.examples?.[0]?.sentence
-  speak(example ? `${word.word}. ${example}` : word.word)
+  speak(word.word)
 }
 
 const toggleFavorite = async () => {
@@ -345,7 +329,7 @@ const markFamiliarCurrent = async () => {
     await markFamiliar(saved.id, userId, true)
     familiarizedIds.value = [...familiarizedIds.value, word.wordId]
     toast(t('vocabNew.familiarDone'), 'success')
-    await dropCurrentAndAdvance()
+    dropCurrentAndAdvance()
   } catch (e) {
     toast(e instanceof Error ? e.message : t('vocabNew.familiarFailed'), 'error')
   } finally {
@@ -353,18 +337,21 @@ const markFamiliarCurrent = async () => {
   }
 }
 
-/** 顶栏「填词 F」= 随手拼独立入口；拼写页等后端专用接口，当前只提示开发中 */
+/** 填词 F = 随手拼独立入口；拼写页等后端专用接口，当前禁用 */
 const notifySpellComingSoon = () => {
   toast(t('learning.comingSoon'), 'info')
 }
 
-const advanceForm = (id: number) => {
-  formCount.value = { ...formCount.value, [id]: (formCount.value[id] ?? 0) + 1 }
+const advance = (id: number) => {
+  streaks.value = { ...streaks.value, [id]: (streaks.value[id] ?? 0) + 1 }
 }
 
 const markPassed = (word: NewWordPackVO) => {
-  if (passedIds.value.includes(word.wordId)) return
-  passedIds.value = [...passedIds.value, word.wordId]
+  if (!passedIds.value.includes(word.wordId)) passedIds.value = [...passedIds.value, word.wordId]
+}
+
+const markWrong = (word: NewWordPackVO) => {
+  if (!wrongIds.value.includes(word.wordId)) wrongIds.value = [...wrongIds.value, word.wordId]
 }
 
 const submitChoice = async (answer: string) => {
@@ -381,14 +368,7 @@ const submitChoice = async (answer: string) => {
   }
 }
 
-const selfRate = (recalled: boolean) => {
-  const word = currentWord.value
-  if (!word || checking.value || feedback.value) return
-  const correctAnswer = word.meanings?.[0]?.meaning ?? word.word
-  applyResult(word, recalled, correctAnswer)
-}
-
-/** 看答案 = 放弃本题：显示正确答案、streak 清零回队尾，底部按钮切到「下一题」 */
+/** 看答案 = 放弃本题：显示答案、streak 清零、回队尾 */
 const revealAnswer = () => {
   const word = currentWord.value
   if (!word || feedback.value) return
@@ -396,17 +376,19 @@ const revealAnswer = () => {
   applyResult(word, false, correctAnswer)
 }
 
-/** A 阶段统一结果处理：连对达标离队进 B，答错清零回队尾 */
+/** A 统一结果：答对 streak+1、答错清零记错词；达标不立即出队，留到 nextWord */
 const applyResult = (word: NewWordPackVO, correct: boolean, correctAnswer: string) => {
-  feedback.value = { correct, correctAnswer }
-  advanceForm(word.wordId)
+  feedback.value = {
+    correct,
+    correctAnswer,
+    fullSentence: word.examples?.[0]?.sentence ?? '',
+    fullTranslation: word.examples?.[0]?.translation ?? '',
+  }
   if (correct) {
-    const next = streakOf(word.wordId) + 1
-    streaks.value = { ...streaks.value, [word.wordId]: next }
-    // fill=null 的词没有 B 阶段，A 达标即算通过；有 fill 的词留给 B 阶段填对后标记
-    if (next >= streakTarget && !word.fill) markPassed(word)
+    advance(word.wordId)
   } else {
     streaks.value = { ...streaks.value, [word.wordId]: 0 }
+    markWrong(word)
   }
 }
 
@@ -425,25 +407,25 @@ const submitFill = async () => {
   }
 }
 
-/** 当前词离队后的队列推进；标熟也走这里（不进 B、不标记 passed） */
-const dropCurrentAndAdvance = async () => {
+/** B 填错防卡死：显示答案后跳过（不标记 passed，词出队） */
+const skipFill = () => {
+  feedback.value = { ...(feedback.value ?? { correct: false, correctAnswer: '' }), correct: true }
+  nextWord()
+}
+
+/** 当前词离队后的队列推进（标熟也走这里：不记 passed、不进 B） */
+const dropCurrentAndAdvance = () => {
   if (!currentWord.value) return
   feedback.value = null
   fillAnswer.value = ''
   if (stage.value === 'A') {
     queueA.value = queueA.value.slice(1)
-    if (queueA.value.length === 0) {
-      stage.value = 'B'
-      queueB.value = shuffle(queueB.value)
-      if (queueB.value.length === 0) await finish()
-    }
   } else {
     queueB.value = queueB.value.slice(1)
-    if (queueB.value.length === 0) await finish()
   }
 }
 
-/** 下一词：A 阶段达标离队、未达标回队尾；B 阶段填对离队、填错回队尾 */
+/** A 阶段下一词：达标出队、未达标回队尾；整组达标即落库并进入 B */
 const nextWord = async () => {
   const word = currentWord.value
   if (!word) return
@@ -454,36 +436,41 @@ const nextWord = async () => {
   if (stage.value === 'A') {
     const passed = streakOf(word.wordId) >= streakTarget
     queueA.value = queueA.value.slice(1)
-    if (passed) {
-      if (word.fill) queueB.value = [...queueB.value, word]
-    } else {
-      queueA.value = [...queueA.value, word]
-    }
+    if (!passed) queueA.value = [...queueA.value, word]
+
     if (queueA.value.length === 0) {
-      stage.value = 'B'
-      queueB.value = shuffle(queueB.value)
-      if (queueB.value.length === 0) await finish()
+      // 整组 A 达标 → 全部落库（含标熟词排除），不再等 B
+      await saveGroup()
+      enterStageB()
     }
   } else {
     queueB.value = queueB.value.slice(1)
     if (correct) markPassed(word)
-    else queueB.value = [...queueB.value, word]
-    if (queueB.value.length === 0) await finish()
+    if (queueB.value.length === 0) finished.value = true
   }
 }
 
-const finish = async () => {
-  // 标熟词已自行入库并置 FAMILIAR，complete 里传 false 让后端跳过，避免重置其排期
+/** 整组 A 达标落库：passed=true（标熟词自行入库，传 false 让后端跳过） */
+const saveGroup = async () => {
+  pack.value.forEach(markPassed)
   const items = pack.value.map(w => ({
     wordId: w.wordId,
-    passed: passedIds.value.includes(w.wordId) && !familiarizedIds.value.includes(w.wordId),
+    passed: !familiarizedIds.value.includes(w.wordId),
   }))
   try {
     await completeNewWords(items)
   } catch (e) {
     toast(e instanceof Error ? e.message : t('vocabNew.completeFailed'), 'error')
-  } finally {
-    finished.value = true
   }
+}
+
+/** 整组进入 B：fill=null 跳过；「只拼错词」开启时只收 A 答错词 */
+const enterStageB = () => {
+  let candidates = pack.value.filter(w => w.fill)
+  if (onlyWrongWords.value) candidates = candidates.filter(w => wrongIds.value.includes(w.wordId))
+  queueB.value = shuffle([...candidates])
+  totalB.value = queueB.value.length
+  stage.value = 'B'
+  if (queueB.value.length === 0) finished.value = true
 }
 </script>

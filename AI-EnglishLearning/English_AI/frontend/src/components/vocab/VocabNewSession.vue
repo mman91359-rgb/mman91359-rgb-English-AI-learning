@@ -12,14 +12,23 @@
         <span class="font-label-sm text-label-sm text-tertiary">
           {{ stage === 'A' ? $t('vocabNew.stageA') : $t('vocabNew.stageB') }}
         </span>
-        <p class="mt-4 font-display-lg text-display-lg text-on-surface">{{ currentWord.word }}</p>
-        <p v-if="currentWord.phonetic" class="mt-3 font-body-lg text-body-lg text-on-surface-variant">
-          {{ currentWord.phonetic }}
-        </p>
-        <p v-if="currentWord.pos" class="mt-1 font-label-sm text-label-sm text-tertiary">{{ currentWord.pos }}</p>
+        <!-- 非听音形式：展示单词/音标/词性 -->
+        <template v-if="!isListen">
+          <p class="mt-4 font-display-lg text-display-lg text-on-surface">{{ currentWord.word }}</p>
+          <p v-if="currentWord.phonetic" class="mt-3 font-body-lg text-body-lg text-on-surface-variant">
+            {{ currentWord.phonetic }}
+          </p>
+          <p v-if="currentWord.pos" class="mt-1 font-label-sm text-label-sm text-tertiary">{{ currentWord.pos }}</p>
+        </template>
 
-        <!-- 例句：A 阶段展示完整句；B 阶段展示挖空句 + 中文提示 -->
-        <template v-if="stage === 'A'">
+        <!-- 听音形式：播放发音，隐藏单词拼写 -->
+        <button v-else :class="[btnSecondary, 'mt-6']" :disabled="checking" @click="playAudio">
+          <AppIcon name="volume_up" size="sm" />
+          {{ $t('vocabNew.play') }}
+        </button>
+
+        <!-- 例句：A 阶段非听音展示完整句；B 阶段展示挖空句 + 中文提示 -->
+        <template v-if="stage === 'A' && !isListen">
           <p v-if="primaryExample" class="mt-6 font-body-lg text-body-lg text-on-surface-variant">
             {{ primaryExample.sentence }}
           </p>
@@ -34,8 +43,8 @@
         </template>
       </div>
 
-      <!-- A 阶段：形式 ① 选中文（后端判） -->
-      <div v-if="stage === 'A' && form === 'CHOICE'" class="w-full grid grid-cols-2 gap-3 mt-2">
+      <!-- A 阶段：选中文（形式 ①③，后端判） -->
+      <div v-if="stage === 'A' && isChoice" class="w-full grid grid-cols-2 gap-3 mt-2">
         <button
           v-for="(option, idx) in currentWord.choice.options"
           :key="idx"
@@ -125,10 +134,11 @@ import { useI18n } from 'vue-i18n'
 import AppIcon from '../ui/AppIcon.vue'
 import QuizProgressBar from '../quiz/QuizProgressBar.vue'
 import LoadingState from '../ui/LoadingState.vue'
-import { btnPrimary, btnPrimaryBlock, btnSecondaryBlock } from '../ui/buttonStyles'
+import { btnPrimary, btnPrimaryBlock, btnSecondary, btnSecondaryBlock } from '../ui/buttonStyles'
 import { attemptNewWord, completeNewWords, getNewWordPack, type NewWordPackVO } from '@/api/exercise'
 import { useUserStore } from '@/stores/user'
 import { useToast } from '@/composables/useToast'
+import { useSpeech } from '@/composables/useSpeech'
 import { NEW_WORD_MASTERY_STREAK } from '@/config/constants'
 import { shuffle } from '@/utils/array'
 
@@ -137,6 +147,7 @@ const emit = defineEmits<{ complete: [] }>()
 const { t } = useI18n()
 const userStore = useUserStore()
 const { show: toast } = useToast()
+const { speak } = useSpeech()
 
 const pack = ref<NewWordPackVO[]>([])
 const loading = ref(true)
@@ -164,10 +175,13 @@ const currentWord = computed<NewWordPackVO | null>(() =>
 const currentWordId = computed(() => currentWord.value?.wordId ?? 0)
 const currentFill = computed(() => currentWord.value?.fill ?? null)
 const primaryExample = computed(() => currentWord.value?.examples?.[0] ?? null)
-/** 形式轮换：0=选中文（后端判），1=想中文（前端自评） */
-const form = computed<'CHOICE' | 'RECALL'>(() =>
-  (formCount.value[currentWordId.value] ?? 0) % 2 === 0 ? 'CHOICE' : 'RECALL'
-)
+/** 形式轮换：0=选中文 1=想中文 2=听音选中文 3=听音想中文 */
+const form = computed<'CHOICE' | 'RECALL' | 'LISTEN_CHOICE' | 'LISTEN_RECALL'>(() => {
+  const n = formCount.value[currentWordId.value] ?? 0
+  return (['CHOICE', 'RECALL', 'LISTEN_CHOICE', 'LISTEN_RECALL'] as const)[n % 4]
+})
+const isListen = computed(() => form.value === 'LISTEN_CHOICE' || form.value === 'LISTEN_RECALL')
+const isChoice = computed(() => form.value === 'CHOICE' || form.value === 'LISTEN_CHOICE')
 /** 进度 = 已离开当前阶段队列的词数（A 通过离队 / B 填对离队） */
 const stageProgress = computed(() =>
   stage.value === 'A'
@@ -188,6 +202,14 @@ onMounted(async () => {
     loading.value = false
   }
 })
+
+/** 播放单词发音（听音形式）；有例句时连同例句一起朗读 */
+const playAudio = () => {
+  const word = currentWord.value
+  if (!word) return
+  const example = word.examples?.[0]?.sentence
+  speak(example ? `${word.word}. ${example}` : word.word)
+}
 
 const advanceForm = (id: number) => {
   formCount.value = { ...formCount.value, [id]: (formCount.value[id] ?? 0) + 1 }

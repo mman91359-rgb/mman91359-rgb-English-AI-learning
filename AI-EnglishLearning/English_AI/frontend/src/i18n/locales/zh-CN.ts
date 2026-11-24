@@ -818,6 +818,7 @@ export default {
     stageA: '阶段一 · 词义识别',
     stageB: '阶段二 · 句子填词',
     hint: '提示',
+    play: '播放发音',
     recalled: '想起来了',
     notRecalled: '没想起来',
     streak: '本词连对 {current} / {total}',

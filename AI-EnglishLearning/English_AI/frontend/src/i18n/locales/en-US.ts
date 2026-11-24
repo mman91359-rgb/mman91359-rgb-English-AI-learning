@@ -818,6 +818,7 @@ export default {
     stageA: 'Stage 1 · Word Meaning',
     stageB: 'Stage 2 · Fill in the Blank',
     hint: 'Hint',
+    play: 'Play pronunciation',
     recalled: 'Recalled',
     notRecalled: 'Not yet',
     streak: 'Streak {current} / {total}',

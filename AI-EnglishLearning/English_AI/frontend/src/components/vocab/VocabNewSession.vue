@@ -15,7 +15,7 @@
             <AppIcon name="check" size="sm" />
             {{ $t('vocabNew.markFamiliar') }}
           </button>
-          <button v-if="stage === 'A'" :class="btnSecondarySm" @click="switchToFillStage">
+          <button :class="btnSecondarySm" @click="notifySpellComingSoon">
             <AppIcon name="edit_note" size="sm" />
             {{ $t('vocabNew.fillShortcut') }}
           </button>
@@ -353,20 +353,9 @@ const markFamiliarCurrent = async () => {
   }
 }
 
-/** 顶栏「填词 F」：跳过 A 连对，直接把有 fill 的词转入 B；无 fill 的词视为通过 */
-const switchToFillStage = () => {
-  if (stage.value !== 'A' || checking.value) return
-  const withFill: NewWordPackVO[] = []
-  for (const w of queueA.value) {
-    if (w.fill) withFill.push(w)
-    else markPassed(w)
-  }
-  queueA.value = []
-  stage.value = 'B'
-  queueB.value = shuffle(withFill)
-  feedback.value = null
-  fillAnswer.value = ''
-  if (queueB.value.length === 0) void finish()
+/** 顶栏「填词 F」= 随手拼独立入口；拼写页等后端专用接口，当前只提示开发中 */
+const notifySpellComingSoon = () => {
+  toast(t('learning.comingSoon'), 'info')
 }
 
 const advanceForm = (id: number) => {

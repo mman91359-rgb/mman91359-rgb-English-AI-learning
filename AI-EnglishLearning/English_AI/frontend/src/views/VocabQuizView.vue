@@ -1,8 +1,9 @@
 <!--
   词汇练习页面
-  视觉参考设计稿：左侧 SideNavBar + 顶部奖杯进度条 + 居中题目卡片 + 底部操作栏
-  适用题型：FILL_BLANK（词汇填空）
-  真实数据：selectNewVocabularyQuestions(userId, 每日新词目标)
+  两种模式（由路由 query.mode 决定）：
+    - new    → 新学两阶段（VocabNewSession）：词义识别 + 句子填词
+    - review → 复习三档评分（VocabReviewSession）：GOOD/HARD/AGAIN
+  视觉：左侧 SideNavBar + 顶部返回栏 + 沉浸式大背景 + 底部 AI 侧栏
 -->
 <template>
   <div class="bg-background text-on-background min-h-screen flex">
@@ -11,417 +12,85 @@
 
     <!-- 主内容区 + AI侧边栏 容器 -->
     <div class="flex-1 flex min-w-0">
-      <!-- 主内容区：w-full 占满可用空间，max-w-3xl 限制最大宽度，mx-auto 水平居中 -->
       <main class="w-full max-w-3xl mx-auto flex flex-col min-h-screen relative">
-      <!-- 顶部栏：返回 + 奖杯进度条 + 后台操作 -->
-      <header class="h-20 sticky top-0 z-40 bg-background/80 backdrop-blur-md flex items-center justify-between px-gutter w-full">
-        <div class="flex items-center gap-4 flex-1">
-          <!-- 返回按钮 -->
-          <button
-            :class="btnIcon"
-            :aria-label="$t('common.back')"
-            @click="goBack"
-          >
-            <AppIcon name="arrow_back_ios_new" size="lg" />
-          </button>
-
-          <!-- 奖杯 + 进度条：进度 = 已掌握 / 总数（复习模式由组件内部展示进度，避免 0/0） -->
-          <QuizProgressBar v-if="vocabMode !== 'review'" :answered="answeredCount" :total="totalCount" />
-        </div>
-
-        <!-- 右侧操作按钮组 -->
-        <div class="flex items-center gap-2">
-          <button
-            :class="btnIcon"
-            :aria-label="appStore.isDark ? $t('topbar.switchToLight') : $t('topbar.switchToDark')"
-            @click="appStore.toggleTheme"
-          >
-            <AppIcon :name="appStore.isDark ? 'light_mode' : 'dark_mode'" size="lg" />
-          </button>
-          <button
-            :class="['relative', btnIcon]"
-            :aria-label="$t('topbar.notifications')"
-          >
-            <AppIcon name="notifications" size="lg" />
-            <span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
-          </button>
-          <button
-            :class="btnIcon"
-            :aria-label="$t('topbar.currentLanguage')"
-            @click="cycleLanguage"
-          >
-            <AppIcon name="language" size="lg" />
-          </button>
-          <div
-            class="w-8 h-8 rounded-full bg-primary text-on-primary ml-2 flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-primary/50 hover:scale-105 active:scale-95 transition-all text-sm font-bold select-none overflow-hidden"
-            :title="userStore.username || ''"
-            :aria-label="$t('profile.userInfo')"
-            role="button"
-            tabindex="0"
-            @click="router.push('/profile')"
-            @keydown.enter="router.push('/profile')"
-          >
-            <img v-if="quizAvatarUrl" :src="quizAvatarUrl" :alt="$t('profile.userInfo')" class="w-full h-full object-cover" />
-            <span v-else>{{ avatarText }}</span>
-          </div>
-        </div>
-      </header>
-
-      <!-- 题目画布 -->
-      <div class="flex-1 w-full max-w-container-max mx-auto px-gutter py-8 flex flex-col relative">
-        <!-- 加载态 -->
-        <LoadingState v-if="loading" class="flex-1" :message="$t('common.loading')" />
-
-        <!-- 复习模式：沉浸式三档评分（真接口，单次评分即离队） -->
-        <VocabReviewSession
-          v-else-if="vocabMode === 'review'"
-          :words="reviewWords"
-          @complete="handleReviewComplete"
-        />
-
-        <!-- 答题中（新学模式） -->
-        <template v-else-if="!showResults && currentQuestion">
-          <!-- 题目卡片 -->
-          <div
-            class="bg-surface rounded-3xl p-8 md:p-12 shadow-soft-glow w-full max-w-3xl mx-auto relative border border-outline-variant/20 mt-8 mb-24"
-          >
-            <!-- 左上：难度等级徽章 -->
-            <div class="absolute top-6 left-6 flex items-center gap-2">
-              <span class="bg-secondary-fixed/50 text-secondary font-label-md text-label-md px-3 py-1 rounded-full flex items-center gap-1">
-                {{ $t('learning.difficultyLevel', { level: currentDifficulty }) }}
-                <AppIcon name="help" size="lg" />
-              </span>
-            </div>
-            <div class="mt-8 space-y-12">
-              <!-- 中文题干（来自 analysis 字段，括号高亮；分段插值，杜绝 v-html 注入） -->
-              <div
-                class="font-headline-md text-headline-md text-on-surface leading-relaxed text-center"
-              >
-                <template v-for="(segment, segIdx) in chineseSegments" :key="segIdx">
-                  <span v-if="segment.highlight" class="px-1 font-bold text-tertiary">{{ segment.text }}</span>
-                  <template v-else>{{ segment.text }}</template>
-                </template>
-              </div>
-
-              <!-- 英文题干 + 填空输入框 -->
-              <div
-                class="font-headline-lg text-headline-lg text-on-background leading-relaxed text-center flex flex-wrap justify-center items-center gap-x-2 gap-y-4"
-              >
-                <template v-for="(part, pIdx) in englishParts" :key="pIdx">
-                  <span v-if="!part.isBlank" class="whitespace-pre-wrap">{{ part.text }}</span>
-                  <div v-else class="relative inline-block w-48 mx-2">
-                    <input
-                      ref="blankInput"
-                      v-model="userAnswer"
-                      class="w-full h-14 bg-surface-container-low border-b-2 rounded-t-lg px-3 text-center font-headline-md text-headline-md transition-all duration-200 outline-none"
-                      :class="showFeedback
-                        ? (isCorrect
-                          ? 'border-tertiary text-on-tertiary-container bg-tertiary-container/30'
-                          : 'border-error text-on-error-container bg-error-container/30')
-                        : inputStatus === 'wrong'
-                          ? 'border-error text-on-error-container bg-error-container/40 ring-2 ring-error/30'
-                          : inputStatus === 'correct'
-                            ? 'border-tertiary text-on-tertiary-container bg-tertiary-container/35 ring-2 ring-tertiary/30'
-                            : 'border-primary-container focus:border-primary text-primary focus:outline-none focus:shadow-[0_0_0_3px_rgba(0,0,0,0.05)]'"
-                      :disabled="showFeedback"
-                      :placeholder="''"
-                      @keyup.enter="handleSubmit"
-                    />
-                    <span
-                      v-if="!showFeedback && inputStatus !== 'correct'"
-                      class="absolute left-3 top-1/2 -translate-y-1/2 w-0.5 h-7 bg-primary animate-pulse pointer-events-none"
-                    ></span>
-                    <!-- 实时拼写状态图标 -->
-                    <span
-                      v-if="inputStatus === 'correct' && !showFeedback"
-                      class="absolute -right-8 top-1/2 -translate-y-1/2 pointer-events-none animate-pulse"
-                    ><AppIcon name="check_circle" size="lg" tone="tertiary" /></span>
-                    <span
-                      v-if="inputStatus === 'wrong' && !showFeedback && userAnswer.trim().length >= 2"
-                      class="absolute -right-8 top-1/2 -translate-y-1/2 pointer-events-none"
-                    ><AppIcon name="error" size="lg" tone="error" /></span>
-                  </div>
-                </template>
-              </div>
-
-              <!-- 答题反馈 -->
-              <div v-if="showFeedback" class="mt-6 space-y-3">
-                <AnswerFeedback
-                  :status="isCorrect ? 'correct' : 'incorrect'"
-                  :label="isCorrect ? $t('learning.correct') : $t('learning.incorrect')"
-                />
-                <!-- 语义匹配：判对但展示标准答案供参考 -->
-                <div v-if="isCorrect && submitResult?.isSemanticMatch && submitResult" class="bg-surface-container-low rounded-xl p-4 space-y-3">
-                  <div class="bg-warning-container/40 border border-warning/30 rounded-lg p-3">
-                    <p class="font-label-sm text-label-sm text-on-warning-container mb-1">{{ $t('learning.bestAnswer') }}</p>
-                    <p class="font-body-md text-body-md text-on-warning-container font-semibold">{{ submitResult.correctAnswer }}</p>
-                  </div>
-                  <div v-if="submitResult.heuristicHint">
-                    <p class="font-body-sm text-body-sm text-on-surface-variant">{{ submitResult.heuristicHint }}</p>
-                  </div>
-                  <div v-if="submitResult.analysis">
-                    <p class="font-label-sm text-label-sm text-on-surface-variant mb-1">{{ $t('learning.analysis') }}</p>
-                    <p class="font-body-md text-body-md text-on-surface">{{ submitResult.analysis }}</p>
-                  </div>
-                </div>
-                <div v-if="!isCorrect && submitResult" class="bg-surface-container-low rounded-xl p-4 space-y-2">
-                  <div>
-                    <p class="font-label-sm text-label-sm text-on-surface-variant mb-1">{{ $t('learning.correctAnswer') }}</p>
-                    <p class="font-body-md text-body-md text-primary font-semibold">{{ submitResult.correctAnswer }}</p>
-                  </div>
-                  <div v-if="chineseWord">
-                    <p class="font-label-sm text-label-sm text-on-surface-variant mb-1">{{ $t('learning.chineseMeaning') }}</p>
-                    <p class="font-body-md text-body-md text-on-surface font-semibold">{{ chineseWord }}</p>
-                  </div>
-                  <div v-if="submitResult.analysis">
-                    <p class="font-label-sm text-label-sm text-on-surface-variant mb-1">{{ $t('learning.analysis') }}</p>
-                    <p class="font-body-md text-body-md text-on-surface">{{ submitResult.analysis }}</p>
-                  </div>
-                </div>
-                <!-- 收藏按钮：未收藏空心，已收藏红色实心 -->
-                <FavoriteSentenceButton
-                  :favorited="isCurrentFavorited"
-                  @toggle="handleFavorite"
-                />
-              </div>
-            </div>
+        <!-- 顶部栏：返回 + 新学进度条 + 后台操作 -->
+        <header class="h-20 sticky top-0 z-40 bg-background/80 backdrop-blur-md flex items-center justify-between px-gutter w-full">
+          <div class="flex items-center gap-4 flex-1">
+            <button
+              :class="btnIcon"
+              :aria-label="$t('common.back')"
+              @click="goBack"
+            >
+              <AppIcon name="arrow_back_ios_new" size="lg" />
+            </button>
           </div>
 
-          <!-- 实时拼写反馈提示卡片（拼错时显示区别提示） -->
-          <Transition name="hint">
+          <div class="flex items-center gap-2">
+            <button
+              :class="btnIcon"
+              :aria-label="appStore.isDark ? $t('topbar.switchToLight') : $t('topbar.switchToDark')"
+              @click="appStore.toggleTheme"
+            >
+              <AppIcon :name="appStore.isDark ? 'light_mode' : 'dark_mode'" size="lg" />
+            </button>
+            <button
+              :class="['relative', btnIcon]"
+              :aria-label="$t('topbar.notifications')"
+            >
+              <AppIcon name="notifications" size="lg" />
+              <span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+            </button>
+            <button
+              :class="btnIcon"
+              :aria-label="$t('topbar.currentLanguage')"
+              @click="cycleLanguage"
+            >
+              <AppIcon name="language" size="lg" />
+            </button>
             <div
-              v-if="showInstantHint"
-              class="w-full max-w-3xl mx-auto -mt-16 mb-24 bg-error-container/25 border border-error/25 rounded-2xl p-5 shadow-sm flex items-start gap-3"
+              class="w-8 h-8 rounded-full bg-primary text-on-primary ml-2 flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-primary/50 hover:scale-105 active:scale-95 transition-all text-sm font-bold select-none overflow-hidden"
+              :title="userStore.username || ''"
+              :aria-label="$t('profile.userInfo')"
+              role="button"
+              tabindex="0"
+              @click="router.push('/profile')"
+              @keydown.enter="router.push('/profile')"
             >
-              <span class="material-symbols-outlined text-error/70 text-icon-lg shrink-0 mt-0.5">lightbulb</span>
-              <p class="flex-1 text-body-md text-on-surface leading-relaxed">
-                {{ instantHintMessage }}
-              </p>
-              <button
-                class="shrink-0 w-9 h-9 rounded-full hover:bg-error-container/50 flex items-center justify-center text-error/70 transition-colors"
-                :title="$t('learning.favoriteHint')"
-              >
-                <AppIcon name="favorite_border" size="lg" />
-              </button>
-            </div>
-          </Transition>
-
-          <!-- 底部操作工具栏 -->
-          <div class="mt-auto flex justify-between items-end w-full max-w-3xl mx-auto pb-8">
-            <div class="flex gap-8 pl-4">
-              <!-- 查看提示 -->
-              <button
-                class="flex flex-col items-center gap-2 text-primary hover:text-primary-fixed-variant transition-colors group"
-                :disabled="showFeedback"
-                @click="toggleHint"
-              >
-                <div class="w-12 h-12 rounded-full bg-primary-container/20 flex items-center justify-center group-hover:bg-primary-container/30 transition-colors">
-                  <AppIcon :name="showHint ? 'visibility_off' : 'help'" size="lg" />
-                </div>
-                <span class="font-label-md text-label-md font-bold">{{ showHint ? $t('learning.hideHint') : $t('learning.hint') }}</span>
-              </button>
-
-              <!-- 语音模式 -->
-              <button
-                v-if="speechSupported"
-                class="flex flex-col items-center gap-2 text-primary hover:text-primary-fixed-variant transition-colors group"
-                :disabled="showFeedback"
-                @click="toggleSpeech"
-              >
-                <div class="w-12 h-12 rounded-full bg-primary-container/20 flex items-center justify-center group-hover:bg-primary-container/30 transition-colors relative">
-                  <AppIcon :name="isListening ? 'mic_off' : 'mic'" size="lg" />
-                  <div
-                    v-if="!isListening"
-                    class="absolute -top-12 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface font-label-md text-label-md whitespace-nowrap px-3 py-1.5 rounded-md shadow-lg flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
-                  >
-                    <AppIcon name="touch_app" size="lg" /> {{ $t('learning.handsFreeMode') }}
-                    <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-inverse-surface transform rotate-45"></div>
-                  </div>
-                </div>
-                <span class="font-label-md text-label-md font-bold">{{ isListening ? $t('learning.stopRecording') : $t('learning.voiceMode') }}</span>
-              </button>
-
-              <!-- 问 AI -->
-              <button
-                class="flex flex-col items-center gap-2 text-primary hover:text-primary-fixed-variant transition-colors group"
-                @click="askAi"
-              >
-                <div class="w-12 h-12 rounded-full bg-primary-container/20 flex items-center justify-center group-hover:bg-primary-container/30 transition-colors">
-                  <AppIcon name="help" size="lg" />
-                </div>
-                <span class="font-label-md text-label-md font-bold">{{ $t('learning.askAi') }}</span>
-              </button>
-            </div>
-
-            <!-- 确认 / 下一题按钮 -->
-            <button
-              class="bg-primary text-on-primary font-headline-md text-headline-md font-bold py-4 px-12 rounded-2xl flex items-center gap-2 hover:bg-primary/90 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-              :disabled="!showFeedback && !userAnswer.trim()"
-              @click="showFeedback ? goNext() : handleSubmit()"
-            >
-              <AppIcon :name="showFeedback ? 'arrow_forward' : 'check'" size="lg" class="font-bold" />
-              {{ showFeedback ? (isLastQuestion ? $t('learning.viewResults') : $t('learning.next')) : $t('learning.confirmBtn') }}
-            </button>
-          </div>
-
-          <!-- 提示面板 -->
-          <div
-            v-if="showHint && !showFeedback"
-            class="fixed bottom-32 left-1/2 -translate-x-1/2 bg-surface border border-primary/30 rounded-2xl p-4 shadow-lg max-w-md z-30"
-          >
-            <p class="font-label-md text-label-md text-primary mb-2">{{ $t('learning.hintTitle') }}</p>
-            <p class="font-body-md text-body-md text-on-surface">
-              {{ $t('learning.firstTwoLetters') }}<span class="text-primary font-bold text-lg">{{ hintLetters }}</span>
-            </p>
-            <p v-if="hintLoading" class="font-body-sm text-body-sm text-on-surface-variant mt-1 flex items-center gap-1">
-              <span class="animate-spin"><AppIcon name="progress_activity" size="lg" /></span>
-              {{ $t('learning.loadingMoreHint') }}
-            </p>
-            <p v-else-if="questionAnswer" class="font-body-md text-body-md text-on-surface mt-1">
-              {{ $t('learning.wordLengthLabel') }}<span class="text-primary font-semibold">{{ hintLength }}</span> {{ $t('learning.lettersCount') }}
-            </p>
-          </div>
-        </template>
-
-        <!-- 结果页 -->
-        <template v-else-if="showResults">
-          <div class="max-w-3xl mx-auto">
-            <!-- 成绩卡片 -->
-            <div class="bg-surface rounded-3xl p-8 md:p-12 shadow-soft-glow text-center mb-8 border border-outline-variant/20">
-              <div class="w-20 h-20 rounded-full bg-primary-container/20 flex items-center justify-center mx-auto mb-4">
-                <AppIcon name="emoji_events" size="2xl" tone="secondary" filled />
-              </div>
-              <h3 class="font-headline-lg text-headline-lg text-on-surface mb-2">{{ $t('learning.practiceComplete') }}</h3>
-              <ResultStats
-                :stats="[
-                  { value: masteredCount, label: $t('learning.masteredLabel'), highlight: true },
-                  { value: attempts, label: $t('learning.attemptsLabel') },
-                  { value: accuracy + '%', label: $t('learning.accuracy') },
-                ]"
-              />
-            </div>
-
-            <!-- 已掌握单词 -->
-            <div class="space-y-4 mb-8">
-              <h4 class="font-headline-md text-headline-md text-on-surface mb-4">{{ $t('learning.masteredWordsReview') }}</h4>
-              <div
-                v-for="(item, idx) in results.items"
-                :key="idx"
-                class="bg-surface rounded-xl p-5 shadow-soft-glow border-l-4"
-                :class="item.correct ? 'border-l-tertiary' : 'border-l-error'"
-              >
-                <div class="flex items-start gap-3">
-                  <span
-                    class="w-7 h-7 rounded-full flex items-center justify-center text-sm shrink-0 mt-0.5"
-                    :class="item.correct ? 'bg-tertiary-container/45 text-on-tertiary-container' : 'bg-error-container/45 text-on-error-container'"
-                  >
-                    <AppIcon :name="item.correct ? 'check' : 'close'" size="lg" />
-                  </span>
-                  <div class="flex-1 min-w-0">
-                    <p class="font-body-md text-body-md text-on-surface mb-2">{{ item.question.stem }}</p>
-                    <div class="flex flex-wrap gap-x-4 gap-y-1 font-label-sm text-label-sm text-on-surface-variant">
-                      <span>{{ $t('learning.yourAnswer') }}：<span :class="item.correct ? 'text-tertiary' : 'text-error'">{{ item.answer }}</span></span>
-                      <span v-if="!item.correct">{{ $t('learning.correctAnswer') }}：<span class="text-primary font-semibold">{{ item.question.correctAnswer || '' }}</span></span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- 操作按钮 -->
-            <div class="flex gap-4">
-              <button
-                :class="btnQuizSecondary"
-                @click="goBack"
-              >
-                {{ $t('learning.backToHub') }}
-              </button>
-              <button
-                :class="btnQuizPrimary"
-                @click="restartQuiz"
-              >
-                {{ $t('learning.practiceAgain') }}
-              </button>
+              <img v-if="quizAvatarUrl" :src="quizAvatarUrl" :alt="$t('profile.userInfo')" class="w-full h-full object-cover" />
+              <span v-else>{{ avatarText }}</span>
             </div>
           </div>
-        </template>
+        </header>
 
-        <!-- 词卡学习阶段：本批里的无题词，题目答完后逐张过 -->
-        <template v-else-if="cardFallback.length > 0">
-          <div class="flex-1 flex flex-col px-gutter py-6">
-            <div class="flex items-center justify-between mb-4">
-              <span class="font-body-md text-body-md text-on-surface-variant">
-                {{ $t('learning.wordCardPhase') }} {{ cardIndex + 1 }} / {{ cardFallback.length }}
-              </span>
-            </div>
+        <!-- 题目画布 -->
+        <div class="flex-1 w-full max-w-container-max mx-auto px-gutter py-8 flex flex-col relative">
+          <LoadingState v-if="loading" class="flex-1" :message="$t('common.loading')" />
 
-            <div v-if="currentCard" class="bg-surface-container-lowest rounded-3xl p-8 shadow-soft-glow flex flex-col items-center justify-center text-center min-h-[220px]">
-              <p class="font-headline-lg text-headline-lg text-on-surface">{{ currentCard.word }}</p>
-              <p v-if="currentCard.phonetic" class="font-body-md text-body-md text-on-surface-variant mt-2">
-                {{ currentCard.phonetic }}
-              </p>
-              <p v-if="currentCard.pos" class="font-label-md text-label-md text-primary italic mt-1">
-                {{ currentCard.pos }}
-              </p>
+          <!-- 复习模式：沉浸式三档评分 -->
+          <VocabReviewSession
+            v-else-if="vocabMode === 'review'"
+            :words="reviewWords"
+            @complete="handleReviewComplete"
+          />
 
-              <template v-if="cardFlipped">
-                <p class="font-body-lg text-body-lg text-on-surface mt-4">{{ currentCard.translation || $t('learning.noTranslation') }}</p>
-                <div v-if="currentCard.example" class="mt-3 pl-3 border-l-2 border-primary/40 text-left w-full">
-                  <p class="font-body-sm text-body-sm text-on-surface italic">{{ currentCard.example }}</p>
-                  <p v-if="currentCard.exampleTranslation" class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
-                    {{ currentCard.exampleTranslation }}
-                  </p>
-                </div>
-              </template>
-              <button
-                v-else
-                class="mt-6 px-4 py-2 bg-surface-container-low text-on-surface rounded-full font-label-md text-label-md hover:bg-surface-container transition-colors flex items-center gap-1"
-                @click="flipCard"
-              >
-                <AppIcon name="visibility" size="lg" />
-                {{ $t('wordReview.showMeaning') }}
-              </button>
-            </div>
+          <!-- 新学模式：两阶段（词义识别 → 句子填词） -->
+          <VocabNewSession
+            v-else-if="vocabMode === 'new'"
+            @complete="goBack"
+          />
 
-            <div class="grid grid-cols-2 gap-3 mt-4">
-              <button
-                class="py-3 bg-error-container/30 text-error rounded-xl font-label-md text-label-md hover:bg-error-container/50 transition-colors disabled:opacity-50"
-                :disabled="!cardFlipped"
-                @click="handleCardAnswer(false)"
-              >
-                {{ $t('learning.cardUnknown') }}
-              </button>
-              <button
-                class="py-3 bg-tertiary-container/40 text-on-tertiary-container rounded-xl font-label-md text-label-md hover:bg-tertiary-container/60 transition-colors disabled:opacity-50"
-                :disabled="!cardFlipped"
-                @click="handleCardAnswer(true)"
-              >
-                {{ $t('learning.cardKnown') }}
-              </button>
-            </div>
-            <button
-              class="mt-3 py-3 bg-surface-container-low text-on-surface rounded-xl font-label-md text-label-md hover:bg-surface-container transition-colors flex items-center justify-center gap-1"
-              @click="handleCardAddToLearning"
-            >
-              <AppIcon name="library_add" size="lg" />
-              {{ $t('learning.cardAddToVocabulary') }}
-            </button>
-          </div>
-        </template>
+          <EmptyState
+            v-else
+            class="flex-1"
+            icon="inbox"
+            :title="$t('learning.noQuestions')"
+            :action-label="$t('learning.backToHub')"
+            @action="goBack"
+          />
+        </div>
+      </main>
 
-        <!-- 无题 -->
-        <EmptyState
-          v-else
-          class="flex-1"
-          icon="inbox"
-          :title="$t('learning.noQuestions')"
-          :action-label="$t('learning.backToHub')"
-          @action="goBack"
-        />
-      </div>
-    </main>
-
-      <!-- AI 侧边栏（inline 模式，不覆盖） -->
+      <!-- AI 侧边栏（inline 模式） -->
       <AiSidebar mode="inline" />
     </div>
   </div>
@@ -441,68 +110,36 @@
     @save="handleVocabularyGoalSave"
     @close="closeVocabularyGoalDialog"
   />
-
 </template>
 
 <script setup lang="ts">
-/**
- * 词汇练习页 — 填空题（CHOICE 模式已拆出去，仅留 FILL_BLANK）
- * 数据流：先复习到期词 → 新词循环（连续答对 3 次）→ 加入单词本
- */
-import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import SideNavBar from '@/components/SideNavBar.vue'
 import AiSidebar from '@/components/AiSidebar.vue'
-import QuizProgressBar from '../components/quiz/QuizProgressBar.vue'
-import AnswerFeedback from '@/components/quiz/AnswerFeedback.vue'
-import ResultStats from '@/components/quiz/ResultStats.vue'
-import FavoriteSentenceButton from '@/components/quiz/FavoriteSentenceButton.vue'
-import VocabularyGoalDialog from '@/components/VocabularyGoalDialog.vue'
-import VocabReviewSession from '@/components/vocab/VocabReviewSession.vue'
-import { useUserStore } from '@/stores/user'
-import { useAppStore } from '@/stores/app'
-import { useToast } from '@/composables/useToast'
-import { MASTERY_STREAK } from '@/config/constants'
-import {
-  selectNewWordItems,
-  submitAnswer as submitAnswerApi,
-  getQuestionById,
-  getReviewList,
-  addVocabulary,
-  recordWordAttempt,
-} from '@/api/exercise'
-import { useSentenceFavorite } from '@/composables/useSentenceFavorite'
-import { useSpeechRecognition } from '@/composables/useSpeechRecognition'
-import { useAiStore } from '@/stores/ai'
-import { shuffle } from '@/utils/array'
-import type { QuestionVO, SubmitResponse, VocabularyVO, WordCardVO } from '@/api/exercise'
-import { btnIcon, btnQuizPrimary, btnQuizSecondary } from '@/components/ui/buttonStyles'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import VocabularyGoalDialog from '@/components/VocabularyGoalDialog.vue'
+import VocabReviewSession from '@/components/vocab/VocabReviewSession.vue'
+import VocabNewSession from '@/components/vocab/VocabNewSession.vue'
+import { useUserStore } from '@/stores/user'
+import { useAppStore } from '@/stores/app'
+import { useAiStore } from '@/stores/ai'
+import { useToast } from '@/composables/useToast'
+import { getReviewList, type VocabularyVO } from '@/api/exercise'
+import { btnIcon } from '@/components/ui/buttonStyles'
 
 const router = useRouter()
 const route = useRoute()
 const { t } = useI18n()
 const userStore = useUserStore()
-const sentenceFavorite = useSentenceFavorite()
 const appStore = useAppStore()
+const aiStore = useAiStore()
 const { show: toast } = useToast()
-const { isListening, transcript, error: speechError, isSupported: speechSupported, start: startSpeech, stop: stopSpeech } = useSpeechRecognition()
 
-// ========== 状态 ==========
 const loading = ref(true)
-const userAnswer = ref('')
-const showFeedback = ref(false)
-const isCorrect = ref(false)
-const submitResult = ref<SubmitResponse | null>(null)
-const showHint = ref(false)
-const showResults = ref(false)
-const startTime = ref(Date.now())
-const blankInput = ref<HTMLInputElement | null>(null)
-const questionAnswer = ref('')
-const hintLoading = ref(false)
 
 // 每日目标弹窗
 const showVocabularyGoalDialog = ref(false)
@@ -513,278 +150,33 @@ const goalError = ref('')
 const reviewWords = ref<VocabularyVO[]>([])
 const reviewCompleted = ref(false)
 
-// 新词循环：N 个词，连续答对 3 次才掌握
-const newWordPool = ref<QuestionVO[]>([])
-const activeQueue = ref<QuestionVO[]>([])
-const cardFallback = ref<WordCardVO[]>([])
-// 词卡学习阶段：题目队列答完后进入，保证本批 CARD 不被丢弃
-const cardMode = ref(false)
-const cardIndex = ref(0)
-const cardFlipped = ref(false)
-const streaks = ref<Record<number, number>>({})
-const masteredIds = ref<number[]>([])
-const attempts = ref(0)
-const correctAttempts = ref(0)
+// 本次练习模式：'review'（复习）或 'new'（新学，默认）
+const vocabMode = computed<'review' | 'new'>(() => route.query.mode === 'review' ? 'review' : 'new')
 
-interface ResultItem { question: QuestionVO; answer: string; correct: boolean }
-const results = ref<{ items: ResultItem[] }>({ items: [] })
-
-// ========== 计算属性 ==========
-const totalCount = computed(() => newWordPool.value.length)
-const currentQuestion = computed<QuestionVO | null>(() => activeQueue.value[0] || null)
-const currentCard = computed<WordCardVO | null>(() =>
-  cardIndex.value < cardFallback.value.length ? cardFallback.value[cardIndex.value] : null
-)
-const masteredCount = computed(() => masteredIds.value.length)
-const accuracy = computed(() =>
-  attempts.value > 0 ? Math.round((correctAttempts.value / attempts.value) * 100) : 0
-)
-const answeredCount = computed(() => masteredCount.value)
-const isLastQuestion = computed(() => {
-  const q = currentQuestion.value
-  return activeQueue.value.length === 1 && q != null && (streaks.value[q.id] || 0) >= 3
-})
-const currentDifficulty = computed(() => currentQuestion.value?.difficultyLevel || 1)
-
-/**
- * 中文题干分段：来自后端 analysis 字段，格式 "公司于2005年（成立），此后迅速发展壮大。"
- * 括号内的目标词作为高亮段返回，模板中以纯插值渲染，不使用 v-html
- */
-interface ChineseSegment { text: string; highlight: boolean }
-const chineseSegments = computed<ChineseSegment[]>(() => {
-  const q = currentQuestion.value
-  if (!q) return []
-  const text = q.analysis || ''
-  const segments: ChineseSegment[] = []
-  const pattern = /[（(]([^）)]+)[）)]/g
-  let lastIndex = 0
-  let match: RegExpExecArray | null
-  while ((match = pattern.exec(text)) !== null) {
-    if (match.index > lastIndex) {
-      segments.push({ text: text.slice(lastIndex, match.index), highlight: false })
-    }
-    segments.push({ text: match[1], highlight: true })
-    lastIndex = pattern.lastIndex
-  }
-  if (lastIndex < text.length) {
-    segments.push({ text: text.slice(lastIndex), highlight: false })
-  }
-  return segments
-})
-
-interface EnglishPart { text: string; isBlank: boolean }
-/**
- * 英文题干：按 ___ 拆分为 prefix + blank + suffix
- * 例 "I work in a factory that ___ car parts." → ["I work in a factory that ", blank, " car parts."]
- */
-const englishParts = computed<EnglishPart[]>(() => {
-  const q = currentQuestion.value
-  if (!q || !q.stem) return [{ text: '', isBlank: true }]
-  const blankRegex = /_{2,}|\[BLANK\]|\.{3,}/g
-  const stem = q.stem
-  if (!blankRegex.test(stem)) {
-    // 没有占位符 → 整体作为非空段，输入框空着
-    return [{ text: stem, isBlank: false }, { text: '', isBlank: true }]
-  }
-  const parts: EnglishPart[] = []
-  const regex = /_{2,}|\[BLANK\]|\.{3,}/g
-  let lastIndex = 0
-  let m: RegExpExecArray | null
-  while ((m = regex.exec(stem)) !== null) {
-    if (m.index > lastIndex) {
-      parts.push({ text: stem.substring(lastIndex, m.index), isBlank: false })
-    }
-    parts.push({ text: '', isBlank: true })
-    lastIndex = regex.lastIndex
-  }
-  if (lastIndex < stem.length) {
-    parts.push({ text: stem.substring(lastIndex), isBlank: false })
-  }
-  return parts
-})
-
-/**
- * 提示：单词长度
- */
-/** 从 analysis 中提取括号内的中文释义 */
-const chineseWord = computed(() => {
-  const text = currentQuestion.value?.analysis || ''
-  const m = text.match(/[（(]([^）)]+)[）)]/)
-  return m ? m[1] : ''
-})
-
-const hintLength = computed(() => questionAnswer.value.length || 0)
-
-/**
- * 提示：前两个字母（优先用题目自带 hint，其次用预加载的答案）
- */
-const hintLetters = computed(() => {
-  if (currentQuestion.value?.hint) return currentQuestion.value.hint
-  return questionAnswer.value?.length >= 2 ? questionAnswer.value.substring(0, 2) : ''
-})
-
-// ========== 实时拼写状态 ==========
-/**
- * 输入状态：'empty' | 'typing' | 'correct' | 'wrong'
- * - empty  : 未输入
- * - typing : 输入中，且输入内容是正确答案的前缀（正常紫色）
- * - correct: 与正确答案完全匹配（绿色）
- * - wrong  : 输入内容偏离正确拼写（红色），触发即时提示
- */
-const inputStatus = computed<'empty' | 'typing' | 'correct' | 'wrong'>(() => {
-  const ans = userAnswer.value.trim().toLowerCase()
-  if (!ans) return 'empty'
-  const correct = questionAnswer.value?.trim().toLowerCase()
-  if (!correct) return 'typing'
-  if (ans === correct) return 'correct'
-  // 输入内容是正确答案的前缀 → 仍在输入中，不报错
-  if (correct.startsWith(ans)) return 'typing'
-  // 输入长度 >= 正确答案长度 且不匹配 → 错误
-  if (ans.length >= correct.length) return 'wrong'
-  // 输入内容不是正确答案的前缀 → 拼写已偏离，报错
-  return 'wrong'
-})
-
-/**
- * 即时提示文案：从 analysis 字段中抽取 "注意 X 和 Y 的区别" 信息
- * 匹配后端 analysis 文本中的常见格式，例如：
- *   "你可能知道这个单词，但搞混拼写了。注意 'produce'（生产）和 'product'（产品）的区别。"
- */
-const instantHintMessage = computed(() => {
-  const analysis = currentQuestion.value?.analysis || ''
-  // 模式 1：注意 "X"（X）和 "Y"（Y）的区别
-  let m = analysis.match(/注意\s*['"「]?([^'",」）)]+)['"」]?（([^）)]+)）[^和]*和\s*['"「]?([^'",」）)]+)['"」]?（([^）)]+)）[^的]*的区别/)
-  if (m) {
-    return t('learning.instantHint.mixedWithPos', { w1: m[1], m1: m[2], w2: m[3], m2: m[4] })
-  }
-  // 模式 2：注意 "X" 和 "Y" 的区别
-  m = analysis.match(/注意\s*['"「]?([^'",」]+)['"」]?[^和]*和\s*['"「]?([^'",」]+)['"」]?[^的]*的区别/)
-  if (m) {
-    return t('learning.instantHint.mixed', { w1: m[1], w2: m[2] })
-  }
-  // 模式 3：仅区别提示
-  if (analysis.includes('区别')) {
-    return t('learning.instantHint.similarWord')
-  }
-  return t('learning.instantHint.checkCarefully')
-})
-
-/**
- * 是否显示即时提示：
- * - 未提交过
- * - 拼写状态为 wrong
- * - 输入长度达到 2 个字符以上（避免太短误判）
- */
-const showInstantHint = computed(() => {
-  return !showFeedback.value && inputStatus.value === 'wrong' && userAnswer.value.trim().length >= 2
-})
-
-/**
- * 获取提示：请求后端返回正确答案，截取前两个字母展示
- */
-const fetchHint = async () => {
-  const q = currentQuestion.value
-  if (!q || questionAnswer.value) return
-  hintLoading.value = true
-  try {
-    const full = await getQuestionById(q.id, true)
-    questionAnswer.value = full.correctAnswer || ''
-  } catch (e) {
-    console.warn('获取提示失败', e)
-  } finally {
-    hintLoading.value = false
-  }
+const goBack = () => {
+  if (window.history.length > 1) router.back()
+  else router.push('/learning')
 }
 
-// ========== 新词循环会话持久化 ==========
-const SAVE_KEY = 'vocab-session-progress:v2'
-
-interface SavedSession {
-  userId: number
-  dailyNewWords: number
-  dailyReviewWords: number
-  reviewCompleted: boolean
-  newWordPool: QuestionVO[]
-  activeQueue: QuestionVO[]
-  streaks: Record<number, number>
-  masteredIds: number[]
-  attempts: number
-  correctAttempts: number
-  resultsItems: ResultItem[]
+const cycleLanguage = () => {
+  const langs = ['zh-CN', 'en-US']
+  const idx = langs.indexOf(appStore.language)
+  appStore.setLanguage(langs[(idx + 1) % langs.length])
 }
 
-const saveSession = () => {
-  const userId = userStore.userId
-  if (!userId || newWordPool.value.length === 0) return
-  const data: SavedSession = {
-    userId,
-    dailyNewWords: userStore.dailyNewWords ?? 10,
-    dailyReviewWords: userStore.dailyReviewWords ?? 5,
-    reviewCompleted: reviewCompleted.value,
-    newWordPool: newWordPool.value,
-    activeQueue: activeQueue.value,
-    streaks: streaks.value,
-    masteredIds: masteredIds.value,
-    attempts: attempts.value,
-    correctAttempts: correctAttempts.value,
-    resultsItems: results.value.items,
-  }
-  sessionStorage.setItem(SAVE_KEY, JSON.stringify(data))
-}
+const avatarText = computed(() => {
+  const name = userStore.user?.username || userStore.username || ''
+  return name ? name.charAt(0).toUpperCase() : 'M'
+})
 
-const clearSession = () => sessionStorage.removeItem(SAVE_KEY)
-
-const restoreSession = (): SavedSession | null => {
-  try {
-    const raw = sessionStorage.getItem(SAVE_KEY)
-    if (!raw) return null
-    const data = JSON.parse(raw) as SavedSession
-    const newGoal = userStore.dailyNewWords ?? 10
-    const reviewGoal = userStore.dailyReviewWords ?? 5
-    if (data.userId !== userStore.userId
-        || data.dailyNewWords !== newGoal
-        || data.dailyReviewWords !== reviewGoal
-        || !Array.isArray(data.newWordPool)
-        || !Array.isArray(data.activeQueue)) {
-      clearSession()
-      return null
-    }
-    return data
-  } catch {
-    clearSession()
-    return null
-  }
-}
-
-const restoreSessionState = (saved: SavedSession) => {
-  newWordPool.value = saved.newWordPool || []
-  activeQueue.value = saved.activeQueue || []
-  streaks.value = saved.streaks || {}
-  masteredIds.value = saved.masteredIds || []
-  attempts.value = saved.attempts || 0
-  correctAttempts.value = saved.correctAttempts || 0
-  results.value = { items: saved.resultsItems || [] }
-  reviewCompleted.value = true
-  loading.value = false
-  showResults.value = activeQueue.value.length === 0
-  showFeedback.value = false
-  showHint.value = false
-  submitResult.value = null
-  questionAnswer.value = ''
-  userAnswer.value = ''
-  startTime.value = Date.now()
-  const q = currentQuestion.value
-  if (q && !showResults.value) {
-    void preloadQuestionAnswer(q.id)
-    nextTick(() => blankInput.value?.focus())
-  }
-}
+const quizAvatarUrl = computed(() => {
+  const url = userStore.avatarUrl
+  return url ? `/api${url}` : ''
+})
 
 // ========== 每日目标 ==========
 const promptVocabularyGoalsIfNeeded = async (): Promise<boolean> => {
-  if (!userStore.preferenceLoaded) {
-    await userStore.loadPreference()
-  }
+  if (!userStore.preferenceLoaded) await userStore.loadPreference()
   if (!userStore.vocabularyGoalsConfigured) {
     goalError.value = ''
     showVocabularyGoalDialog.value = true
@@ -814,46 +206,15 @@ const handleVocabularyGoalSave = async (payload: { newWords: number; reviewWords
   }
 }
 
-// ========== 复习 + 新词会话 ==========
-// 本次练习模式：从路由 query.mode 读取，'review'（复习）或 'new'（新学）；默认 'new'
-const vocabMode = computed<'review' | 'new'>(() => {
-  return route.query.mode === 'review' ? 'review' : 'new'
-})
-
 const handleReviewComplete = async (payload: { reviewed: number; correct: number }) => {
   reviewCompleted.value = true
   if (payload.reviewed > 0) {
-    toast(t('wordReview.summaryText', {
-      reviewed: payload.reviewed,
-      correct: payload.correct,
-    }), 'success')
+    toast(t('wordReview.summaryText', { reviewed: payload.reviewed, correct: payload.correct }), 'success')
   }
-  // 复习模式：复习完即结束，返回学习中心；新学模式：复习完进入新词
-  if (vocabMode.value === 'review') {
-    loading.value = false
-    goBack()
-    return
-  }
-  await loadNewWordSession()
+  loading.value = false
+  goBack()
 }
 
-const startSession = async () => {
-  // 复习模式不恢复新词会话（sessionStorage 里可能残留新学模式的进度）
-  if (vocabMode.value === 'review') {
-    await startReviewOnly()
-    return
-  }
-  const saved = restoreSession()
-  if (saved) {
-    restoreSessionState(saved)
-    return
-  }
-  await startNewWordsOnly()
-}
-
-/**
- * 纯复习进程：只加载待复习单词并进入三档评分，不做新词。
- */
 const startReviewOnly = async () => {
   const userId = userStore.userId
   if (!userId) {
@@ -862,14 +223,11 @@ const startReviewOnly = async () => {
   }
   loading.value = true
   reviewWords.value = []
-  showResults.value = false
   try {
     const due = await getReviewList(userId)
     reviewWords.value = due || []
     loading.value = false
-    if (reviewWords.value.length === 0) {
-      toast(t('wordReview.empty'), 'info')
-    }
+    if (reviewWords.value.length === 0) toast(t('wordReview.empty'), 'info')
   } catch (e) {
     console.warn('加载复习单词失败', e)
     loading.value = false
@@ -877,391 +235,32 @@ const startReviewOnly = async () => {
   }
 }
 
-/**
- * 纯新学进程：跳过复习，直接加载新词。
- */
-const startNewWordsOnly = async () => {
-  const userId = userStore.userId
-  if (!userId) {
-    router.push('/login')
-    return
-  }
-  reviewCompleted.value = true
-  await loadNewWordSession()
-}
-
-const loadNewWordSession = async () => {
-  const userId = userStore.userId
-  if (!userId) {
-    router.push('/login')
-    return
-  }
-  loading.value = true
-  showResults.value = false
-  newWordPool.value = []
-  activeQueue.value = []
-  cardFallback.value = []
-  cardMode.value = false
-  cardIndex.value = 0
-  cardFlipped.value = false
-  streaks.value = {}
-  masteredIds.value = []
-  attempts.value = 0
-  correctAttempts.value = 0
-  results.value = { items: [] }
-  userAnswer.value = ''
-  showFeedback.value = false
-  submitResult.value = null
-  showHint.value = false
-  questionAnswer.value = ''
-  hintLoading.value = false
-
-  try {
-    const count = userStore.dailyNewWords ?? 10
-    const items = await selectNewWordItems(userId, count)
-    // 拆成题目队列 + 词卡降级队列
-    const questions = (items || [])
-      .filter(it => it.type === 'QUESTION' && it.question)
-      .map(it => it.question!)
-    const cards = (items || [])
-      .filter(it => it.type === 'CARD' && it.card)
-      .map(it => it.card!)
-    newWordPool.value = questions
-    activeQueue.value = shuffle(questions)
-    cardFallback.value = cards
-    if (activeQueue.value.length > 0) {
-      await preloadQuestionAnswer(activeQueue.value[0].id)
-      nextTick(() => blankInput.value?.focus())
-    }
-    saveSession()
-  } catch (e) {
-    console.warn('获取新词失败', e)
-    toast(t('learning.loadQuestionsFailed'), 'error')
-  } finally {
-    loading.value = false
-    startTime.value = Date.now()
-  }
-}
-
-/**
- * 后台预加载正确答案（用于实时拼写反馈，不会在 UI 上展示答案）
- */
-const preloadQuestionAnswer = async (questionId: number) => {
-  if (questionAnswer.value) return
-  try {
-    const full = await getQuestionById(questionId, true)
-    questionAnswer.value = full.correctAnswer || ''
-  } catch (e) {
-    console.warn('预加载答案失败', e)
-  }
-}
-
-// ========== 提示 ==========
-const aiStore = useAiStore()
-
-const askAi = () => {
-  const q = currentQuestion.value
-  let context = ''
-  if (q) {
-    if (q.correctAnswer) {
-      context += '【核心单词】' + q.correctAnswer + '\n'
-    }
-    if (q.stem) {
-      context += '【题干】' + q.stem + '\n'
-    }
-    if (q.analysis) {
-      context += '【解析】' + q.analysis + '\n'
-    }
-  }
-  aiStore.open({
-    contextType: 'vocab',
-    questionContent: context,
-    userAnswer: userAnswer.value || '',
-  })
-}
-
-const toggleHint = () => {
-  showHint.value = !showHint.value
-  if (showHint.value && !questionAnswer.value) {
-    fetchHint()
-  }
-}
-
-// ========== 新词循环答题 ==========
-const extractWord = (value?: string): string => {
-  return (value || '').trim().replace(/^[A-Da-d][.、)]\s*/, '').trim()
-}
-
-const extractTranslation = (analysis?: string): string => {
-  const match = (analysis || '').match(/[（(]([^）)]+)[）)]/)
-  return match ? match[1].trim() : ''
-}
-
-const registerMasteredWord = async (q: QuestionVO) => {
-  const userId = userStore.userId
-  const word = extractWord(submitResult.value?.correctAnswer || q.correctAnswer || '')
-  if (!userId || !word) return
-  try {
-    await addVocabulary({
-      userId,
-      word,
-      translation: extractTranslation(q.analysis || submitResult.value?.analysis || ''),
-      source: 'quiz',
-    })
-  } catch (e) {
-    const message = e instanceof Error ? e.message : t('learning.addWordFailed')
-    toast(message, 'warning')
-  }
-}
-
-const handleSubmit = async () => {
-  const q = currentQuestion.value
-  if (!q || !userAnswer.value.trim() || showFeedback.value) return
-  const userId = userStore.userId
-  if (!userId) return
-  try {
-    const result = await submitAnswerApi({
-      userId,
-      questionId: q.id,
-      userAnswer: userAnswer.value.trim(),
-      moduleType: q.moduleType || 1,
-      durationSeconds: Math.round((Date.now() - startTime.value) / 1000),
-      // 新词是学习，只判题不计分；复习是测验，计入正确率但不重复发奖励
-      practiceOnly: vocabMode.value === 'new',
-      statsOnly: vocabMode.value === 'review',
-    })
-    submitResult.value = result
-    isCorrect.value = result.isCorrect
-    showFeedback.value = true
-    attempts.value++
-    if (result.isCorrect) correctAttempts.value++
-    const currentStreak = streaks.value[q.id] || 0
-    streaks.value = {
-      ...streaks.value,
-      [q.id]: result.isCorrect ? Math.min(MASTERY_STREAK, currentStreak + 1) : 0,
-    }
-
-    // 新词模式：把这次作答记进单词本。
-    // practiceOnly 只免掉答题统计，不等于「不学」——答错的词必须能被复习到。
-    if (vocabMode.value === 'new' && (q.moduleType || 1) === 1) {
-      try {
-        await recordWordAttempt(userId, { questionId: q.id, isCorrect: result.isCorrect })
-      } catch (e) {
-        console.warn('记录单词作答失败', e)
-      }
-    }
-
-    saveSession()
-  } catch (e) {
-    console.warn('提交失败', e)
-  }
-}
-
-const goNext = async () => {
-  const q = currentQuestion.value
-  if (!q || !showFeedback.value) return
-
-  const correct = isCorrect.value
-  const streak = streaks.value[q.id] || 0
-  let queue = activeQueue.value.slice(1)
-  const nextStreaks = { ...streaks.value }
-
-  if (correct && streak >= 3) {
-    masteredIds.value = [...masteredIds.value, q.id]
-    results.value.items.push({
-      question: q,
-      answer: submitResult.value?.correctAnswer || userAnswer.value.trim(),
-      correct: true,
-    })
-    delete nextStreaks[q.id]
-    await registerMasteredWord(q)
-  } else {
-    queue.push(q)
-  }
-
-  streaks.value = nextStreaks
-  activeQueue.value = shuffle(queue)
-  userAnswer.value = ''
-  showFeedback.value = false
-  submitResult.value = null
-  showHint.value = false
-  questionAnswer.value = ''
-  hintLoading.value = false
-  startTime.value = Date.now()
-
-  if (activeQueue.value.length === 0) {
-    // 题目答完：本批若还有词卡，先进入词卡学习阶段，不直接出结果
-    if (cardFallback.value.length > 0) {
-      cardMode.value = true
-      cardIndex.value = 0
-      cardFlipped.value = false
-      saveSession()
-      return
-    }
-    showResults.value = true
-    clearSession()
-    return
-  }
-
-  await preloadQuestionAnswer(activeQueue.value[0].id)
-  nextTick(() => blankInput.value?.focus())
-  saveSession()
-}
-
-// ========== 词卡学习阶段 ==========
-/** 词卡翻面 */
-const flipCard = () => {
-  cardFlipped.value = !cardFlipped.value
-}
-
-/** 词卡作答：认识=true / 不认识=false，两者都会写入单词本（答错立即进复习） */
-const handleCardAnswer = async (known: boolean) => {
-  const userId = userStore.userId
-  const card = currentCard.value
-  if (!userId || !card || !cardFlipped.value) return
-  try {
-    await recordWordAttempt(userId, { word: card.word, isCorrect: known })
-  } catch (e) {
-    console.warn('记录词卡作答失败', e)
-  }
-  nextCard()
-}
-
-/** 加入学习：直接写入单词本（不要求先翻面），后续可正常复习 */
-const handleCardAddToLearning = async () => {
-  const userId = userStore.userId
-  const card = currentCard.value
-  if (!userId || !card) return
-  try {
-    await addVocabulary({ userId, word: card.word, source: 'quiz' })
-    toast(t('learning.addedToVocabulary'), 'success')
-  } catch (e) {
-    const message = e instanceof Error ? e.message : t('learning.addWordFailed')
-    toast(message, 'warning')
-  }
-  nextCard()
-}
-
-const nextCard = () => {
-  cardIndex.value += 1
-  cardFlipped.value = false
-  if (cardIndex.value >= cardFallback.value.length) {
-    cardMode.value = false
-    showResults.value = true
-    clearSession()
-  }
-}
-
-const goBack = () => { if (window.history.length > 1) router.back(); else router.push('/learning') }
-
-const restartQuiz = async () => {
-  clearSession()
-  reviewCompleted.value = false
-  showResults.value = false
+const startSession = async () => {
   if (vocabMode.value === 'review') {
     await startReviewOnly()
-  } else {
-    await startNewWordsOnly()
+    return
   }
+  // 新学：词包由 VocabNewSession 在挂载时自行加载
+  loading.value = false
 }
-
-// ========== 收藏功能 ==========
-/** 收藏文本与收藏接口传入的 sentenceText 必须一致，否则回显匹配不上 */
-const favoriteText = computed(() => currentQuestion.value?.stem ?? '')
-const isCurrentFavorited = computed(() => sentenceFavorite.isFavorited(favoriteText.value))
-
-const handleFavorite = async () => {
-  const q = currentQuestion.value
-  if (!q) return
-  try {
-    const state = await sentenceFavorite.toggle(favoriteText.value, q.id, 1)
-    if (state === true) toast(t('learning.favorited'), 'success')
-  } catch (e) {
-    toast(e instanceof Error ? e.message : t('learning.favoriteFailed'), 'error')
-  }
-}
-
-// ========== 语言切换 ==========
-const cycleLanguage = () => {
-  const langs = ['zh-CN', 'en-US']
-  const idx = langs.indexOf(appStore.language)
-  const next = langs[(idx + 1) % langs.length]
-  appStore.setLanguage(next)
-}
-
-// 头像首字母
-const avatarText = computed(() => {
-  const name = userStore.user?.username || userStore.username || ''
-  return name ? name.charAt(0).toUpperCase() : 'M'
-})
-
-// 头像完整URL
-const quizAvatarUrl = computed(() => {
-  const url = userStore.avatarUrl
-  if (!url) return ''
-  return `/api${url}`
-})
-
-// ========== 语音模式 ==========
-const toggleSpeech = () => {
-  if (isListening.value) stopSpeech()
-  else startSpeech()
-}
-watch(transcript, (val) => {
-  if (val) {
-    userAnswer.value = val
-    setTimeout(() => { if (!showFeedback.value) handleSubmit() }, 500)
-  }
-})
-watch(speechError, (val) => { if (val) console.warn('语音错误:', val) })
 
 // ========== 生命周期 ==========
 onMounted(async () => {
   aiStore.setInlineMode(true)
-  void sentenceFavorite.load()
   if (userStore.userId) {
     const needsGoal = await promptVocabularyGoalsIfNeeded()
-    if (!needsGoal) {
-      await startSession()
-    }
+    if (!needsGoal) await startSession()
   } else {
     loading.value = false
   }
-  startTime.value = Date.now()
 })
 onUnmounted(() => {
   aiStore.setInlineMode(false)
 })
 watch(() => userStore.userId, async (id) => {
   if (!id) return
-  clearSession()
   reviewCompleted.value = false
   const needsGoal = await promptVocabularyGoalsIfNeeded()
-  if (!needsGoal) {
-    await startSession()
-  }
-})
-
-// 用户开始输入时，如果答案还没加载，立即加载（确保实时拼写反馈可用）
-watch(userAnswer, (val) => {
-  if (val.trim() && !questionAnswer.value && currentQuestion.value) {
-    preloadQuestionAnswer(currentQuestion.value.id)
-  }
+  if (!needsGoal) await startSession()
 })
 </script>
-
-<style scoped>
-/* 实时拼写提示卡片过渡动画 */
-.hint-enter-active,
-.hint-leave-active {
-  transition: all 0.3s ease;
-}
-.hint-enter-from {
-  opacity: 0;
-  transform: translateY(-8px);
-}
-.hint-leave-to {
-  opacity: 0;
-  transform: translateY(-8px);
-}
-</style>

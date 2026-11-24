@@ -732,6 +732,45 @@ export const selectNewWordItems = (userId: number, count: number = 10): Promise<
     return get('/exercise/vocabulary/new-items', { userId, count })
 }
 
+// ========== 新学两阶段（词包 / 判题 / 整组完成，userId 由网关透传） ==========
+
+/** 新学词包条目：阶段 A 词义识别 + 阶段 B 句子填词所需数据 */
+export interface NewWordPackVO {
+    wordId: number
+    word: string
+    phonetic?: string
+    pos?: string
+    meanings: { pos?: string; meaning: string }[]
+    examples: { sentence: string; translation?: string }[]
+    choice: { options: { text: string; correct: boolean }[] }
+    /** 挖空句；例句缺失或挖不到目标词时为 null，前端跳过阶段 B */
+    fill: {
+        stem: string
+        targetWord: string
+        lemma: string
+        hint?: string
+    } | null
+}
+
+/** 新学判题阶段 */
+export type NewAttemptPhase = 'CHOICE' | 'FILL'
+
+export const getNewWordPack = (count: number): Promise<NewWordPackVO[]> => {
+    return get('/exercise/vocabulary/new-words', { count })
+}
+
+export const attemptNewWord = (data: {
+    wordId: number
+    phase: NewAttemptPhase
+    userAnswer: string
+}): Promise<{ isCorrect: boolean; correctAnswer: string }> => {
+    return post('/exercise/vocabulary/new-words/attempt', data)
+}
+
+export const completeNewWords = (items: { wordId: number; passed: boolean }[]): Promise<number> => {
+    return post('/exercise/vocabulary/new-words/complete', { items })
+}
+
 // ========== 单词事件历史 ==========
 
 export interface UserWordLearnLogVO {

@@ -822,9 +822,6 @@ export default {
     stageA: 'Stage 1 · Word Meaning',
     stageB: 'Stage 2 · Fill in the Blank',
     hint: 'Hint',
-    play: 'Play pronunciation',
-    recalled: 'Recalled',
-    notRecalled: 'Not yet',
     streak: 'Streak {current} / {total}',
     correct: 'Correct',
     wrong: 'Try again',
@@ -847,7 +844,6 @@ export default {
     tapToSpeak: 'Tap the word to hear it',
     showAnswer: 'Show answer',
     onlyWrong: 'Only misspelled',
-    skipAfterAnswer: 'Show answer and skip',
   },
   listening: {
     title: 'Listening Practice',

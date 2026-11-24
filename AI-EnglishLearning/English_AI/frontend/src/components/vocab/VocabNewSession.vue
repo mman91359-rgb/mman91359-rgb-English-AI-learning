@@ -117,9 +117,6 @@
         <p class="mt-1 font-body-md text-body-md text-on-surface">
           {{ $t('vocabNew.correctAnswer') }}：{{ feedback.correctAnswer }}
         </p>
-        <button v-if="stage === 'B' && !feedback.correct" :class="[btnSecondaryBlock, 'mt-4']" @click="skipFill">
-          {{ $t('vocabNew.skipAfterAnswer') }}
-        </button>
       </div>
 
       <!-- 底部统一按钮位：答题前「看答案」→ 答题后「下一词」；B 阶段仅答后出「下一词」 -->
@@ -329,7 +326,7 @@ const markFamiliarCurrent = async () => {
     await markFamiliar(saved.id, userId, true)
     familiarizedIds.value = [...familiarizedIds.value, word.wordId]
     toast(t('vocabNew.familiarDone'), 'success')
-    dropCurrentAndAdvance()
+    await dropCurrentAndAdvance()
   } catch (e) {
     toast(e instanceof Error ? e.message : t('vocabNew.familiarFailed'), 'error')
   } finally {
@@ -407,21 +404,20 @@ const submitFill = async () => {
   }
 }
 
-/** B 填错防卡死：显示答案后跳过（不标记 passed，词出队） */
-const skipFill = () => {
-  feedback.value = { ...(feedback.value ?? { correct: false, correctAnswer: '' }), correct: true }
-  nextWord()
-}
-
 /** 当前词离队后的队列推进（标熟也走这里：不记 passed、不进 B） */
-const dropCurrentAndAdvance = () => {
+const dropCurrentAndAdvance = async () => {
   if (!currentWord.value) return
   feedback.value = null
   fillAnswer.value = ''
   if (stage.value === 'A') {
     queueA.value = queueA.value.slice(1)
+    if (queueA.value.length === 0) {
+      await saveGroup()
+      enterStageB()
+    }
   } else {
     queueB.value = queueB.value.slice(1)
+    if (queueB.value.length === 0) finished.value = true
   }
 }
 
@@ -445,8 +441,13 @@ const nextWord = async () => {
     }
   } else {
     queueB.value = queueB.value.slice(1)
-    if (correct) markPassed(word)
-    if (queueB.value.length === 0) finished.value = true
+    if (correct) {
+      markPassed(word)
+      if (queueB.value.length === 0) finished.value = true
+    } else {
+      // 填错回队尾重填，直到填对才离开（像不背单词拼写）
+      queueB.value = [...queueB.value, word]
+    }
   }
 }
 
